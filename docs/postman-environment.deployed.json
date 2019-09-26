@@ -1,0 +1,19 @@
+{
+	"id": "44287ed6-a8d7-4ff3-a6fd-6dd33777eb02",
+	"name": "Deployed STAC-CMR proxy",
+	"values": [
+		{
+			"key": "protocol",
+			"value": "",
+			"enabled": true
+		},
+		{
+			"key": "host",
+			"value": "",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2019-09-20T09:24:37.492Z",
+	"_postman_exported_using": "Postman/7.7.3"
+}

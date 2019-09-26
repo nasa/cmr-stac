@@ -1,0 +1,19 @@
+{
+	"id": "3132b5f8-e103-45f1-8589-d629eaf28cb6",
+	"name": "Local STAC-CMR-Proxy",
+	"values": [
+		{
+			"key": "protocol",
+			"value": "",
+			"enabled": true
+		},
+		{
+			"key": "host",
+			"value": "",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2019-09-20T09:24:46.000Z",
+	"_postman_exported_using": "Postman/7.7.3"
+}

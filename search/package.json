@@ -1,0 +1,50 @@
+{
+  "name": "search",
+  "version": "1.0.0",
+  "description": "A lambda that implements the STAC and WFS specifications as a CMR Proxy",
+  "main": "lib/application.js",
+  "repository": "https://github.com/Element84/cmr-stac-api-proxy",
+  "author": "Element 84",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "ajv": "6.5.1",
+    "aws-serverless-express": "3.3.6",
+    "axios": "0.18.1",
+    "express": "4.17.1",
+    "js-yaml": "3.13.1",
+    "lodash": "4.17.15",
+    "mime-types": "2.1.19",
+    "winston": "3.2.1"
+  },
+  "devDependencies": {
+    "core-js": "^3.1.4",
+    "eslint": "^6.1.0",
+    "husky": "^3.0.4",
+    "jest": "^24.8.0",
+    "lint-staged": "^9.2.3",
+    "redoc-cli": "^0.8.6",
+    "serverless": "^1.49.0",
+    "serverless-offline": "^5.8.0"
+  },
+  "scripts": {
+    "start": "sls offline",
+    "deploy": "sls deploy",
+    "lint": "eslint ./lib/** ./tests/** --fix",
+    "test": "jest",
+    "build:docs": "redoc-cli bundle \"docs/WFS3core+STAC.yaml\" -o docs/index.html --cdn --title \"STAC\"",
+    "ci": "npm run lint && npm run test"
+  },
+  "lint-staged": {
+    "./lib/**": [
+      "npm run --silent lint"
+    ],
+    "./tests/**": [
+      "npm run --silent ci"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}
