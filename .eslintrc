@@ -1,6 +1,0 @@
-{
-  "extends": "semistandard",
-  "env": {
-    "jest": true
-  }
-}
