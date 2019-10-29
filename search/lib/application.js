@@ -1,6 +1,7 @@
 const express = require('express');
 const awsServerless = require('aws-serverless-express');
 const awsServerlessMiddleware = require('aws-serverless-express/middleware');
+const settings = require('./settings');
 
 const api = require('./api');
 const { errorHandler } = require('./error-handler');
@@ -13,7 +14,7 @@ async function initialize () {
 
   application.use(express.json());
   application.use(awsServerlessMiddleware.eventContext());
-  application.use(api.routes);
+  application.use(settings.relativeRootUrl, api.routes);
   application.use(errorHandler);
 
   application.logger = logger;

@@ -23,9 +23,9 @@ function getSettings () {
     settings = {};
     settings.logger = getLoggerSettings();
     settings.stac = getStacSettings();
-
     settings.stage = process.env.STAGE || '';
     settings.stageUrl = settings.stage ? `/${settings.stage}` : '';
+    settings.relativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '';
   }
   return settings;
 }

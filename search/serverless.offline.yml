@@ -22,6 +22,11 @@ functions:
       STAC_BASE_URL: http://localhost:3000
       STAC_VERSION: 0.8.0
       STAGE: ${self:provider.stage}
+      CMR_SEARCH_HOST: cmr.earthdata.nasa.gov
+      CMR_SEARCH_RELATIVE_ROOT_URL: /search
+      CMR_SEARCH_PROTOCOL : https
+      CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
+
 
 plugins:
   - serverless-offline

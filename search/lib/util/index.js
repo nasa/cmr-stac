@@ -25,9 +25,15 @@ function createSecureUrl (host, path, queryParams) {
     .build();
 }
 
+function getKeyCaseInsensitive(object, key) {
+  return object[Object.keys(object)
+    .find(k => k.toLowerCase() === key.toLowerCase())
+  ];
+}
+
 function generateAppUrl (event, path, queryParams = null) {
-  const host = event.headers.Host;
-  const protocol = event.headers['X-Forwarded-Proto'] || 'http';
+  const host = getKeyCaseInsensitive(event.headers, 'Host');
+  const protocol = getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
   const newPath = settings.stageUrl ? `${settings.stageUrl}/${path}` : path;
   const url = protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 
@@ -50,6 +56,7 @@ module.exports = {
   createSecureUrl,
   generateAppUrl,
   generateSelfUrl,
+  getKeyCaseInsensitive,
   identity,
   WfsLink,
   createLogger,
