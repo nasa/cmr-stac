@@ -25,7 +25,8 @@
     "redoc-cli": "^0.8.6",
     "serverless": "^1.49.0",
     "serverless-offline": "^5.8.0",
-    "serverless-pseudo-parameters": "^2.5.0"
+    "serverless-pseudo-parameters": "^2.5.0",
+    "serverless-plugin-log-subscription": "^1.2.0"
   },
   "scripts": {
     "start": "sls offline --config serverless.offline.yml",

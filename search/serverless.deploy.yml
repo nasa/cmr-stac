@@ -18,6 +18,8 @@ custom:
     uat: cmr.uat.earthdata.nasa.gov${self:custom.cmrStacRelativeRootUrl}
     prod: cmr.earthdata.nasa.gov${self:custom.cmrStacRelativeRootUrl}
     default: http://${cf:${opt:stage}.servicesDnsName}${self:custom.cmrStacRelativeRootUrl}
+  logSubscription:
+      destinationArn: ${cf:${opt:stage}.logForwardingArn}
 
 functions:
   search-api:
@@ -29,6 +31,7 @@ functions:
           priority: 84
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
+    logSubscription: true
     environment:
       LOG_LEVEL: info
       LOG_DISABLED: false
@@ -60,3 +63,4 @@ resources:
                 - "sts:AssumeRole"
 plugins:
   - serverless-pseudo-parameters
+  - serverless-plugin-log-subscription
