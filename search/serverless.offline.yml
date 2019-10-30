@@ -25,7 +25,6 @@ functions:
       CMR_SEARCH_HOST: cmr.earthdata.nasa.gov
       CMR_SEARCH_RELATIVE_ROOT_URL: /search
       CMR_SEARCH_PROTOCOL : https
-      CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
 
 
 plugins:
