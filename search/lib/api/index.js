@@ -17,8 +17,8 @@ function createRootResponse (event) {
     ]
   };
 }
-  
-function createRootRedirect(response, event) {
+
+function createRootRedirect (response, event) {
   response.redirect(`${getKeyCaseInsensitive(event.headers, 'host')}${settings.relativeRootUrl}${settings.stageUrl}/docs/index.html`);
 }
 

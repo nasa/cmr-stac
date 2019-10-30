@@ -3,9 +3,9 @@ const axios = require('axios');
 const { UrlBuilder } = require('../util/url-builder');
 const { parseOrdinateString, identity, logger } = require('../util');
 
-const cmrSearchHost = process.env.CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov'
-const cmrSearchRelativeRootUrl = process.env.CMR_SEARCH_RELATIVE_ROOT_URL || '/search'
-const cmrSearchProtocol = process.env.CMR_SEARCH_PROTOCOL || 'https'
+const cmrSearchHost = process.env.CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov';
+const cmrSearchRelativeRootUrl = process.env.CMR_SEARCH_RELATIVE_ROOT_URL || '/search';
+const cmrSearchProtocol = process.env.CMR_SEARCH_PROTOCOL || 'https';
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],

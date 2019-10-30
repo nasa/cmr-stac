@@ -25,7 +25,7 @@ function createSecureUrl (host, path, queryParams) {
     .build();
 }
 
-function getKeyCaseInsensitive(object, key) {
+function getKeyCaseInsensitive (object, key) {
   return object[Object.keys(object)
     .find(k => k.toLowerCase() === key.toLowerCase())
   ];
