@@ -19,11 +19,11 @@ functions:
           path: ${self:custom.cmrStacRelativeRoot}/{proxy+}
           method: any
     environment:
-      LOG_LEVEL: info
-      LOG_DISABLED: false
-      STAC_BASE_URL: http://localhost:3000
-      STAC_VERSION: 0.8.0
+      CMR_STAC_BASE_URL: http://localhost:3000
       CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRoot}
+      LOG_DISABLED: false
+      LOG_LEVEL: info
+      STAC_VERSION: 0.8.0
 
 plugins:
   - serverless-offline

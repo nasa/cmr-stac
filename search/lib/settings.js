@@ -14,7 +14,7 @@ function getStacSettings () {
 
   stacSettings.version = process.env.STAC_VERSION || '0.8.0';
   stacSettings.relativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || ''
-  baseUrl = process.env.STAC_BASE_URL || 'http://localhost:3000';
+  baseUrl = process.env.CMR_STAC_BASE_URL || 'http://localhost:3000';
   stacSettings.baseUrl = `${baseUrl}${stacSettings.relativeRootUrl}/stac`
 
   return stacSettings;

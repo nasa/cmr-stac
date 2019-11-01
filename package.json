@@ -19,6 +19,8 @@
     "eslint-plugin-standard": "^4.0.0",
     "jest": "^24.8.0",
     "serverless": "^1.49.0",
-    "serverless-offline": "^5.8.0"
+    "serverless-offline": "^5.8.0",
+    "serverless-plugin-log-subscription": "^1.2.0",
+    "serverless-pseudo-parameters": "^2.5.0"
   }
 }

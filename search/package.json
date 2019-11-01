@@ -24,11 +24,14 @@
     "lint-staged": "^9.2.3",
     "redoc-cli": "^0.8.6",
     "serverless": "^1.49.0",
-    "serverless-offline": "^5.8.0"
+    "serverless-offline": "^5.8.0",
+    "serverless-plugin-log-subscription": "^1.2.0",
+    "serverless-pseudo-parameters": "^2.5.0"
   },
   "scripts": {
-    "start": "sls offline",
-    "deploy": "sls deploy",
+    "start": "sls offline --config serverless.offline.yml",
+    "deploy": "sls deploy --config serverless.deploy.yml",
+    "remove": "sls remove --config serverless.deploy.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
     "test": "jest",
     "build:docs": "redoc-cli bundle \"docs/WFS3core+STAC.yaml\" -o docs/index.html --cdn --title \"STAC\"",
