@@ -5,7 +5,7 @@ const cmr = require('../cmr');
 const cmrConverter = require('../convert');
 const { createRootCatalog, Catalog } = require('../stac').catalog;
 
-const { logger } = require('../util');
+const { createRedirectUrl, logger } = require('../util');
 
 async function search (event, params) {
   const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
@@ -65,7 +65,7 @@ routes.post('/stac/search', (req, res) => postSearch(req, res));
 
 routes.get('/stac', (req, res) => getRootCatalog(req, res));
 routes.get('/stac/:catalogId', (req, res) => getCatalog(req, res));
-routes.get('/stac/:catalogId/:collectionId', (req, res) => res.redirect(`/collections/${req.params.collectionId}`));
+routes.get('/stac/:catalogId/:collectionId', (req, res) => res.redirect(createRedirectUrl(req.apiGateway.event, `/collections/${req.params.collectionId}`)));
 
 module.exports = {
   getSearch,

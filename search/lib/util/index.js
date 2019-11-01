@@ -7,7 +7,7 @@ const { createLogger } = require('./logger');
 
 const logger = createLogger(settings.logger);
 
-function createUrl (host, path, queryParams) {
+function createUrl (host, protocol, path, queryParams) {
   return UrlBuilder.create()
     .withProtocol('http')
     .withHost(host)
@@ -16,19 +16,31 @@ function createUrl (host, path, queryParams) {
     .build();
 }
 
-function createSecureUrl (host, path, queryParams) {
-  return UrlBuilder.create()
-    .withProtocol('https')
-    .withHost(host)
-    .withPath(path)
-    .withQuery(queryParams)
-    .build();
+function getKeyCaseInsensitive (object, key) {
+  return object[Object.keys(object)
+    .find(k => k.toLowerCase() === key.toLowerCase())
+  ];
+}
+
+function getHostHeader(event) {
+  return getKeyCaseInsensitive(event.headers, 'host');
+}
+
+function getProtoHeader(event) {
+  return getKeyCaseInsensitive(event.headers, 'CloudFront-Forwarded-Proto') || getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
+}
+
+function createRedirectUrl(event, redirectPath) {
+  const host = getHostHeader(event);
+  const protocol = getProtoHeader(event);
+  const url = `${protocol}://${host}${settings.relativeRootUrl}${redirectPath}`
+  return url
 }
 
 function generateAppUrl (event, path, queryParams = null) {
-  const host = event.headers.Host;
-  const protocol = event.headers['X-Forwarded-Proto'] || 'http';
-  const url = protocol === 'https' ? createSecureUrl(host, path, queryParams) : createUrl(host, path, queryParams);
+  const host = getHostHeader(event);
+  const protocol = getProtoHeader(event);
+  const url = createUrl(host, protocol, path, queryParams);
 
   logger.debug(`Generated URL: ${url}`);
 
@@ -46,7 +58,7 @@ function identity (x) {
 module.exports = {
   ...app,
   createUrl,
-  createSecureUrl,
+  createRedirectUrl,
   generateAppUrl,
   generateSelfUrl,
   identity,
