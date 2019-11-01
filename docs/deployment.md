@@ -26,9 +26,6 @@ There are some environment variables included in the `serverless.yml` file for t
 - LOG_DISABLED: false
 - STAC_BASE_URL: http://localhost:3000
 - STAC_VERSION: 0.8.0
-- STAGE: `${self:provider.stage}` 
-
-STAGE is the AWS API Gateway `stage` that the application is being deployed. That by default is a setting in the `serverless.yml` file that environment variable will reference. 
 
 The application uses node modules to execute build, test, and deploy scripts that are included with the project.
 
@@ -41,4 +38,3 @@ The application uses node modules to execute build, test, and deploy scripts tha
 - `npm run deploy -- --aws-profile <profile-name>` if AWS credential account is not default
 
 This will run through the serverless deployment and provide console output for the status. If successful, the script will provide you with configuration and deployment information.
-

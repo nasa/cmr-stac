@@ -73,7 +73,6 @@ describe('collections', () => {
         eo_cloud_cover: 2
       },
       requestContext: {
-        stage: 'early'
       }
     };
 
@@ -83,7 +82,6 @@ describe('collections', () => {
       },
       queryStringParameters: {},
       requestContext: {
-        stage: 'early'
       }
     };
 
@@ -93,18 +91,6 @@ describe('collections', () => {
 
     it('should return a search url with no params', () => {
       expect(stacSearchWithCurrentParams(otherEvent, collID)).toEqual('http://example.com/stac/search?collectionId=landsat-8-l1');
-    });
-
-    it('should return a search url with a stage and params', () => {
-      settings.stageUrl = 'early';
-      expect(stacSearchWithCurrentParams(awsEvent, collID)).toEqual('http://amazonaws.com/early/stac/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
-      settings.stageUrl = '';
-    });
-
-    it('should return a search url with a stage and no params', () => {
-      settings.stageUrl = 'early';
-      expect(stacSearchWithCurrentParams(anotherAwsEvent, collID)).toEqual('http://amazonaws.com/early/stac/search?collectionId=landsat-8-l1');
-      settings.stageUrl = '';
     });
   });
 

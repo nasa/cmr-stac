@@ -65,7 +65,7 @@ routes.post('/stac/search', (req, res) => postSearch(req, res));
 
 routes.get('/stac', (req, res) => getRootCatalog(req, res));
 routes.get('/stac/:catalogId', (req, res) => getCatalog(req, res));
-routes.get('/stac/:catalogId/:collectionId', (req, res) => res.redirect(`${settings.stageUrl}/collections/${req.params.collectionId}`));
+routes.get('/stac/:catalogId/:collectionId', (req, res) => res.redirect(`/collections/${req.params.collectionId}`));
 
 module.exports = {
   getSearch,
