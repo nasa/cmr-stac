@@ -50,7 +50,7 @@ describe('cmr', () => {
     });
 
     it('should take in a url and a params object', async () => {
-      const error = new Error('Missing url or parameters');
+      const error = new Error('Missing path or parameters');
       expect.assertions(1);
       try {
         await cmrSearch();
@@ -60,9 +60,9 @@ describe('cmr', () => {
     });
 
     it('should return a cmr collection', async () => {
-      cmrSearch('https://example.com', { has_granules: true, downloadable: true });
+      cmrSearch('collections.json', { has_granules: true, downloadable: true });
       expect(axios.get.mock.calls.length).toBe(1);
-      expect(axios.get.mock.calls[0][0]).toBe('https://example.com');
+      expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
       expect(axios.get.mock.calls[0][1]).toEqual({ headers: { 'Client-Id': 'cmr-stac-api-proxy' }, params: { has_granules: true, downloadable: true } });
     });
   });
