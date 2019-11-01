@@ -1,0 +1,77 @@
+service: cmr-stac-api
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: us-east-1
+  role: cmrStacRole
+  deploymentBucket: ${cf:${opt:stage}.cmrStacDeploymentBucket}
+  vpc:
+    securityGroupIds:
+      - ${cf:${opt:stage}.servicesSecurityGroupId}
+    subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
+
+custom:
+  cmrStacRelativeRootUrl: /cmr-stac
+  options:
+    cmrHost:
+      sit: cmr.sit.earthdata.nasa.gov
+      uat: cmr.uat.earthdata.nasa.gov
+      prod: cmr.earthdata.nasa.gov
+      default: ${cf:${opt:stage}.servicesDnsName}
+    cmrProtocol:
+      sit: https
+      uat: https
+      prod: https
+      default: http
+  cmrHost: ${self:custom.options.cmrHost.${opt:stage}, self:custom.options.cmrHost.default}
+  cmrProtocol: ${self:custom.options.cmrProtocol.${opt:stage}, self:custom.options.cmrProtocol.default}
+  logSubscription:
+      destinationArn: ${cf:${opt:stage}.logForwardingArn}
+
+functions:
+  search-api:
+    name: cmr-stac-${opt:stage}
+    handler: lib/application.handler
+    events:
+      - alb:
+          listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
+          priority: 84
+          conditions:
+            path: ${self:custom.cmrStacRelativeRootUrl}*
+    logSubscription: true
+    environment:
+      CMR_SEARCH_HOST: ${cf:${opt:stage}.servicesDnsName}
+      CMR_SEARCH_PROTOCOL : http
+      CMR_SEARCH_RELATIVE_ROOT_URL: /search
+      CMR_STAC_BASE_URL: ${self:custom.cmrProtocol}://${self:custom.cmrHost}
+      CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
+      LOG_DISABLED: false
+      LOG_LEVEL: info
+      PUBLIC_CMR_SEARCH_HOST: ${self:custom.cmrHost}
+      PUBLIC_CMR_SEARCH_PROTOCOL: ${self:custom.cmrProtocol}
+      PUBLIC_CMR_SEARCH_RELATIVE_ROOT_URL: /search
+      STAC_VERSION: 0.8.0
+
+resources:
+  Resources:
+    cmrStacRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: cmrStacRole-${opt:stage}
+        PermissionsBoundary: arn:aws:iam::#{AWS::AccountId}:policy/NGAPShRoleBoundary
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+plugins:
+  - serverless-pseudo-parameters
+  - serverless-plugin-log-subscription
