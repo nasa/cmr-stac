@@ -55,4 +55,24 @@ describe('generateAppUrl', () => {
     event.headers['X-Forwarded-Proto'] = 'https';
     expect(generateAppUrl(event, path)).toBe('https://example.com/path/to/resource');
   });
+
+  it('should ignore case for protocol header.', () => {
+    event.headers['x-ForWARDed-PrOTo'] = 'https';
+    expect(generateAppUrl(event, path)).toBe('https://example.com/path/to/resource');
+  });
+
+  it('should ignore case for protocol header.', () => {
+    let caseHeader = {headers: {hOsT: 'example.com'}};
+    expect(generateAppUrl(caseHeader, path)).toBe('http://example.com/path/to/resource');
+  });
+
+  it('should create url with relative root.', () => {
+    settings.stac.relativeRootUrl = '/cmr-stac';
+    expect(generateAppUrl(event, path)).toBe('http://example.com/cmr-stac/path/to/resource');
+  });
+
+  it('should not add relative root when relative root already present in path.', () => {
+    settings.stac.relativeRootUrl = '/cmr-stac';
+    expect(generateAppUrl(event, '/cmr-stac/path/to/resource')).toBe('http://example.com/cmr-stac/path/to/resource');
+  });
 });

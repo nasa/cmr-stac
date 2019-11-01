@@ -13,7 +13,9 @@ function getStacSettings () {
   const stacSettings = {};
 
   stacSettings.version = process.env.STAC_VERSION || '0.8.0';
-  stacSettings.baseUrl = process.env.STAC_BASE_URL || 'http://localhost:3000/stac';
+  stacSettings.relativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || ''
+  baseUrl = process.env.STAC_BASE_URL || 'http://localhost:3000';
+  stacSettings.baseUrl = `${baseUrl}${stacSettings.relativeRootUrl}/stac`
 
   return stacSettings;
 }
@@ -23,7 +25,6 @@ function getSettings () {
     settings = {};
     settings.logger = getLoggerSettings();
     settings.stac = getStacSettings();
-    settings.relativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || ''
   }
   return settings;
 }

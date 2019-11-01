@@ -7,12 +7,13 @@ const { createLogger } = require('./logger');
 
 const logger = createLogger(settings.logger);
 
-function createUrl (host, protocol, path, queryParams) {
+function createUrl (host, protocol, path, queryParams, relativeRootUrl = '') {
   return UrlBuilder.create()
-    .withProtocol('http')
+    .withProtocol(protocol)
     .withHost(host)
     .withPath(path)
     .withQuery(queryParams)
+    .withRelativeRootUrl(relativeRootUrl)
     .build();
 }
 
@@ -33,14 +34,19 @@ function getProtoHeader(event) {
 function createRedirectUrl(event, redirectPath) {
   const host = getHostHeader(event);
   const protocol = getProtoHeader(event);
-  const url = `${protocol}://${host}${settings.relativeRootUrl}${redirectPath}`
-  return url
+  const url = `${protocol}://${host}${settings.stac.relativeRootUrl}${redirectPath}`;
+  return url;
 }
 
 function generateAppUrl (event, path, queryParams = null) {
   const host = getHostHeader(event);
   const protocol = getProtoHeader(event);
-  const url = createUrl(host, protocol, path, queryParams);
+  hasRelativeRoot = path ? path.match(`^${settings.stac.relativeRootUrl}`) : false;
+  if (hasRelativeRoot) {
+    url = createUrl(host, protocol, path, queryParams);
+  } else {
+    url = createUrl(host, protocol, path, queryParams, settings.stac.relativeRootUrl);
+  }
 
   logger.debug(`Generated URL: ${url}`);
 
