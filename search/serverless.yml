@@ -5,21 +5,25 @@ provider:
   runtime: nodejs10.x
   region: us-east-1
 
+custom:
+  cmrStacRelativeRoot: /cmr-stac
+
 functions:
   search-api:
     handler: lib/application.handler
     events:
       - http:
-          path: /
+          path: ${self:custom.cmrStacRelativeRoot}
           method: GET
       - http:
-          path: /{proxy+}
+          path: ${self:custom.cmrStacRelativeRoot}/{proxy+}
           method: any
     environment:
       LOG_LEVEL: info
       LOG_DISABLED: false
       STAC_BASE_URL: http://localhost:3000
       STAC_VERSION: 0.8.0
+      CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRoot}
 
 plugins:
   - serverless-offline

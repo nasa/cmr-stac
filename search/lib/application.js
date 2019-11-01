@@ -13,7 +13,7 @@ async function initialize () {
 
   application.use(express.json());
   application.use(awsServerlessMiddleware.eventContext());
-  application.use(api.routes);
+  application.use('/cmr-stac', api.routes);
   application.use(errorHandler);
 
   application.logger = logger;

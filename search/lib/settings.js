@@ -23,6 +23,7 @@ function getSettings () {
     settings = {};
     settings.logger = getLoggerSettings();
     settings.stac = getStacSettings();
+    settings.relativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || ''
   }
   return settings;
 }
