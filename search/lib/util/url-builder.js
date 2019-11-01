@@ -6,6 +6,7 @@ class UrlBuilder {
   constructor () {
     this.protocol = 'http';
     this.path = '';
+    this.relativeRootUrl = '';
   }
 
   withProtocol (protocol) {
@@ -34,11 +35,16 @@ class UrlBuilder {
     return this;
   }
 
+  withRelativeRootUrl (root) {
+    this.relativeRootUrl = root;
+    return this;
+  }
+
   build () {
     if (!this.host) throw new Error('Missing hostname in UrlBuilder');
 
-    const baseUrl = `${this.protocol}://${this.host}${this.path}`;
-    return this.queryString ? `${baseUrl}?${this.queryString}` : `${baseUrl}`;
+      const baseUrl = `${this.protocol}://${this.host}${this.relativeRootUrl}${this.path}`;
+      return this.queryString ? `${baseUrl}?${this.queryString}` : `${baseUrl}`;
   }
 }
 
