@@ -18,6 +18,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
     "jest": "^24.8.0",
+    "jest-junit": "^9.0.0",
     "serverless": "^1.49.0",
     "serverless-offline": "^5.8.0",
     "serverless-plugin-log-subscription": "^1.2.0",
