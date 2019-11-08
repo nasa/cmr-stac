@@ -1521,7 +1521,4 @@ components:
           schema:
             type: string
 servers:
-  - url: 'http://dev.cool-sat.com'
-    description: Development server
-  - url: 'http://www.cool-sat.com'
-    description: Production server
+  - url: {serverUrl}

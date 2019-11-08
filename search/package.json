@@ -35,7 +35,7 @@
     "remove": "sls remove --config serverless.deploy.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
     "test": "jest",
-    "build:docs": "redoc-cli bundle \"docs/WFS3core+STAC.yaml\" -o docs/index.html --cdn --title \"STAC\"",
+    "build:docs": "redoc-cli bundle \"docs/WFS3core+STAC.yaml\" -o docs/index.html --cdn --title \"STAC\" --options.requiredPropsFirst",
     "ci": "npm run lint && npm run test"
   },
   "lint-staged": {
