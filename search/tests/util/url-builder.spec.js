@@ -62,14 +62,6 @@ describe('UrlBuilder', () => {
     expect(url).toBe('http://example.com');
   });
 
-  it('should create url with relative root.', () => {
-    const url = UrlBuilder.create()
-      .withHost('example.com')
-      .withRelativeRootUrl('/test')
-      .build();
-    expect(url).toBe('http://example.com/test');
-  });
-
   it('should create a url with a path.', () => {
     const url = UrlBuilder.create()
       .withHost('example.com')

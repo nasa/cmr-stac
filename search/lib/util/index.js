@@ -7,46 +7,29 @@ const { createLogger } = require('./logger');
 
 const logger = createLogger(settings.logger);
 
-function createUrl (host, protocol, path, queryParams, relativeRootUrl = '') {
+function createUrl (host, path, queryParams) {
   return UrlBuilder.create()
-    .withProtocol(protocol)
+    .withProtocol('http')
     .withHost(host)
     .withPath(path)
     .withQuery(queryParams)
-    .withRelativeRootUrl(relativeRootUrl)
     .build();
 }
 
-function getKeyCaseInsensitive (object, key) {
-  return object[Object.keys(object)
-    .find(k => k.toLowerCase() === key.toLowerCase())
-  ];
-}
-
-function getHostHeader(event) {
-  return getKeyCaseInsensitive(event.headers, 'host');
-}
-
-function getProtoHeader(event) {
-  return getKeyCaseInsensitive(event.headers, 'CloudFront-Forwarded-Proto') || getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
-}
-
-function createRedirectUrl(event, redirectPath) {
-  const host = getHostHeader(event);
-  const protocol = getProtoHeader(event);
-  const url = `${protocol}://${host}${settings.stac.relativeRootUrl}${redirectPath}`;
-  return url;
+function createSecureUrl (host, path, queryParams) {
+  return UrlBuilder.create()
+    .withProtocol('https')
+    .withHost(host)
+    .withPath(path)
+    .withQuery(queryParams)
+    .build();
 }
 
 function generateAppUrl (event, path, queryParams = null) {
-  const host = getHostHeader(event);
-  const protocol = getProtoHeader(event);
-  hasRelativeRoot = path ? path.match(`^${settings.stac.relativeRootUrl}`) : false;
-  if (hasRelativeRoot) {
-    url = createUrl(host, protocol, path, queryParams);
-  } else {
-    url = createUrl(host, protocol, path, queryParams, settings.stac.relativeRootUrl);
-  }
+  const host = event.headers.Host;
+  const protocol = event.headers['X-Forwarded-Proto'] || 'http';
+  const newPath = settings.stageUrl ? `${settings.stageUrl}/${path}` : path;
+  const url = protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 
   logger.debug(`Generated URL: ${url}`);
 
@@ -64,7 +47,7 @@ function identity (x) {
 module.exports = {
   ...app,
   createUrl,
-  createRedirectUrl,
+  createSecureUrl,
   generateAppUrl,
   generateSelfUrl,
   identity,

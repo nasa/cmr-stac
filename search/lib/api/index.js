@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 
 const settings = require('../settings');
-const { WfsLink, createRedirectUrl, generateAppUrl, logger } = require('../util');
+const { WfsLink, generateAppUrl, logger } = require('../util');
 
 const stac = require('./stac');
 const wfs = require('./wfs');
@@ -24,7 +24,7 @@ routes.use(stac.routes);
 routes.use(wfs.routes);
 routes.use('/docs', express.static(path.join(__dirname, '../../docs')));
 routes.use('/', (req, res) =>
-  req.accepts('html') === 'html' ? res.redirect(createRedirectUrl(req.apiGateway.event, `/docs/index.html`)) : res.status(200).json(createRootResponse(req.apiGateway.event)));
+  req.accepts('html') === 'html' ? res.redirect(`${settings.stageUrl}/docs/index.html`) : res.status(200).json(createRootResponse(req.apiGateway.event)));
 
 module.exports = {
   routes

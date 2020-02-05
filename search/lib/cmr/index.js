@@ -3,13 +3,6 @@ const axios = require('axios');
 const { UrlBuilder } = require('../util/url-builder');
 const { parseOrdinateString, identity, logger } = require('../util');
 
-const publicCmrSearchHost = process.env.PUBLIC_CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov';
-const publicCmrSearchProtocol = process.env.PUBLIC_CMR_SEARCH_PROTOCOL || 'https';
-const publicCmrSearchRelativeRootUrl = process.env.PUBLIC_CMR_SEARCH_RELATIVE_ROOT_URL || '/search';
-const cmrSearchHost = process.env.CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov';
-const cmrSearchProtocol = process.env.CMR_SEARCH_PROTOCOL || 'https';
-const cmrSearchRelativeRootUrl = process.env.CMR_SEARCH_RELATIVE_ROOT_URL || '/search';
-
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],
   time: ['temporal', identity],
@@ -30,11 +23,10 @@ const WFS_PARAMS_CONVERSION_MAP = {
   limit: ['page_size', _.identity]
 };
 
-const makeCmrSearchUrl = (path, queryParams = null, isPublic = true) => {
+const makeCmrSearchUrl = (path, queryParams = null) => {
   return UrlBuilder.create()
-    .withProtocol(isPublic ? publicCmrSearchProtocol : cmrSearchProtocol)
-    .withHost(isPublic ? publicCmrSearchHost : cmrSearchHost)
-    .withRelativeRootUrl(isPublic ? publicCmrSearchRelativeRootUrl : cmrSearchRelativeRootUrl)
+    .withProtocol('https')
+    .withHost('cmr.earthdata.nasa.gov/search')
     .withPath(path)
     .withQuery(queryParams)
     .build();
@@ -44,9 +36,8 @@ const headers = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
-async function cmrSearch (path, params) {
-  if (!path || !params) throw new Error('Missing path or parameters');
-  const url = makeCmrSearchUrl(path, null, false);
+async function cmrSearch (url, params) {
+  if (!url || !params) throw new Error('Missing url or parameters');
   logger.debug(`CMR Search: ${url} with params: ${params}`);
   return axios.get(url, { params, headers });
 }
@@ -54,7 +45,7 @@ async function cmrSearch (path, params) {
 async function findCollections (params = {}) {
   params.has_granules = true;
   params.downloadable = true;
-  const response = await cmrSearch('/collections.json', params);
+  const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), params);
   return response.data.feed.entry;
 }
 
@@ -65,7 +56,7 @@ async function getCollection (conceptId) {
 }
 
 async function findGranules (params = {}) {
-  const response = await cmrSearch('/granules.json', params);
+  const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), params);
   return response.data.feed.entry;
 }
 

@@ -51,28 +51,15 @@ describe('generateAppUrl', () => {
     expect(generateAppUrl(event, path, params)).toBe('http://example.com/path/to/resource?param=test');
   });
 
+  it('should add stage if header exists.', () => {
+    event.headers.Host = 'amazonaws.com';
+    settings.stageUrl = 'dev';
+    expect(generateAppUrl(event, path, params)).toBe('http://amazonaws.com/dev/path/to/resource?param=test');
+    settings.stageUrl = '';
+  });
+
   it('should create a secure url if event has secure protocol.', () => {
     event.headers['X-Forwarded-Proto'] = 'https';
     expect(generateAppUrl(event, path)).toBe('https://example.com/path/to/resource');
-  });
-
-  it('should ignore case for protocol header.', () => {
-    event.headers['x-ForWARDed-PrOTo'] = 'https';
-    expect(generateAppUrl(event, path)).toBe('https://example.com/path/to/resource');
-  });
-
-  it('should ignore case for protocol header.', () => {
-    let caseHeader = {headers: {hOsT: 'example.com'}};
-    expect(generateAppUrl(caseHeader, path)).toBe('http://example.com/path/to/resource');
-  });
-
-  it('should create url with relative root.', () => {
-    settings.stac.relativeRootUrl = '/cmr-stac';
-    expect(generateAppUrl(event, path)).toBe('http://example.com/cmr-stac/path/to/resource');
-  });
-
-  it('should not add relative root when relative root already present in path.', () => {
-    settings.stac.relativeRootUrl = '/cmr-stac';
-    expect(generateAppUrl(event, '/cmr-stac/path/to/resource')).toBe('http://example.com/cmr-stac/path/to/resource');
   });
 });
