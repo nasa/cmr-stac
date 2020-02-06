@@ -61,8 +61,8 @@ async function getCatalog (request, response) {
 
 const routes = express.Router();
 
-routes.get('/stac/search', (req, res) => getSearch(req, res));
-routes.post('/stac/search', (req, res) => postSearch(req, res));
+routes.get('/stac/search', (req, res, next) => getSearch(req, res).catch(next));
+routes.post('/stac/search', (req, res, next) => postSearch(req, res).catch(next));
 
 routes.get('/stac', (req, res) => getRootCatalog(req, res));
 routes.get('/stac/:catalogId', (req, res) => getCatalog(req, res));
