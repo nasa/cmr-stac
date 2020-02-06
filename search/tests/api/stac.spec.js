@@ -60,7 +60,7 @@ describe('postSearch', () => {
 
 describe('getRootCatalog', () => {
   it('should respond with a rootCatalog.', () => {
-    const mockRequest = { app: { logger: logger } };
+    const mockRequest = { app: { logger: logger }, apiGateway: { event: { headers: { host: 'example.com' } } } };
     const mockResponse = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -73,19 +73,19 @@ describe('getRootCatalog', () => {
       id: 'root',
       links: [
         {
-          href: 'http://localhost:3000/stac',
+          href: 'http://example.com/cmr-stac/stac',
           rel: 'root',
           title: 'Root Catalog',
           type: 'application/json'
         },
         {
-          href: 'http://localhost:3000/stac',
+          href: 'http://example.com/cmr-stac/stac',
           rel: 'self',
           title: 'Root Catalog',
           type: 'application/json'
         },
         {
-          href: 'http://localhost:3000/stac/default',
+          href: 'http://example.com/cmr-stac/stac/default',
           rel: 'child',
           title: 'Default Catalog',
           type: 'application/json'
@@ -123,25 +123,25 @@ describe('getCatalog', () => {
         {
           rel: 'root',
           type: 'application/json',
-          href: 'http://localhost:3000/stac',
+          href: 'http://example.com/cmr-stac/stac',
           title: 'Root Catalog'
         },
         {
           rel: 'self',
           type: 'application/json',
-          href: 'http://localhost:3000/stac/default',
+          href: 'http://example.com/cmr-stac/stac/default',
           title: 'Default Catalog'
         },
         {
           rel: 'child',
           type: 'application/json',
-          href: 'http://localhost:3000/stac/default/C12145-SCIOPS',
+          href: 'http://example.com/cmr-stac/stac/default/C12145-SCIOPS',
           title: 'Test Title'
         }
       ]
     };
 
-    await getCatalog({ params: { catalogId: 'default' } }, mockResponse);
+    await getCatalog({ params: { catalogId: 'default' }, apiGateway: { event: { headers: { host: 'example.com' } } } }, mockResponse);
 
     expect(cmr.findCollections).toHaveBeenCalled();
     expect(mockResponse.json).toHaveBeenCalledWith(expected);

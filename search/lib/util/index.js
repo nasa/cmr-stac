@@ -54,7 +54,7 @@ function createSecureUrl (host, path, queryParams) {
 function generateAppUrl (event, path, queryParams = null) {
   const host = getHostHeader(event);
   const protocol = getProtoHeader(event);
-  const newPath = `${settings.cmrStacRelativeRootUrl}${path}`;
+  const newPath = path ? `${settings.cmrStacRelativeRootUrl}${path}` : settings.cmrStacRelativeRootUrl;
   const url = protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 
   logger.debug(`Generated URL: ${url}`);

@@ -33,7 +33,7 @@ describe('wfs routes', () => {
         collections: [[]],
         links: [
           {
-            href: 'http://example.com/collections',
+            href: 'http://example.com/cmr-stac/collections',
             rel: 'self',
             title: 'this document',
             type: 'application/json'

@@ -16,7 +16,7 @@ describe('createRootCatalog', () => {
   it('should create a catalog with a self link.', () => {
     const selfLink = rootCatalog.links.find((link) => link.rel === 'self');
     expect(selfLink).toBeDefined();
-    expect(selfLink.href).toBe('http://localhost:3000/stac');
+    expect(selfLink.href).toBe('/cmr-stac/stac');
     expect(selfLink.type).toBe('application/json');
     expect(selfLink.title).toBe('Root Catalog');
   });
@@ -48,6 +48,6 @@ describe('createRootCatalog', () => {
     rootCatalog.addChild('Default Catalog', '/default');
     const childLink = rootCatalog.links.find((link) => link.rel === 'child');
     expect(childLink).toBeDefined();
-    expect(childLink.href).toBe('http://localhost:3000/stac/default');
+    expect(childLink.href).toBe('/cmr-stac/stac/default');
   });
 });

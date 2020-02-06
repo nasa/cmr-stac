@@ -186,11 +186,11 @@ describe('granuleToItem', () => {
         links: {
           self: {
             rel: 'self',
-            href: 'http://example.com/collections/10/items/1'
+            href: 'http://example.com/cmr-stac/collections/10/items/1'
           },
           parent: {
             rel: 'parent',
-            href: 'http://example.com/collections/10'
+            href: 'http://example.com/cmr-stac/collections/10'
           },
           metadata: {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
@@ -213,7 +213,7 @@ describe('granuleToItem', () => {
       time_end: 1,
       links: [
         {
-          href: 'http://example.com/collections/id',
+          href: 'http://example.com/cmr-stac/collections/id',
           rel: 'self',
           title: 'Info about this collection',
           type: 'application/json'
@@ -240,11 +240,11 @@ describe('granuleToItem', () => {
           links: {
             self: {
               rel: 'self',
-              href: 'http://example.com/collections/10/items/1'
+              href: 'http://example.com/cmr-stac/collections/10/items/1'
             },
             parent: {
               rel: 'parent',
-              href: 'http://example.com/collections/10'
+              href: 'http://example.com/cmr-stac/collections/10'
             },
             metadata: {
               href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
@@ -255,8 +255,8 @@ describe('granuleToItem', () => {
           }
         }],
         links: {
-          self: 'http://example.com',
-          next: 'http://example.com?page_num=2'
+          self: 'http://example.com/cmr-stac',
+          next: 'http://example.com/cmr-stac?page_num=2'
         }
       });
     });

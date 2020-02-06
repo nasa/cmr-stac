@@ -65,11 +65,11 @@ describe('collections', () => {
     };
 
     it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID)).toEqual('http://example.com/stac/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(event, collID)).toEqual('http://example.com/cmr-stac/stac/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
     });
 
     it('should return a search url with no params', () => {
-      expect(stacSearchWithCurrentParams(otherEvent, collID)).toEqual('http://example.com/stac/search?collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(otherEvent, collID)).toEqual('http://example.com/cmr-stac/stac/search?collectionId=landsat-8-l1');
     });
   });
 
@@ -123,12 +123,12 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/collections/id',
+            href: 'http://example.com/cmr-stac/collections/id',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/stac/search?collectionId=id',
+            href: 'http://example.com/cmr-stac/stac/search?collectionId=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
@@ -138,7 +138,7 @@ describe('collections', () => {
             title: 'CMR Search this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/collections/id/items',
+            href: 'http://example.com/cmr-stac/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
