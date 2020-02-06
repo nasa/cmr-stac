@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const cmr = require('../cmr');
 const { pointStringToPoints, parseOrdinateString } = require('./bounding-box');
-const { generateAppUrl, wfs, extractParam, generateSelfUrl } = require('../util');
+const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
   const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
@@ -117,7 +117,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
   const nextPage = currPage + 1;
   const newParams = { ...event.queryStringParameters } || {};
   newParams.page_num = nextPage;
-  const nextResultsLink = generateAppUrl(event, event.path, newParams);
+  const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
 
   return {
     type: 'FeatureCollection',
