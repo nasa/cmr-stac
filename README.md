@@ -27,7 +27,7 @@ This application is a monorepo around a set of microservices that support the ST
 ### Deploying
 
 - cd `search`
-- `npm run deploy`
+- `npm run deploy -- --stage <sit|uat|prod> --cmr-search-host <cmr-search-host> --cmr-search-protocol <http|https>`
 
 ## License
 
