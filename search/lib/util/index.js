@@ -51,10 +51,10 @@ function createSecureUrl (host, path, queryParams) {
     .build();
 }
 
-function generateAppUrl (event, path, queryParams = null) {
+function generateAppUrlWithoutRelativeRoot (event, path, queryParams = null) {
   const host = getHostHeader(event);
   const protocol = getProtoHeader(event);
-  const newPath = path ? `${settings.cmrStacRelativeRootUrl}${path}` : settings.cmrStacRelativeRootUrl;
+  const newPath = path || '';
   const url = protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 
   logger.debug(`Generated URL: ${url}`);
@@ -62,8 +62,13 @@ function generateAppUrl (event, path, queryParams = null) {
   return url;
 }
 
+function generateAppUrl (event, path, queryParams = null) {
+  const newPath = path ? `${settings.cmrStacRelativeRootUrl}${path}` : settings.cmrStacRelativeRootUrl;
+  return generateAppUrlWithoutRelativeRoot(event, newPath, queryParams);
+}
+
 function generateSelfUrl (event) {
-  return generateAppUrl(event, event.path, event.queryStringParameters);
+  return generateAppUrlWithoutRelativeRoot(event, event.path, event.queryStringParameters);
 }
 
 function identity (x) {
@@ -76,6 +81,7 @@ module.exports = {
   createUrl,
   createSecureUrl,
   generateAppUrl,
+  generateAppUrlWithoutRelativeRoot,
   generateSelfUrl,
   getStacBaseUrl,
   identity,

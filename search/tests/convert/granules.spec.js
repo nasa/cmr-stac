@@ -223,7 +223,7 @@ describe('granuleToItem', () => {
       points: ['77,39']
     }];
 
-    const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
+    const event = { headers: { Host: 'example.com' }, path: '/cmr-stac', queryStringParameters: [] };
 
     it('should return a cmrGranule to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
