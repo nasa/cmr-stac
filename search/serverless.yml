@@ -3,25 +3,57 @@ service: cmr-stac-api
 provider:
   name: aws
   runtime: nodejs10.x
-  stage: dev
   region: us-east-1
+  role: cmrStacRole
+  deploymentBucket: ${cf:${opt:stage}.cmrStacDeploymentBucket}
+  vpc:
+    securityGroupIds:
+      - ${cf:${opt:stage}.servicesSecurityGroupId}
+    subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
+
+custom:
+  cmrStacRelativeRootUrl: /cmr-stac
+  logSubscription:
+      destinationArn: ${cf:${opt:stage}.logForwardingArn}
 
 functions:
   search-api:
+    name: cmr-stac-${opt:stage}
     handler: lib/application.handler
     events:
-      - http:
-          path: /
-          method: GET
-      - http:
-          path: /{proxy+}
-          method: any
+      - alb:
+          listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
+          priority: 84
+          conditions:
+            path: ${self:custom.cmrStacRelativeRootUrl}*
+    logSubscription: true
     environment:
-      LOG_LEVEL: info
+      CMR_SEARCH_HOST: ${opt:cmr-search-host, 'cmr.earthdata.nasa.gov/search'}
+      CMR_SEARCH_PROTOCOL: ${opt:cmr-search-protocol, 'https'}
+      CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
       LOG_DISABLED: false
-      STAC_BASE_URL: http://localhost:3000
+      LOG_LEVEL: info
       STAC_VERSION: 0.8.0
-      STAGE: ${self:provider.stage}
 
+resources:
+  Resources:
+    cmrStacRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: cmrStacRole-${opt:stage}
+        PermissionsBoundary: arn:aws:iam::#{AWS::AccountId}:policy/NGAPShRoleBoundary
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            -
+              Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
 plugins:
-  - serverless-offline
+  - serverless-pseudo-parameters
+  - serverless-plugin-log-subscription

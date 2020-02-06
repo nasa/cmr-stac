@@ -5,7 +5,7 @@ describe('createRootCatalog', () => {
   let rootCatalog;
 
   beforeEach(() => {
-    rootCatalog = createRootCatalog();
+    rootCatalog = createRootCatalog('/cmr-stac/stac');
   });
 
   it('should contain a collection of links.', () => {

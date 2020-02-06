@@ -1,0 +1,25 @@
+service: cmr-stac-api
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  stage: dev
+  region: us-east-1
+
+functions:
+  search-api:
+    handler: lib/application.handler
+    events:
+      - http:
+          path: /
+          method: GET
+      - http:
+          path: /{proxy+}
+          method: any
+    environment:
+      LOG_LEVEL: info
+      LOG_DISABLED: false
+      STAC_VERSION: 0.8.0
+
+plugins:
+  - serverless-offline

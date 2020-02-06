@@ -7,6 +7,32 @@ const { createLogger } = require('./logger');
 
 const logger = createLogger(settings.logger);
 
+function getKeyCaseInsensitive (object, key) {
+  return object[Object.keys(object)
+    .find(k => k.toLowerCase() === key.toLowerCase())
+  ];
+}
+
+function getHostHeader (event) {
+  return getKeyCaseInsensitive(event.headers, 'host');
+}
+
+function getProtoHeader (event) {
+  return getKeyCaseInsensitive(event.headers, 'CloudFront-Forwarded-Proto') || getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
+}
+
+function createRedirectUrl (event, redirectPath) {
+  const host = getHostHeader(event);
+  const protocol = getProtoHeader(event);
+  return `${protocol}://${host}${settings.cmrStacRelativeRootUrl}${redirectPath}`;
+}
+
+function getStacBaseUrl (event) {
+  const host = getHostHeader(event);
+  const protocol = getProtoHeader(event);
+  return `${protocol}://${host}${settings.cmrStacRelativeRootUrl}${settings.stac.stacRelativePath}`;
+}
+
 function createUrl (host, path, queryParams) {
   return UrlBuilder.create()
     .withProtocol('http')
@@ -26,9 +52,9 @@ function createSecureUrl (host, path, queryParams) {
 }
 
 function generateAppUrl (event, path, queryParams = null) {
-  const host = event.headers.Host;
-  const protocol = event.headers['X-Forwarded-Proto'] || 'http';
-  const newPath = settings.stageUrl ? `${settings.stageUrl}/${path}` : path;
+  const host = getHostHeader(event);
+  const protocol = getProtoHeader(event);
+  const newPath = `${settings.cmrStacRelativeRootUrl}${path}`;
   const url = protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 
   logger.debug(`Generated URL: ${url}`);
@@ -46,10 +72,12 @@ function identity (x) {
 
 module.exports = {
   ...app,
+  createRedirectUrl,
   createUrl,
   createSecureUrl,
   generateAppUrl,
   generateSelfUrl,
+  getStacBaseUrl,
   identity,
   WfsLink,
   createLogger,

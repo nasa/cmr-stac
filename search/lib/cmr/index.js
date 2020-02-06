@@ -2,6 +2,7 @@ const _ = require('lodash');
 const axios = require('axios');
 const { UrlBuilder } = require('../util/url-builder');
 const { parseOrdinateString, identity, logger } = require('../util');
+const settings = require('../settings');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],
@@ -25,8 +26,8 @@ const WFS_PARAMS_CONVERSION_MAP = {
 
 const makeCmrSearchUrl = (path, queryParams = null) => {
   return UrlBuilder.create()
-    .withProtocol('https')
-    .withHost('cmr.earthdata.nasa.gov/search')
+    .withProtocol(settings.cmrSearchProtocol)
+    .withHost(settings.cmrSearchHost)
     .withPath(path)
     .withQuery(queryParams)
     .build();

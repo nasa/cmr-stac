@@ -13,7 +13,7 @@ function getStacSettings () {
   const stacSettings = {};
 
   stacSettings.version = process.env.STAC_VERSION || '0.8.0';
-  stacSettings.baseUrl = process.env.STAC_BASE_URL || 'http://localhost:3000/stac';
+  stacSettings.stacRelativePath = process.env.STAC_RELATIVE_PATH || '/stac';
 
   return stacSettings;
 }
@@ -24,8 +24,9 @@ function getSettings () {
     settings.logger = getLoggerSettings();
     settings.stac = getStacSettings();
 
-    settings.stage = process.env.STAGE || '';
-    settings.stageUrl = settings.stage ? `/${settings.stage}` : '';
+    settings.cmrStacRelativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/cmr-stac';
+    settings.cmrSearchHost = process.env.CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov/search';
+    settings.cmrSearchProtocol = process.env.CMR_SEARCH_PROTOCOL || 'https';
   }
   return settings;
 }
