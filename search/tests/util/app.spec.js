@@ -1,4 +1,3 @@
-const settings = require('../../lib/settings');
 const { firstIfArray } = require('../../lib/util');
 
 describe('firstIfArray', () => {
@@ -49,13 +48,6 @@ describe('generateAppUrl', () => {
 
   it('should create a URL based on event input with proper query params.', () => {
     expect(generateAppUrl(event, path, params)).toBe('http://example.com/path/to/resource?param=test');
-  });
-
-  it('should add stage if header exists.', () => {
-    event.headers.Host = 'amazonaws.com';
-    settings.stageUrl = 'dev';
-    expect(generateAppUrl(event, path, params)).toBe('http://amazonaws.com/dev/path/to/resource?param=test');
-    settings.stageUrl = '';
   });
 
   it('should create a secure url if event has secure protocol.', () => {

@@ -27,7 +27,7 @@ class Catalog {
   }
 }
 
-function createRootCatalog () {
+function createRootCatalog (stacBaseUrl) {
   const rootCatalog = new Catalog();
 
   rootCatalog.stac_version = settings.stac.version;
@@ -35,8 +35,8 @@ function createRootCatalog () {
   rootCatalog.title = 'Root Catalog';
   rootCatalog.description = 'Generated root catalog for CMR.';
 
-  rootCatalog.createRoot(settings.stac.baseUrl);
-  rootCatalog.createSelf(settings.stac.baseUrl);
+  rootCatalog.createRoot(stacBaseUrl);
+  rootCatalog.createSelf(stacBaseUrl);
 
   logger.debug(inspect(rootCatalog));
 
