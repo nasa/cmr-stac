@@ -1,35 +1,35 @@
 const { addPointsToBbox, mergeBoxes } = require('../../lib/convert/bounding-box');
 
 describe('bbox', () => {
-  const testBbox = [-10, 10, 10, -10];
-  const testBbox2 = [-20, 7, 44, 10];
-  const points = [[20, 100], [5, -5]];
-  const lotsOfPoints = [[20, 100], [5, -5], [-40, 73]];
-  const WHOLE_WORLD_BBOX = [-180, 90, 180, -90];
+  const testBbox = [-10, -10, 10, 10];
+  const testBbox2 = [-20, 10, 44, 7];
+  const points = [[100, 20], [5, -5]];
+  const lotsOfPoints = [[100, 20], [5, -5], [-40, 73]];
+  const WHOLE_WORLD_BBOX = [-180, -90, 180, 90];
 
   describe('addPointsToBbox', () => {
     it('should create the largest bbox', () => {
-      expect(addPointsToBbox(testBbox, points)).toEqual([-10, 20, 100, -10]);
+      expect(addPointsToBbox(testBbox, points)).toEqual([-10, -10, 100, 20]);
     });
 
     it('should return the largest box possible from points', () => {
-      expect(addPointsToBbox([], points)).toEqual([-5, 20, 100, 5]);
+      expect(addPointsToBbox([], points)).toEqual([5, -5, 100, 20]);
     });
 
     it('should return the biggest box possible from lotsOfPoints', () => {
-      expect(addPointsToBbox([], lotsOfPoints)).toEqual([-5, 20, 100, -40]);
+      expect(addPointsToBbox([], lotsOfPoints)).toEqual([-40, -5, 100, 73]);
     });
 
     it('should return the largest box possible from points', () => {
-      expect(addPointsToBbox(null, points)).toEqual([-5, 20, 100, 5]);
+      expect(addPointsToBbox(null, points)).toEqual([5, -5, 100, 20]);
     });
 
     it('should return the biggest box possible from lotsOfPoints', () => {
-      expect(addPointsToBbox(null, lotsOfPoints)).toEqual([-5, 20, 100, -40]);
+      expect(addPointsToBbox(null, lotsOfPoints)).toEqual([-40, -5, 100, 73]);
     });
 
     it('should return the largest box', () => {
-      expect(addPointsToBbox(testBbox, lotsOfPoints)).toEqual([-10, 20, 100, -40]);
+      expect(addPointsToBbox(testBbox, lotsOfPoints)).toEqual([-40, -10, 100, 73]);
     });
 
     it('should return the WHOLE_WORLD_BOX', () => {
@@ -37,7 +37,7 @@ describe('bbox', () => {
     });
 
     it('should work.', () => {
-      expect(addPointsToBbox([1, 2, 3, 4], [[5, 6], [7, 8]])).toEqual([1, 7, 8, 4]);
+      expect(addPointsToBbox([1, 2, 3, 4], [[5, 6], [7, 8]])).toEqual([1, 2, 7, 8]);
     });
   });
 
@@ -51,7 +51,7 @@ describe('bbox', () => {
     });
 
     it('should return a mix of the two testBoxes, making the largest possible box', () => {
-      expect(mergeBoxes(testBbox, testBbox2)).toEqual([-20, 10, 44, -10]);
+      expect(mergeBoxes(testBbox, testBbox2)).toEqual([-20, -10, 44, 10]);
     });
   });
 });
