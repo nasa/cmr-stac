@@ -217,10 +217,10 @@ describe('granuleToItem', () => {
     const cmrGran = [{
       id: 1,
       stac_version: '0.8.0',
-        license: {
-          name: 'Apache License 2.0',
-          url: 'http://www.apache.org/licenses/LICENSE-2.0'
-        },
+      license: {
+        name: 'Apache License 2.0',
+        url: 'http://www.apache.org/licenses/LICENSE-2.0'
+      },
       collection_concept_id: 10,
       dataset_id: 'datasetId',
       summary: 'summary',
