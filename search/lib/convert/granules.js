@@ -87,7 +87,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   if (opendapLink) {
     assets.opendap = linkToAsset(opendapLink);
   }
-  
+
   return {
     type: 'Feature',
     id: cmrGran.id,
