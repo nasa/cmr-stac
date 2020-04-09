@@ -3,7 +3,7 @@ const cmr = require('../cmr');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
-// const stacSpec = require('../../docs/WFS3core+STAC.yaml')
+
 const { pointStringToPoints, parseOrdinateString } = require('./bounding-box');
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
 

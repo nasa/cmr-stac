@@ -71,6 +71,10 @@ describe('getRootCatalog', () => {
       title: 'Root Catalog',
       description: 'Generated root catalog for CMR.',
       id: 'root',
+      license: {
+        name: 'Apache License 2.0',
+        url: 'http://www.apache.org/licenses/LICENSE-2.0'
+      },
       links: [
         {
           href: 'http://example.com/cmr-stac/stac',
@@ -117,6 +121,10 @@ describe('getCatalog', () => {
     const expected = {
       stac_version: '0.8.0',
       id: 'default',
+      license: {
+        name: 'Apache License 2.0',
+        url: 'http://www.apache.org/licenses/LICENSE-2.0'
+      },
       title: 'Default Catalog',
       description: 'Default catalog for a no parameter search against common metadata repository.',
       links: [
