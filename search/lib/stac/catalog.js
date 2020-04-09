@@ -8,14 +8,13 @@ const settings = require('../settings');
 const { logger } = require('../util');
 const link = require('./link');
 
-
 const fileContent = fs.readFileSync(path.resolve(__dirname, '../../docs/WFS3core+STAC.yaml'));
 const stacData = yaml.safeLoad(fileContent);
 
 class Catalog {
   constructor () {
-    this.stac_version = stacData.info.version
-    this.license = stacData.info.license
+    this.stac_version = stacData.info.version;
+    this.license = stacData.info.license;
     this.id = '';
     this.title = '';
     this.description = '';
