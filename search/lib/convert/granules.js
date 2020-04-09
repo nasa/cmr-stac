@@ -1,9 +1,7 @@
 const _ = require('lodash');
 const cmr = require('../cmr');
-const fs = require('fs');
-const path = require('path');
-const yaml = require('js-yaml');
 
+const settings = require('../settings')
 const { pointStringToPoints, parseOrdinateString } = require('./bounding-box');
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
 
@@ -92,14 +90,11 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     assets.opendap = linkToAsset(opendapLink);
   }
 
-  const fileContent = fs.readFileSync(path.resolve(__dirname, '../../docs/WFS3core+STAC.yaml'));
-  const stacData = yaml.safeLoad(fileContent);
-
   return {
     type: 'Feature',
     id: cmrGran.id,
-    stac_version: stacData.info.version,
-    license: stacData.info.license,
+    stac_version: settings.stac.version,
+    license: settings.stac.license,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
     links: {
       self: {
