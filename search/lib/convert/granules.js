@@ -87,11 +87,12 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   if (opendapLink) {
     assets.opendap = linkToAsset(opendapLink);
   }
-
+  
   return {
     type: 'Feature',
     id: cmrGran.id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
+    bbox: cmrGran.boxes,
     links: {
       self: {
         rel: 'self',
