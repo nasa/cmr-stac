@@ -29,7 +29,7 @@ function createSchemaValidator (schema) {
   return ajv.compile(schema);
 }
 
-function validateSchema (componentName, dataObject, yamlSchemaFile = '../../docs/WFS3core+STAC.yaml') {
+function validateSchema (componentName, dataObject, yamlSchemaFile = '../../docs/OAcore+STAC.yaml') {
   if (!componentName || !dataObject) throw new Error('Missing parameters');
   const load = loadOpenApiYaml(yamlSchemaFile);
   const schemaCollection = getSchemaCollection(load);
