@@ -154,11 +154,6 @@ describe('granuleToItem', () => {
   describe('cmrGranToFeatureGeoJSON', () => {
     const cmrGran = {
       id: 1,
-      stac_version: '0.8.0',
-      license: {
-        name: 'Apache License 2.0',
-        url: 'http://www.apache.org/licenses/LICENSE-2.0'
-      },
       collection_concept_id: 10,
       dataset_id: 'datasetId',
       summary: 'summary',
@@ -182,11 +177,6 @@ describe('granuleToItem', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
         id: 1,
-        stac_version: '0.8.0',
-        license: {
-          name: 'Apache License 2.0',
-          url: 'http://www.apache.org/licenses/LICENSE-2.0'
-        },
         geometry: { type: 'Point', coordinates: [77, 39] },
         properties: {
           provider: 'USA',
@@ -218,11 +208,6 @@ describe('granuleToItem', () => {
   describe('cmrGranulesToFeatureCollection', () => {
     const cmrGran = [{
       id: 1,
-      stac_version: '0.8.0',
-      license: {
-        name: 'Apache License 2.0',
-        url: 'http://www.apache.org/licenses/LICENSE-2.0'
-      },
       collection_concept_id: 10,
       dataset_id: 'datasetId',
       summary: 'summary',
@@ -247,11 +232,6 @@ describe('granuleToItem', () => {
         type: 'FeatureCollection',
         features: [{
           id: 1,
-          stac_version: '0.8.0',
-          license: {
-            name: 'Apache License 2.0',
-            url: 'http://www.apache.org/licenses/LICENSE-2.0'
-          },
           geometry: { type: 'Point', coordinates: [77, 39] },
           properties: {
             provider: 'USA',
