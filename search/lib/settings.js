@@ -13,6 +13,7 @@ function getStacSettings () {
   const stacSettings = {};
 
   stacSettings.version = process.env.STAC_VERSION || '0.8.0';
+  stacSettings.license = process.env.license || { name: 'Apache License 2.0', url: 'http://www.apache.org/licenses/LICENSE-2.0' };
   stacSettings.stacRelativePath = process.env.STAC_RELATIVE_PATH || '/stac';
 
   return stacSettings;
