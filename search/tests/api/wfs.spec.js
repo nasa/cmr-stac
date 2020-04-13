@@ -92,7 +92,7 @@ describe('wfs routes', () => {
 
       expect(cmr.findGranules).toHaveBeenCalled();
       expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
-      expect(response.json).toHaveBeenCalledWith({ features: [{ response: 'okay' }] });
+      expect(response.json).toHaveBeenCalledWith({ features: [{ response: 'okay' }], "links": {"next": "http://example.com?page_num=2", "self": "http://example.com"}, "type": "FeatureCollection" });
 
       revertFunction(cmr, 'findGranules');
       revertFunction(convert, 'cmrGranToFeatureGeoJSON');

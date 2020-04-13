@@ -6,7 +6,6 @@ const link = require('./link');
 
 class Catalog {
   constructor () {
-    this.type = 'FeatureCollection';
     this.id = '';
     this.title = '';
     this.description = '';
