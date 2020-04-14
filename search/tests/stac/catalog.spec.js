@@ -21,6 +21,15 @@ describe('createRootCatalog', () => {
     expect(selfLink.title).toBe('Root Catalog');
   });
 
+  it('should create a catalog with a self link that does not contain a question mark.', () => {
+    const newRootCatalog = createRootCatalog('/cmr-stac/stac?')
+    const selfLink = newRootCatalog.links.find((link) => link.rel === 'self');
+    expect(selfLink).toBeDefined()
+    expect(selfLink.href).toBe('/cmr-stac/stac');
+    expect(selfLink.type).toBe('application/json');
+    expect(selfLink.title).toBe('Root Catalog');
+  })
+
   it('should create a catalog with a root link to itself.', () => {
     const selfLink = rootCatalog.links.find((link) => link.rel === 'self');
     const rootLink = rootCatalog.links.find((link) => link.rel === 'root');

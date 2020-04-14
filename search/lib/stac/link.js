@@ -14,7 +14,10 @@ function createRoot (title, href, type) {
   return create(RELATION_TYPES.root, title, href, type);
 }
 
-function createSelf (title, href, type) {
+function createSelf (title, href = '', type) {
+  if (href.includes('?')) {
+    return create(RELATION_TYPES.self, title, href.slice(0, -1), type);
+  }
   return create(RELATION_TYPES.self, title, href, type);
 }
 
