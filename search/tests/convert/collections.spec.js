@@ -14,14 +14,14 @@ describe('collections', () => {
       cmrCollection = {
         polygons: [['30 -10 70 33 -45 66']]
       };
-      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-10, 70, 66, -45]);
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-45, -10, 70, 66]);
     });
 
     it('should return a bounding box from given points', () => {
       cmrCollection = {
         points: ['30 -10', '70 33', '-45 66']
       };
-      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-10, 70, 66, -45]);
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-45, -10, 70, 66]);
     });
 
     it('should throw an error if given lines', () => {
@@ -111,9 +111,9 @@ describe('collections', () => {
           crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
           spatial: [
             -180,
-            90,
+            -90,
             180,
-            -90
+            90
           ],
           temporal: [
             0,
