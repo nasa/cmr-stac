@@ -3,7 +3,8 @@ const RELATION_TYPES = {
   root: 'root',
   parent: 'parent',
   child: 'child',
-  item: 'item'
+  item: 'item',
+  next: 'next'
 };
 
 const MEDIA_TYPES = {
@@ -30,6 +31,10 @@ function createItem (title, href, type) {
   return create(RELATION_TYPES.item, title, href, type);
 }
 
+function createNext(title, href, type) {
+  return create(RELATION_TYPES.next, title, href, type)
+}
+
 function create (rel, title, href, type = MEDIA_TYPES.json) {
   return { rel, title, href, type };
 }
@@ -42,5 +47,6 @@ module.exports = {
   createParent,
   createChild,
   createItem,
+  createNext,
   create
 };
