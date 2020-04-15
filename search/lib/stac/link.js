@@ -31,8 +31,8 @@ function createItem (title, href, type) {
   return create(RELATION_TYPES.item, title, href, type);
 }
 
-function createNext(title, href, type) {
-  return create(RELATION_TYPES.next, title, href, type)
+function createNext (title, href, type) {
+  return create(RELATION_TYPES.next, title, href, type);
 }
 
 function create (rel, title, href, type = MEDIA_TYPES.json) {
