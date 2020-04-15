@@ -27,7 +27,7 @@ class Catalog {
   }
 
   addNext (title, relativeUrl) {
-    const root = this.links.find((l) => l.rel === this.links.RELATION_TYPES.next);
+    const root = this.links.find((l) => l.rel === this.links.RELATION_TYPES.child);
     const next = link.createNext(title, `${root.href}${relativeUrl}`);
     this.links.push(next);
   }

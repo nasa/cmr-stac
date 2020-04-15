@@ -50,4 +50,11 @@ describe('createRootCatalog', () => {
     expect(childLink).toBeDefined();
     expect(childLink.href).toBe('/cmr-stac/stac/default');
   });
+
+  it('should be able to add a next rel to pagination links', () => {
+    rootCatalog.addChild('Pagination Link', '/provider');
+    const paginationLink = rootCatalog.links.find((link) => link.rel === 'child');
+    expect(paginationLink).toBeDefined();
+    expect(paginationLink.href).toBe('/cmr-stac/stac/provider');
+  });
 });
