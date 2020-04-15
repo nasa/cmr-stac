@@ -98,7 +98,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     type: 'Feature',
     id: cmrGran.id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
-    links: {
+    links: [{
       self: {
         rel: 'self',
         href: generateAppUrl(event,
@@ -109,7 +109,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
         href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
       },
       metadata: wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
-    },
+    }],
     properties: {
       provider: cmrGran.data_center,
       datetime,
@@ -130,10 +130,10 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
   return {
     type: 'FeatureCollection',
     features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
-    links: {
+    links: [{
       self: generateSelfUrl(event),
       next: nextResultsLink
-    }
+    }]
   };
 }
 
