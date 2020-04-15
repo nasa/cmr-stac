@@ -135,8 +135,8 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
     features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
     links: [
       {
-      self: generateSelfUrl(event),
-      next: nextResultsLink
+        self: generateSelfUrl(event),
+        next: nextResultsLink
       }
     ]
   };
