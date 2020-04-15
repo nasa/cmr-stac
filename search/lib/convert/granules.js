@@ -91,6 +91,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   return {
     type: 'Feature',
     id: cmrGran.id,
+    collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
     links: {
       self: {
