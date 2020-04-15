@@ -180,7 +180,9 @@ describe('granuleToItem', () => {
         geometry: { type: 'Point', coordinates: [77, 39] },
         properties: {
           provider: 'USA',
-          datetime: '0/1'
+          datetime: '0',
+          start_datetime: '0',
+          end_datetime: '1'
         },
         assets: {},
         links: {
@@ -233,7 +235,9 @@ describe('granuleToItem', () => {
           geometry: { type: 'Point', coordinates: [77, 39] },
           properties: {
             provider: 'USA',
-            datetime: '0/1'
+            datetime: '0',
+            start_datetime: '0',
+            end_datetime: '1'
           },
           type: 'Feature',
           assets: {},
