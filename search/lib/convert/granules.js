@@ -56,9 +56,15 @@ const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
 function cmrGranToFeatureGeoJSON (event, cmrGran) {
-  let datetime = cmrGran.time_start;
+  // eslint-disable-next-line camelcase
+  const datetime = cmrGran.time_start.toString();
+  // eslint-disable-next-line camelcase
+  const start_datetime = cmrGran.time_start.toString();
+  // eslint-disable-next-line camelcase
+  let end_datetime = cmrGran.time_start.toString();
   if (cmrGran.time_end) {
-    datetime = `${datetime}/${cmrGran.time_end}`;
+    // eslint-disable-next-line camelcase
+    end_datetime = cmrGran.time_end.toString();
   }
 
   const dataLink = _.first(
@@ -113,10 +119,11 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       },
       metadata: wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
     },
-
     properties: {
       provider: cmrGran.data_center,
-      datetime
+      datetime,
+      start_datetime,
+      end_datetime
     },
     assets
   };

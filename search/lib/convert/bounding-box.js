@@ -1,23 +1,23 @@
 const { chunk } = require('lodash');
 
-const WHOLE_WORLD_BBOX = [-180, 90, 180, -90];
+const WHOLE_WORLD_BBOX = [-180, -90, 180, 90];
 
 function addPointsToBbox (bbox, points) {
-  let w; let n; let e; let s;
+  let w; let s; let e; let n;
   if (bbox) {
-    [w, n, e, s] = bbox;
+    [w, s, e, n] = bbox;
   }
-  points.forEach(([lat, lon]) => {
+  points.forEach(([lon, lat]) => {
     if (w) {
       w = Math.min(w, lon);
-      n = Math.max(n, lat);
-      e = Math.max(e, lon);
       s = Math.min(s, lat);
+      e = Math.max(e, lon);
+      n = Math.max(n, lat);
     } else {
-      [w, n, e, s] = [lon, lat, lon, lat];
+      [w, s, e, n] = [lon, lat, lon, lat];
     }
   });
-  return [w, n, e, s];
+  return [w, s, e, n];
 }
 
 function mergeBoxes (box1, box2) {
@@ -26,9 +26,9 @@ function mergeBoxes (box1, box2) {
   }
   return [
     Math.min(box1[0], box2[0]),
-    Math.max(box1[1], box2[1]),
+    Math.min(box1[1], box2[1]),
     Math.max(box1[2], box2[2]),
-    Math.min(box1[3], box2[3])
+    Math.max(box1[3], box2[3])
   ];
 }
 
