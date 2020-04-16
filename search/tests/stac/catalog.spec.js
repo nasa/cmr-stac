@@ -54,9 +54,9 @@ describe('createRootCatalog', () => {
   it('should be able to add a next rel to pagination links', () => {
     rootCatalog = createRootCatalog('/cmr-stac/stac/provider');
     rootCatalog.addNext('Page 2', '/page/2');
-    const paginationLink = rootCatalog.links.find(link => link.rel === 'next')
+    const paginationLink = rootCatalog.links.find(link => link.rel === 'next');
     expect(paginationLink).toBeDefined();
-    expect(paginationLink.rel).toBe('next')
+    expect(paginationLink.rel).toBe('next');
     expect(paginationLink.href).toBe('/cmr-stac/stac/provider/page/2');
   });
 });
