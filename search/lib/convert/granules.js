@@ -97,6 +97,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   return {
     type: 'Feature',
     id: cmrGran.id,
+    collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
     bbox: cmrGran.boxes,
     links: {
@@ -108,6 +109,14 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       parent: {
         rel: 'parent',
         href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
+      },
+      collection: {
+        rel: 'collection',
+        href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
+      },
+      root: {
+        rel: 'root',
+        href: generateAppUrl(event)
       },
       metadata: wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
     },
