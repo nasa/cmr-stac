@@ -98,6 +98,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     type: 'Feature',
     id: cmrGran.id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
+    bbox: cmrGran.boxes,
     links: {
       self: {
         rel: 'self',
