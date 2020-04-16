@@ -52,9 +52,12 @@ describe('createRootCatalog', () => {
   });
 
   it('should be able to add a next rel to pagination links', () => {
-    rootCatalog.addChild('Pagination Link', '/provider');
-    const paginationLink = rootCatalog.links.find((link) => link.rel === 'child');
+    rootCatalog = createRootCatalog('/cmr-stac/stac/provider');
+    rootCatalog.addNext('Pagination Link', '/10');
+    const paginationLink = rootCatalog.links.find(link => link.rel === 'next')
+    console.log(paginationLink)
     expect(paginationLink).toBeDefined();
-    expect(paginationLink.href).toBe('/cmr-stac/stac/provider');
+    expect(paginationLink.rel).toBe('next')
+    expect(paginationLink.href).toBe('/cmr-stac/stac/provider/10');
   });
 });
