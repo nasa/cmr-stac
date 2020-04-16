@@ -43,10 +43,16 @@ async function getGranules (request, response) {
   const granulesResponse = {
     type: 'FeatureCollection',
     features: granules.map(gran => convert.cmrGranToFeatureGeoJSON(event, gran)),
-    links: {
-      self: generateSelfUrl(event),
-      next: nextResultsLink
-    }
+    links: [
+      {
+        rel: 'self',
+        href: generateSelfUrl(event),
+      },
+      {
+        rel: 'next',
+        href: nextResultsLink
+      }
+    ]
   };
   response.status(200).json(granulesResponse);
 }
