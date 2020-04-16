@@ -125,7 +125,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
   const nextPage = currPage + 1;
   const newParams = { ...event.queryStringParameters } || {};
   newParams.page_num = nextPage;
-  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams - 2)
+  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams - 2);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
   if (nextPage || currPage > 1) {
     return {
@@ -136,7 +136,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
         prev: prevResultsLink,
         next: nextResultsLink
       }
-    }
+    };
   }
   return {
     type: 'FeatureCollection',
