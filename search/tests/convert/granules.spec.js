@@ -256,14 +256,14 @@ describe('granuleToItem', () => {
               type: 'application/json',
               title: undefined
             }
-        ]
+          ]
         }],
         links: [
           {
-          self: 'http://example.com/cmr-stac',
-          next: 'http://example.com/cmr-stac?page_num=2'
+            self: 'http://example.com/cmr-stac',
+            next: 'http://example.com/cmr-stac?page_num=2'
           }
-        ] 
+        ]
       });
     });
   });
