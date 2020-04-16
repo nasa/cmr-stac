@@ -46,7 +46,7 @@ async function getGranules (request, response) {
     links: [
       {
         rel: 'self',
-        href: generateSelfUrl(event),
+        href: generateSelfUrl(event)
       },
       {
         rel: 'next',
