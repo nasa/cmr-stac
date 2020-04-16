@@ -185,22 +185,22 @@ describe('granuleToItem', () => {
           end_datetime: '1'
         },
         assets: {},
-        links: {
-          self: {
+        links: [
+          {
             rel: 'self',
             href: 'http://example.com/cmr-stac/collections/10/items/1'
           },
-          parent: {
+          {
             rel: 'parent',
             href: 'http://example.com/cmr-stac/collections/10'
           },
-          metadata: {
+          {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
             rel: 'metadata',
             type: 'application/json',
             title: undefined
           }
-        }
+        ]
       });
     });
   });
@@ -241,27 +241,29 @@ describe('granuleToItem', () => {
           },
           type: 'Feature',
           assets: {},
-          links: {
-            self: {
+          links: [
+            {
               rel: 'self',
               href: 'http://example.com/cmr-stac/collections/10/items/1'
             },
-            parent: {
+            {
               rel: 'parent',
               href: 'http://example.com/cmr-stac/collections/10'
             },
-            metadata: {
+            {
               href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
               rel: 'metadata',
               type: 'application/json',
               title: undefined
             }
-          }
+        ]
         }],
-        links: {
+        links: [
+          {
           self: 'http://example.com/cmr-stac',
           next: 'http://example.com/cmr-stac?page_num=2'
-        }
+          }
+        ] 
       });
     });
   });
