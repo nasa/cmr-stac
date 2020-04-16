@@ -25,6 +25,10 @@ describe('Link', () => {
     expect(link.createChild().rel).toBe('child');
   });
 
+  it('should be able to create a next link.', () => {
+    expect(link.createNext().rel).toBe('next');
+  });
+
   it('should be able to create an item link.', () => {
     expect(link.createItem().rel).toBe('item');
   });
