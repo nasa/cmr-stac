@@ -12,7 +12,7 @@ const extractParam = (queryStringParams, param, defaultVal = null) => {
 };
 
 // function createLink(rel, href, title, type = 'application/json') {
-  
+
 // }
 
 const createLink = (rel, href = '', title, type = 'application/json') => {
@@ -27,10 +27,10 @@ const createLink = (rel, href = '', title, type = 'application/json') => {
     type = 'application/xml';
   }
   if (href.includes('.html')) {
-    type = 'application/html'
+    type = 'application/html';
   }
 
-  return {'rel': rel, 'href': href, 'title': title, 'type': type}
+  return { rel: rel, href: href, title: title, type: type };
 };
 
 module.exports = {
