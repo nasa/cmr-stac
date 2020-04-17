@@ -123,11 +123,12 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
 function cmrGranulesToFeatureCollection (event, cmrGrans) {
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
+  const prevPage = currPage - 1
   const newParams = { ...event.queryStringParameters } || {};
   newParams.page_num = nextPage;
-  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams - 2);
+  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, prevPage);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
-  if (nextPage || currPage > 1) {
+  if (currPage > 1) {
     return {
       type: 'FeatureCollection',
       features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
