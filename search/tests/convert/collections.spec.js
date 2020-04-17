@@ -146,12 +146,12 @@ describe('collections', () => {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
             rel: 'overview',
             title: 'HTML metadata for collection',
-            type: 'application/json'
+            type: 'application/html'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.native',
             rel: 'metadata',
             title: 'Native metadata for collection',
-            type: 'application/json'
+            type: 'application/xml'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
             rel: 'metadata',

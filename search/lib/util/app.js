@@ -11,9 +11,27 @@ const extractParam = (queryStringParams, param, defaultVal = null) => {
   return defaultVal;
 };
 
-const createLink = (rel, href, title, type = 'application/json') => ({
-  href, rel, type, title
-});
+// function createLink(rel, href, title, type = 'application/json') {
+  
+// }
+
+const createLink = (rel, href = '', title, type = 'application/json') => {
+  if (href.includes('.txt') || href.includes('.text')) {
+    type = 'application/text';
+  }
+  if (href.includes('.native')) {
+    href.replace('.native', '.xml');
+    type = 'application/xml';
+  }
+  if (href.includes('.xml')) {
+    type = 'application/xml';
+  }
+  if (href.includes('.html')) {
+    type = 'application/html'
+  }
+
+  return {'rel': rel, 'href': href, 'title': title, 'type': type}
+};
 
 module.exports = {
   firstIfArray,

@@ -192,7 +192,7 @@ describe('granuleToItem', () => {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
             rel: 'metadata',
             title: undefined,
-            type: 'application/json'
+            type: 'application/xml'
           }
         },
         links: [
@@ -259,7 +259,7 @@ describe('granuleToItem', () => {
               href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
               rel: 'metadata',
               title: undefined,
-              type: 'application/json'
+              type: 'application/xml'
             }
           },
           links: [
