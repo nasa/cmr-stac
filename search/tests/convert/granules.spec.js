@@ -180,13 +180,21 @@ describe('granuleToItem', () => {
         id: 1,
         collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
+        bbox: undefined,
         properties: {
           provider: 'USA',
           datetime: '0',
           start_datetime: '0',
           end_datetime: '1'
         },
-        assets: {},
+        assets: {
+          "metadata": {
+            "href": "https://cmr.earthdata.nasa.gov/search/concepts/1.native",
+            "rel": "metadata",
+            "title": undefined,
+            "type": "application/json",
+          }
+        },
         links: [
           {
             rel: 'self',
@@ -203,12 +211,6 @@ describe('granuleToItem', () => {
           {
             rel: 'root',
             href: 'http://example.com/cmr-stac'
-          },
-          {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
-            rel: 'metadata',
-            type: 'application/json',
-            title: undefined
           }
         ]
       });
@@ -244,6 +246,7 @@ describe('granuleToItem', () => {
           id: 1,
           collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
+          bbox: undefined,
           properties: {
             provider: 'USA',
             datetime: '0',
@@ -251,7 +254,14 @@ describe('granuleToItem', () => {
             end_datetime: '1'
           },
           type: 'Feature',
-          assets: {},
+          assets: {
+            "metadata": {
+              "href": "https://cmr.earthdata.nasa.gov/search/concepts/1.native",
+              "rel": "metadata",
+              "title": undefined,
+              "type": "application/json",
+            }
+          },
           links: [
             {
               rel: 'self',
@@ -269,12 +279,6 @@ describe('granuleToItem', () => {
               rel: 'root',
               href: 'http://example.com/cmr-stac'
             },
-            {
-              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
-              rel: 'metadata',
-              type: 'application/json',
-              title: undefined
-            }
           ]
         }],
         links: [
