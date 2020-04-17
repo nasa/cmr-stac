@@ -188,11 +188,11 @@ describe('granuleToItem', () => {
           end_datetime: '1'
         },
         assets: {
-          "metadata": {
-            "href": "https://cmr.earthdata.nasa.gov/search/concepts/1.native",
-            "rel": "metadata",
-            "title": undefined,
-            "type": "application/json",
+          metadata: {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
+            rel: 'metadata',
+            title: undefined,
+            type: 'application/json'
           }
         },
         links: [
@@ -255,11 +255,11 @@ describe('granuleToItem', () => {
           },
           type: 'Feature',
           assets: {
-            "metadata": {
-              "href": "https://cmr.earthdata.nasa.gov/search/concepts/1.native",
-              "rel": "metadata",
-              "title": undefined,
-              "type": "application/json",
+            metadata: {
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
+              rel: 'metadata',
+              title: undefined,
+              type: 'application/json'
             }
           },
           links: [
@@ -278,7 +278,7 @@ describe('granuleToItem', () => {
             {
               rel: 'root',
               href: 'http://example.com/cmr-stac'
-            },
+            }
           ]
         }],
         links: [
