@@ -99,27 +99,27 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     id: cmrGran.id,
     collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
-    bbox: cmrGran.boxes,
-    links: {
-      self: {
+    bbox: cmrGran.bounding_box,
+    links: [
+      {
         rel: 'self',
         href: generateAppUrl(event,
           `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
       },
-      parent: {
+      {
         rel: 'parent',
         href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
       },
-      collection: {
+      {
         rel: 'collection',
         href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
       },
-      root: {
+      {
         rel: 'root',
         href: generateAppUrl(event)
       },
-      metadata: wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
-    },
+      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
+    ],
     properties: {
       provider: cmrGran.data_center,
       datetime,
@@ -140,10 +140,12 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
   return {
     type: 'FeatureCollection',
     features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
-    links: {
-      self: generateSelfUrl(event),
-      next: nextResultsLink
-    }
+    links: [
+      {
+        self: generateSelfUrl(event),
+        next: nextResultsLink
+      }
+    ]
   };
 }
 
