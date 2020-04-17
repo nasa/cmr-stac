@@ -177,10 +177,13 @@ describe('granuleToItem', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
         id: 1,
+        collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
         properties: {
           provider: 'USA',
-          datetime: '0/1'
+          datetime: '0',
+          start_datetime: '0',
+          end_datetime: '1'
         },
         assets: {},
         links: {
@@ -191,6 +194,14 @@ describe('granuleToItem', () => {
           parent: {
             rel: 'parent',
             href: 'http://example.com/cmr-stac/collections/10'
+          },
+          collection: {
+            rel: 'collection',
+            href: 'http://example.com/cmr-stac/collections/10'
+          },
+          root: {
+            rel: 'root',
+            href: 'http://example.com/cmr-stac'
           },
           metadata: {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
@@ -230,10 +241,13 @@ describe('granuleToItem', () => {
         type: 'FeatureCollection',
         features: [{
           id: 1,
+          collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
           properties: {
             provider: 'USA',
-            datetime: '0/1'
+            datetime: '0',
+            start_datetime: '0',
+            end_datetime: '1'
           },
           type: 'Feature',
           assets: {},
@@ -245,6 +259,14 @@ describe('granuleToItem', () => {
             parent: {
               rel: 'parent',
               href: 'http://example.com/cmr-stac/collections/10'
+            },
+            collection: {
+              rel: 'collection',
+              href: 'http://example.com/cmr-stac/collections/10'
+            },
+            root: {
+              rel: 'root',
+              href: 'http://example.com/cmr-stac'
             },
             metadata: {
               href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',

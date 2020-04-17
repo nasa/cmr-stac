@@ -53,6 +53,9 @@ async function getCatalog (request, response) {
   const catalog = createDefaultCatalog(request.apiGateway.event);
 
   cmrCollections.forEach((item) => {
+    if (typeof item.href === 'string' && item.href.includes('providers')) {
+      catalog.addNext(item.title, `/${item.id}`);
+    }
     catalog.addChild(item.title, `/${item.id}`);
   });
 
