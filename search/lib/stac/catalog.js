@@ -25,6 +25,12 @@ class Catalog {
     const child = link.createChild(title, `${root.href}${relativeUrl}`);
     this.links.push(child);
   }
+
+  addNext (title, relativeUrl) {
+    const root = this.links.find((l) => l.rel === link.RELATION_TYPES.self);
+    const next = link.createNext(title, `${root.href}${relativeUrl}`);
+    this.links.push(next);
+  }
 }
 
 function createRootCatalog (stacBaseUrl) {
