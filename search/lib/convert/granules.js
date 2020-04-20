@@ -123,7 +123,6 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
 function cmrGranulesToFeatureCollection (event, cmrGrans, currPageNumber) {
   if (event.queryStringParameters.page_num > 1) {
     const currPage = event.queryStringParameters.page_num;
-    console.log(currPage);
     const nextPage = currPage + 1;
     const prevPage = currPage - 1;
     const newParams = { ...event.queryStringParameters } || {};
