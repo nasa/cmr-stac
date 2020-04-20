@@ -278,7 +278,7 @@ describe('granuleToItem', () => {
               title: undefined
             },
             {
-              provider: 'USA',
+              provider: 'USA'
             }
           ]
         }],
