@@ -120,15 +120,19 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 }
 
-function cmrGranulesToFeatureCollection (event, cmrGrans) {
-  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
-  const nextPage = currPage + 1;
-  const prevPage = currPage - 1;
-  const newParams = { ...event.queryStringParameters } || {};
-  newParams.page_num = nextPage;
-  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, prevPage);
-  const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
-  if (currPage > 1) {
+function cmrGranulesToFeatureCollection (event, cmrGrans, currPageNumber) {
+  if (event.queryStringParameters.page_num > 1) {
+    const currPage = event.queryStringParameters.page_num;
+    console.log(currPage);
+    const nextPage = currPage + 1;
+    const prevPage = currPage - 1;
+    const newParams = { ...event.queryStringParameters } || {};
+    newParams.page_num = nextPage;
+    const newPrevParams = { ...event.queryStringParameters } || {};
+    newPrevParams.page_num = prevPage;
+    const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
+    const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
+
     return {
       type: 'FeatureCollection',
       features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
@@ -139,6 +143,13 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
       }
     };
   }
+
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const nextPage = currPage + 1;
+  const newParams = { ...event.queryStringParameters } || {};
+  newParams.page_num = nextPage;
+  const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
+
   return {
     type: 'FeatureCollection',
     features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
