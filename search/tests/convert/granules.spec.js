@@ -178,10 +178,10 @@ describe('granuleToItem', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
         id: 1,
+        bbox: undefined,
         collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
         properties: {
-          provider: 'USA',
           datetime: '0',
           start_datetime: '0',
           end_datetime: '1'
@@ -209,6 +209,9 @@ describe('granuleToItem', () => {
             rel: 'metadata',
             type: 'application/json',
             title: undefined
+          },
+          {
+            provider: 'USA'
           }
         ]
       });
@@ -245,7 +248,6 @@ describe('granuleToItem', () => {
           collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
           properties: {
-            provider: 'USA',
             datetime: '0',
             start_datetime: '0',
             end_datetime: '1'
@@ -274,6 +276,9 @@ describe('granuleToItem', () => {
               rel: 'metadata',
               type: 'application/json',
               title: undefined
+            },
+            {
+              provider: 'USA'
             }
           ]
         }],
