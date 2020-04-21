@@ -191,7 +191,7 @@ describe('validateSchema', () => {
     expect(() => validateSchema()).toThrow();
   });
 
-  it('should take in a WFS3/STAC component name and a collection object and return a boolean', () => {
+  it('should take in a OA/STAC component name and a collection object and return a boolean', () => {
     expect(typeof validateSchema('bbox', testBbox)).toEqual('boolean');
   });
 
