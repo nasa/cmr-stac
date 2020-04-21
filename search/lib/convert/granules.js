@@ -91,22 +91,22 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     assets.browse = linkToAsset(browseLink);
 
     if (browseLink.href.includes('.jpg')) {
-      assets.browse.type = 'images/jpg'
+      assets.browse.type = 'images/jpg';
     }
     if (browseLink.href.includes('.jpeg')) {
-      assets.browse.type = 'images/jpeg'
+      assets.browse.type = 'images/jpeg';
     }
     if (browseLink.href.includes('.png')) {
-      assets.browse.type = 'images/png'
+      assets.browse.type = 'images/png';
     }
     if (browseLink.href.includes('.tiff')) {
-      assets.browse.type = 'images.tiff'
+      assets.browse.type = 'images.tiff';
     }
     if (browseLink.href.includes('.tif')) {
-      assets.browse.type = 'images.tif'
+      assets.browse.type = 'images.tif';
     }
     if (browseLink.href.includes('.raw')) {
-      assets.browse.type = 'images.raw'
+      assets.browse.type = 'images.raw';
     }
   }
   if (opendapLink) {
