@@ -254,6 +254,7 @@ describe('granuleToItem', () => {
           },
           type: 'Feature',
           assets: {},
+          bbox: undefined,
           links: [
             {
               rel: 'self',
@@ -294,36 +295,48 @@ describe('granuleToItem', () => {
     const secondEvent = { headers: { Host: 'example.com' }, path: '/cmr-stac', queryStringParameters: [] };
     secondEvent.queryStringParameters.page_num = 2;
 
-    it('should return a previous link if page_num > 2', () => {
+    it('should return a previous link if page_num > 1', () => {
       expect(cmrGranulesToFeatureCollection(secondEvent, cmrGran)).toEqual({
         type: 'FeatureCollection',
         features: [{
           id: 1,
           geometry: { type: 'Point', coordinates: [77, 39] },
           properties: {
-            provider: 'USA',
             datetime: '0',
             start_datetime: '0',
             end_datetime: '1'
           },
           type: 'Feature',
           assets: {},
-          links: {
-            self: {
+          bbox: undefined,
+          collection: 10,
+          links: [
+            {
               rel: 'self',
               href: 'http://example.com/cmr-stac/collections/10/items/1'
             },
-            parent: {
+            {
               rel: 'parent',
               href: 'http://example.com/cmr-stac/collections/10'
             },
-            metadata: {
+            {
+              rel: 'collection',
+              href: 'http://example.com/cmr-stac/collections/10'
+            },
+            {
+              rel: 'root',
+              href: 'http://example.com/cmr-stac'
+            },
+            {
               href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.native',
               rel: 'metadata',
               type: 'application/json',
               title: undefined
+            },
+            {
+              provider: 'USA'
             }
-          }
+          ]
         }],
         links: {
           self: 'http://example.com/cmr-stac?page_num=2',
