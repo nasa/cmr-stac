@@ -93,9 +93,6 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     if (browseLink.href.includes('.jpg')) {
       assets.browse.type = 'images/jpg';
     }
-    if (browseLink.href.includes('.jpeg')) {
-      assets.browse.type = 'images/jpeg';
-    }
     if (browseLink.href.includes('.png')) {
       assets.browse.type = 'images/png';
     }
@@ -107,6 +104,9 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     }
     if (browseLink.href.includes('.raw')) {
       assets.browse.type = 'images.raw';
+    }
+    else {
+      assets.browse.type = 'images/jpeg';
     }
   }
   if (opendapLink) {
