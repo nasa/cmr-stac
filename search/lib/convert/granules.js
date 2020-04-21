@@ -90,9 +90,6 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
 
-    if (browseLink.href.includes('.jpg')) {
-      assets.browse.type = 'images/jpg';
-    }
     if (browseLink.href.includes('.png')) {
       assets.browse.type = 'images/png';
     }
@@ -100,12 +97,11 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       assets.browse.type = 'images.tiff';
     }
     if (browseLink.href.includes('.tif')) {
-      assets.browse.type = 'images.tif';
+      assets.browse.type = 'images.tiff';
     }
     if (browseLink.href.includes('.raw')) {
       assets.browse.type = 'images.raw';
-    }
-    else {
+    } else {
       assets.browse.type = 'images/jpeg';
     }
   }
