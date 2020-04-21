@@ -160,12 +160,18 @@ describe('granuleToItem', () => {
       summary: 'summary',
       time_start: 0,
       time_end: 1,
+      assets: {},
       links: [
         {
           href: 'http://example.com/collections/id',
           rel: 'self',
           title: 'Info about this collection',
           type: 'application/json'
+        },
+        {
+          rel: 'http://esipfed.org/ns/fedsearch/1.1/browse#',
+          href: 'http://example.com/images/abc.jpg',
+          type: 'application/json' // this is wrong on purpose to test converting
         }
       ],
       data_center: 'USA',
@@ -186,7 +192,14 @@ describe('granuleToItem', () => {
           start_datetime: '0',
           end_datetime: '1'
         },
-        assets: {},
+        assets: {
+          browse: {
+            href: 'http://example.com/images/abc.jpg',
+            type: 'images/jpg',
+            name: undefined
+          }
+        },
+        bbox: undefined,
         links: [
           {
             rel: 'self',
