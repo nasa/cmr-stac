@@ -195,7 +195,7 @@ describe('granuleToItem', () => {
         assets: {
           browse: {
             href: 'http://example.com/images/abc.jpg',
-            type: 'images/jpg',
+            type: 'images/jpeg',
             name: undefined
           }
         },
