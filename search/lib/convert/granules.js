@@ -120,7 +120,6 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
         rel: 'root',
         href: generateAppUrl(event)
       }
-      // wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
     ],
     properties: {
       provider: cmrGran.data_center,

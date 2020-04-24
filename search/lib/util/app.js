@@ -11,16 +11,12 @@ const extractParam = (queryStringParams, param, defaultVal = null) => {
   return defaultVal;
 };
 
-// function createLink(rel, href, title, type = 'application/json') {
-
-// }
-
 const createLink = (rel, href = '', title, type = 'application/json') => {
   if (href.includes('.txt') || href.includes('.text')) {
     type = 'application/text';
   }
   if (href.includes('.native')) {
-    href.replace('.native', '.xml');
+    href = href.replace('.native', '.xml');
     type = 'application/xml';
   }
   if (href.includes('.xml')) {
