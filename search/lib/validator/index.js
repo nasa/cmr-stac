@@ -47,7 +47,6 @@ function validateStac (stacItem) {
   try {
     createStacValidator(stacItem);
   } catch (e) {
-    console.log(e);
     return false;
   }
 
