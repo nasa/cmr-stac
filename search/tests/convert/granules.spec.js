@@ -153,7 +153,7 @@ describe('granuleToItem', () => {
 
   describe('cmrGranToFeatureGeoJSON', () => {
     const cmrGran = {
-      id: 1,
+      short_name: 1,
       collection_concept_id: 10,
       bbox: [90, -180, -90, 180],
       dataset_id: 'datasetId',
@@ -220,7 +220,7 @@ describe('granuleToItem', () => {
 
   describe('cmrGranulesToFeatureCollection', () => {
     const cmrGran = [{
-      id: 1,
+      short_name: 1,
       collection_concept_id: 10,
       dataset_id: 'datasetId',
       summary: 'summary',
