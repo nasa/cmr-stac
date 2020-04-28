@@ -25,10 +25,9 @@ async function getSearch (request, response) {
 
   if (validResult) {
     response.status(200).json(result);
-  } 
-  else {
+  } else {
     response.status(400).json('Bad Request');
-    console.log('json test', response.status(400).json())
+    console.log('json test', response.status(400).json());
   }
 }
 
