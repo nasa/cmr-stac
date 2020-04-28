@@ -178,11 +178,10 @@ describe('granuleToItem', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
         id: 1,
+        bbox: undefined,
         collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
-        bbox: undefined,
         properties: {
-          provider: 'USA',
           datetime: '0',
           start_datetime: '0',
           end_datetime: '1'
@@ -211,6 +210,15 @@ describe('granuleToItem', () => {
           {
             rel: 'root',
             href: 'http://example.com/cmr-stac'
+          },
+          {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
+            rel: 'metadata',
+            type: 'application/xml',
+            title: undefined
+          },
+          {
+            provider: 'USA'
           }
         ]
       });
@@ -248,7 +256,6 @@ describe('granuleToItem', () => {
           geometry: { type: 'Point', coordinates: [77, 39] },
           bbox: undefined,
           properties: {
-            provider: 'USA',
             datetime: '0',
             start_datetime: '0',
             end_datetime: '1'
@@ -278,6 +285,15 @@ describe('granuleToItem', () => {
             {
               rel: 'root',
               href: 'http://example.com/cmr-stac'
+            },
+            {
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
+              rel: 'metadata',
+              type: 'application/xml',
+              title: undefined
+            },
+            {
+              provider: 'USA'
             }
           ]
         }],
