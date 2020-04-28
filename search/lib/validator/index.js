@@ -38,10 +38,28 @@ function validateSchema (componentName, dataObject, yamlSchemaFile = '../../docs
   return validator(dataObject);
 }
 
+function createStacValidator (stacItem) {
+  if (!stacItem.stac_version || !stacItem.id || !stacItem.description || !stacItem.links) throw Error('Missing required fields');
+}
+
+function validateStac (stacItem) {
+  if (!stacItem) throw new Error('Missing stacItem');
+  try {
+    createStacValidator(stacItem);
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
+
+  return true;
+}
+
 module.exports = {
   loadOpenApiYaml,
   getSchema,
   getSchemaCollection,
   createSchemaValidator,
-  validateSchema
+  validateSchema,
+  createStacValidator,
+  validateStac
 };
