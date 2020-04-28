@@ -134,7 +134,29 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 }
 
-function cmrGranulesToFeatureCollection (event, cmrGrans) {
+function cmrGranulesToFeatureCollection (event, cmrGrans, currPageNumber) {
+  if (event.queryStringParameters.page_num > 1) {
+    const currPage = event.queryStringParameters.page_num;
+    const nextPage = currPage + 1;
+    const prevPage = currPage - 1;
+    const newParams = { ...event.queryStringParameters } || {};
+    newParams.page_num = nextPage;
+    const newPrevParams = { ...event.queryStringParameters } || {};
+    newPrevParams.page_num = prevPage;
+    const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
+    const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
+
+    return {
+      type: 'FeatureCollection',
+      features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
+      links: {
+        self: generateSelfUrl(event),
+        prev: prevResultsLink,
+        next: nextResultsLink
+      }
+    };
+  }
+
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
   const newParams = { ...event.queryStringParameters } || {};
