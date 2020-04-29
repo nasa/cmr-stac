@@ -195,12 +195,12 @@ describe('cmr', () => {
         expect(result).toEqual({ page_size: 5 });
       });
 
-      it('should convert collection_concept_id to collectionId', () => {
+      it('should convert collection_concept_id to collections', () => {
         const params = {
-          collectionId: 1
+          collections: [1]
         };
         const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
-        expect(result).toEqual({ collection_concept_id: 1 });
+        expect(result).toEqual({ collection_concept_id: [1] });
       });
     });
 
