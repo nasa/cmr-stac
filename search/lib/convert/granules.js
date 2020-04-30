@@ -77,11 +77,20 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     cmrGran.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
   );
 
-  const linkToAsset = (l) => ({
-    name: l.title,
-    href: l.href,
-    type: l.type
-  });
+  const linkToAsset = (l) => {
+    if (l.title === undefined) {
+      return {
+        href: l.href,
+        type: l.type
+      }
+    } else {
+      return {
+        name: l.title,
+        href: l.href,
+        type: l.type
+      }
+    }
+  };
 
   const assets = {};
   if (dataLink) {
@@ -89,6 +98,21 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   }
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
+
+    if (browseLink.href.includes('.png')) {
+      assets.browse.type = 'images/png';
+    }
+    if (browseLink.href.includes('.tiff')) {
+      assets.browse.type = 'images/tiff';
+    }
+    if (browseLink.href.includes('.tif')) {
+      assets.browse.type = 'images/tiff';
+    }
+    if (browseLink.href.includes('.raw')) {
+      assets.browse.type = 'images/raw';
+    } else {
+      assets.browse.type = 'images/jpeg';
+    }
   }
   if (opendapLink) {
     assets.opendap = linkToAsset(opendapLink);

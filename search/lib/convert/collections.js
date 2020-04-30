@@ -49,7 +49,7 @@ function createExtent (cmrCollection) {
     trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian',
     temporal: [
       cmrCollection.time_start,
-      (cmrCollection.time_end || cmrCollection.time_start)
+      (cmrCollection.time_end || null)
     ]
   };
 }

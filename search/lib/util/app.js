@@ -49,7 +49,7 @@ const createAssetLink = (href = '', title, type = 'application/json') => {
   } else {
     return { href: href, title: title, type: type };
   }
-}
+};
 
 module.exports = {
   firstIfArray,

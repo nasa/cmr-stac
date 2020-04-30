@@ -160,12 +160,18 @@ describe('granuleToItem', () => {
       summary: 'summary',
       time_start: 0,
       time_end: 1,
+      assets: {},
       links: [
         {
           href: 'http://example.com/collections/id',
           rel: 'self',
           title: 'Info about this collection',
           type: 'application/json'
+        },
+        {
+          rel: 'http://esipfed.org/ns/fedsearch/1.1/browse#',
+          href: 'http://example.com/images/abc.jpg',
+          type: 'application/json' // this is wrong on purpose to test converting
         }
       ],
       data_center: 'USA',
@@ -187,6 +193,10 @@ describe('granuleToItem', () => {
           end_datetime: '1'
         },
         assets: {
+          browse: {
+            href: 'http://example.com/images/abc.jpg',
+            type: 'images/jpeg'
+          },
           metadata: {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
             type: 'application/xml'

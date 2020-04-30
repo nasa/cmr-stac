@@ -9,7 +9,7 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   time: ['temporal', identity],
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', identity],
-  collectionId: ['collection_concept_id', identity]
+  collections: ['collection_concept_id', identity]
 };
 
 const STAC_QUERY_PARAMS_CONVERSION_MAP = {
