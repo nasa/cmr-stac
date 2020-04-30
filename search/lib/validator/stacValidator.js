@@ -1,11 +1,10 @@
-function createStacValidator (stacItem) {
-  if (!stacItem.stac_version || !stacItem.id || !stacItem.description || !stacItem.links) throw Error('Missing required fields');
-}
 
 function validateStac (stacItem) {
   if (!stacItem) throw new Error('Missing stacItem');
   try {
-    createStacValidator(stacItem);
+    if (!stacItem.stac_version || !stacItem.id || !stacItem.description || !stacItem.links) {
+    throw Error('Missing required fields');
+    }
   } catch (e) {
     return false;
   }
@@ -14,6 +13,6 @@ function validateStac (stacItem) {
 }
 
 module.exports = {
-  createStacValidator,
+  // createStacValidator,
   validateStac
 };

@@ -21,27 +21,18 @@ async function getSearch (request, response) {
   const event = request.apiGateway.event;
   const params = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, request.query);
   const result = await search(event, params);
+  
   validResult = validateStac(result);
-
-  if (validResult) {
-    response.status(200).json(result);
-  } else {
-    response.status(400).json('Bad Request');
-    console.log('json test', response.status(400).json());
-  }
+  validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
 }
 
 async function postSearch (request, response) {
   logger.info('POST /stac/search');
   const event = request.apiGateway.event;
   const result = await search(event, request.body);
+  
   validResult = validateStac(result);
-
-  if (validResult) {
-    response.status(200).json(result);
-  } else {
-    response.status(400).json('Bad Request');
-  }
+  validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
 }
 
 function getRootCatalog (request, response) {
@@ -76,12 +67,7 @@ async function getCatalog (request, response) {
   });
 
   validResult = validateStac(catalog);
-
-  if (validResult) {
-    response.status(200).json(catalog);
-  } else {
-    response.status(400).json('Bad Request');
-  }
+  validResult ? response.status(200).json(catalog) : response.status(400).json('Bad Request');
 }
 
 const routes = express.Router();
