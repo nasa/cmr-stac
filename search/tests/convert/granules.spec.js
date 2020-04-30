@@ -189,8 +189,6 @@ describe('granuleToItem', () => {
         assets: {
           metadata: {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
-            rel: 'metadata',
-            title: undefined,
             type: 'application/xml'
           }
         },
@@ -210,12 +208,6 @@ describe('granuleToItem', () => {
           {
             rel: 'root',
             href: 'http://example.com/cmr-stac'
-          },
-          {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
-            rel: 'metadata',
-            type: 'application/xml',
-            title: undefined
           },
           {
             provider: 'USA'
@@ -264,8 +256,6 @@ describe('granuleToItem', () => {
           assets: {
             metadata: {
               href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
-              rel: 'metadata',
-              title: undefined,
               type: 'application/xml'
             }
           },
@@ -285,12 +275,6 @@ describe('granuleToItem', () => {
             {
               rel: 'root',
               href: 'http://example.com/cmr-stac'
-            },
-            {
-              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
-              rel: 'metadata',
-              type: 'application/xml',
-              title: undefined
             },
             {
               provider: 'USA'

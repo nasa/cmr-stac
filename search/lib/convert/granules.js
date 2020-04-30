@@ -94,7 +94,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     assets.opendap = linkToAsset(opendapLink);
   }
 
-  assets.metadata = wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`));
+  assets.metadata = wfs.createAssetLink(cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`));
 
   return {
     type: 'Feature',
@@ -120,7 +120,6 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
         rel: 'root',
         href: generateAppUrl(event)
       },
-      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`)),
       {
         provider: cmrGran.data_center
       }
