@@ -4,7 +4,7 @@ const {
   loadOpenApiYaml,
   getSchema,
   getSchemaCollection,
-  validateSchema,
+  validateSchema
 } = require('../../lib/validator');
 
 describe('createSchemaValidator', () => {

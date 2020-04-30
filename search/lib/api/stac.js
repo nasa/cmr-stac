@@ -21,7 +21,7 @@ async function getSearch (request, response) {
   const event = request.apiGateway.event;
   const params = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, request.query);
   const result = await search(event, params);
-  
+
   validResult = validateStac(result);
   validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
 }
@@ -30,7 +30,7 @@ async function postSearch (request, response) {
   logger.info('POST /stac/search');
   const event = request.apiGateway.event;
   const result = await search(event, request.body);
-  
+
   validResult = validateStac(result);
   validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
 }
