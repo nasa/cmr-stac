@@ -4,8 +4,11 @@ const settings = require('../settings');
 const cmr = require('../cmr');
 const cmrConverter = require('../convert');
 const { createRootCatalog, Catalog } = require('../stac').catalog;
+const { validateStac } = require('../validator');
 
 const { createRedirectUrl, getStacBaseUrl, logger } = require('../util');
+
+let validResult = true;
 
 async function search (event, params) {
   const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
@@ -18,14 +21,18 @@ async function getSearch (request, response) {
   const event = request.apiGateway.event;
   const params = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, request.query);
   const result = await search(event, params);
-  response.status(200).json(result);
+
+  validResult = validateStac(result);
+  validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
 }
 
 async function postSearch (request, response) {
   logger.info('POST /stac/search');
   const event = request.apiGateway.event;
   const result = await search(event, request.body);
-  response.status(200).json(result);
+
+  validResult = validateStac(result);
+  validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
 }
 
 function getRootCatalog (request, response) {
@@ -59,7 +66,8 @@ async function getCatalog (request, response) {
     catalog.addChild(item.title, `/${item.id}`);
   });
 
-  response.status(200).json(catalog);
+  validResult = validateStac(catalog);
+  validResult ? response.status(200).json(catalog) : response.status(400).json('Bad Request');
 }
 
 const routes = express.Router();
