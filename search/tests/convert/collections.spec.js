@@ -146,7 +146,7 @@ describe('collections', () => {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
             rel: 'overview',
             title: 'HTML metadata for collection',
-            type: 'application/html'
+            type: 'text/html'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.xml',
             rel: 'metadata',

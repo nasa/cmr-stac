@@ -23,7 +23,7 @@ const createLink = (rel, href = '', title, type = 'application/json') => {
     type = 'application/xml';
   }
   if (href.includes('.html')) {
-    type = 'application/html';
+    type = 'text/html';
   }
 
   return { rel: rel, href: href, title: title, type: type };
