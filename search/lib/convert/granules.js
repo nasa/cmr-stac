@@ -89,6 +89,21 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   }
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
+
+    if (browseLink.href.includes('.png')) {
+      assets.browse.type = 'images/png';
+    }
+    if (browseLink.href.includes('.tiff')) {
+      assets.browse.type = 'images/tiff';
+    }
+    if (browseLink.href.includes('.tif')) {
+      assets.browse.type = 'images/tiff';
+    }
+    if (browseLink.href.includes('.raw')) {
+      assets.browse.type = 'images/raw';
+    } else {
+      assets.browse.type = 'images/jpeg';
+    }
   }
   if (opendapLink) {
     assets.opendap = linkToAsset(opendapLink);
