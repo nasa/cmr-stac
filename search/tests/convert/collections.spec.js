@@ -153,12 +153,12 @@ describe('collections', () => {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
             rel: 'overview',
             title: 'HTML metadata for collection',
-            type: 'application/json'
+            type: 'text/html'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.native',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.xml',
             rel: 'metadata',
             title: 'Native metadata for collection',
-            type: 'application/json'
+            type: 'application/xml'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
             rel: 'metadata',
@@ -212,12 +212,12 @@ describe('collections', () => {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
             rel: 'overview',
             title: 'HTML metadata for collection',
-            type: 'application/json'
+            type: 'text/html'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.native',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.xml',
             rel: 'metadata',
             title: 'Native metadata for collection',
-            type: 'application/json'
+            type: 'application/xml'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
             rel: 'metadata',

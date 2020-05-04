@@ -77,11 +77,20 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     cmrGran.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
   );
 
-  const linkToAsset = (l) => ({
-    name: l.title,
-    href: l.href,
-    type: l.type
-  });
+  const linkToAsset = (l) => {
+    if (l.title === undefined) {
+      return {
+        href: l.href,
+        type: l.type
+      }
+    } else {
+      return {
+        name: l.title,
+        href: l.href,
+        type: l.type
+      }
+    }
+  };
 
   const assets = {};
   if (dataLink) {
@@ -109,6 +118,8 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     assets.opendap = linkToAsset(opendapLink);
   }
 
+  assets.metadata = wfs.createAssetLink(cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`));
+
   return {
     type: 'Feature',
     id: cmrGran.id,
@@ -133,7 +144,6 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
         rel: 'root',
         href: generateAppUrl(event)
       },
-      wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`)),
       {
         provider: cmrGran.data_center
       }
