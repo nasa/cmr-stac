@@ -154,6 +154,7 @@ describe('granuleToItem', () => {
   describe('cmrGranToFeatureGeoJSON', () => {
     const cmrGran = {
       id: 1,
+      short_name: 'LAADS',
       collection_concept_id: 10,
       bbox: [90, -180, -90, 180],
       dataset_id: 'datasetId',
@@ -183,7 +184,7 @@ describe('granuleToItem', () => {
     it('should return a FeatureGeoJSON from a cmrGran', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
-        id: 1,
+        id: 'LAADS',
         bbox: undefined,
         collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
@@ -198,14 +199,14 @@ describe('granuleToItem', () => {
             type: 'images/jpeg'
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/LAADS.xml',
             type: 'application/xml'
           }
         },
         links: [
           {
             rel: 'self',
-            href: 'http://example.com/cmr-stac/collections/10/items/1'
+            href: 'http://example.com/cmr-stac/collections/10/items/LAADS'
           },
           {
             rel: 'parent',
@@ -230,6 +231,7 @@ describe('granuleToItem', () => {
   describe('cmrGranulesToFeatureCollection', () => {
     const cmrGran = [{
       id: 1,
+      short_name: 'LAADS',
       collection_concept_id: 10,
       dataset_id: 'datasetId',
       summary: 'summary',
@@ -253,7 +255,7 @@ describe('granuleToItem', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
         features: [{
-          id: 1,
+          id: 'LAADS',
           collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
           bbox: undefined,
@@ -265,14 +267,14 @@ describe('granuleToItem', () => {
           type: 'Feature',
           assets: {
             metadata: {
-              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/LAADS.xml',
               type: 'application/xml'
             }
           },
           links: [
             {
               rel: 'self',
-              href: 'http://example.com/cmr-stac/collections/10/items/1'
+              href: 'http://example.com/cmr-stac/collections/10/items/LAADS'
             },
             {
               rel: 'parent',

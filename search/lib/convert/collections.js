@@ -56,19 +56,19 @@ function createExtent (cmrCollection) {
 
 function createLinks (event, cmrCollection) {
   return [
-    wfs.createLink('self', generateAppUrl(event, `/collections/${cmrCollection.id}`),
+    wfs.createLink('self', generateAppUrl(event, `/collections/${cmrCollection.short_name}`),
       'Info about this collection'),
-    wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrCollection.id),
+    wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrCollection.short_name),
       'STAC Search this collection'),
-    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrCollection.id),
+    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrCollection.short_name),
       'CMR Search this collection'),
-    wfs.createLink('items', generateAppUrl(event, `/collections/${cmrCollection.id}/items`),
+    wfs.createLink('items', generateAppUrl(event, `/collections/${cmrCollection.short_name}/items`),
       'Granules in this collection'),
-    wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.html`),
+    wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.short_name}.html`),
       'HTML metadata for collection'),
-    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.native`),
+    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.short_name}.native`),
       'Native metadata for collection'),
-    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.umm_json`),
+    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.short_name}.umm_json`),
       'JSON metadata for collection')
   ];
 }
@@ -76,7 +76,7 @@ function createLinks (event, cmrCollection) {
 function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return null;
   return {
-    id: cmrCollection.id,
+    id: cmrCollection.short_name,
     title: cmrCollection.dataset_id,
     description: cmrCollection.summary,
     links: createLinks(event, cmrCollection),
