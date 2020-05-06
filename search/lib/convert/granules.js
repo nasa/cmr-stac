@@ -111,11 +111,11 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     assets.opendap = linkToAsset(opendapLink);
   }
 
-  assets.metadata = wfs.createAssetLink(cmr.makeCmrSearchUrl(`/concepts/${cmrGran.short_name}.native`));
+  assets.metadata = wfs.createAssetLink(cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`));
 
   return {
     type: 'Feature',
-    id: cmrGran.short_name,
+    id: cmrGran.id,
     collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
     bbox: cmrGran.bounding_box,
@@ -123,7 +123,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       {
         rel: 'self',
         href: generateAppUrl(event,
-          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.short_name}`)
+          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
       },
       {
         rel: 'parent',
