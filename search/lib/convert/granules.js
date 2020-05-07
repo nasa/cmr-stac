@@ -82,13 +82,13 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       return {
         href: l.href,
         type: l.type
-      }
+      };
     } else {
       return {
         name: l.title,
         href: l.href,
         type: l.type
-      }
+      };
     }
   };
 
