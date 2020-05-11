@@ -80,7 +80,7 @@ describe('wfs routes', () => {
 
   describe('getGranules', () => {
     it('should generate a item collection response.', async () => {
-      request.query = {};
+      request.query = {}
 
       mockFunction(cmr, 'findGranules');
       mockFunction(convert, 'cmrGranToFeatureGeoJSON');
@@ -97,6 +97,10 @@ describe('wfs routes', () => {
       revertFunction(cmr, 'findGranules');
       revertFunction(convert, 'cmrGranToFeatureGeoJSON');
     });
+
+    // it('should generate an item collection response with a prev link', async () => {
+
+    // })
   });
 
   describe('getGranule', () => {

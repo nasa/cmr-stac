@@ -36,25 +36,51 @@ async function getGranules (request, response) {
 
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
+  const prevPage = currPage - 1;
   const newParams = { ...event.queryStringParameters } || {};
   newParams.page_num = nextPage;
+  const newPrevParams = { ...event.queryStringParameters } || {};
+  newPrevParams.page_num = prevPage;
+  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
 
-  const granulesResponse = {
-    type: 'FeatureCollection',
-    features: granules.map(gran => convert.cmrGranToFeatureGeoJSON(event, gran)),
-    links: [
-      {
-        rel: 'self',
-        href: generateSelfUrl(event)
-      },
-      {
-        rel: 'next',
-        href: nextResultsLink
-      }
-    ]
-  };
-  response.status(200).json(granulesResponse);
+  if (currPage > 1) {
+    const granulesResponse = {
+      type: 'FeatureCollection',
+      features: granules.map(gran => convert.cmrGranToFeatureGeoJSON(event, gran)),
+      links: [
+        {
+          rel: 'self',
+          href: generateSelfUrl(event)
+        },
+        {
+          rel: 'prev',
+          href: prevResultsLink
+        },
+        {
+          rel: 'next',
+          href: nextResultsLink
+        }
+      ]
+    };
+    response.status(200).json(granulesResponse);
+  } else {
+    const granulesResponse = {
+      type: 'FeatureCollection',
+      features: granules.map(gran => convert.cmrGranToFeatureGeoJSON(event, gran)),
+      links: [
+        {
+          rel: 'self',
+          href: generateSelfUrl(event)
+        },
+        {
+          rel: 'next',
+          href: nextResultsLink
+        }
+      ]
+    };
+    response.status(200).json(granulesResponse);
+  }
 }
 
 async function getGranule (request, response) {
