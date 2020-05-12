@@ -2,7 +2,7 @@ const express = require('express');
 const { wfs, generateAppUrl, logger } = require('../util');
 const cmr = require('../cmr');
 const convert = require('../convert');
-const { generateAppUrlWithoutRelativeRoot, extractParam, generateSelfUrl } = require('../util');
+const { generateAppUrlWithoutRelativeRoot, generateSelfUrl } = require('../util');
 
 async function getCollections (request, response) {
   logger.info('GET /collections');
@@ -34,7 +34,7 @@ async function getGranules (request, response) {
   const params = Object.assign({ collection_concept_id: conceptId }, cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query));
   const granules = await cmr.findGranules(params);
 
-  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const currPage = event.headers.queryStringParameters.page_num;
   const nextPage = currPage + 1;
   const prevPage = currPage - 1;
   const newParams = { ...event.queryStringParameters } || {};

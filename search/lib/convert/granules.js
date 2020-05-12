@@ -157,7 +157,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 }
 
-function cmrGranulesToFeatureCollection (event, cmrGrans, currPageNumber) {
+function cmrGranulesToFeatureCollection (event, cmrGrans) {
   if (event.queryStringParameters.page_num > 1) {
     const currPage = event.queryStringParameters.page_num;
     const nextPage = currPage + 1;

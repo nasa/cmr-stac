@@ -14,7 +14,7 @@ describe('wfs routes', () => {
   beforeEach(() => {
     request = {
       apiGateway: {
-        event: { headers: { Host: 'example.com' } }
+        event: { headers: { Host: 'example.com', queryStringParameters: { page_num: 1 } } }
       },
       params: {
         collectionId: '1',
@@ -80,7 +80,7 @@ describe('wfs routes', () => {
 
   describe('getGranules', () => {
     it('should generate a item collection response.', async () => {
-      request.query = {}
+      request.query = {};
 
       mockFunction(cmr, 'findGranules');
       mockFunction(convert, 'cmrGranToFeatureGeoJSON');
@@ -98,9 +98,25 @@ describe('wfs routes', () => {
       revertFunction(convert, 'cmrGranToFeatureGeoJSON');
     });
 
-    // it('should generate an item collection response with a prev link', async () => {
+    it('should generate an item collection response with a prev link', async () => {
+      request.query = {};
+      request.apiGateway.event.headers.queryStringParameters.page_num = 2;
 
-    // })
+      mockFunction(cmr, 'findGranules');
+      mockFunction(convert, 'cmrGranToFeatureGeoJSON');
+
+      cmr.findGranules.mockReturnValue(Promise.resolve([{}]));
+      convert.cmrGranToFeatureGeoJSON.mockReturnValue({ response: 'okay' });
+
+      await getGranules(request, response);
+
+      expect(cmr.findGranules).toHaveBeenCalled();
+      expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
+      expect(response.json).toHaveBeenCalledWith({ features: [{ response: 'okay' }], links: [{ rel: 'self', href: 'http://example.com' }, { rel: 'prev', href: 'http://example.com?page_num=1' }, { rel: 'next', href: 'http://example.com?page_num=3' }], type: 'FeatureCollection' });
+
+      revertFunction(cmr, 'findGranules');
+      revertFunction(convert, 'cmrGranToFeatureGeoJSON');
+    });
   });
 
   describe('getGranule', () => {
