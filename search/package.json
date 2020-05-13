@@ -30,6 +30,7 @@
     "serverless-pseudo-parameters": "^2.5.0"
   },
   "scripts": {
+    "debug": "export SLS_DEBUG=* && node --inspect-brk node_modules/serverless/bin/serverless offline --config serverless-offline.yml",
     "start": "sls offline --config serverless-offline.yml",
     "deploy": "sls deploy --config serverless.yml",
     "remove": "sls remove --config serverless.yml",
