@@ -56,16 +56,9 @@ const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
 function cmrGranToFeatureGeoJSON (event, cmrGran) {
-  // eslint-disable-next-line camelcase
   const datetime = cmrGran.time_start.toString();
-  // eslint-disable-next-line camelcase
-  const start_datetime = cmrGran.time_start.toString();
-  // eslint-disable-next-line camelcase
-  let end_datetime = cmrGran.time_start.toString();
-  if (cmrGran.time_end) {
-    // eslint-disable-next-line camelcase
-    end_datetime = cmrGran.time_end.toString();
-  }
+  const startDatetime = cmrGran.time_start.toString();
+  const endDatetime = cmrGran.time_end ? cmrGran.time_end.toString() : cmrGran.time_start.toString();
 
   const dataLink = _.first(
     cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited)
@@ -82,13 +75,13 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       return {
         href: l.href,
         type: l.type
-      }
+      };
     } else {
       return {
         name: l.title,
         href: l.href,
         type: l.type
-      }
+      };
     }
   };
 
@@ -122,7 +115,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
 
   return {
     type: 'Feature',
-    id: cmrGran.id,
+    id: cmrGran.producer_granule_id,
     collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
     bbox: cmrGran.bounding_box,
@@ -130,7 +123,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       {
         rel: 'self',
         href: generateAppUrl(event,
-          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
+          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.producer_granule_id}`)
       },
       {
         rel: 'parent',
@@ -150,8 +143,8 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     ],
     properties: {
       datetime,
-      start_datetime,
-      end_datetime
+      start_datetime: startDatetime,
+      end_datetime: endDatetime
     },
     assets
   };
