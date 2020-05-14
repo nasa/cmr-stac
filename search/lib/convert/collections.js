@@ -1,6 +1,6 @@
 const cmr = require('../cmr');
 const { wfs, generateAppUrl } = require('../util');
-const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes } = require('./bounding-box');
+const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
 
 function cmrCollSpatialToExtents (cmrColl) {
   let bbox = null;
@@ -18,7 +18,8 @@ function cmrCollSpatialToExtents (cmrColl) {
     throw new Error(`Unexpected spatial extent of lines in ${cmrColl.id}`);
   }
   if (cmrColl.boxes) {
-    bbox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
+    const mergedBox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
+    bbox = reorderBoxValues(mergedBox);
   }
   if (bbox === null) {
     // whole world bbox
@@ -56,19 +57,19 @@ function createExtent (cmrCollection) {
 
 function createLinks (event, cmrCollection) {
   return [
-    wfs.createLink('self', generateAppUrl(event, `/collections/${cmrCollection.id}`),
+    wfs.createLink('self', generateAppUrl(event, `/collections/${cmrCollection.short_name}`),
       'Info about this collection'),
-    wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrCollection.id),
+    wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrCollection.short_name),
       'STAC Search this collection'),
-    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrCollection.id),
+    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrCollection.short_name),
       'CMR Search this collection'),
-    wfs.createLink('items', generateAppUrl(event, `/collections/${cmrCollection.id}/items`),
+    wfs.createLink('items', generateAppUrl(event, `/collections/${cmrCollection.short_name}/items`),
       'Granules in this collection'),
-    wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.html`),
+    wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.short_name}.html`),
       'HTML metadata for collection'),
-    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.native`),
+    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.short_name}.native`),
       'Native metadata for collection'),
-    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.umm_json`),
+    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.short_name}.umm_json`),
       'JSON metadata for collection')
   ];
 }
@@ -76,7 +77,7 @@ function createLinks (event, cmrCollection) {
 function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return null;
   return {
-    id: cmrCollection.id,
+    id: cmrCollection.short_name,
     title: cmrCollection.dataset_id,
     description: cmrCollection.summary,
     links: createLinks(event, cmrCollection),
