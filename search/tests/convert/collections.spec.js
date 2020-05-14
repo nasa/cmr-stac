@@ -12,16 +12,16 @@ describe('collections', () => {
 
     it('should return a bounding box from given polygon', () => {
       cmrCollection = {
-        polygons: [['30 -10 70 33 -45 66']]
+        polygons: [['30 -10 70 33 -145 66']]
       };
-      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-45, -10, 70, 66]);
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-145, -10, 70, 66]);
     });
 
     it('should return a bounding box from given points', () => {
       cmrCollection = {
-        points: ['30 -10', '70 33', '-45 66']
+        points: ['30 -10', '70 33', '-145 66']
       };
-      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-45, -10, 70, 66]);
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-145, -10, 70, 66]);
     });
 
     it('should throw an error if given lines', () => {
@@ -34,9 +34,16 @@ describe('collections', () => {
 
     it('should return a bounding box from provided coordinates [west north east south]', () => {
       cmrCollection = {
-        boxes: ['-23.4 -74.6 54.9 33.3']
+        boxes: ['-74.6 -123.4 33.3 54.9 ']
       };
-      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-23.4, -74.6, 54.9, 33.3]);
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-123.4, -74.6, 54.9, 33.3]);
+    });
+
+    it('should reorder values to fit stac spec [west north east south]', () => {
+      cmrCollection = {
+        boxes: ['-90 -180 90 180']
+      };
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-180, -90, 180, 90]);
     });
 
     it('should return a bounding box containing the WHOLE_WORLD_BBOX', () => {

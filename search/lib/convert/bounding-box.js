@@ -40,10 +40,18 @@ function pointStringToPoints (pointStr) {
   return chunk(parseOrdinateString(pointStr), 2);
 }
 
+function reorderBoxValues (cmrBox) {
+  if (!cmrBox) {
+    throw new Error('Missing arguments');
+  }
+  return [cmrBox[1], cmrBox[0], cmrBox[3], cmrBox[2]];
+}
+
 module.exports = {
   addPointsToBbox,
   mergeBoxes,
   parseOrdinateString,
   pointStringToPoints,
+  reorderBoxValues,
   WHOLE_WORLD_BBOX
 };

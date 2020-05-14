@@ -1,4 +1,4 @@
-const { addPointsToBbox, mergeBoxes } = require('../../lib/convert/bounding-box');
+const { addPointsToBbox, mergeBoxes, reorderBoxValues } = require('../../lib/convert/bounding-box');
 
 describe('bbox', () => {
   const testBbox = [-10, -10, 10, 10];
@@ -6,6 +6,18 @@ describe('bbox', () => {
   const points = [[100, 20], [5, -5]];
   const lotsOfPoints = [[100, 20], [5, -5], [-40, 73]];
   const WHOLE_WORLD_BBOX = [-180, -90, 180, 90];
+
+  describe('reorderBoxValues', () => {
+    const cmrWorldBox = [-90, -180, 90, 180];
+
+    it('should require one argument', () => {
+      expect(() => reorderBoxValues()).toThrow(Error);
+    });
+
+    it('should reorder the box values to be [minLon, minLat, maxLon, maxLat]', () => {
+      expect(reorderBoxValues(cmrWorldBox)).toEqual(WHOLE_WORLD_BBOX);
+    });
+  });
 
   describe('addPointsToBbox', () => {
     it('should create the largest bbox', () => {
