@@ -52,13 +52,13 @@ The `validator` directory holds logic to retrieve component schemas from the STA
 
 The `scripts` directory currently contains only one file: `yamlUpdater.js`. This script is ran automatically during the build process, and is intended to update the STAC and WFS3 schema yaml to the current version made accessible by Radiant Earth.
 
-When `yamlUpdater.js` is ran, it looks at the repositories listed below to get the latest version of STAC and WFS3 specification schemas. It then updates the current schema file `WFS3core+STAC.yaml` located in the `docs` directory.
+When `yamlUpdater.js` is ran, it looks at the repositories listed below to get the latest version of STAC and WFS3 specification schemas. It then updates the current schema file `OAcore+STAC.yaml` located in the `docs` directory.
 
 This process is used to ensure that this app is always using the most recent version of `STAC` it is highly recommended that after an update has happened that all of the test are ran to ensure nothing has broken. We also recommend that test are written for any new `STAC` specifications.
 
 STAC: <https://github.com/radiantearth/stac-spec/blob/master/api-spec/STAC.yaml>
 
-WFS3: <https://github.com/radiantearth/stac-spec/blob/master/api-spec/openapi/WFS3.yaml>
+OA: <https://github.com/radiantearth/stac-spec/blob/master/api-spec/openapi/OAFeat.yaml>
 
 ## Tests
 
