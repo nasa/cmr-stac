@@ -103,7 +103,6 @@ describe('collections', () => {
   describe('cmrCollToWFSCol', () => {
     const cmrColl = {
       id: 'id',
-      short_name: 'LAADS',
       dataset_id: 'datasetId',
       summary: 'summary',
       time_start: '0',
@@ -112,7 +111,6 @@ describe('collections', () => {
 
     const cmrCollTemporal = {
       id: 'id',
-      short_name: 'LAADS',
       dataset_id: 'datasetId',
       summary: 'summary',
       time_start: '2009-01-01T00:00:00Z'
@@ -139,43 +137,43 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/cmr-stac/collections/LAADS',
+            href: 'http://example.com/cmr-stac/collections/id',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/stac/search?collectionId=LAADS',
+            href: 'http://example.com/cmr-stac/stac/search?collectionId=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=LAADS',
+            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
             rel: 'cmr',
             title: 'CMR Search this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/collections/LAADS/items',
+            href: 'http://example.com/cmr-stac/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/LAADS.html',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
             rel: 'overview',
             title: 'HTML metadata for collection',
             type: 'text/html'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/LAADS.xml',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.xml',
             rel: 'metadata',
             title: 'Native metadata for collection',
             type: 'application/xml'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/LAADS.umm_json',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
             rel: 'metadata',
             title: 'JSON metadata for collection',
             type: 'application/json'
           }
         ],
-        id: 'LAADS',
+        id: 'id',
         title: 'datasetId' });
     });
 
@@ -198,43 +196,43 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/cmr-stac/collections/LAADS',
+            href: 'http://example.com/cmr-stac/collections/id',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/stac/search?collectionId=LAADS',
+            href: 'http://example.com/cmr-stac/stac/search?collectionId=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=LAADS',
+            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
             rel: 'cmr',
             title: 'CMR Search this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/collections/LAADS/items',
+            href: 'http://example.com/cmr-stac/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/LAADS.html',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
             rel: 'overview',
             title: 'HTML metadata for collection',
             type: 'text/html'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/LAADS.xml',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.xml',
             rel: 'metadata',
             title: 'Native metadata for collection',
             type: 'application/xml'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/LAADS.umm_json',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
             rel: 'metadata',
             title: 'JSON metadata for collection',
             type: 'application/json'
           }
         ],
-        id: 'LAADS',
+        id: 'id',
         title: 'datasetId' });
     });
   });

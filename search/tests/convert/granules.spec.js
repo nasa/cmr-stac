@@ -154,7 +154,6 @@ describe('granuleToItem', () => {
   describe('cmrGranToFeatureGeoJSON', () => {
     const cmrGran = {
       id: 1,
-      producer_granule_id: 'AST_L1A#00310102016013836_10112016120846.hdf',
       collection_concept_id: 10,
       bbox: [90, -180, -90, 180],
       dataset_id: 'datasetId',
@@ -184,7 +183,7 @@ describe('granuleToItem', () => {
     it('should return a FeatureGeoJSON from a cmrGran', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
-        id: 'AST_L1A#00310102016013836_10112016120846.hdf',
+        id: 1,
         bbox: undefined,
         collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
@@ -206,7 +205,7 @@ describe('granuleToItem', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://example.com/cmr-stac/collections/10/items/AST_L1A#00310102016013836_10112016120846.hdf'
+            href: 'http://example.com/cmr-stac/collections/10/items/1'
           },
           {
             rel: 'parent',
@@ -231,7 +230,6 @@ describe('granuleToItem', () => {
   describe('cmrGranulesToFeatureCollection', () => {
     const cmrGran = [{
       id: 1,
-      producer_granule_id: 'AST_L1A#00310102016013836_10112016120846.hdf',
       collection_concept_id: 10,
       dataset_id: 'datasetId',
       summary: 'summary',
@@ -255,7 +253,7 @@ describe('granuleToItem', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
         features: [{
-          id: 'AST_L1A#00310102016013836_10112016120846.hdf',
+          id: 1,
           collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
           bbox: undefined,
@@ -274,7 +272,7 @@ describe('granuleToItem', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com/cmr-stac/collections/10/items/AST_L1A#00310102016013836_10112016120846.hdf'
+              href: 'http://example.com/cmr-stac/collections/10/items/1'
             },
             {
               rel: 'parent',
