@@ -123,7 +123,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       {
         rel: 'self',
         href: generateAppUrl(event,
-          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.producer_granule_id}`)
+          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
       },
       {
         rel: 'parent',

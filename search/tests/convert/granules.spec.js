@@ -206,7 +206,7 @@ describe('granuleToItem', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://example.com/cmr-stac/collections/10/items/AST_L1A#00310102016013836_10112016120846.hdf'
+            href: 'http://example.com/cmr-stac/collections/10/items/1'
           },
           {
             rel: 'parent',
@@ -274,7 +274,7 @@ describe('granuleToItem', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com/cmr-stac/collections/10/items/AST_L1A#00310102016013836_10112016120846.hdf'
+              href: 'http://example.com/cmr-stac/collections/10/items/1'
             },
             {
               rel: 'parent',
