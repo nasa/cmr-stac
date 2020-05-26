@@ -2,6 +2,7 @@ const {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
   cmrSpatialToGeoJSONGeometry,
+  cmrSpatialToStacBbox,
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection
 } = require('../../lib/convert');
@@ -151,11 +152,47 @@ describe('granuleToItem', () => {
     });
   });
 
+  describe('cmrSpatialToStacBbox', () => {
+    let cmrCollection;
+
+    it('should return a bounding box from given polygon', () => {
+      cmrCollection = {
+        polygons: [['30 -10 70 33 -145 66']]
+      };
+      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-145, -10, 70, 66]);
+    });
+
+    it('should return a bounding box from given points', () => {
+      cmrCollection = {
+        points: ['30 -10', '70 33', '-145 66']
+      };
+      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-145, -10, 70, 66]);
+    });
+
+    it('should return a bounding box from provided coordinates [west north east south]', () => {
+      cmrCollection = {
+        boxes: ['-74.6 -123.4 33.3 54.9 ']
+      };
+      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-123.4, -74.6, 54.9, 33.3]);
+    });
+
+    it('should reorder values to fit stac spec [west north east south]', () => {
+      cmrCollection = {
+        boxes: ['-90 -180 90 180']
+      };
+      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-180, -90, 180, 90]);
+    });
+
+    it('should return a bounding box containing the WHOLE_WORLD_BBOX', () => {
+      cmrCollection = {};
+      expect(() => cmrSpatialToStacBbox(cmrCollection)).toThrow(Error);
+    });
+  });
+
   describe('cmrGranToFeatureGeoJSON', () => {
     const cmrGran = {
       id: 1,
       collection_concept_id: 10,
-      bbox: [90, -180, -90, 180],
       dataset_id: 'datasetId',
       summary: 'summary',
       time_start: 0,
@@ -184,7 +221,8 @@ describe('granuleToItem', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
         id: 1,
-        bbox: undefined,
+        stac_version: '0.8.0',
+        bbox: [77, 39, 77, 39],
         collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
         properties: {
@@ -252,11 +290,13 @@ describe('granuleToItem', () => {
     it('should return a cmrGranule to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
+        stac_version: '0.8.0',
         features: [{
           id: 1,
+          stac_version: '0.8.0',
           collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
-          bbox: undefined,
+          bbox: [77, 39, 77, 39],
           properties: {
             datetime: '0',
             start_datetime: '0',

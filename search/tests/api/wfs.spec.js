@@ -93,15 +93,30 @@ describe('wfs routes', () => {
 
       expect(cmr.findGranules).toHaveBeenCalled();
       expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
-      expect(response.json).toHaveBeenCalledWith({ features: [{ response: 'okay' }], links: [{ rel: 'self', href: 'http://example.com' }, { rel: 'next', href: 'http://example.com?page_num=2' }], type: 'FeatureCollection' });
+      expect(response.json).toHaveBeenCalledWith({
+        features: [
+          { response: 'okay' }
+        ],
+        stac_version: '0.8.0',
+        links: [
+          {
+            rel: 'self',
+            href: 'http://example.com'
+          },
+          { rel: 'next',
+            href: 'http://example.com?page_num=2'
+          }
+        ],
+        type: 'FeatureCollection'
+      });
 
       revertFunction(cmr, 'findGranules');
       revertFunction(convert, 'cmrGranToFeatureGeoJSON');
     });
 
-    it('should generate an item collection response with a  prev link', async() => {
+    it('should generate an item collection response with a  prev link', async () => {
       request.query = {};
-      request.apiGateway.event.queryStringParameters = {'page_num': '2'};
+      request.apiGateway.event.queryStringParameters = { page_num: '2' };
 
       mockFunction(cmr, 'findGranules');
       mockFunction(convert, 'cmrGranToFeatureGeoJSON');
@@ -115,6 +130,7 @@ describe('wfs routes', () => {
       expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
       expect(response.json).toHaveBeenCalledWith({
         features: [{ response: 'okay' }],
+        stac_version: '0.8.0',
         links: [
           {
             rel: 'self',

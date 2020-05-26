@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const cmr = require('../cmr');
-const { pointStringToPoints, parseOrdinateString } = require('./bounding-box');
+const settings = require('../settings');
+const { pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
@@ -49,6 +50,28 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
     type: 'GeometryCollection',
     geometries: geometry
   };
+}
+
+function cmrSpatialToStacBbox (cmrGran) {
+  let bbox = null;
+  if (cmrGran.polygons) {
+    bbox = cmrGran.polygons
+      .map((rings) => rings[0])
+      .map(pointStringToPoints)
+      .reduce(addPointsToBbox, bbox);
+  }
+  if (cmrGran.points) {
+    const points = cmrGran.points.map(parseOrdinateString);
+    bbox = addPointsToBbox(bbox, points);
+  }
+  if (cmrGran.boxes) {
+    const mergedBox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
+    bbox = reorderBoxValues(mergedBox);
+  }
+  if (bbox === null) {
+    throw new Error(`Unknown spatial in ${cmrGran.id}`);
+  }
+  return bbox;
 }
 
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
@@ -123,9 +146,10 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   return {
     type: 'Feature',
     id: cmrGran.id,
+    stac_version: settings.stac.version,
     collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
-    bbox: cmrGran.bounding_box,
+    bbox: cmrSpatialToStacBbox(cmrGran),
     links: [
       {
         rel: 'self',
@@ -171,6 +195,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
 
     return {
       type: 'FeatureCollection',
+      stac_version: settings.stac.version,
       features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
       links: {
         self: generateSelfUrl(event),
@@ -188,6 +213,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
 
   return {
     type: 'FeatureCollection',
+    stac_version: settings.stac.version,
     features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
     links: [
       {
@@ -202,6 +228,7 @@ module.exports = {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
   cmrSpatialToGeoJSONGeometry,
+  cmrSpatialToStacBbox,
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection
 };
