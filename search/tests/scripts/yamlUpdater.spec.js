@@ -2,7 +2,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const {
   STACYamlUrl,
-  WFS3YamlUrl,
+  OAFeatUrl,
   retrieveYaml,
   mergeObjects,
   loadAndMergeYamlFiles,
@@ -17,19 +17,19 @@ describe('yamlUpdater', () => {
     });
 
     it('should return an object', async () => {
-      const response = await retrieveYaml(WFS3YamlUrl);
+      const response = await retrieveYaml(OAFeatUrl);
       expect(typeof response).toBe('object');
     });
 
     it('should return the unique data from the given url', async () => {
-      const response = await retrieveYaml(WFS3YamlUrl);
+      const response = await retrieveYaml(OAFeatUrl);
       expect(response.info.title).toBe('OGC API - Features - Part 1: Core');
     });
   });
 
   describe('mergeObject', () => {
     const testStacObj = { test: 'test' };
-    const testWfs3Obj = {
+    const testOaObj = {
       test: 'old test',
       word: 'anotherWord'
     };
@@ -40,7 +40,7 @@ describe('yamlUpdater', () => {
     });
 
     it('should return the merged object', () => {
-      const newObject = mergeObjects(testStacObj, testWfs3Obj);
+      const newObject = mergeObjects(testStacObj, testOaObj);
       expect(newObject).toEqual({
         test: 'test',
         word: 'anotherWord'
@@ -54,7 +54,7 @@ describe('yamlUpdater', () => {
     });
 
     it('should return a merged yaml object', async () => {
-      const testYamlString = await loadAndMergeYamlFiles(STACYamlUrl, WFS3YamlUrl);
+      const testYamlString = await loadAndMergeYamlFiles(STACYamlUrl, OAFeatUrl);
       expect(typeof testYamlString).toEqual('string');
     });
   });
@@ -87,7 +87,7 @@ describe('yamlUpdater', () => {
     });
 
     it('should create a new yaml file', async () => {
-      await updateYaml(STACYamlUrl, WFS3YamlUrl, './docs/WFS3core+STAC.yaml');
+      await updateYaml(STACYamlUrl, OAFeatUrl, './docs/OAcore+STAC.yaml');
     });
   });
 });

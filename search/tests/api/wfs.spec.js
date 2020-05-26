@@ -14,7 +14,8 @@ describe('wfs routes', () => {
   beforeEach(() => {
     request = {
       apiGateway: {
-        event: { headers: { Host: 'example.com' } }
+        // event: { headers: { Host: 'example.com', queryStringParameters: { page_num: 1 } } }
+        event: { headers: { Host: 'example.com', queryStringParameters: { page_num: 1 } } }
       },
       params: {
         collectionId: '1',
@@ -92,7 +93,44 @@ describe('wfs routes', () => {
 
       expect(cmr.findGranules).toHaveBeenCalled();
       expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
-      expect(response.json).toHaveBeenCalledWith({ features: [{ response: 'okay' }] });
+      expect(response.json).toHaveBeenCalledWith({ features: [{ response: 'okay' }], links: [{ rel: 'self', href: 'http://example.com' }, { rel: 'next', href: 'http://example.com?page_num=2' }], type: 'FeatureCollection' });
+
+      revertFunction(cmr, 'findGranules');
+      revertFunction(convert, 'cmrGranToFeatureGeoJSON');
+    });
+
+    it('should generate an item collection response with a  prev link', async() => {
+      request.query = {};
+      request.apiGateway.event.queryStringParameters = {'page_num': '2'};
+
+      mockFunction(cmr, 'findGranules');
+      mockFunction(convert, 'cmrGranToFeatureGeoJSON');
+
+      cmr.findGranules.mockReturnValue(Promise.resolve([{}]));
+      convert.cmrGranToFeatureGeoJSON.mockReturnValue({ response: 'okay' });
+
+      await getGranules(request, response);
+
+      expect(cmr.findGranules).toHaveBeenCalled();
+      expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
+      expect(response.json).toHaveBeenCalledWith({
+        features: [{ response: 'okay' }],
+        links: [
+          {
+            rel: 'self',
+            href: 'http://example.com?page_num=2'
+          },
+          {
+            rel: 'prev',
+            href: 'http://example.com?page_num=1'
+          },
+          {
+            rel: 'next',
+            href: 'http://example.com?page_num=3'
+          }
+        ],
+        type: 'FeatureCollection'
+      });
 
       revertFunction(cmr, 'findGranules');
       revertFunction(convert, 'cmrGranToFeatureGeoJSON');

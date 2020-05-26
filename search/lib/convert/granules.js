@@ -77,11 +77,20 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     cmrGran.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
   );
 
-  const linkToAsset = (l) => ({
-    name: l.title,
-    href: l.href,
-    type: l.type
-  });
+  const linkToAsset = (l) => {
+    if (l.title === undefined) {
+      return {
+        href: l.href,
+        type: l.type
+      };
+    } else {
+      return {
+        name: l.title,
+        href: l.href,
+        type: l.type
+      };
+    }
+  };
 
   const assets = {};
   if (dataLink) {
@@ -89,29 +98,57 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   }
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
+
+    if (browseLink.href.includes('.png')) {
+      assets.browse.type = 'images/png';
+    }
+    if (browseLink.href.includes('.tiff')) {
+      assets.browse.type = 'images/tiff';
+    }
+    if (browseLink.href.includes('.tif')) {
+      assets.browse.type = 'images/tiff';
+    }
+    if (browseLink.href.includes('.raw')) {
+      assets.browse.type = 'images/raw';
+    } else {
+      assets.browse.type = 'images/jpeg';
+    }
   }
   if (opendapLink) {
     assets.opendap = linkToAsset(opendapLink);
   }
 
+  assets.metadata = wfs.createAssetLink(cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`));
+
   return {
     type: 'Feature',
     id: cmrGran.id,
+    collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
-    links: {
-      self: {
+    bbox: cmrGran.bounding_box,
+    links: [
+      {
         rel: 'self',
         href: generateAppUrl(event,
           `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
       },
-      parent: {
+      {
         rel: 'parent',
         href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
       },
-      metadata: wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`))
-    },
+      {
+        rel: 'collection',
+        href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
+      },
+      {
+        rel: 'root',
+        href: generateAppUrl(event)
+      },
+      {
+        provider: cmrGran.data_center
+      }
+    ],
     properties: {
-      provider: cmrGran.data_center,
       datetime,
       start_datetime,
       end_datetime
@@ -121,6 +158,28 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
 }
 
 function cmrGranulesToFeatureCollection (event, cmrGrans) {
+  if (event.queryStringParameters.page_num > 1) {
+    const currPage = event.queryStringParameters.page_num;
+    const nextPage = currPage + 1;
+    const prevPage = currPage - 1;
+    const newParams = { ...event.queryStringParameters } || {};
+    newParams.page_num = nextPage;
+    const newPrevParams = { ...event.queryStringParameters } || {};
+    newPrevParams.page_num = prevPage;
+    const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
+    const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
+
+    return {
+      type: 'FeatureCollection',
+      features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
+      links: {
+        self: generateSelfUrl(event),
+        prev: prevResultsLink,
+        next: nextResultsLink
+      }
+    };
+  }
+
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
   const newParams = { ...event.queryStringParameters } || {};
@@ -130,10 +189,12 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
   return {
     type: 'FeatureCollection',
     features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
-    links: {
-      self: generateSelfUrl(event),
-      next: nextResultsLink
-    }
+    links: [
+      {
+        self: generateSelfUrl(event),
+        next: nextResultsLink
+      }
+    ]
   };
 }
 

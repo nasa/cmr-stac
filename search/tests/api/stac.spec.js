@@ -6,7 +6,7 @@ const { mockFunction, revertFunction, logger } = require('../util');
 
 describe('getSearch', () => {
   it('should return a set of collections that match a simple query', async () => {
-    const request = { apiGateway: { event: {} }, app: { logger: logger } };
+    const request = { apiGateway: {}, app: { logger: logger } };
     const response = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()

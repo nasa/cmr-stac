@@ -1,6 +1,6 @@
 const cmr = require('../cmr');
 const { wfs, generateAppUrl } = require('../util');
-const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes } = require('./bounding-box');
+const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
 
 function cmrCollSpatialToExtents (cmrColl) {
   let bbox = null;
@@ -18,7 +18,8 @@ function cmrCollSpatialToExtents (cmrColl) {
     throw new Error(`Unexpected spatial extent of lines in ${cmrColl.id}`);
   }
   if (cmrColl.boxes) {
-    bbox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
+    const mergedBox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
+    bbox = reorderBoxValues(mergedBox);
   }
   if (bbox === null) {
     // whole world bbox
@@ -49,7 +50,7 @@ function createExtent (cmrCollection) {
     trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian',
     temporal: [
       cmrCollection.time_start,
-      (cmrCollection.time_end || cmrCollection.time_start)
+      (cmrCollection.time_end || null)
     ]
   };
 }
