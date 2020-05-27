@@ -99,9 +99,9 @@ describe('wfs routes', () => {
       revertFunction(convert, 'cmrGranToFeatureGeoJSON');
     });
 
-    it('should generate an item collection response with a  prev link', async() => {
+    it('should generate an item collection response with a  prev link', async () => {
       request.query = {};
-      request.apiGateway.event.queryStringParameters = {'page_num': '2'};
+      request.apiGateway.event.queryStringParameters = { page_num: '2' };
 
       mockFunction(cmr, 'findGranules');
       mockFunction(convert, 'cmrGranToFeatureGeoJSON');

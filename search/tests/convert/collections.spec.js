@@ -176,7 +176,8 @@ describe('collections', () => {
         ],
         id: 'id',
         title: 'datasetId',
-        stac_version: settings.stac.version
+        stac_version: settings.stac.version,
+        license: 'proprietary'
       });
     });
 
@@ -237,7 +238,8 @@ describe('collections', () => {
         ],
         id: 'id',
         title: 'datasetId',
-        stac_version: settings.stac.version
+        stac_version: settings.stac.version,
+        license: 'proprietary'
       });
     });
   });
