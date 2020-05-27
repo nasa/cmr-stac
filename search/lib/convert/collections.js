@@ -1,4 +1,5 @@
 const cmr = require('../cmr');
+const settings = require('../settings');
 const { wfs, generateAppUrl } = require('../util');
 const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
 
@@ -78,6 +79,7 @@ function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return null;
   return {
     id: cmrCollection.id,
+    stac_version: settings.stac.version,
     title: cmrCollection.dataset_id,
     description: cmrCollection.summary,
     links: createLinks(event, cmrCollection),
