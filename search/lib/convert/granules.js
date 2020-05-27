@@ -69,7 +69,7 @@ function cmrSpatialToStacBbox (cmrGran) {
     bbox = reorderBoxValues(mergedBox);
   }
   if (bbox === null) {
-    throw new Error(`Unknown spatial in ${cmrGran.id}`);
+    bbox = [];
   }
   return bbox;
 }

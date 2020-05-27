@@ -185,7 +185,7 @@ describe('granuleToItem', () => {
 
     it('should return a bounding box containing the WHOLE_WORLD_BBOX', () => {
       cmrCollection = {};
-      expect(() => cmrSpatialToStacBbox(cmrCollection)).toThrow(Error);
+      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([]);
     });
   });
 
