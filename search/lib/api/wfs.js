@@ -1,6 +1,7 @@
 const express = require('express');
 const { wfs, generateAppUrl, logger } = require('../util');
 const cmr = require('../cmr');
+const settings = require('../settings');
 const convert = require('../convert');
 const { generateAppUrlWithoutRelativeRoot, generateSelfUrl, extractParam } = require('../util');
 
@@ -34,7 +35,7 @@ async function getGranules (request, response) {
   const params = Object.assign({ collection_concept_id: conceptId }, cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query));
   const granules = await cmr.findGranules(params);
 
-  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10)
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
   const prevPage = currPage - 1;
   const newParams = { ...event.queryStringParameters } || {};
@@ -46,6 +47,7 @@ async function getGranules (request, response) {
 
   const granulesResponse = {
     type: 'FeatureCollection',
+    stac_version: settings.stac.version,
     features: granules.map(gran => convert.cmrGranToFeatureGeoJSON(event, gran)),
     links: [
       {
