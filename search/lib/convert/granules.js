@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const cmr = require('../cmr');
-const { pointStringToPoints, parseOrdinateString } = require('./bounding-box');
+const settings = require('../settings');
+const { pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
@@ -51,6 +52,28 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
   };
 }
 
+function cmrSpatialToStacBbox (cmrGran) {
+  let bbox = null;
+  if (cmrGran.polygons) {
+    bbox = cmrGran.polygons
+      .map((rings) => rings[0])
+      .map(pointStringToPoints)
+      .reduce(addPointsToBbox, bbox);
+  }
+  if (cmrGran.points) {
+    const points = cmrGran.points.map(parseOrdinateString);
+    bbox = addPointsToBbox(bbox, points);
+  }
+  if (cmrGran.boxes) {
+    const mergedBox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
+    bbox = reorderBoxValues(mergedBox);
+  }
+  if (bbox === null) {
+    bbox = [];
+  }
+  return bbox;
+}
+
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
@@ -82,13 +105,13 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       return {
         href: l.href,
         type: l.type
-      }
+      };
     } else {
       return {
         name: l.title,
         href: l.href,
         type: l.type
-      }
+      };
     }
   };
 
@@ -127,9 +150,10 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   return {
     type: 'Feature',
     id: cmrGran.id,
+    stac_version: settings.stac.version,
     collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
-    bbox: cmrGran.bounding_box,
+    bbox: cmrSpatialToStacBbox(cmrGran),
     links: [
       {
         rel: 'self',
@@ -161,7 +185,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 }
 
-function cmrGranulesToFeatureCollection (event, cmrGrans, currPageNumber) {
+function cmrGranulesToFeatureCollection (event, cmrGrans) {
   if (event.queryStringParameters.page_num > 1) {
     const currPage = event.queryStringParameters.page_num;
     const nextPage = currPage + 1;
@@ -175,6 +199,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, currPageNumber) {
 
     return {
       type: 'FeatureCollection',
+      stac_version: settings.stac.version,
       features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
       links: {
         self: generateSelfUrl(event),
@@ -192,6 +217,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, currPageNumber) {
 
   return {
     type: 'FeatureCollection',
+    stac_version: settings.stac.version,
     features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
     links: [
       {
@@ -206,6 +232,7 @@ module.exports = {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
   cmrSpatialToGeoJSONGeometry,
+  cmrSpatialToStacBbox,
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection
 };

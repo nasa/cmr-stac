@@ -1,8 +1,9 @@
 const express = require('express');
 const { wfs, generateAppUrl, logger } = require('../util');
 const cmr = require('../cmr');
+const settings = require('../settings');
 const convert = require('../convert');
-const { generateAppUrlWithoutRelativeRoot, extractParam, generateSelfUrl } = require('../util');
+const { generateAppUrlWithoutRelativeRoot, generateSelfUrl, extractParam } = require('../util');
 
 async function getCollections (request, response) {
   logger.info('GET /collections');
@@ -36,12 +37,17 @@ async function getGranules (request, response) {
 
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
+  const prevPage = currPage - 1;
   const newParams = { ...event.queryStringParameters } || {};
   newParams.page_num = nextPage;
+  const newPrevParams = { ...event.queryStringParameters } || {};
+  newPrevParams.page_num = prevPage;
+  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
 
   const granulesResponse = {
     type: 'FeatureCollection',
+    stac_version: settings.stac.version,
     features: granules.map(gran => convert.cmrGranToFeatureGeoJSON(event, gran)),
     links: [
       {
@@ -54,6 +60,14 @@ async function getGranules (request, response) {
       }
     ]
   };
+
+  if (currPage > 1 && granulesResponse.links.length > 1) {
+    granulesResponse.links.splice(1, 0, {
+      rel: 'prev',
+      href: prevResultsLink
+    });
+  }
+
   response.status(200).json(granulesResponse);
 }
 

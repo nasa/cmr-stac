@@ -5,6 +5,7 @@ const {
   cmrCollToWFSColl
 } = require('../../lib/convert/collections');
 const { WHOLE_WORLD_BBOX } = require('../../lib/convert');
+const settings = require('../../lib/settings');
 
 describe('collections', () => {
   describe('cmrCollSpatialToExtents', () => {
@@ -174,7 +175,10 @@ describe('collections', () => {
           }
         ],
         id: 'id',
-        title: 'datasetId' });
+        title: 'datasetId',
+        stac_version: settings.stac.version,
+        license: 'proprietary'
+      });
     });
 
     it('should return null as the temporal extent end time', () => {
@@ -233,7 +237,10 @@ describe('collections', () => {
           }
         ],
         id: 'id',
-        title: 'datasetId' });
+        title: 'datasetId',
+        stac_version: settings.stac.version,
+        license: 'proprietary'
+      });
     });
   });
 });
