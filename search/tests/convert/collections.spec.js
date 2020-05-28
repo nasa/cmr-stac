@@ -113,6 +113,7 @@ describe('collections', () => {
     const cmrCollTemporal = {
       id: 'id',
       dataset_id: 'datasetId',
+      license: 'apache 2.0',
       summary: 'summary',
       time_start: '2009-01-01T00:00:00Z'
     };
@@ -177,7 +178,7 @@ describe('collections', () => {
         id: 'id',
         title: 'datasetId',
         stac_version: settings.stac.version,
-        license: 'proprietary'
+        license: ''
       });
     });
 
@@ -239,7 +240,7 @@ describe('collections', () => {
         id: 'id',
         title: 'datasetId',
         stac_version: settings.stac.version,
-        license: 'proprietary'
+        license: 'apache 2.0'
       });
     });
   });
