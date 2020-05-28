@@ -178,7 +178,7 @@ describe('collections', () => {
         id: 'id',
         title: 'datasetId',
         stac_version: settings.stac.version,
-        license: ''
+        license: null
       });
     });
 
