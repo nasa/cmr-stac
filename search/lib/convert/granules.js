@@ -122,19 +122,23 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
 
-    if (browseLink.href.includes('.png')) {
-      assets.browse.type = 'images/png';
-    }
-    if (browseLink.href.includes('.tiff')) {
-      assets.browse.type = 'images/tiff';
-    }
-    if (browseLink.href.includes('.tif')) {
-      assets.browse.type = 'images/tiff';
-    }
-    if (browseLink.href.includes('.raw')) {
-      assets.browse.type = 'images/raw';
-    } else {
-      assets.browse.type = 'images/jpeg';
+    const splitBrowseLink = browseLink.href.split('.');
+    const browseExtension = splitBrowseLink[splitBrowseLink.length - 1];
+
+    switch (browseExtension) {
+      case 'png':
+        assets.browse.type = 'image/png';
+        break;
+      case 'tiff':
+      case 'tif':
+        assets.browse.type = 'image/tiff';
+        break;
+      case 'raw':
+        assets.browse.type = 'image/raw';
+        break;
+      default:
+        assets.browse.type = 'image/jpeg';
+        break;
     }
   }
   if (opendapLink) {
