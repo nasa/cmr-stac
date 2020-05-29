@@ -104,6 +104,7 @@ describe('collections', () => {
   describe('cmrCollToWFSCol', () => {
     const cmrColl = {
       id: 'id',
+      license: 'Apache-2.0',
       dataset_id: 'datasetId',
       summary: 'summary',
       time_start: '0',
@@ -177,7 +178,7 @@ describe('collections', () => {
         id: 'id',
         title: 'datasetId',
         stac_version: settings.stac.version,
-        license: 'proprietary'
+        license: 'Apache-2.0'
       });
     });
 
@@ -239,7 +240,7 @@ describe('collections', () => {
         id: 'id',
         title: 'datasetId',
         stac_version: settings.stac.version,
-        license: 'proprietary'
+        license: 'Not Provided'
       });
     });
   });
