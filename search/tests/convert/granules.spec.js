@@ -233,7 +233,7 @@ describe('granuleToItem', () => {
         assets: {
           browse: {
             href: 'http://example.com/images/abc.jpg',
-            type: 'images/jpeg'
+            type: 'image/jpeg'
           },
           metadata: {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
