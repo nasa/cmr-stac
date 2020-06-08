@@ -240,7 +240,7 @@ describe('collections', () => {
         id: 'id',
         title: 'datasetId',
         stac_version: settings.stac.version,
-        license: 'Not Provided'
+        license: 'not-provided'
       });
     });
   });
