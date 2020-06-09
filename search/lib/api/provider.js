@@ -21,10 +21,6 @@ async function getProviders (event) {
   }
 }
 
-// function providerLink(provider) {
-//
-// }
-
 module.exports = {
   getProviders
 };
