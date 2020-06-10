@@ -125,12 +125,16 @@ describe('collections', () => {
         description: 'summary',
         extent: {
           crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
-          spatial: [
-            -180,
-            -90,
-            180,
-            90
-          ],
+          spatial: {
+            bbox: [
+              [
+                -180,
+                -90,
+                180,
+                90
+              ]
+            ]
+          },
           temporal: [
             '0',
             '1'
@@ -187,12 +191,16 @@ describe('collections', () => {
         description: 'summary',
         extent: {
           crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
-          spatial: [
-            -180,
-            -90,
-            180,
-            90
-          ],
+          spatial: {
+            bbox: [
+              [
+                -180,
+                -90,
+                180,
+                90
+              ]
+            ]
+          },
           temporal: [
             '2009-01-01T00:00:00Z',
             null
