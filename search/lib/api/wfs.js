@@ -6,13 +6,18 @@ const convert = require('../convert');
 const { generateAppUrlWithoutRelativeRoot, generateSelfUrl, extractParam } = require('../util');
 
 async function getCollections (request, response) {
-  logger.info('GET /collections');
+  logger.info(`GET ${request.params.providerId}/collections`);
   const event = request.apiGateway.event;
-  const params = cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query);
+  const provider= request.params.providerId;
+  const params = Object.assign(
+      { provider_short_name: provider },
+      cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
+  );
   const collections = await cmr.findCollections(params);
   const collectionsResponse = {
     links: [
-      wfs.createLink('self', generateAppUrl(event, '/collections'), 'this document')
+      wfs.createLink('self', generateAppUrl(event, `/${request.params.providerId}/collections`),
+        `All collections provided by ${provider}`)
     ],
     collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
   };
@@ -20,7 +25,7 @@ async function getCollections (request, response) {
 }
 
 async function getCollection (request, response) {
-  logger.info(`GET /collections/${request.params.collectionId}`);
+  logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}`);
   const event = request.apiGateway.event;
   const conceptId = request.params.collectionId;
   const collection = await cmr.getCollection(conceptId);
@@ -29,7 +34,7 @@ async function getCollection (request, response) {
 }
 
 async function getGranules (request, response) {
-  logger.info(`GET /collections/${request.params.collectionId}/items`);
+  logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}/items`);
   const event = request.apiGateway.event;
   const conceptId = request.params.collectionId;
   const params = Object.assign({ collection_concept_id: conceptId }, cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query));
@@ -72,7 +77,7 @@ async function getGranules (request, response) {
 }
 
 async function getGranule (request, response) {
-  logger.info(`GET /collections/${request.params.collectionId}/items/${request.params.itemId}`);
+  logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}/items/${request.params.itemId}`);
   const event = request.apiGateway.event;
   const collConceptId = request.params.collectionId;
   const conceptId = request.params.itemId;
@@ -94,11 +99,11 @@ const CONFORMANCE_RESPONSE = {
 };
 
 const routes = express.Router();
-routes.get('/collections', (req, res) => getCollections(req, res));
-routes.get('/collections/:collectionId', (req, res) => getCollection(req, res));
-routes.get('/collections/:collectionId/items', (req, res) => getGranules(req, res));
-routes.get('/collections/:collectionId/items/:itemId', (req, res) => getGranule(req, res));
-routes.get('/conformance', (req, res) => res.status(200).json(CONFORMANCE_RESPONSE));
+routes.get('/:providerId/collections', (req, res) => getCollections(req, res));
+routes.get('/:providerId/collections/:collectionId', (req, res) => getCollection(req, res));
+routes.get('/:providerId/collections/:collectionId/items', (req, res) => getGranules(req, res));
+routes.get('/:providerId/collections/:collectionId/items/:itemId', (req, res) => getGranule(req, res));
+routes.get('/:providerId/conformance', (req, res) => res.status(200).json(CONFORMANCE_RESPONSE));
 
 module.exports = {
   getCollections,

@@ -11,7 +11,7 @@ async function getProviders (event) {
         id: provider['provider-id'],
         title: provider['short-name'],
         rel: 'provider',
-        href: generateAppUrl(event, `/${provider['provider-id']}`),
+        href: generateAppUrl(event, `/${provider['provider-id']}/collections`),
         type: 'application/json'
       });
     }
