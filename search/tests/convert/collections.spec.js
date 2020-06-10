@@ -135,10 +135,14 @@ describe('collections', () => {
               ]
             ]
           },
-          temporal: [
-            '0',
-            '1'
-          ],
+          temporal: {
+            interval: [
+              [
+                '0',
+                '1'
+              ]
+            ]
+          },
           trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
         },
         links: [
@@ -201,10 +205,14 @@ describe('collections', () => {
               ]
             ]
           },
-          temporal: [
-            '2009-01-01T00:00:00Z',
-            null
-          ],
+          temporal: {
+            interval: [
+              [
+                '2009-01-01T00:00:00Z',
+                null
+              ]
+            ]
+          },
           trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
         },
         links: [
