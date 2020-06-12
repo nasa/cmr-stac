@@ -221,7 +221,7 @@ describe('granuleToItem', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
         id: 1,
-        stac_version: '0.8.0',
+        stac_version: '1.0.0-beta.1',
         bbox: [77, 39, 77, 39],
         collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
@@ -290,10 +290,10 @@ describe('granuleToItem', () => {
     it('should return a cmrGranule to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
-        stac_version: '0.8.0',
+        stac_version: '1.0.0-beta.1',
         features: [{
           id: 1,
-          stac_version: '0.8.0',
+          stac_version: '1.0.0-beta.1',
           collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
           bbox: [77, 39, 77, 39],

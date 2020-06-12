@@ -47,12 +47,16 @@ function cmrGranuleSearchWithCurrentParams (event, collId) {
 function createExtent (cmrCollection) {
   return {
     crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
-    spatial: cmrCollSpatialToExtents(cmrCollection),
+    spatial: { bbox: [cmrCollSpatialToExtents(cmrCollection)] },
     trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian',
-    temporal: [
-      cmrCollection.time_start,
-      (cmrCollection.time_end || null)
-    ]
+    temporal: {
+      interval: [
+        [
+          cmrCollection.time_start,
+          (cmrCollection.time_end || null)
+        ]
+      ]
+    }
   };
 }
 
@@ -80,7 +84,7 @@ function cmrCollToWFSColl (event, cmrCollection) {
   return {
     id: cmrCollection.id,
     stac_version: settings.stac.version,
-    license: cmrCollection.license || 'Not Provided',
+    license: cmrCollection.license || 'not-provided',
     title: cmrCollection.dataset_id,
     description: cmrCollection.summary,
     links: createLinks(event, cmrCollection),

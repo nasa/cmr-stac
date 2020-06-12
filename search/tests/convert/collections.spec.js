@@ -125,16 +125,24 @@ describe('collections', () => {
         description: 'summary',
         extent: {
           crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
-          spatial: [
-            -180,
-            -90,
-            180,
-            90
-          ],
-          temporal: [
-            '0',
-            '1'
-          ],
+          spatial: {
+            bbox: [
+              [
+                -180,
+                -90,
+                180,
+                90
+              ]
+            ]
+          },
+          temporal: {
+            interval: [
+              [
+                '0',
+                '1'
+              ]
+            ]
+          },
           trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
         },
         links: [
@@ -187,16 +195,24 @@ describe('collections', () => {
         description: 'summary',
         extent: {
           crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
-          spatial: [
-            -180,
-            -90,
-            180,
-            90
-          ],
-          temporal: [
-            '2009-01-01T00:00:00Z',
-            null
-          ],
+          spatial: {
+            bbox: [
+              [
+                -180,
+                -90,
+                180,
+                90
+              ]
+            ]
+          },
+          temporal: {
+            interval: [
+              [
+                '2009-01-01T00:00:00Z',
+                null
+              ]
+            ]
+          },
           trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
         },
         links: [
@@ -240,7 +256,7 @@ describe('collections', () => {
         id: 'id',
         title: 'datasetId',
         stac_version: settings.stac.version,
-        license: 'Not Provided'
+        license: 'not-provided'
       });
     });
   });

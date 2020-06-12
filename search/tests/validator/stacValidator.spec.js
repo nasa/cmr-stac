@@ -3,14 +3,14 @@ const { validateStac } = require('../../lib/validator');
 describe('stacValidator', () => {
   describe('validateStac', () => {
     const validStacFeature = {
-      stac_version: '0.8.0',
+      stac_version: '1.0.0-beta.1',
       id: '1',
       description: 'description',
       links: []
     };
 
     const invalidStacFeature = {
-      stac_version: '0.8.0',
+      stac_version: '1.0.0-beta.1',
       id: '1',
       description: '',
       links: []
