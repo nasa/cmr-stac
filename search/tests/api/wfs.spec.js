@@ -97,7 +97,7 @@ describe('wfs routes', () => {
         features: [
           { response: 'okay' }
         ],
-        stac_version: '0.8.0',
+        stac_version: '1.0.0-beta.1',
         links: [
           {
             rel: 'self',
@@ -130,7 +130,7 @@ describe('wfs routes', () => {
       expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
       expect(response.json).toHaveBeenCalledWith({
         features: [{ response: 'okay' }],
-        stac_version: '0.8.0',
+        stac_version: '1.0.0-beta.1',
         links: [
           {
             rel: 'self',
