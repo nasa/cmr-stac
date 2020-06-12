@@ -8,16 +8,17 @@ const { generateAppUrlWithoutRelativeRoot, generateSelfUrl, extractParam } = req
 async function getCollections (request, response) {
   logger.info(`GET ${request.params.providerId}/collections`);
   const event = request.apiGateway.event;
-  const provider= request.params.providerId;
+  const provider = request.params.providerId;
   const params = Object.assign(
-      { provider_short_name: provider },
-      cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
+    { provider_short_name: provider },
+    cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
   );
   const collections = await cmr.findCollections(params);
   const collectionsResponse = {
     links: [
       wfs.createLink('self', generateAppUrl(event, `/${request.params.providerId}/collections`),
-        `All collections provided by ${provider}`)
+        `All collections provided by ${provider}`),
+      wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root')
     ],
     collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
   };
@@ -103,7 +104,7 @@ routes.get('/:providerId/collections', (req, res) => getCollections(req, res));
 routes.get('/:providerId/collections/:collectionId', (req, res) => getCollection(req, res));
 routes.get('/:providerId/collections/:collectionId/items', (req, res) => getGranules(req, res));
 routes.get('/:providerId/collections/:collectionId/items/:itemId', (req, res) => getGranule(req, res));
-routes.get('/:providerId/conformance', (req, res) => res.status(200).json(CONFORMANCE_RESPONSE));
+routes.get('/conformance', (req, res) => res.status(200).json(CONFORMANCE_RESPONSE));
 
 module.exports = {
   getCollections,

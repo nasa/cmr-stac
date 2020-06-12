@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { generateAppUrl } = require('../util');
+const { wfs, generateAppUrl } = require('../util');
 
 async function getProviders (event) {
   try {
@@ -7,12 +7,19 @@ async function getProviders (event) {
     const providers = rawProviders.data;
     const providerList = [];
     for (const provider of providers) {
+      console.log(provider)
+      const providerId = provider['provider-id']
       providerList.push({
-        id: provider['provider-id'],
+        id: providerId,
         title: provider['short-name'],
         rel: 'provider',
-        href: generateAppUrl(event, `/${provider['provider-id']}/collections`),
-        type: 'application/json'
+        type: 'application/json',
+        links: [
+          wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
+            'Collections for this provider'),
+          wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
+            'STAC Search endpoint for this provider')
+        ]
       });
     }
     return providerList;

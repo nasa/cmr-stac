@@ -77,12 +77,13 @@ function createLinks (event, cmrCollection) {
     wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.umm_json`),
       'JSON metadata for collection')
   ];
-};
+}
 
 function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return null;
   return {
     id: cmrCollection.id,
+    short_name: cmrCollection.short_name,
     stac_version: settings.stac.version,
     license: cmrCollection.license || 'Not-Provided',
     title: cmrCollection.dataset_id,
