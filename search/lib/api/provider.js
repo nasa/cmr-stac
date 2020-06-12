@@ -7,8 +7,7 @@ async function getProviders (event) {
     const providers = rawProviders.data;
     const providerList = [];
     for (const provider of providers) {
-      console.log(provider)
-      const providerId = provider['provider-id']
+      const providerId = provider['provider-id'];
       providerList.push({
         id: providerId,
         title: provider['short-name'],
