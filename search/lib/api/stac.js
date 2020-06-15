@@ -17,10 +17,20 @@ async function search (event, params) {
 }
 
 async function getSearch (request, response) {
-  logger.info('GET /stac/search');
+  const providerId = request.params.providerId;
+  logger.info(`GET /${providerId}/search`);
   const event = request.apiGateway.event;
-  const params = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, request.query);
-  const result = await search(event, params);
+  // const params = Object.assign(
+  //     { provider: providerId,
+  //     limit: 10 },
+  //     cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, request.query));
+  const params = Object.assign(
+    { provider: providerId,
+      limit: 10 },
+    request.query
+  );
+  const convertedParams = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, params);
+  const result = await search(event, convertedParams);
 
   validResult = validateStac(result);
   validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
@@ -72,8 +82,8 @@ async function getCatalog (request, response) {
 
 const routes = express.Router();
 
-routes.get('/stac/search', (req, res, next) => getSearch(req, res).catch(next));
-routes.post('/stac/search', (req, res, next) => postSearch(req, res).catch(next));
+routes.get('/:providerId/search', (req, res, next) => getSearch(req, res).catch(next));
+routes.post('/:providerId/search', (req, res, next) => postSearch(req, res).catch(next));
 
 routes.get('/stac', (req, res) => getRootCatalog(req, res));
 routes.get('/stac/:catalogId', (req, res) => getCatalog(req, res));
