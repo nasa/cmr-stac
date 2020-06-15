@@ -151,7 +151,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       },
       {
         rel: 'parent',
-        href: generateAppUrl(event, `/${cmrGran.data_center}/collections/${cmrGran.collection_concept_id}`)
+        href: generateAppUrl(event, `/${cmrGran.data_center}/collections/${cmrGran.collection_concept_id}/items`)
       },
       {
         rel: 'collection',
@@ -189,7 +189,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
   const granulesResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
-    features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
+    features: cmrGrans.map(gran => cmrGranToFeatureGeoJSON(event, gran)),
     links: [
       {
         rel: 'self',
