@@ -15,8 +15,10 @@ async function getCollections (request, response) {
   );
   const collections = await cmr.findCollections(params);
   const collectionsResponse = {
+    id: provider,
+    description: `All collections provided by ${provider}`,
     links: [
-      wfs.createLink('self', generateAppUrl(event, `/${request.params.providerId}/collections`),
+      wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
         `All collections provided by ${provider}`),
       wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root')
     ],
