@@ -41,38 +41,6 @@ async function getGranules (request, response) {
   const params = Object.assign({ collection_concept_id: conceptId }, cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query));
   const granules = await cmr.findGranules(params);
   const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granules);
-  // const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
-  // const nextPage = currPage + 1;
-  // const prevPage = currPage - 1;
-  // const newParams = { ...event.queryStringParameters } || {};
-  // newParams.page_num = nextPage;
-  // const newPrevParams = { ...event.queryStringParameters } || {};
-  // newPrevParams.page_num = prevPage;
-  // const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
-  // const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
-  //
-  // const granulesResponse = {
-  //   type: 'FeatureCollection',
-  //   stac_version: settings.stac.version,
-  //   features: granules.map(gran => convert.cmrGranToFeatureGeoJSON(event, gran)),
-  //   links: [
-  //     {
-  //       rel: 'self',
-  //       href: generateSelfUrl(event)
-  //     },
-  //     {
-  //       rel: 'next',
-  //       href: nextResultsLink
-  //     }
-  //   ]
-  // };
-  //
-  // if (currPage > 1 && granulesResponse.links.length > 1) {
-  //   granulesResponse.links.splice(1, 0, {
-  //     rel: 'prev',
-  //     href: prevResultsLink
-  //   });
-  // }
 
   response.status(200).json(granulesResponse);
 }
