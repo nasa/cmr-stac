@@ -4,7 +4,6 @@ function validateStac (featureCollection) {
   try {
     for (const stacItem of featureCollection.features) {
       if (!stacItem.stac_version || !stacItem.id || !stacItem.links) {
-        console.error('Missing required fields');
         throw Error('Missing required fields');
       }
     }

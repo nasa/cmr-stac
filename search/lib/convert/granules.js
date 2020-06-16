@@ -163,13 +163,13 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       },
       {
         rel: 'provider',
-        href: generateAppUrl(event, `/${cmrGran.data_center}/collections`)
+        href: generateAppUrl(event, `/${cmrGran.data_center}`)
       }
     ],
     properties: {
-      datetime,
-      start_datetime: startDatetime,
-      end_datetime: endDatetime
+      datetime: datetime.toString(),
+      start_datetime: startDatetime.toString(),
+      end_datetime: endDatetime.toString()
     },
     assets
   };

@@ -6,7 +6,7 @@ const cmrConverter = require('../convert');
 // const { createRootCatalog, Catalog } = require('../stac').catalog;
 const { validateStac } = require('../validator');
 // const getStacBaseUrl = require('../util');
-const { createRedirectUrl, logger } = require('../util');
+const { logger } = require('../util');
 
 let validResult = true;
 
@@ -79,7 +79,7 @@ const routes = express.Router();
 routes.get('/:providerId/search', (req, res, next) => getSearch(req, res).catch(next));
 routes.post('/:providerId/search', (req, res, next) => postSearch(req, res).catch(next));
 
-routes.get('/:providerId', (req, res) => res.redirect(createRedirectUrl(req.apiGateway.event, `/${req.params.providerId}/collections`)));
+// routes.get('/:providerId', (req, res) => res.redirect(createRedirectUrl(req.apiGateway.event, `/${req.params.providerId}/collections`)));
 // routes.get('/:providerId/:catalogId', (req, res) => getCatalog(req, res));
 // routes.get('/:providerId/:catalogId/:collectionId', (req, res) => res.redirect(createRedirectUrl(req.apiGateway.event, `/collections/${req.params.collectionId}`)));
 

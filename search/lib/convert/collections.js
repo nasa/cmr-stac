@@ -29,11 +29,11 @@ function cmrCollSpatialToExtents (cmrColl) {
   return bbox;
 }
 
-function stacSearchWithCurrentParams (event, collId) {
+function stacSearchWithCurrentParams (event, collId, collProvider) {
   const newParams = { ...event.queryStringParameters } || {};
   newParams.collectionId = collId;
   delete newParams.provider;
-  return generateAppUrl(event, '/search', newParams);
+  return generateAppUrl(event, `/${collProvider}/search`, newParams);
 }
 
 function cmrGranuleSearchWithCurrentParams (event, collId) {
@@ -62,9 +62,9 @@ function createLinks (event, cmrCollection) {
   return [
     wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${id}`),
       'Info about this collection'),
-    wfs.createLink('provider', generateAppUrl(event, `/${provider}/collections`),
+    wfs.createLink('provider', generateAppUrl(event, `/${provider}`),
       'Root for this provider'),
-    wfs.createLink('stac', stacSearchWithCurrentParams(event, id),
+    wfs.createLink('stac', stacSearchWithCurrentParams(event, id, provider),
       'STAC Search this collection'),
     wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, id),
       'CMR Search this collection'),
