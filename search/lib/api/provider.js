@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const { wfs, generateAppUrl, logger } = require('../util');
+const settings = require('../settings');
 
 async function getProviders (event) {
   try {
@@ -12,6 +13,7 @@ async function getProviders (event) {
       providerList.push({
         id: providerId,
         title: provider['short-name'],
+        stac_version: settings.stac.version,
         rel: 'provider',
         type: 'application/json',
         links: [
@@ -38,6 +40,7 @@ function getProvider (request, response) {
     const provider = {
       id: providerId,
       title: providerId,
+      stac_version: settings.stac.version,
       rel: 'provider',
       description: `Root endpoint for ${providerId}`,
       links: [

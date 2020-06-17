@@ -1,4 +1,5 @@
 const { getProvider, getProviders } = require('../../lib/api/provider');
+const settings = require('../../lib/settings');
 
 describe('getProviders', () => {
   const testEvent = {
@@ -47,6 +48,7 @@ describe('getProvider', () => {
     const expectedResponse = {
       id: 'LARC_ASDC',
       title: 'LARC_ASDC',
+      stac_version: settings.stac.version,
       rel: 'provider',
       description: 'Root endpoint for LARC_ASDC',
       links: [
