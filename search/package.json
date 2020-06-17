@@ -35,7 +35,7 @@
     "deploy": "sls deploy --config serverless.yml",
     "remove": "sls remove --config serverless.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
-    "test": "jest",
+    "test": "jest --env=node",
     "build:docs": "redoc-cli bundle \"docs/OAcore+STAC.yaml\" -o docs/index.html --cdn --title \"STAC\"",
     "ci": "npm run lint && npm run test"
   },
