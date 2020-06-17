@@ -105,6 +105,7 @@ describe('collections', () => {
   describe('cmrCollToWFSCol', () => {
     const cmrColl = {
       id: 'id',
+      license: 'Apache-2.0',
       dataset_id: 'datasetId',
       data_center: 'LPDAAC',
       summary: 'summary',
@@ -128,16 +129,24 @@ describe('collections', () => {
         description: 'summary',
         extent: {
           crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
-          spatial: [
-            -180,
-            -90,
-            180,
-            90
-          ],
-          temporal: [
-            '0',
-            '1'
-          ],
+          spatial: {
+            bbox: [
+              [
+                -180,
+                -90,
+                180,
+                90
+              ]
+            ]
+          },
+          temporal: {
+            interval: [
+              [
+                '0',
+                '1'
+              ]
+            ]
+          },
           trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
         },
         links: [
@@ -186,7 +195,7 @@ describe('collections', () => {
         id: 'id',
         title: 'datasetId',
         stac_version: settings.stac.version,
-        license: 'Not-Provided'
+        license: 'Apache-2.0'
       });
     });
 
@@ -195,16 +204,24 @@ describe('collections', () => {
         description: 'summary',
         extent: {
           crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
-          spatial: [
-            -180,
-            -90,
-            180,
-            90
-          ],
-          temporal: [
-            '2009-01-01T00:00:00Z',
-            null
-          ],
+          spatial: {
+            bbox: [
+              [
+                -180,
+                -90,
+                180,
+                90
+              ]
+            ]
+          },
+          temporal: {
+            interval: [
+              [
+                '2009-01-01T00:00:00Z',
+                null
+              ]
+            ]
+          },
           trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
         },
         links: [
@@ -254,7 +271,7 @@ describe('collections', () => {
         title: 'datasetId',
         short_name: 'id-LPDAAC',
         stac_version: settings.stac.version,
-        license: 'Not-Provided'
+        license: 'not-provided'
       });
     });
   });
