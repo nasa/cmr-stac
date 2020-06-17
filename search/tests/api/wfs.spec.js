@@ -1,4 +1,5 @@
 const { mockFunction, revertFunction } = require('../util');
+const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
 const convert = require('../../lib/convert');
 const {
@@ -87,9 +88,9 @@ describe('wfs routes', () => {
     });
   });
 
-  describe('getGranules', () => {
-    it.skip('should generate a item collection response.', async () => {
-      request.query = {};
+  describe.skip('getGranules', () => {
+    it('should generate a item collection response.', async () => {
+      // request.query = {};
 
       mockFunction(cmr, 'findGranules');
       mockFunction(convert, 'cmrGranToFeatureGeoJSON');
@@ -100,13 +101,12 @@ describe('wfs routes', () => {
       await getGranules(request, response);
 
       expect(cmr.findGranules).toHaveBeenCalled();
-      expect(convert.cmrGranulesToFeatureCollection).toHaveBeenCalled();
       expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
       expect(response.json).toHaveBeenCalledWith({
         features: [
           { response: 'okay' }
         ],
-        stac_version: '0.8.0',
+        stac_version: settings.stac.version,
         links: [
           {
             rel: 'self',
@@ -139,7 +139,7 @@ describe('wfs routes', () => {
       expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
       expect(response.json).toHaveBeenCalledWith({
         features: [{ response: 'okay' }],
-        stac_version: '0.8.0',
+        stac_version: settings.stac.version,
         links: [
           {
             rel: 'self',

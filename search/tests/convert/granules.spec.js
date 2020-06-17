@@ -1,3 +1,4 @@
+const settings = require('../../lib/settings');
 const {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
@@ -222,7 +223,7 @@ describe('granuleToItem', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
         id: 1,
-        stac_version: '1.0.0-beta.1',
+        stac_version: settings.stac.version,
         short_name: 'landsat',
         bbox: [77, 39, 77, 39],
         collection: 10,
@@ -294,7 +295,7 @@ describe('granuleToItem', () => {
     it('should return a cmrGranule to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
-        stac_version: '1.0.0-beta.1',
+        stac_version: settings.stac.version,
         features: [{
           id: 1,
           stac_version: '1.0.0-beta.1',
