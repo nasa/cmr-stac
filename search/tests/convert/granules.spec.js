@@ -301,9 +301,6 @@ describe('granuleToItem', () => {
         {
           rel: 'root',
           href: 'http://example.com/cmr-stac'
-        },
-        {
-          provider: 'LANCEMODIS'
         }
       ],
       properties: {
@@ -330,7 +327,7 @@ describe('granuleToItem', () => {
       expect(stacItem).toEqual(expectedStacGran);
     });
 
-    it.skip('should return a valid FeatureGeoJSON against STAC Spec', async () => {
+    it('should return a valid FeatureGeoJSON against STAC Spec', async () => {
       expect.extend({
         toBeValid: (errors) => {
           if (errors) {
@@ -408,9 +405,6 @@ describe('granuleToItem', () => {
             {
               rel: 'root',
               href: 'http://example.com/cmr-stac'
-            },
-            {
-              provider: 'USA'
             }
           ]
         }],
