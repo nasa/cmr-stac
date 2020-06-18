@@ -29,11 +29,11 @@ function cmrCollSpatialToExtents (cmrColl) {
   return bbox;
 }
 
-function stacSearchWithCurrentParams (event, collId) {
+function stacSearchWithCurrentParams (event, collId, collProvider) {
   const newParams = { ...event.queryStringParameters } || {};
   newParams.collectionId = collId;
   delete newParams.provider;
-  return generateAppUrl(event, '/stac/search', newParams);
+  return generateAppUrl(event, `/${collProvider}/search`, newParams);
 }
 
 function cmrGranuleSearchWithCurrentParams (event, collId) {
@@ -61,20 +61,24 @@ function createExtent (cmrCollection) {
 }
 
 function createLinks (event, cmrCollection) {
+  const id = cmrCollection.id;
+  const provider = cmrCollection.data_center;
   return [
-    wfs.createLink('self', generateAppUrl(event, `/collections/${cmrCollection.id}`),
+    wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${id}`),
       'Info about this collection'),
-    wfs.createLink('stac', stacSearchWithCurrentParams(event, cmrCollection.id),
+    wfs.createLink('provider', generateAppUrl(event, `/${provider}`),
+      'Root for this provider'),
+    wfs.createLink('stac', stacSearchWithCurrentParams(event, id, provider),
       'STAC Search this collection'),
-    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, cmrCollection.id),
+    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, id),
       'CMR Search this collection'),
-    wfs.createLink('items', generateAppUrl(event, `/collections/${cmrCollection.id}/items`),
+    wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${id}/items`),
       'Granules in this collection'),
-    wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.html`),
+    wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${id}.html`),
       'HTML metadata for collection'),
-    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.native`),
+    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.native`),
       'Native metadata for collection'),
-    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${cmrCollection.id}.umm_json`),
+    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.umm_json`),
       'JSON metadata for collection')
   ];
 }
@@ -83,6 +87,7 @@ function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return null;
   return {
     id: cmrCollection.id,
+    short_name: cmrCollection.short_name,
     stac_version: settings.stac.version,
     license: cmrCollection.license || 'not-provided',
     title: cmrCollection.dataset_id,

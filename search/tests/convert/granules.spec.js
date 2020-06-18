@@ -1,3 +1,4 @@
+const settings = require('../../lib/settings');
 const {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
@@ -192,6 +193,7 @@ describe('granuleToItem', () => {
   describe('cmrGranToFeatureGeoJSON', () => {
     const cmrGran = {
       id: 1,
+      short_name: 'landsat',
       collection_concept_id: 10,
       dataset_id: 'datasetId',
       summary: 'summary',
@@ -221,7 +223,8 @@ describe('granuleToItem', () => {
       expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
         type: 'Feature',
         id: 1,
-        stac_version: '1.0.0-beta.1',
+        stac_version: settings.stac.version,
+        short_name: 'landsat',
         bbox: [77, 39, 77, 39],
         collection: 10,
         geometry: { type: 'Point', coordinates: [77, 39] },
@@ -243,22 +246,23 @@ describe('granuleToItem', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://example.com/cmr-stac/collections/10/items/1'
+            href: 'http://example.com/cmr-stac/USA/collections/10/items/1'
           },
           {
             rel: 'parent',
-            href: 'http://example.com/cmr-stac/collections/10'
+            href: 'http://example.com/cmr-stac/USA/collections/10/items'
           },
           {
             rel: 'collection',
-            href: 'http://example.com/cmr-stac/collections/10'
+            href: 'http://example.com/cmr-stac/USA/collections/10'
           },
           {
             rel: 'root',
             href: 'http://example.com/cmr-stac'
           },
           {
-            provider: 'USA'
+            rel: 'provider',
+            href: 'http://example.com/cmr-stac/USA'
           }
         ]
       });
@@ -270,6 +274,7 @@ describe('granuleToItem', () => {
       id: 1,
       collection_concept_id: 10,
       dataset_id: 'datasetId',
+      short_name: 'landsat',
       summary: 'summary',
       time_start: 0,
       time_end: 1,
@@ -290,10 +295,11 @@ describe('granuleToItem', () => {
     it('should return a cmrGranule to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
-        stac_version: '1.0.0-beta.1',
+        stac_version: settings.stac.version,
         features: [{
           id: 1,
-          stac_version: '1.0.0-beta.1',
+          stac_version: settings.stac.version,
+          short_name: 'landsat',
           collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
           bbox: [77, 39, 77, 39],
@@ -312,29 +318,34 @@ describe('granuleToItem', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com/cmr-stac/collections/10/items/1'
+              href: 'http://example.com/cmr-stac/USA/collections/10/items/1'
             },
             {
               rel: 'parent',
-              href: 'http://example.com/cmr-stac/collections/10'
+              href: 'http://example.com/cmr-stac/USA/collections/10/items'
             },
             {
               rel: 'collection',
-              href: 'http://example.com/cmr-stac/collections/10'
+              href: 'http://example.com/cmr-stac/USA/collections/10'
             },
             {
               rel: 'root',
               href: 'http://example.com/cmr-stac'
             },
             {
-              provider: 'USA'
+              rel: 'provider',
+              href: 'http://example.com/cmr-stac/USA'
             }
           ]
         }],
         links: [
           {
-            self: 'http://example.com/cmr-stac',
-            next: 'http://example.com/cmr-stac?page_num=2'
+            rel: 'self',
+            href: 'http://example.com/cmr-stac'
+          },
+          {
+            rel: 'next',
+            href: 'http://example.com/cmr-stac?page_num=2'
           }
         ]
       });

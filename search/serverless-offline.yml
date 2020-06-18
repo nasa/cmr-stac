@@ -20,7 +20,7 @@ functions:
       LOG_LEVEL: info
       LOG_DISABLED: false
       STAC_VERSION: 1.0.0-beta.1
-      CMR_STAC_RELATIVE_ROOT_URL: /stac
+      CMR_STAC_RELATIVE_ROOT_URL: /cmr-stac
 
 custom:
   serverless-offline:
