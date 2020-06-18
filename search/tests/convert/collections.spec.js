@@ -55,6 +55,7 @@ describe('collections', () => {
 
   describe('stacSearchWithCurrentParams', () => {
     const collID = 'landsat-8-l1';
+    const collProvider = 'LPDAAC';
 
     const event = {
       headers: {
@@ -73,11 +74,11 @@ describe('collections', () => {
     };
 
     it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID)).toEqual('http://example.com/cmr-stac/stac/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(event, collID, collProvider)).toEqual('http://example.com/cmr-stac/LPDAAC/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
     });
 
     it('should return a search url with no params', () => {
-      expect(stacSearchWithCurrentParams(otherEvent, collID)).toEqual('http://example.com/cmr-stac/stac/search?collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider)).toEqual('http://example.com/cmr-stac/LPDAAC/search?collectionId=landsat-8-l1');
     });
   });
 
@@ -106,6 +107,7 @@ describe('collections', () => {
       id: 'id',
       license: 'Apache-2.0',
       dataset_id: 'datasetId',
+      data_center: 'LPDAAC',
       summary: 'summary',
       time_start: '0',
       time_end: '1'
@@ -114,6 +116,8 @@ describe('collections', () => {
     const cmrCollTemporal = {
       id: 'id',
       dataset_id: 'datasetId',
+      data_center: 'LPDAAC',
+      short_name: 'id-LPDAAC',
       summary: 'summary',
       time_start: '2009-01-01T00:00:00Z'
     };
@@ -147,12 +151,17 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/cmr-stac/collections/id',
+            href: 'http://example.com/cmr-stac/LPDAAC/collections/id',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/stac/search?collectionId=id',
+            rel: 'provider',
+            href: 'http://example.com/cmr-stac/LPDAAC',
+            title: 'Root for this provider',
+            type: 'application/json'
+          }, {
+            href: 'http://example.com/cmr-stac/LPDAAC/search?collectionId=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
@@ -162,7 +171,7 @@ describe('collections', () => {
             title: 'CMR Search this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/collections/id/items',
+            href: 'http://example.com/cmr-stac/LPDAAC/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -217,12 +226,17 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/cmr-stac/collections/id',
+            href: 'http://example.com/cmr-stac/LPDAAC/collections/id',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/stac/search?collectionId=id',
+            rel: 'provider',
+            href: 'http://example.com/cmr-stac/LPDAAC',
+            title: 'Root for this provider',
+            type: 'application/json'
+          }, {
+            href: 'http://example.com/cmr-stac/LPDAAC/search?collectionId=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
@@ -232,7 +246,7 @@ describe('collections', () => {
             title: 'CMR Search this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/collections/id/items',
+            href: 'http://example.com/cmr-stac/LPDAAC/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -255,6 +269,7 @@ describe('collections', () => {
         ],
         id: 'id',
         title: 'datasetId',
+        short_name: 'id-LPDAAC',
         stac_version: settings.stac.version,
         license: 'not-provided'
       });

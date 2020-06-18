@@ -2,18 +2,25 @@ const { validateStac } = require('../../lib/validator');
 
 describe('stacValidator', () => {
   describe('validateStac', () => {
-    const validStacFeature = {
-      stac_version: '1.0.0-beta.1',
-      id: '1',
-      description: 'description',
-      links: []
+    const validStacFeatureCollection = {
+      features: [
+        {
+          stac_version: '0.8.0',
+          id: '1',
+          description: 'description',
+          links: [{ ref: 'test' }]
+        }
+      ]
     };
 
-    const invalidStacFeature = {
-      stac_version: '1.0.0-beta.1',
-      id: '1',
-      description: '',
-      links: []
+    const invalidStacFeatureCollection = {
+      features: [
+        {
+          stac_version: '0.8.0',
+          id: '1',
+          description: ''
+        }
+      ]
     };
 
     it('should exist', () => {
@@ -25,15 +32,15 @@ describe('stacValidator', () => {
     });
 
     it('should take in a stacItem and return a boolean', () => {
-      expect(typeof validateStac(validStacFeature)).toEqual('boolean');
+      expect(typeof validateStac(validStacFeatureCollection)).toEqual('boolean');
     });
 
     it('should check for required fields', () => {
-      expect(validateStac(invalidStacFeature)).toEqual(false);
+      expect(validateStac(invalidStacFeatureCollection)).toEqual(false);
     });
 
     it('should validate a stacItem with required fields', () => {
-      expect(validateStac(validStacFeature)).toEqual(true);
+      expect(validateStac(validStacFeatureCollection)).toEqual(true);
     });
   });
 });
