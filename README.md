@@ -15,14 +15,13 @@ There is more detailed documentation in the [docs](docs/readme.md) folder of thi
 
 ### Setup
 
-This application is a monorepo around a set of microservices that support the STAC proxy. It is organized as a NPM module and will install all dependencies if you run the following command:
+This application is a service that support the STAC proxy. It is organized as a NPM module and will install all dependencies if you run the following command:
 
-`npm install`
+`bin/bootstrap.sh`
 
 ### Running locally
 
-- cd `search`
-- `npm start`
+`npm start`
 
 ### Deploying
 

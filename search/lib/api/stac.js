@@ -4,15 +4,19 @@ const settings = require('../settings');
 const cmr = require('../cmr');
 const cmrConverter = require('../convert');
 const { createRootCatalog, Catalog } = require('../stac').catalog;
-const { validateStac } = require('../validator');
+const { validateSchema } = require('../validator');
 
 const { createRedirectUrl, getStacBaseUrl, logger } = require('../util');
 
 let validResult = true;
 
+// TODO finish updating this file
+
 async function search (event, params) {
   const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
   const granules = await cmr.findGranules(cmrParams);
+  logger.debug('-----------------------------------');
+  logger.debug(`granules: ${JSON.stringify(granules, null, 2)}`);
   return cmrConverter.cmrGranulesToFeatureCollection(event, granules);
 }
 
@@ -22,7 +26,11 @@ async function getSearch (request, response) {
   const params = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, request.query);
   const result = await search(event, params);
 
-  validResult = validateStac(result);
+  // TODO I'd like to change this so that it just throws an error that we handle at the top level as
+  // a 500 error.
+  validResult = validateSchema(result);
+  // TODO why do we returna  400 if WE mess up the response. This is an example of a internal server
+  // error.
   validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
 }
 
@@ -31,7 +39,7 @@ async function postSearch (request, response) {
   const event = request.apiGateway.event;
   const result = await search(event, request.body);
 
-  validResult = validateStac(result);
+  validResult = validateSchema(result);
   validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
 }
 
@@ -66,7 +74,7 @@ async function getCatalog (request, response) {
     catalog.addChild(item.title, `/${item.id}`);
   });
 
-  validResult = validateStac(catalog);
+  validResult = validateSchema(catalog);
   validResult ? response.status(200).json(catalog) : response.status(400).json('Bad Request');
 }
 

@@ -39,7 +39,7 @@ const headers = {
 
 async function cmrSearch (url, params) {
   if (!url || !params) throw new Error('Missing url or parameters');
-  logger.debug(`CMR Search: ${url} with params: ${params}`);
+  logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
   return axios.get(url, { params, headers });
 }
 

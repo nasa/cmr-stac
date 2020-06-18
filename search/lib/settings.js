@@ -3,6 +3,7 @@ let settings;
 function getLoggerSettings () {
   const loggerSettings = {};
 
+  // TODO set env variable.
   loggerSettings.logLevel = process.env.LOG_LEVEL || 'error';
   loggerSettings.quiet = Boolean(process.env.LOG_DISABLED) || true;
 

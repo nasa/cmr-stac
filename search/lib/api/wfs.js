@@ -35,6 +35,9 @@ async function getGranules (request, response) {
   const params = Object.assign({ collection_concept_id: conceptId }, cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query));
   const granules = await cmr.findGranules(params);
 
+  console.log('-----------------------------------');
+  console.log(`granules: ${JSON.stringify(granules, null, 2)}`);
+
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
   const prevPage = currPage - 1;
@@ -80,6 +83,9 @@ async function getGranule (request, response) {
     collection_concept_id: collConceptId,
     concept_id: conceptId
   });
+  console.log('-----------------------------------');
+  console.log(`granules: ${JSON.stringify(granules, null, 2)}`);
+
   const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0]);
   response.status(200).json(granuleResponse);
 }

@@ -42,9 +42,13 @@ routes.use(stac.routes);
 routes.use(wfs.routes);
 routes.use('/health', (req, res) => getHealth(res));
 routes.use('/docs', express.static(path.join(__dirname, '../../docs')));
-routes.use('/', (req, res) =>
-  req.accepts('html') === 'html' ? res.redirect(createRedirectUrl(req, `/docs/index.html`)) : res.status(200).json(createRootResponse(req.apiGateway.event)));
-
+routes.use('/', (req, res) => {
+  if (req.accepts('html') === 'html') {
+    return res.redirect(createRedirectUrl(req, `/docs/index.html`));
+  } else {
+    return res.status(200).json(createRootResponse(req.apiGateway.event));
+  }
+});
 module.exports = {
   routes
 };
