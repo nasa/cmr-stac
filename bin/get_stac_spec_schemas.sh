@@ -27,3 +27,5 @@ compile_schema() {
 compile_schema stac-spec/item-spec/json-schema/item.json search/docs/item.json
 compile_schema stac-spec/catalog-spec/json-schema/catalog.json search/docs/catalog.json
 compile_schema stac-spec/collection-spec/json-schema/collection.json search/docs/collection.json
+compile_schema docs/schemas/collections.json search/docs/collections.json
+compile_schema docs/schemas/items.json search/docs/items.json

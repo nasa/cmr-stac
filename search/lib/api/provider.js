@@ -30,6 +30,7 @@ async function getProvider (request, response) {
     'provider-id': providerId,
     'short-name': providerId
   });
+  // TODO assert response here
   response.status(200).json(provider);
 }
 
@@ -41,6 +42,7 @@ async function getProviders (req, res) {
     description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
     links: providerObjects
   };
+  // TODO assert response here
   res.status(200).json(providerCatalog);
 }
 

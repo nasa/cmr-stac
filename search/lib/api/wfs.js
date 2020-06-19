@@ -26,10 +26,7 @@ async function getCollections (request, response) {
     license: 'not-provided',
     collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
   };
-  // TODO replace this with schema generated for full response
-  for (const coll of collectionsResponse.collections) {
-    await assertValid(schemas.collection, coll);
-  }
+  await assertValid(schemas.collections, collectionsResponse);
   response.status(200).json(collectionsResponse);
 }
 
@@ -53,10 +50,7 @@ async function getGranules (request, response) {
   );
   const granules = await cmr.findGranules(params);
   const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granules);
-  // TODO replace this with schema generated for full response
-  for (const gran of granulesResponse.features) {
-    await assertValid(schemas.item, gran);
-  }
+  await assertValid(schemas.items, granulesResponse);
   response.status(200).json(granulesResponse);
 }
 

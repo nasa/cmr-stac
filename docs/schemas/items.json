@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "items.json#",
+  "type": "object",
+  "required": [
+    "type",
+    "stac_version",
+    "links",
+    "features"
+  ],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "FeatureCollection"
+    },
+    "stac_version": {
+      "title": "STAC version",
+      "type": "string"
+    },
+    "links": {
+      "title": "Links",
+      "type": "array",
+      "items": {
+        "$ref": "../../stac-spec/item-spec/json-schema/item.json#/definitions/link"
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "$ref": "../../stac-spec/item-spec/json-schema/item.json"
+      }
+    }
+  }
+}

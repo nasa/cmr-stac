@@ -11,7 +11,10 @@ const settings = require('./settings');
 const getSchemaValidator = _.memoize(async (schemaName) => {
   const fileName = `${__dirname}/../docs/${schemaName}.json`;
   const contents = (await readFile(fileName)).toString();
-  return ajv.compile(JSON.parse(contents));
+  const parsed = JSON.parse(contents);
+  // Remove the id from the schema to avoid collisions in AJV.
+  delete parsed['$id'];
+  return ajv.compile(parsed);
 }, _.identity);
 
 async function validateSchema (schemaName, dataObject) {
@@ -38,7 +41,9 @@ module.exports = {
   schemas: {
     catalog: 'catalog',
     collection: 'collection',
-    item: 'item'
+    collections: 'collections',
+    item: 'item',
+    items: 'items'
   },
   validateSchema,
   assertValid
