@@ -66,17 +66,48 @@ describe('wfs routes', () => {
     });
   });
 
-  // TODO can we fix these skipped ones?
-  describe.skip('getGranules', () => {
+  describe('getGranules', () => {
     it('should generate a item collection response.', async () => {
       await getGranules(request, response);
-      response.expect(exampleData.stacGrans);
+      response.expect({
+        type: 'FeatureCollection',
+        stac_version: settings.stac.version,
+        links: [
+          {
+            rel: 'self',
+            href: 'http://example.com'
+          },
+          {
+            rel: 'next',
+            href: 'http://example.com?page_num=2'
+          }
+        ],
+        features: exampleData.stacGrans
+      });
     });
 
-    it.skip('should generate an item collection response with a  prev link', async () => {
+    it('should generate an item collection response with a prev link', async () => {
       request.apiGateway.event.queryStringParameters = { page_num: '2' };
       await getGranules(request, response);
-      response.expect(exampleData.stacGrans);
+      response.expect({
+        type: 'FeatureCollection',
+        stac_version: settings.stac.version,
+        links: [
+          {
+            rel: 'self',
+            href: 'http://example.com?page_num=2'
+          },
+          {
+            rel: 'prev',
+            href: 'http://example.com?page_num=1'
+          },
+          {
+            rel: 'next',
+            href: 'http://example.com?page_num=3'
+          }
+        ],
+        features: exampleData.stacGrans
+      });
     });
   });
 
