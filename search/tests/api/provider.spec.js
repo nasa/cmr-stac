@@ -122,8 +122,13 @@ describe('getProvider', () => {
       title: 'LARC_ASDC',
       stac_version: settings.stac.version,
       rel: 'provider',
-      description: 'Root endpoint for LARC_ASDC',
       links: [
+        {
+          rel: 'self',
+          href: 'http://example.com/cmr-stac/LARC_ASDC',
+          title: 'Root endpoint for this provider',
+          type: 'application/json'
+        },
         {
           rel: 'collections',
           href: 'http://example.com/cmr-stac/LARC_ASDC/collections',
