@@ -1,8 +1,8 @@
 const _ = require('lodash');
 const axios = require('axios');
-const { UrlBuilder } = require('../util/url-builder');
-const { parseOrdinateString, identity, logger } = require('../util');
-const settings = require('../settings');
+const { UrlBuilder } = require('./util/url-builder');
+const { parseOrdinateString, identity, logger } = require('./util');
+const settings = require('./settings');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],
@@ -61,6 +61,11 @@ async function findGranules (params = {}) {
   return response.data.feed.entry;
 }
 
+async function getProviders () {
+  const rawProviders = await axios.get('https://cmr.earthdata.nasa.gov/ingest/providers');
+  return rawProviders.data;
+}
+
 /**
  * Patch for Object.fromEntries which is introduced in NodeJS 12.
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries
@@ -85,11 +90,14 @@ function convertParam (converterPair, key, value) {
 
 function convertParams (conversionMap, params) {
   try {
-    const converted = Object.entries(params)
+    const converted = Object.entries(params || {})
       .map(([k, v]) => convertParam(conversionMap[k], k, v));
     return fromEntries(converted);
   } catch (error) {
     logger.error(error.message);
+    if (settings.throwCmrConvertParamErrors) {
+      throw error;
+    }
     return params;
   }
 }
@@ -104,5 +112,6 @@ module.exports = {
   findGranules,
   getCollection,
   convertParams,
-  fromEntries
+  fromEntries,
+  getProviders
 };

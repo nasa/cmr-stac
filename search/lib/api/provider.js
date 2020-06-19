@@ -1,79 +1,60 @@
 const express = require('express');
-const axios = require('axios');
-const { wfs, generateAppUrl, logger } = require('../util');
+const { wfs, generateAppUrl, logger, makeAsyncHandler } = require('../util');
 const settings = require('../settings');
+const cmr = require('../cmr');
 
-async function getProviders (event) {
-  try {
-    const rawProviders = await axios.get('https://cmr.earthdata.nasa.gov/ingest/providers');
-    const providers = rawProviders.data;
-    const providerList = [];
-    for (const provider of providers) {
-      const providerId = provider['provider-id'];
-      providerList.push({
-        id: providerId,
-        title: provider['short-name'],
-        stac_version: settings.stac.version,
-        rel: 'provider',
-        type: 'application/json',
-        links: [
-          wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
-            'Root endpoint for this provider'),
-          wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
-            'Collections for this provider'),
-          wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
-            'STAC Search endpoint for this provider')
-        ]
-      });
-    }
-    return providerList;
-  } catch (error) {
-    return error;
-  }
+async function getProvider (request, response) {
+  const providerId = request.params.providerId;
+  logger.info(`GET /${providerId}`);
+  const event = request.apiGateway.event;
+  const provider = {
+    id: providerId,
+    title: providerId,
+    stac_version: settings.stac.version,
+    rel: 'provider',
+    description: `Root endpoint for ${providerId}`,
+    links: [
+      wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
+        'Collections for this provider'),
+      wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
+        'STAC Search endpoint for this provider')
+    ],
+    type: 'application/json'
+  };
+  response.status(200).json(provider);
 }
 
-function getProvider (request, response) {
-  try {
-    const providerId = request.params.providerId;
-    logger.info(`GET /${providerId}`);
-    const event = request.apiGateway.event;
-    const provider = {
+async function getProviders (req, res) {
+  const event = req.apiGateway.event;
+  const providerObjects = (await cmr.getProviders()).map((provider) => {
+    const providerId = provider['provider-id'];
+    return {
       id: providerId,
-      title: providerId,
+      title: provider['short-name'],
       stac_version: settings.stac.version,
       rel: 'provider',
-      description: `Root endpoint for ${providerId}`,
+      type: 'application/json',
       links: [
+        wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
+          'Root endpoint for this provider'),
         wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
           'Collections for this provider'),
         wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
           'STAC Search endpoint for this provider')
-      ],
-      type: 'application/json'
+      ]
     };
-    response.status(200).json(provider);
-  } catch (error) {
-    response.status(400).error(error);
-  }
-}
-
-async function getProvidersRoot (req, res) {
-  try {
-    const providerObjects = await getProviders(req);
-    const providerCatalog = {
-      id: 'cmr-stac',
-      description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
-      links: providerObjects
-    };
-    res.status(200).json(providerCatalog);
-  } catch (error) {
-    res.status(400).error(error);
-  }
+  });
+  const providerCatalog = {
+    id: 'cmr-stac',
+    description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
+    links: providerObjects
+  };
+  res.status(200).json(providerCatalog);
 }
 
 const routes = express.Router();
-routes.get('/', (req, res) => getProvidersRoot(req, res));
-routes.get('/:providerId', (req, res) => getProvider(req, res));
+routes.get('/', makeAsyncHandler(getProviders));
+routes.get('/:providerId', makeAsyncHandler(getProvider));
 
 module.exports = {
   getProviders,

@@ -71,6 +71,16 @@ function identity (x) {
   return x;
 }
 
+function makeAsyncHandler (fn) {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
 module.exports = {
   ...app,
   createRedirectUrl,
@@ -83,5 +93,6 @@ module.exports = {
   identity,
   WfsLink,
   createLogger,
-  logger
+  logger,
+  makeAsyncHandler
 };

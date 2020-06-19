@@ -7,8 +7,9 @@ const {
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection
 } = require('../../lib/convert');
+const exampleData = require('../example-data');
 
-const schemaValidator = require('../../lib/validator/schemaValidator');
+const schemaValidator = require('../../lib/validator');
 
 describe('granuleToItem', () => {
   describe('cmrPolygonToGeoJsonPolygon', () => {
@@ -193,137 +194,8 @@ describe('granuleToItem', () => {
   });
 
   describe('cmrGranToFeatureGeoJSON', () => {
-    const cmrGran = {
-      producer_granule_id: 'MYD04_3K.A2020162.1920.061.2020162201359.NRT.hdf',
-      time_start: '2020-06-10T19:20:00.000Z',
-      updated: '2020-06-10T20:15:38.392Z',
-      dataset_id: 'MODIS/Aqua Aerosol 5-Min L2 Swath 3km - NRT',
-      data_center: 'LANCEMODIS',
-      title: 'LANCEMODIS:1028118084',
-      coordinate_system: 'GEODETIC',
-      day_night_flag: 'DAY',
-      time_end: '2020-06-10T19:25:00.000Z',
-      id: 'G1847797781-LANCEMODIS',
-      original_format: 'ECHO10',
-      granule_size: '11.7814311981201',
-      browse_flag: false,
-      polygons: [
-        [
-          '29.151569 -79.893256 25.657247 -103.152651 7.973287 -97.87194 10.993152 -76.875089 29.151569 -79.893256'
-        ]
-      ],
-      collection_concept_id: 'C1426717545-LANCEMODIS',
-      online_access_flag: true,
-      links: [
-        {
-          rel: 'http://esipfed.org/ns/fedsearch/1.1/data#',
-          type: 'application/x-hdfeos',
-          hreflang: 'en-US',
-          href: 'https://nrt3.modaps.eosdis.nasa.gov/archive/allData/61/MYD04_3K/2020/162/MYD04_3K.A2020162.1920.061.NRT.hdf'
-        },
-        {
-          inherited: true,
-          rel: 'http://esipfed.org/ns/fedsearch/1.1/data#',
-          hreflang: 'en-US',
-          href: 'https://earthdata.nasa.gov/earth-observation-data/near-real-time/download-nrt-data/modis-nrt'
-        },
-        {
-          inherited: true,
-          rel: 'http://esipfed.org/ns/fedsearch/1.1/data#',
-          hreflang: 'en-US',
-          href: 'http://lance3.modaps.eosdis.nasa.gov/data_products/'
-        },
-        {
-          inherited: true,
-          rel: 'http://esipfed.org/ns/fedsearch/1.1/data#',
-          hreflang: 'en-US',
-          href: 'https://nrt3.modaps.eosdis.nasa.gov/allData/61/MYD04_3K/'
-        },
-        {
-          inherited: true,
-          rel: 'http://esipfed.org/ns/fedsearch/1.1/metadata#',
-          hreflang: 'en-US',
-          href: 'http://modis.gsfc.nasa.gov/sci_team/'
-        }
-      ]
-    };
-
-    const expectedStacGran = {
-      type: 'Feature',
-      id: 'G1847797781-LANCEMODIS',
-      stac_version: '1.0.0-beta.1',
-      collection: 'C1426717545-LANCEMODIS',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [
-          [
-            [
-              29.151569,
-              -79.893256
-            ],
-            [
-              25.657247,
-              -103.152651
-            ],
-            [
-              7.973287,
-              -97.87194
-            ],
-            [
-              10.993152,
-              -76.875089
-            ],
-            [
-              29.151569,
-              -79.893256
-            ]
-          ]
-        ]
-      },
-      bbox: [
-        7.973287,
-        -103.152651,
-        29.151569,
-        -76.875089
-      ],
-      links: [
-        {
-          rel: 'self',
-          href: 'http://example.com/cmr-stac/LANCEMODIS/collections/C1426717545-LANCEMODIS/items/G1847797781-LANCEMODIS'
-        },
-        {
-          rel: 'parent',
-          href: 'http://example.com/cmr-stac/LANCEMODIS/collections/C1426717545-LANCEMODIS/items'
-        },
-        {
-          rel: 'collection',
-          href: 'http://example.com/cmr-stac/LANCEMODIS/collections/C1426717545-LANCEMODIS'
-        },
-        {
-          rel: 'root',
-          href: 'http://example.com/cmr-stac'
-        },
-        {
-          rel: 'provider',
-          href: 'http://example.com/cmr-stac/LANCEMODIS'
-        }
-      ],
-      properties: {
-        datetime: '2020-06-10T19:20:00.000Z',
-        start_datetime: '2020-06-10T19:20:00.000Z',
-        end_datetime: '2020-06-10T19:25:00.000Z'
-      },
-      assets: {
-        data: {
-          href: 'https://nrt3.modaps.eosdis.nasa.gov/archive/allData/61/MYD04_3K/2020/162/MYD04_3K.A2020162.1920.061.NRT.hdf',
-          type: 'application/x-hdfeos'
-        },
-        metadata: {
-          href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1847797781-LANCEMODIS.xml',
-          type: 'application/xml'
-        }
-      }
-    };
+    const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
+    const expectedStacGran = exampleData.examplesByName.lancemodisStacGran;
 
     const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 

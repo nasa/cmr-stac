@@ -4,10 +4,12 @@ const { promisify } = require('util');
 const Ajv = require('ajv');
 const ajv = new Ajv({ allErrors: true });
 const readFile = promisify(fs.readFile);
+const { logger } = require('./util');
+const settings = require('./settings');
 
 // Caches an ajv validator function by name in memory.
 const getSchemaValidator = _.memoize(async (schemaName) => {
-  const fileName = `${__dirname}/../../docs/${schemaName}.json`;
+  const fileName = `${__dirname}/../docs/${schemaName}.json`;
   const contents = (await readFile(fileName)).toString();
   return ajv.compile(JSON.parse(contents));
 }, _.identity);
@@ -20,11 +22,24 @@ async function validateSchema (schemaName, dataObject) {
   return validator.errors;
 }
 
+async function assertValid (schemaName, dataObject) {
+  const errors = await validateSchema(schemaName, dataObject);
+  if (errors) {
+    logger.error(`dataObject: ${JSON.stringify(dataObject, null, 2)}`);
+    logger.error(`Schema validation failed: ${JSON.stringify(errors, null, 2)}`);
+
+    if (settings.invalidResponseIsError) {
+      throw new Error(`Created invalid data agaisnt schema ${schemaName}`);
+    }
+  }
+}
+
 module.exports = {
   schemas: {
     catalog: 'catalog',
     collection: 'collection',
     item: 'item'
   },
-  validateSchema
+  validateSchema,
+  assertValid
 };
