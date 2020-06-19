@@ -3,20 +3,16 @@ const cmr = require('../../lib/cmr');
 const { getSearch, postSearch } = require('../../lib/api/stac');
 const exampleData = require('../example-data');
 
-const { mockFunction, revertFunction, logger, createMockResponse } = require('../util');
+const { mockFunction, revertFunction, createMockResponse, createRequest } = require('../util');
 
 describe('STAC Search', () => {
   let request, response;
 
   beforeEach(() => {
-    request = {
-      apiGateway: {
-        event: { headers: { Host: 'example.com' } }
-      },
+    request = createRequest({
       body: '{}',
-      app: { logger: logger },
       params: { providerId: 'LPDAAC' }
-    };
+    });
     response = createMockResponse();
     mockFunction(cmr, 'findGranules', Promise.resolve(exampleData.cmrGrans));
   });

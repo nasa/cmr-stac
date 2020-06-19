@@ -32,7 +32,7 @@ async function assertValid (schemaName, dataObject) {
     logger.error(`Schema validation failed: ${JSON.stringify(errors, null, 2)}`);
 
     if (settings.invalidResponseIsError) {
-      throw new Error(`Created invalid data agaisnt schema ${schemaName}`);
+      throw new Error(`Created invalid data against schema ${schemaName}`);
     }
   }
 }

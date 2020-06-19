@@ -62,7 +62,7 @@ async function findGranules (params = {}) {
 }
 
 async function getProviders () {
-  const rawProviders = await axios.get('https://cmr.earthdata.nasa.gov/ingest/providers');
+  const rawProviders = await axios.get(makeCmrSearchUrl('/ingest/providers'));
   return rawProviders.data;
 }
 
