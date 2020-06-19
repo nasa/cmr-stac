@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "An implementation of the STAC API on top of NASA's [Common Metadata Repository](https://cmr.earthdata.nasa.gov/search/).",
   "scripts": {
-    "postinstall": "node bin/install.js",
+    "postinstall": "node bin/install.js; bin/get_stac_spec_schemas.sh",
     "test": "jest --detectOpenHandles --forceExit --env=node",
     "start": "cd search; npm start",
     "lint": "cd search; npm run lint"

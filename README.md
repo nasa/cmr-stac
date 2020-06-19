@@ -17,7 +17,7 @@ There is more detailed documentation in the [docs](docs/readme.md) folder of thi
 
 This application is a service that support the STAC proxy. It is organized as a NPM module and will install all dependencies if you run the following command:
 
-`bin/bootstrap.sh`
+`npm install`
 
 ### Running locally
 

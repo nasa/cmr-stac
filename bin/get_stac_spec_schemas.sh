@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-npm install
-if [[ $? != 0 ]]; then
-  echo 'npm install failed'
-  exit 1
-fi
-
 if [[ ! -d stac-spec ]]; then
   echo "Cloning stac-spec"
   git clone "https://github.com/radiantearth/stac-spec.git"
