@@ -62,7 +62,11 @@ async function findGranules (params = {}) {
 }
 
 async function getProviders () {
-  const rawProviders = await axios.get(makeCmrSearchUrl('/ingest/providers'));
+  const providerUrl = UrlBuilder.create()
+      .withProtocol(settings.cmrSearchProtocol)
+      .withHost(settings.cmrProviderHost)
+      .build()
+  const rawProviders = await axios.get(providerUrl);
   return rawProviders.data;
 }
 
