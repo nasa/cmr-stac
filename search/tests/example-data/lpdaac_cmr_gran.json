@@ -1,0 +1,37 @@
+{
+  "producer_granule_id": "VIP01.A1981001.004.2016175124032.hdf",
+  "boxes": ["-90 -180 90 180"],
+  "time_start": "1981-01-01T00:00:00.000Z",
+  "updated": "2017-08-25T00:07:46.017Z",
+  "dataset_id": "Vegetation Index and Phenology (VIP) Vegetation Indices Daily Global 0.05Deg CMG V004",
+  "data_center": "LPDAAC_ECS",
+  "title": "SC:VIP01.004:2242263776",
+  "coordinate_system": "CARTESIAN",
+  "day_night_flag": "UNSPECIFIED",
+  "time_end": "1981-01-01T23:59:59.000Z",
+  "id": "G1328420897-LPDAAC_ECS",
+  "original_format": "ECHO10",
+  "granule_size": "37.1923",
+  "browse_flag": true,
+  "collection_concept_id": "C1328403374-LPDAAC_ECS",
+  "online_access_flag": true,
+  "links": [{
+    "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
+    "type": "application/x-hdfeos",
+    "title": "This file may be downloaded directly from this link",
+    "hreflang": "en-US",
+    "href": "https://e4ftl01.cr.usgs.gov//MODV6_Dal_H/VIP/VIP01.004/1981.01.01/VIP01.A1981001.004.2016175124032.hdf"
+  }, {
+    "rel": "http://esipfed.org/ns/fedsearch/1.1/browse#",
+    "type": "image/jpeg",
+    "title": "This Browse file may be downloaded directly from this link (BROWSE)",
+    "hreflang": "en-US",
+    "href": "https://e4ftl01.cr.usgs.gov//WORKING/BRWS/Browse.001/2016.09.16/VIP01.A1981001.004.2016175124032.jpg"
+  }, {
+    "rel": "http://esipfed.org/ns/fedsearch/1.1/metadata#",
+    "type": "text/xml",
+    "title": "This Metadata file may be downloaded directly from this link (EXTENDED METADATA)",
+    "hreflang": "en-US",
+    "href": "https://e4ftl01.cr.usgs.gov//MODV6_Dal_H/VIP/VIP01.004/1981.01.01/VIP01.A1981001.004.2016175124032.hdf.xml"
+  }]
+}
