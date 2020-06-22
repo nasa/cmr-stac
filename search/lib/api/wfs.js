@@ -43,7 +43,7 @@ async function getCollections (request, response) {
   };
 
   if (currPage > 1 && collectionsResponse.links.length > 1) {
-    collectionsResponse.links.splice(collectionsResponse.links.length-1, 0, {
+    collectionsResponse.links.splice(collectionsResponse.links.length - 1, 0, {
       rel: 'prev',
       href: prevResultsLink
     });
