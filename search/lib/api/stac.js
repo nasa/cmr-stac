@@ -2,10 +2,8 @@ const express = require('express');
 
 const cmr = require('../cmr');
 const cmrConverter = require('../convert');
-const { validateStac } = require('../validator');
-const { logger } = require('../util');
-
-let validResult = true;
+const { assertValid, schemas } = require('../validator');
+const { logger, makeAsyncHandler } = require('../util');
 
 async function search (event, params) {
   const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
@@ -20,9 +18,8 @@ async function getSearch (request, response) {
   const params = Object.assign({ provider: providerId }, request.query);
   const convertedParams = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, params);
   const result = await search(event, convertedParams);
-
-  validResult = validateStac(result);
-  validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
+  await assertValid(schemas.items, result);
+  response.status(200).json(result);
 }
 
 async function postSearch (request, response) {
@@ -31,15 +28,14 @@ async function postSearch (request, response) {
   const event = request.apiGateway.event;
   const params = Object.assign({ provider: providerId }, request.body);
   const result = await search(event, params);
-
-  validResult = validateStac(result);
-  validResult ? response.status(200).json(result) : response.status(400).json('Bad Request');
+  await assertValid(schemas.items, result);
+  response.status(200).json(result);
 }
 
 const routes = express.Router();
 
-routes.get('/:providerId/search', (req, res, next) => getSearch(req, res).catch(next));
-routes.post('/:providerId/search', (req, res, next) => postSearch(req, res).catch(next));
+routes.get('/:providerId/search', makeAsyncHandler(getSearch));
+routes.post('/:providerId/search', makeAsyncHandler(postSearch));
 
 module.exports = {
   getSearch,

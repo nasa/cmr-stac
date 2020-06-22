@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "collections.json#",
+  "title": "STAC Collections Specification",
+  "description": "This object represents a list of Collections in a SpatioTemporal Asset Catalog.",
+  "allOf": [
+    {
+      "$ref": "../../stac-spec/catalog-spec/json-schema/catalog.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "collections"
+      ],
+      "properties": {
+        "collections": {
+          "type": "array",
+          "items": {
+            "$ref": "../../stac-spec/collection-spec/json-schema/collection.json"
+          }
+        }
+      }
+    }
+  ]
+}

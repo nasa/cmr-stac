@@ -7,6 +7,9 @@ const {
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection
 } = require('../../lib/convert');
+const exampleData = require('../example-data');
+
+const schemaValidator = require('../../lib/validator');
 
 describe('granuleToItem', () => {
   describe('cmrPolygonToGeoJsonPolygon', () => {
@@ -191,81 +194,31 @@ describe('granuleToItem', () => {
   });
 
   describe('cmrGranToFeatureGeoJSON', () => {
-    const cmrGran = {
-      id: 1,
-      short_name: 'landsat',
-      collection_concept_id: 10,
-      dataset_id: 'datasetId',
-      summary: 'summary',
-      time_start: 0,
-      time_end: 1,
-      assets: {},
-      links: [
-        {
-          href: 'http://example.com/collections/id',
-          rel: 'self',
-          title: 'Info about this collection',
-          type: 'application/json'
-        },
-        {
-          rel: 'http://esipfed.org/ns/fedsearch/1.1/browse#',
-          href: 'http://example.com/images/abc.jpg',
-          type: 'application/json' // this is wrong on purpose to test converting
-        }
-      ],
-      data_center: 'USA',
-      points: ['77,39']
-    };
+    const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
+    const expectedStacGran = exampleData.examplesByName.lancemodisStacGran;
 
     const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
     it('should return a FeatureGeoJSON from a cmrGran', () => {
-      expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
-        type: 'Feature',
-        id: 1,
-        stac_version: settings.stac.version,
-        short_name: 'landsat',
-        bbox: [77, 39, 77, 39],
-        collection: 10,
-        geometry: { type: 'Point', coordinates: [77, 39] },
-        properties: {
-          datetime: '0',
-          start_datetime: '0',
-          end_datetime: '1'
-        },
-        assets: {
-          browse: {
-            href: 'http://example.com/images/abc.jpg',
-            type: 'image/jpeg'
-          },
-          metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
-            type: 'application/xml'
+      const stacItem = cmrGranToFeatureGeoJSON(event, cmrGran);
+      expect(stacItem).toEqual(expectedStacGran);
+    });
+
+    it('should return a valid FeatureGeoJSON against STAC Spec', async () => {
+      expect.extend({
+        toBeValid: (errors) => {
+          if (errors) {
+            return {
+              message: () => JSON.stringify(errors, null, 2),
+              pass: false
+            };
           }
-        },
-        links: [
-          {
-            rel: 'self',
-            href: 'http://example.com/cmr-stac/USA/collections/10/items/1'
-          },
-          {
-            rel: 'parent',
-            href: 'http://example.com/cmr-stac/USA/collections/10/items'
-          },
-          {
-            rel: 'collection',
-            href: 'http://example.com/cmr-stac/USA/collections/10'
-          },
-          {
-            rel: 'root',
-            href: 'http://example.com/cmr-stac'
-          },
-          {
-            rel: 'provider',
-            href: 'http://example.com/cmr-stac/USA'
-          }
-        ]
+          return { pass: true };
+        }
       });
+
+      const errors = await schemaValidator.validateSchema(schemaValidator.schemas.item, expectedStacGran);
+      expect(errors).toBeValid();
     });
   });
 

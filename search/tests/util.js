@@ -6,13 +6,14 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
  * jest mock function.
  * @param obj object with property to mock
  * @param name string name of the property from the obj
+ * @param returnVal The return value for the mock function
  * @returns {object} obj
  */
-function mockFunction (obj, name) {
+function mockFunction (obj, name, returnVal = undefined) {
   if (!hasOwnProperty.call(obj, name)) return obj;
 
   obj[`__orig__${name}`] = obj[name];
-  obj[name] = jest.fn();
+  obj[name] = jest.fn().mockReturnValue(returnVal);
 
   return obj;
 }
@@ -32,10 +33,45 @@ function revertFunction (obj, name) {
   return obj;
 }
 
+function createMockResponse () {
+  const data = {};
+  const mockResp = {
+    status: (v) => {
+      data.status = v;
+      return mockResp;
+    },
+    json: (v) => {
+      data.json = v;
+      return mockResp;
+    },
+    getData: () => data,
+    expect: (expectedData) => {
+      expect(data).toEqual({
+        status: 200,
+        json: expectedData
+      });
+    }
+  };
+  return mockResp;
+}
+
 const logger = createLogger({ logLevel: 'silly' });
+
+function createRequest (additionalData = null) {
+  return Object.assign({
+    apiGateway: {
+      event: { headers: { Host: 'example.com' } }
+    },
+    body: '{}',
+    app: { logger: logger },
+    params: { }
+  }, additionalData);
+}
 
 module.exports = {
   mockFunction,
   revertFunction,
+  createMockResponse,
+  createRequest,
   logger
 };

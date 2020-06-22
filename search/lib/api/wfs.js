@@ -1,7 +1,9 @@
 const express = require('express');
-const { wfs, generateAppUrl, logger } = require('../util');
+const { wfs, generateAppUrl, logger, makeAsyncHandler } = require('../util');
 const cmr = require('../cmr');
 const convert = require('../convert');
+const { assertValid, schemas } = require('../validator');
+const settings = require('../settings');
 
 async function getCollections (request, response) {
   logger.info(`GET ${request.params.providerId}/collections`);
@@ -14,14 +16,17 @@ async function getCollections (request, response) {
   const collections = await cmr.findCollections(params);
   const collectionsResponse = {
     id: provider,
+    stac_version: settings.stac.version,
     description: `All collections provided by ${provider}`,
     links: [
       wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
         `All collections provided by ${provider}`),
       wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root')
     ],
+    license: 'not-provided',
     collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
   };
+  await assertValid(schemas.collections, collectionsResponse);
   response.status(200).json(collectionsResponse);
 }
 
@@ -31,6 +36,7 @@ async function getCollection (request, response) {
   const conceptId = request.params.collectionId;
   const collection = await cmr.getCollection(conceptId);
   const collectionResponse = convert.cmrCollToWFSColl(event, collection);
+  await assertValid(schemas.collection, collectionResponse);
   response.status(200).json(collectionResponse);
 }
 
@@ -38,10 +44,13 @@ async function getGranules (request, response) {
   const conceptId = request.params.collectionId;
   logger.info(`GET /${request.params.providerId}/collections/${conceptId}/items`);
   const event = request.apiGateway.event;
-  const params = Object.assign({ collection_concept_id: conceptId }, cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query));
+  const params = Object.assign(
+    { collection_concept_id: conceptId },
+    cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
+  );
   const granules = await cmr.findGranules(params);
   const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granules);
-
+  await assertValid(schemas.items, granulesResponse);
   response.status(200).json(granulesResponse);
 }
 
@@ -55,6 +64,7 @@ async function getGranule (request, response) {
     concept_id: conceptId
   });
   const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0]);
+  await assertValid(schemas.item, granuleResponse);
   response.status(200).json(granuleResponse);
 }
 
@@ -68,10 +78,10 @@ const CONFORMANCE_RESPONSE = {
 };
 
 const routes = express.Router();
-routes.get('/:providerId/collections', (req, res) => getCollections(req, res));
-routes.get('/:providerId/collections/:collectionId', (req, res) => getCollection(req, res));
-routes.get('/:providerId/collections/:collectionId/items', (req, res) => getGranules(req, res));
-routes.get('/:providerId/collections/:collectionId/items/:itemId', (req, res) => getGranule(req, res));
+routes.get('/:providerId/collections', makeAsyncHandler(getCollections));
+routes.get('/:providerId/collections/:collectionId', makeAsyncHandler(getCollection));
+routes.get('/:providerId/collections/:collectionId/items', makeAsyncHandler(getGranules));
+routes.get('/:providerId/collections/:collectionId/items/:itemId', makeAsyncHandler(getGranule));
 routes.get('/conformance', (req, res) => res.status(200).json(CONFORMANCE_RESPONSE));
 
 module.exports = {
