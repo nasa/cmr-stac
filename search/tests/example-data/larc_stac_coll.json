@@ -20,7 +20,7 @@
     },
     {
       "rel": "stac",
-      "href": "http://example.com/cmr-stac/LARC/search?collectionId=C1288777589-LARC",
+      "href": "http://example.com/cmr-stac/LARC/search?collections=C1288777589-LARC",
       "title": "STAC Search this collection",
       "type": "application/json"
     },

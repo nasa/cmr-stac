@@ -74,11 +74,11 @@ describe('collections', () => {
     };
 
     it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID, collProvider)).toEqual('http://example.com/cmr-stac/LPDAAC/search?eo_cloud_cover=2&collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(event, collID, collProvider)).toEqual('http://example.com/cmr-stac/LPDAAC/search?eo_cloud_cover=2&collections=landsat-8-l1');
     });
 
     it('should return a search url with no params', () => {
-      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider)).toEqual('http://example.com/cmr-stac/LPDAAC/search?collectionId=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider)).toEqual('http://example.com/cmr-stac/LPDAAC/search?collections=landsat-8-l1');
     });
   });
 
@@ -161,7 +161,7 @@ describe('collections', () => {
             title: 'Root for this provider',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/LPDAAC/search?collectionId=id',
+            href: 'http://example.com/cmr-stac/LPDAAC/search?collections=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
@@ -236,7 +236,7 @@ describe('collections', () => {
             title: 'Root for this provider',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/LPDAAC/search?collectionId=id',
+            href: 'http://example.com/cmr-stac/LPDAAC/search?collections=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
