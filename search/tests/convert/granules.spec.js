@@ -73,6 +73,29 @@ describe('granuleToItem', () => {
       });
     });
 
+    it('should return a LineString geometry given a single line', () => {
+      cmrSpatial = {
+        lines: ['33.1 -119.114 36.367 -116.086']
+      };
+      expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
+        type: 'LineString',
+        coordinates: [[-119.114, 33.1], [-116.086, 36.367]]
+      });
+    });
+
+    it('should return a MultiLineString given multiple lines', () => {
+      cmrSpatial = {
+        lines: ['33.1 -119.114 36.367 -116.086', '15.1 -120.5 45.8 -119.12']
+      };
+      expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
+        type: 'MultiLineString',
+        coordinates: [
+          [[-119.114, 33.1], [-116.086, 36.367]],
+          [[-120.5, 15.1], [-119.12, 45.8]]
+        ]
+      });
+    });
+
     it('should return a single GeoJSON geometry for a given polygon', () => {
       cmrSpatial = {
         polygons: [['12,34,56,78']]
@@ -158,6 +181,7 @@ describe('granuleToItem', () => {
 
   describe('cmrSpatialToStacBbox', () => {
     let cmrCollection;
+    let cmrGranule;
 
     it('should return a bounding box from given polygon', () => {
       cmrCollection = {
@@ -171,6 +195,20 @@ describe('granuleToItem', () => {
         points: ['30 -10', '70 33', '-145 66']
       };
       expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-145, -10, 70, 66]);
+    });
+
+    it('should return a bounding box from given lines', () => {
+      cmrGranule = {
+        lines: ['33.1 -119.114 36.367 -116.086']
+      };
+      expect(cmrSpatialToStacBbox(cmrGranule)).toEqual([-119.114, 33.1, -116.086, 36.367]);
+    });
+
+    it('should return a bounding box given multiple lines', () => {
+      cmrGranule = {
+        lines: ['33.1 -119.114 36.367 -116.086', '15.1 -120.5 45.8 -119.12']
+      };
+      expect(cmrSpatialToStacBbox(cmrGranule)).toEqual([-120.5, 15.1, -116.086, 45.8]);
     });
 
     it('should return a bounding box from provided coordinates [west north east south]', () => {

@@ -25,12 +25,20 @@ describe('collections', () => {
       expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-145, -10, 70, 66]);
     });
 
-    it('should throw an error if given lines', () => {
+    it('should return a bounding box from given lines', () => {
       cmrCollection = {
         id: 'sampleCollection',
-        lines: [28.2, 44, -44, 109.3]
+        lines: ['33.1 -119.114 36.367 -116.086']
       };
-      expect(() => { cmrCollSpatialToExtents(cmrCollection); }).toThrow(Error);
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-119.114, 33.1, -116.086, 36.367]);
+    });
+
+    it('should return a single box from multiple given line strings', () => {
+      cmrCollection = {
+        id: 'samplecollection',
+        lines: ['33.1 -119.114 36.367 -116.086', '15.1 -120.5 45.8 -119.12']
+      };
+      expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-120.5, 15.1, -116.086, 45.8]);
     });
 
     it('should return a bounding box from provided coordinates [west north east south]', () => {

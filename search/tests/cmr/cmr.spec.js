@@ -83,7 +83,7 @@ describe('cmr', () => {
 
       expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
-      expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true, downloadable: true }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+      expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
       expect(result).toEqual({ test: 'value' });
     });
 
@@ -92,7 +92,7 @@ describe('cmr', () => {
 
       expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
-      expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true, downloadable: true, param: 'test' }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+      expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true, param: 'test' }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
       expect(result).toEqual({ test: 'value' });
     });
   });
@@ -139,7 +139,7 @@ describe('cmr', () => {
 
       expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
-      expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true, downloadable: true, concept_id: 10 }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+      expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true, concept_id: 10 }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
       expect(result).toEqual({ concept_id: 10 });
     });
 

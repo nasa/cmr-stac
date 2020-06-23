@@ -28,6 +28,7 @@ function cmrBoxToGeoJsonPolygon (box) {
 
 function cmrSpatialToGeoJSONGeometry (cmrGran) {
   let geometry = [];
+  let geoJsonSpatial;
   if (cmrGran.polygons) {
     geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon));
   }
@@ -39,6 +40,27 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
       const [lon, lat] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
     }));
+  }
+  if (cmrGran.lines) {
+    geometry = cmrGran.lines.map(ls => {
+      const linePoints = parseOrdinateString(ls);
+      const orderedLines = reorderBoxValues(linePoints);
+      return _.chunk(orderedLines, 2);
+    });
+
+    if (geometry.length > 1) {
+      geoJsonSpatial = {
+        type: 'MultiLineString',
+        coordinates: geometry
+      };
+      return geoJsonSpatial;
+    } else {
+      geoJsonSpatial = {
+        type: 'LineString',
+        coordinates: geometry[0]
+      };
+      return geoJsonSpatial;
+    }
   }
   if (geometry.length === 0) {
     throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
@@ -63,6 +85,11 @@ function cmrSpatialToStacBbox (cmrGran) {
   if (cmrGran.points) {
     const points = cmrGran.points.map(parseOrdinateString);
     bbox = addPointsToBbox(bbox, points);
+  }
+  if (cmrGran.lines) {
+    const linePoints = cmrGran.lines.map(parseOrdinateString);
+    const orderedLines = linePoints.map(reorderBoxValues);
+    return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   }
   if (cmrGran.boxes) {
     const mergedBox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
