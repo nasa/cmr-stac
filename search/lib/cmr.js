@@ -45,7 +45,7 @@ async function cmrSearch (url, params) {
 
 async function findCollections (params = {}) {
   params.has_granules = true;
-  params.downloadable = true;
+  // params.downloadable = true;
   const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), params);
   return response.data.feed.entry;
 }
