@@ -110,9 +110,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   const startDatetime = cmrGran.time_start;
   const endDatetime = cmrGran.time_end ? cmrGran.time_end : cmrGran.time_start;
 
-  const dataLink = _.first(
-    cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited)
-  );
+  const dataLink = cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited);
   const browseLink = _.first(
     cmrGran.links.filter(l => l.rel === BROWSE_REL)
   );
@@ -136,8 +134,16 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 
   const assets = {};
-  if (dataLink) {
-    assets.data = linkToAsset(dataLink);
+  if (dataLink.length) {
+    if (dataLink.length > 1) {
+      dataLink.forEach(l => {
+        const splitLink = l.href.split('.');
+        const fileType = splitLink[splitLink.length - 2];
+        assets[fileType] = linkToAsset(l);
+      });
+    } else {
+      assets.data = linkToAsset(dataLink[0]);
+    }
   }
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);

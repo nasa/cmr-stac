@@ -13,7 +13,6 @@ function cmrCollSpatialToExtents (cmrColl) {
   }
   if (cmrColl.points) {
     const points = cmrColl.points.map(parseOrdinateString);
-    console.log(points);
     bbox = addPointsToBbox(bbox, points);
   }
   if (cmrColl.lines) {
