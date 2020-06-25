@@ -55,11 +55,7 @@ function generateAppUrlWithoutRelativeRoot (event, path, queryParams = null) {
   const host = getHostHeader(event);
   const protocol = getProtoHeader(event);
   const newPath = path || '';
-  const url = protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
-
-  logger.debug(`Generated URL: ${url}`);
-
-  return url;
+  return protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 }
 
 function generateAppUrl (event, path, queryParams = null) {
@@ -75,6 +71,16 @@ function identity (x) {
   return x;
 }
 
+function makeAsyncHandler (fn) {
+  return async (req, res, next) => {
+    try {
+      await fn(req, res);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
 module.exports = {
   ...app,
   createRedirectUrl,
@@ -87,5 +93,6 @@ module.exports = {
   identity,
   WfsLink,
   createLogger,
-  logger
+  logger,
+  makeAsyncHandler
 };

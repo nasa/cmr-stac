@@ -1,3 +1,4 @@
+const settings = require('../../lib/settings');
 const {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
@@ -6,6 +7,9 @@ const {
   cmrGranToFeatureGeoJSON,
   cmrGranulesToFeatureCollection
 } = require('../../lib/convert');
+const exampleData = require('../example-data');
+
+const schemaValidator = require('../../lib/validator');
 
 describe('granuleToItem', () => {
   describe('cmrPolygonToGeoJsonPolygon', () => {
@@ -66,6 +70,29 @@ describe('granuleToItem', () => {
           type: 'Point',
           coordinates: [45, 67]
         }]
+      });
+    });
+
+    it('should return a LineString geometry given a single line', () => {
+      cmrSpatial = {
+        lines: ['33.1 -119.114 36.367 -116.086']
+      };
+      expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
+        type: 'LineString',
+        coordinates: [[-119.114, 33.1], [-116.086, 36.367]]
+      });
+    });
+
+    it('should return a MultiLineString given multiple lines', () => {
+      cmrSpatial = {
+        lines: ['33.1 -119.114 36.367 -116.086', '15.1 -120.5 45.8 -119.12']
+      };
+      expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
+        type: 'MultiLineString',
+        coordinates: [
+          [[-119.114, 33.1], [-116.086, 36.367]],
+          [[-120.5, 15.1], [-119.12, 45.8]]
+        ]
       });
     });
 
@@ -154,6 +181,7 @@ describe('granuleToItem', () => {
 
   describe('cmrSpatialToStacBbox', () => {
     let cmrCollection;
+    let cmrGranule;
 
     it('should return a bounding box from given polygon', () => {
       cmrCollection = {
@@ -167,6 +195,20 @@ describe('granuleToItem', () => {
         points: ['30 -10', '70 33', '-145 66']
       };
       expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-145, -10, 70, 66]);
+    });
+
+    it('should return a bounding box from given lines', () => {
+      cmrGranule = {
+        lines: ['33.1 -119.114 36.367 -116.086']
+      };
+      expect(cmrSpatialToStacBbox(cmrGranule)).toEqual([-119.114, 33.1, -116.086, 36.367]);
+    });
+
+    it('should return a bounding box given multiple lines', () => {
+      cmrGranule = {
+        lines: ['33.1 -119.114 36.367 -116.086', '15.1 -120.5 45.8 -119.12']
+      };
+      expect(cmrSpatialToStacBbox(cmrGranule)).toEqual([-120.5, 15.1, -116.086, 45.8]);
     });
 
     it('should return a bounding box from provided coordinates [west north east south]', () => {
@@ -190,78 +232,31 @@ describe('granuleToItem', () => {
   });
 
   describe('cmrGranToFeatureGeoJSON', () => {
-    const cmrGran = {
-      id: 1,
-      collection_concept_id: 10,
-      dataset_id: 'datasetId',
-      summary: 'summary',
-      time_start: 0,
-      time_end: 1,
-      assets: {},
-      links: [
-        {
-          href: 'http://example.com/collections/id',
-          rel: 'self',
-          title: 'Info about this collection',
-          type: 'application/json'
-        },
-        {
-          rel: 'http://esipfed.org/ns/fedsearch/1.1/browse#',
-          href: 'http://example.com/images/abc.jpg',
-          type: 'application/json' // this is wrong on purpose to test converting
-        }
-      ],
-      data_center: 'USA',
-      points: ['77,39']
-    };
+    const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
+    const expectedStacGran = exampleData.examplesByName.lancemodisStacGran;
 
     const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
     it('should return a FeatureGeoJSON from a cmrGran', () => {
-      expect(cmrGranToFeatureGeoJSON(event, cmrGran)).toEqual({
-        type: 'Feature',
-        id: 1,
-        stac_version: '0.8.0',
-        bbox: [77, 39, 77, 39],
-        collection: 10,
-        geometry: { type: 'Point', coordinates: [77, 39] },
-        properties: {
-          datetime: '0',
-          start_datetime: '0',
-          end_datetime: '1'
-        },
-        assets: {
-          browse: {
-            href: 'http://example.com/images/abc.jpg',
-            type: 'image/jpeg'
-          },
-          metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
-            type: 'application/xml'
+      const stacItem = cmrGranToFeatureGeoJSON(event, cmrGran);
+      expect(stacItem).toEqual(expectedStacGran);
+    });
+
+    it('should return a valid FeatureGeoJSON against STAC Spec', async () => {
+      expect.extend({
+        toBeValid: (errors) => {
+          if (errors) {
+            return {
+              message: () => JSON.stringify(errors, null, 2),
+              pass: false
+            };
           }
-        },
-        links: [
-          {
-            rel: 'self',
-            href: 'http://example.com/cmr-stac/collections/10/items/1'
-          },
-          {
-            rel: 'parent',
-            href: 'http://example.com/cmr-stac/collections/10'
-          },
-          {
-            rel: 'collection',
-            href: 'http://example.com/cmr-stac/collections/10'
-          },
-          {
-            rel: 'root',
-            href: 'http://example.com/cmr-stac'
-          },
-          {
-            provider: 'USA'
-          }
-        ]
+          return { pass: true };
+        }
       });
+
+      const errors = await schemaValidator.validateSchema(schemaValidator.schemas.item, expectedStacGran);
+      expect(errors).toBeValid();
     });
   });
 
@@ -270,6 +265,7 @@ describe('granuleToItem', () => {
       id: 1,
       collection_concept_id: 10,
       dataset_id: 'datasetId',
+      short_name: 'landsat',
       summary: 'summary',
       time_start: 0,
       time_end: 1,
@@ -290,10 +286,11 @@ describe('granuleToItem', () => {
     it('should return a cmrGranule to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
-        stac_version: '0.8.0',
+        stac_version: settings.stac.version,
         features: [{
           id: 1,
-          stac_version: '0.8.0',
+          stac_version: settings.stac.version,
+          short_name: 'landsat',
           collection: 10,
           geometry: { type: 'Point', coordinates: [77, 39] },
           bbox: [77, 39, 77, 39],
@@ -312,29 +309,34 @@ describe('granuleToItem', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com/cmr-stac/collections/10/items/1'
+              href: 'http://example.com/cmr-stac/USA/collections/10/items/1'
             },
             {
               rel: 'parent',
-              href: 'http://example.com/cmr-stac/collections/10'
+              href: 'http://example.com/cmr-stac/USA/collections/10/items'
             },
             {
               rel: 'collection',
-              href: 'http://example.com/cmr-stac/collections/10'
+              href: 'http://example.com/cmr-stac/USA/collections/10'
             },
             {
               rel: 'root',
               href: 'http://example.com/cmr-stac'
             },
             {
-              provider: 'USA'
+              rel: 'provider',
+              href: 'http://example.com/cmr-stac/USA'
             }
           ]
         }],
         links: [
           {
-            self: 'http://example.com/cmr-stac',
-            next: 'http://example.com/cmr-stac?page_num=2'
+            rel: 'self',
+            href: 'http://example.com/cmr-stac'
+          },
+          {
+            rel: 'next',
+            href: 'http://example.com/cmr-stac?page_num=2'
           }
         ]
       });

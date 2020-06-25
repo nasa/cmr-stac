@@ -141,3 +141,5 @@ $RECYCLE.BIN/
 
 # IntelliJ
 .idea/
+
+stac-spec/

@@ -28,6 +28,7 @@ function cmrBoxToGeoJsonPolygon (box) {
 
 function cmrSpatialToGeoJSONGeometry (cmrGran) {
   let geometry = [];
+  let geoJsonSpatial;
   if (cmrGran.polygons) {
     geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon));
   }
@@ -39,6 +40,27 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
       const [lon, lat] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
     }));
+  }
+  if (cmrGran.lines) {
+    geometry = cmrGran.lines.map(ls => {
+      const linePoints = parseOrdinateString(ls);
+      const orderedLines = reorderBoxValues(linePoints);
+      return _.chunk(orderedLines, 2);
+    });
+
+    if (geometry.length > 1) {
+      geoJsonSpatial = {
+        type: 'MultiLineString',
+        coordinates: geometry
+      };
+      return geoJsonSpatial;
+    } else {
+      geoJsonSpatial = {
+        type: 'LineString',
+        coordinates: geometry[0]
+      };
+      return geoJsonSpatial;
+    }
   }
   if (geometry.length === 0) {
     throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
@@ -64,6 +86,11 @@ function cmrSpatialToStacBbox (cmrGran) {
     const points = cmrGran.points.map(parseOrdinateString);
     bbox = addPointsToBbox(bbox, points);
   }
+  if (cmrGran.lines) {
+    const linePoints = cmrGran.lines.map(parseOrdinateString);
+    const orderedLines = linePoints.map(reorderBoxValues);
+    return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
+  }
   if (cmrGran.boxes) {
     const mergedBox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
     bbox = reorderBoxValues(mergedBox);
@@ -79,20 +106,11 @@ const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
 function cmrGranToFeatureGeoJSON (event, cmrGran) {
-  // eslint-disable-next-line camelcase
-  const datetime = cmrGran.time_start.toString();
-  // eslint-disable-next-line camelcase
-  const start_datetime = cmrGran.time_start.toString();
-  // eslint-disable-next-line camelcase
-  let end_datetime = cmrGran.time_start.toString();
-  if (cmrGran.time_end) {
-    // eslint-disable-next-line camelcase
-    end_datetime = cmrGran.time_end.toString();
-  }
+  const datetime = cmrGran.time_start;
+  const startDatetime = cmrGran.time_start;
+  const endDatetime = cmrGran.time_end ? cmrGran.time_end : cmrGran.time_start;
 
-  const dataLink = _.first(
-    cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited)
-  );
+  const dataLink = cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited);
   const browseLink = _.first(
     cmrGran.links.filter(l => l.rel === BROWSE_REL)
   );
@@ -116,8 +134,16 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 
   const assets = {};
-  if (dataLink) {
-    assets.data = linkToAsset(dataLink);
+  if (dataLink.length) {
+    if (dataLink.length > 1) {
+      dataLink.forEach(l => {
+        const splitLink = l.href.split('.');
+        const fileType = splitLink[splitLink.length - 2];
+        assets[fileType] = linkToAsset(l);
+      });
+    } else {
+      assets.data = linkToAsset(dataLink[0]);
+    }
   }
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
@@ -146,10 +172,10 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   }
 
   assets.metadata = wfs.createAssetLink(cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`));
-
   return {
     type: 'Feature',
     id: cmrGran.id,
+    short_name: cmrGran.short_name,
     stac_version: settings.stac.version,
     collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
@@ -158,74 +184,69 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       {
         rel: 'self',
         href: generateAppUrl(event,
-          `/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
+          `/${cmrGran.data_center}/collections/${cmrGran.collection_concept_id}/items/${cmrGran.id}`)
       },
       {
         rel: 'parent',
-        href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
+        href: generateAppUrl(event, `/${cmrGran.data_center}/collections/${cmrGran.collection_concept_id}/items`)
       },
       {
         rel: 'collection',
-        href: generateAppUrl(event, `/collections/${cmrGran.collection_concept_id}`)
+        href: generateAppUrl(event, `/${cmrGran.data_center}/collections/${cmrGran.collection_concept_id}`)
       },
       {
         rel: 'root',
         href: generateAppUrl(event)
       },
       {
-        provider: cmrGran.data_center
+        rel: 'provider',
+        href: generateAppUrl(event, `/${cmrGran.data_center}`)
       }
     ],
     properties: {
-      datetime,
-      start_datetime,
-      end_datetime
+      datetime: datetime.toString(),
+      start_datetime: startDatetime.toString(),
+      end_datetime: endDatetime.toString()
     },
     assets
   };
 }
 
 function cmrGranulesToFeatureCollection (event, cmrGrans) {
-  if (event.queryStringParameters.page_num > 1) {
-    const currPage = event.queryStringParameters.page_num;
-    const nextPage = currPage + 1;
-    const prevPage = currPage - 1;
-    const newParams = { ...event.queryStringParameters } || {};
-    newParams.page_num = nextPage;
-    const newPrevParams = { ...event.queryStringParameters } || {};
-    newPrevParams.page_num = prevPage;
-    const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
-    const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
-
-    return {
-      type: 'FeatureCollection',
-      stac_version: settings.stac.version,
-      features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
-      links: {
-        self: generateSelfUrl(event),
-        prev: prevResultsLink,
-        next: nextResultsLink
-      }
-    };
-  }
-
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
+  const prevPage = currPage - 1;
   const newParams = { ...event.queryStringParameters } || {};
   newParams.page_num = nextPage;
+  const newPrevParams = { ...event.queryStringParameters } || {};
+  newPrevParams.page_num = prevPage;
+  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
 
-  return {
+  const granulesResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
-    features: cmrGrans.map(g => cmrGranToFeatureGeoJSON(event, g)),
+    features: cmrGrans.map(gran => cmrGranToFeatureGeoJSON(event, gran)),
     links: [
       {
-        self: generateSelfUrl(event),
-        next: nextResultsLink
+        rel: 'self',
+        href: generateSelfUrl(event)
+      },
+      {
+        rel: 'next',
+        href: nextResultsLink
       }
     ]
   };
+
+  if (currPage > 1 && granulesResponse.links.length > 1) {
+    granulesResponse.links.splice(1, 0, {
+      rel: 'prev',
+      href: prevResultsLink
+    });
+  }
+
+  return granulesResponse;
 }
 
 module.exports = {

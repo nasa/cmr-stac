@@ -1,6 +1,7 @@
-const { mockFunction, revertFunction } = require('../util');
+const settings = require('../../lib/settings');
+const { mockFunction, revertFunction, createMockResponse, createRequest } = require('../util');
 const cmr = require('../../lib/cmr');
-const convert = require('../../lib/convert');
+const exampleData = require('../example-data');
 const {
   getCollections,
   getCollection,
@@ -12,125 +13,89 @@ describe('wfs routes', () => {
   let request, response;
 
   beforeEach(() => {
-    request = {
-      apiGateway: {
-        // event: { headers: { Host: 'example.com', queryStringParameters: { page_num: 1 } } }
-        event: { headers: { Host: 'example.com', queryStringParameters: { page_num: 1 } } }
-      },
+    request = createRequest({
       params: {
+        providerId: 'LPDAAC',
         collectionId: '1',
         itemId: '1'
       }
-    };
-    response = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn()
-    };
+    });
+    response = createMockResponse();
+    mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
+    mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
+    mockFunction(cmr, 'findGranules', Promise.resolve(exampleData.cmrGrans));
+  });
+
+  afterEach(() => {
+    revertFunction(cmr, 'findCollections');
+    revertFunction(cmr, 'getCollection');
+    revertFunction(cmr, 'findGranules');
   });
 
   describe('getCollections', () => {
     it('should generate a collections response.', async () => {
-      const expectedResponse = {
-        collections: [[]],
+      await getCollections(request, response);
+      response.expect({
+        id: 'LPDAAC',
+        stac_version: settings.stac.version,
+        description: 'All collections provided by LPDAAC',
         links: [
           {
-            href: 'http://example.com/cmr-stac/collections',
+            href: 'http://example.com/cmr-stac/LPDAAC/collections',
             rel: 'self',
-            title: 'this document',
+            title: 'All collections provided by LPDAAC',
             type: 'application/json'
+          },
+          {
+            href: 'http://example.com/cmr-stac/',
+            rel: 'root',
+            title: 'CMR-STAC Root',
+            type: 'application/json'
+          },
+          {
+            rel: 'next',
+            href: 'http://example.com?page_num=2'
           }
-        ]
-      };
-      request.query = {};
-
-      mockFunction(cmr, 'findCollections');
-      mockFunction(convert, 'cmrCollToWFSColl');
-
-      cmr.findCollections.mockReturnValue(Promise.resolve([{}]));
-      convert.cmrCollToWFSColl.mockReturnValue([]);
-
-      await getCollections(request, response);
-
-      expect(cmr.findCollections).toHaveBeenCalled();
-      expect(convert.cmrCollToWFSColl).toHaveBeenCalled();
-      expect(response.json).toHaveBeenCalledWith(expectedResponse);
-
-      revertFunction(cmr, 'findCollections');
-      revertFunction(convert, 'cmrCollToWFSColl');
+        ],
+        license: 'not-provided',
+        collections: exampleData.stacColls
+      });
     });
   });
 
   describe('getCollection', () => {
     it('should generate a single collections metadata response.', async () => {
-      mockFunction(cmr, 'getCollection');
-      mockFunction(convert, 'cmrCollToWFSColl');
-
-      cmr.getCollection.mockReturnValue(Promise.resolve([]));
-      convert.cmrCollToWFSColl.mockReturnValue([]);
-
       await getCollection(request, response);
-
-      expect(cmr.getCollection).toHaveBeenCalled();
-      expect(convert.cmrCollToWFSColl).toHaveBeenCalled();
-      expect(response.json).toHaveBeenCalledWith([]);
-
-      revertFunction(cmr, 'getCollection');
-      revertFunction(convert, 'cmrCollToWFSColl');
+      response.expect(exampleData.stacColls[0]);
     });
   });
 
   describe('getGranules', () => {
     it('should generate a item collection response.', async () => {
-      request.query = {};
-
-      mockFunction(cmr, 'findGranules');
-      mockFunction(convert, 'cmrGranToFeatureGeoJSON');
-
-      cmr.findGranules.mockReturnValue(Promise.resolve([{}]));
-      convert.cmrGranToFeatureGeoJSON.mockReturnValue({ response: 'okay' });
-
       await getGranules(request, response);
-
-      expect(cmr.findGranules).toHaveBeenCalled();
-      expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
-      expect(response.json).toHaveBeenCalledWith({
-        features: [
-          { response: 'okay' }
-        ],
-        stac_version: '0.8.0',
+      response.expect({
+        type: 'FeatureCollection',
+        stac_version: settings.stac.version,
         links: [
           {
             rel: 'self',
             href: 'http://example.com'
           },
-          { rel: 'next',
+          {
+            rel: 'next',
             href: 'http://example.com?page_num=2'
           }
         ],
-        type: 'FeatureCollection'
+        features: exampleData.stacGrans
       });
-
-      revertFunction(cmr, 'findGranules');
-      revertFunction(convert, 'cmrGranToFeatureGeoJSON');
     });
 
-    it('should generate an item collection response with a  prev link', async () => {
-      request.query = {};
+    it('should generate an item collection response with a prev link', async () => {
       request.apiGateway.event.queryStringParameters = { page_num: '2' };
-
-      mockFunction(cmr, 'findGranules');
-      mockFunction(convert, 'cmrGranToFeatureGeoJSON');
-
-      cmr.findGranules.mockReturnValue(Promise.resolve([{}]));
-      convert.cmrGranToFeatureGeoJSON.mockReturnValue({ response: 'okay' });
-
       await getGranules(request, response);
-
-      expect(cmr.findGranules).toHaveBeenCalled();
-      expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
-      expect(response.json).toHaveBeenCalledWith({
-        features: [{ response: 'okay' }],
-        stac_version: '0.8.0',
+      response.expect({
+        type: 'FeatureCollection',
+        stac_version: settings.stac.version,
         links: [
           {
             rel: 'self',
@@ -145,30 +110,15 @@ describe('wfs routes', () => {
             href: 'http://example.com?page_num=3'
           }
         ],
-        type: 'FeatureCollection'
+        features: exampleData.stacGrans
       });
-
-      revertFunction(cmr, 'findGranules');
-      revertFunction(convert, 'cmrGranToFeatureGeoJSON');
     });
   });
 
   describe('getGranule', () => {
     it('should generate a item response.', async () => {
-      mockFunction(cmr, 'findGranules');
-      mockFunction(convert, 'cmrGranToFeatureGeoJSON');
-
-      cmr.findGranules.mockReturnValue(Promise.resolve([]));
-      convert.cmrGranToFeatureGeoJSON.mockReturnValue({ response: 'okay' });
-
       await getGranule(request, response);
-
-      expect(cmr.findGranules).toHaveBeenCalled();
-      expect(convert.cmrGranToFeatureGeoJSON).toHaveBeenCalled();
-      expect(response.json).toHaveBeenCalledWith({ response: 'okay' });
-
-      revertFunction(cmr, 'findGranules');
-      revertFunction(convert, 'cmrGranToFeatureGeoJSON');
+      response.expect(exampleData.stacGrans[0]);
     });
   });
 });

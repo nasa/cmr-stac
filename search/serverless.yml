@@ -29,11 +29,12 @@ functions:
     logSubscription: true
     environment:
       CMR_SEARCH_HOST: ${opt:cmr-search-host, 'cmr.earthdata.nasa.gov/search'}
+      CMR_PROVIDER_HOST: ${opt:cmr-provider-host, 'cmr.earthdata.nasa.gov/ingest/providers'}
       CMR_SEARCH_PROTOCOL: ${opt:cmr-search-protocol, 'https'}
       CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
       LOG_DISABLED: false
       LOG_LEVEL: info
-      STAC_VERSION: 0.8.0
+      STAC_VERSION: 1.0.0-beta.1
 
 resources:
   Resources:
