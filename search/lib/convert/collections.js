@@ -16,7 +16,9 @@ function cmrCollSpatialToExtents (cmrColl) {
     bbox = addPointsToBbox(bbox, points);
   }
   if (cmrColl.lines) {
-    throw new Error(`Unexpected spatial extent of lines in ${cmrColl.id}`);
+    const linePoints = cmrColl.lines.map(parseOrdinateString);
+    const orderedLines = linePoints.map(reorderBoxValues);
+    return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   }
   if (cmrColl.boxes) {
     const mergedBox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);

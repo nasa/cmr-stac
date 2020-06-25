@@ -28,6 +28,7 @@ function cmrBoxToGeoJsonPolygon (box) {
 
 function cmrSpatialToGeoJSONGeometry (cmrGran) {
   let geometry = [];
+  let geoJsonSpatial;
   if (cmrGran.polygons) {
     geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon));
   }
@@ -39,6 +40,27 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
       const [lon, lat] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
     }));
+  }
+  if (cmrGran.lines) {
+    geometry = cmrGran.lines.map(ls => {
+      const linePoints = parseOrdinateString(ls);
+      const orderedLines = reorderBoxValues(linePoints);
+      return _.chunk(orderedLines, 2);
+    });
+
+    if (geometry.length > 1) {
+      geoJsonSpatial = {
+        type: 'MultiLineString',
+        coordinates: geometry
+      };
+      return geoJsonSpatial;
+    } else {
+      geoJsonSpatial = {
+        type: 'LineString',
+        coordinates: geometry[0]
+      };
+      return geoJsonSpatial;
+    }
   }
   if (geometry.length === 0) {
     throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
@@ -64,6 +86,11 @@ function cmrSpatialToStacBbox (cmrGran) {
     const points = cmrGran.points.map(parseOrdinateString);
     bbox = addPointsToBbox(bbox, points);
   }
+  if (cmrGran.lines) {
+    const linePoints = cmrGran.lines.map(parseOrdinateString);
+    const orderedLines = linePoints.map(reorderBoxValues);
+    return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
+  }
   if (cmrGran.boxes) {
     const mergedBox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
     bbox = reorderBoxValues(mergedBox);
@@ -83,9 +110,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   const startDatetime = cmrGran.time_start;
   const endDatetime = cmrGran.time_end ? cmrGran.time_end : cmrGran.time_start;
 
-  const dataLink = _.first(
-    cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited)
-  );
+  const dataLink = cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited);
   const browseLink = _.first(
     cmrGran.links.filter(l => l.rel === BROWSE_REL)
   );
@@ -109,8 +134,16 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 
   const assets = {};
-  if (dataLink) {
-    assets.data = linkToAsset(dataLink);
+  if (dataLink.length) {
+    if (dataLink.length > 1) {
+      dataLink.forEach(l => {
+        const splitLink = l.href.split('.');
+        const fileType = splitLink[splitLink.length - 2];
+        assets[fileType] = linkToAsset(l);
+      });
+    } else {
+      assets.data = linkToAsset(dataLink[0]);
+    }
   }
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
