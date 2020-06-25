@@ -31,7 +31,7 @@ function cmrCollSpatialToExtents (cmrColl) {
 
 function stacSearchWithCurrentParams (event, collId, collProvider) {
   const newParams = { ...event.queryStringParameters } || {};
-  newParams.collectionId = collId;
+  newParams.collections = collId;
   delete newParams.provider;
   return generateAppUrl(event, `/${collProvider}/search`, newParams);
 }

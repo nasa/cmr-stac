@@ -20,7 +20,7 @@
     },
     {
       "rel": "stac",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS/search?collectionId=C1299783579-LPDAAC_ECS",
+      "href": "http://example.com/cmr-stac/LPDAAC_ECS/search?collections=C1299783579-LPDAAC_ECS",
       "title": "STAC Search this collection",
       "type": "application/json"
     },

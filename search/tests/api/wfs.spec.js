@@ -51,6 +51,10 @@ describe('wfs routes', () => {
             rel: 'root',
             title: 'CMR-STAC Root',
             type: 'application/json'
+          },
+          {
+            rel: 'next',
+            href: 'http://example.com?page_num=2'
           }
         ],
         license: 'not-provided',

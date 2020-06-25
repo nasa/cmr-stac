@@ -1,5 +1,5 @@
 const express = require('express');
-const { wfs, generateAppUrl, logger, makeAsyncHandler } = require('../util');
+const { wfs, generateAppUrl, logger, makeAsyncHandler, extractParam, generateAppUrlWithoutRelativeRoot } = require('../util');
 const cmr = require('../cmr');
 const convert = require('../convert');
 const { assertValid, schemas } = require('../validator');
@@ -8,6 +8,17 @@ const settings = require('../settings');
 async function getCollections (request, response) {
   logger.info(`GET ${request.params.providerId}/collections`);
   const event = request.apiGateway.event;
+
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const nextPage = currPage + 1;
+  const prevPage = currPage - 1;
+  const newParams = { ...event.queryStringParameters } || {};
+  newParams.page_num = nextPage;
+  const newPrevParams = { ...event.queryStringParameters } || {};
+  newPrevParams.page_num = prevPage;
+  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
+  const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
+
   const provider = request.params.providerId;
   const params = Object.assign(
     { provider_short_name: provider },
@@ -18,14 +29,26 @@ async function getCollections (request, response) {
     id: provider,
     stac_version: settings.stac.version,
     description: `All collections provided by ${provider}`,
+    license: 'not-provided',
     links: [
       wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
         `All collections provided by ${provider}`),
-      wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root')
+      wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root'),
+      {
+        rel: 'next',
+        href: nextResultsLink
+      }
     ],
-    license: 'not-provided',
     collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
   };
+
+  if (currPage > 1 && collectionsResponse.links.length > 1) {
+    collectionsResponse.links.splice(collectionsResponse.links.length - 1, 0, {
+      rel: 'prev',
+      href: prevResultsLink
+    });
+  }
+
   await assertValid(schemas.collections, collectionsResponse);
   response.status(200).json(collectionsResponse);
 }
