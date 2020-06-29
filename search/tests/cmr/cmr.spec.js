@@ -171,7 +171,7 @@ describe('cmr', () => {
 
       it('should convert time into temporal.', () => {
         const params = {
-          time: '12:34:00pm'
+          datetime: '12:34:00pm'
         };
         const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
         expect(result).toEqual({ temporal: '12:34:00pm' });
