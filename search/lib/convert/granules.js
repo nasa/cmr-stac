@@ -113,13 +113,20 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   const startDatetime = cmrGran.time_start;
   const endDatetime = cmrGran.time_end ? cmrGran.time_end : cmrGran.time_start;
 
-  const dataLink = cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited);
-  const browseLink = _.first(
-    cmrGran.links.filter(l => l.rel === BROWSE_REL)
-  );
-  const opendapLink = _.first(
-    cmrGran.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
-  );
+  let dataLink;
+  let browseLink;
+  let opendapLink;
+
+  if (cmrGran.links) {
+    dataLink = cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited);
+    browseLink = _.first(
+        cmrGran.links.filter(l => l.rel === BROWSE_REL)
+    );
+    opendapLink = _.first(
+        cmrGran.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
+    );
+  }
+
 
   const linkToAsset = (l) => {
     if (l.title === undefined) {
@@ -137,7 +144,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 
   const assets = {};
-  if (dataLink.length) {
+  if (dataLink && dataLink.length) {
     if (dataLink.length > 1) {
       dataLink.forEach(l => {
         const splitLink = l.href.split('.');
