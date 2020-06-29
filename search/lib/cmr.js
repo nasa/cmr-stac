@@ -10,7 +10,6 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', identity],
   collections: ['collection_concept_id', identity],
-  collectionId: ['collection_concept_id', identity],
   ids: ['concept_id', identity]
 };
 
