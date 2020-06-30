@@ -1,5 +1,6 @@
 const express = require('express');
 const { wfs, generateAppUrl, logger, makeAsyncHandler } = require('../util');
+const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 const cmr = require('../cmr');
 
@@ -8,6 +9,7 @@ function convertProvider (event, provider) {
   return {
     id: providerId,
     title: provider['short-name'],
+    description: `Root catalog for ${providerId}`,
     stac_version: settings.stac.version,
     rel: 'provider',
     type: 'application/json',
@@ -30,7 +32,7 @@ async function getProvider (request, response) {
     'provider-id': providerId,
     'short-name': providerId
   });
-  // TODO assert response here
+  await assertValid(schemas.catalog, provider);
   response.status(200).json(provider);
 }
 
@@ -42,7 +44,6 @@ async function getProviders (req, res) {
     description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
     links: providerObjects
   };
-  // TODO assert response here
   res.status(200).json(providerCatalog);
 }
 
