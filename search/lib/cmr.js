@@ -16,12 +16,12 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
 const STAC_QUERY_PARAMS_CONVERSION_MAP = {
   limit: ['limit', (v) => parseInt(v, 10)],
   bbox: ['bbox', parseOrdinateString],
-  time: ['time', identity]
+  datetime: ['time', identity]
 };
 
 const WFS_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', _.identity],
-  time: ['temporal', _.identity],
+  datetime: ['temporal', _.identity],
   limit: ['page_size', _.identity]
 };
 
