@@ -6,21 +6,22 @@ const settings = require('./settings');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],
-  time: ['temporal', identity],
+  datetime: ['temporal', identity],
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', identity],
-  collections: ['collection_concept_id', identity]
+  collections: ['collection_concept_id', identity],
+  ids: ['concept_id', identity]
 };
 
 const STAC_QUERY_PARAMS_CONVERSION_MAP = {
   limit: ['limit', (v) => parseInt(v, 10)],
   bbox: ['bbox', parseOrdinateString],
-  time: ['time', identity]
+  datetime: ['temporal', identity]
 };
 
 const WFS_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', _.identity],
-  time: ['temporal', _.identity],
+  datetime: ['temporal', _.identity],
   limit: ['page_size', _.identity]
 };
 

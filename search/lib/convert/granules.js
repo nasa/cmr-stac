@@ -5,7 +5,8 @@ const { pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, r
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
-  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
+  let rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
+  rings = rings.map(ring => ring.map(point => [point[1], point[0]]));
   return {
     type: 'Polygon',
     coordinates: rings
@@ -37,7 +38,7 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
   }
   if (cmrGran.points) {
     geometry = geometry.concat(cmrGran.points.map((ps) => {
-      const [lon, lat] = parseOrdinateString(ps);
+      const [lat, lon] = parseOrdinateString(ps);
       return { type: 'Point', coordinates: [lon, lat] };
     }));
   }
@@ -81,10 +82,12 @@ function cmrSpatialToStacBbox (cmrGran) {
       .map((rings) => rings[0])
       .map(pointStringToPoints)
       .reduce(addPointsToBbox, bbox);
+    bbox = reorderBoxValues(bbox);
   }
   if (cmrGran.points) {
     const points = cmrGran.points.map(parseOrdinateString);
     bbox = addPointsToBbox(bbox, points);
+    bbox = reorderBoxValues(bbox);
   }
   if (cmrGran.lines) {
     const linePoints = cmrGran.lines.map(parseOrdinateString);
@@ -110,13 +113,19 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   const startDatetime = cmrGran.time_start;
   const endDatetime = cmrGran.time_end ? cmrGran.time_end : cmrGran.time_start;
 
-  const dataLink = cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited);
-  const browseLink = _.first(
-    cmrGran.links.filter(l => l.rel === BROWSE_REL)
-  );
-  const opendapLink = _.first(
-    cmrGran.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
-  );
+  let dataLink;
+  let browseLink;
+  let opendapLink;
+
+  if (cmrGran.links) {
+    dataLink = cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited);
+    browseLink = _.first(
+      cmrGran.links.filter(l => l.rel === BROWSE_REL)
+    );
+    opendapLink = _.first(
+      cmrGran.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
+    );
+  }
 
   const linkToAsset = (l) => {
     if (l.title === undefined) {
@@ -134,7 +143,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
   };
 
   const assets = {};
-  if (dataLink.length) {
+  if (dataLink && dataLink.length) {
     if (dataLink.length > 1) {
       dataLink.forEach(l => {
         const splitLink = l.href.split('.');

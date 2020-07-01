@@ -14,18 +14,21 @@ const schemaValidator = require('../../lib/validator');
 describe('granuleToItem', () => {
   describe('cmrPolygonToGeoJsonPolygon', () => {
     it('should return an array of coordinates for a GeoJson Polygon given one ring', () => {
-      const polygon = ['10,10,30,10,30,20,10,20,10,10'];
+      const polygon = ['10,110,30,110,30,120,10,120,10,110'];
       expect(cmrPolygonToGeoJsonPolygon(polygon)).toEqual({
         type: 'Polygon',
-        coordinates: [[[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]]]
+        coordinates: [[[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]]]
       });
     });
 
     it('should return an array of coordinates for a GeoJson Polygon given multiple rings', () => {
-      const polygon = ['10,10,30,10,30,20,10,20,10,10', '10,10,30,10,30,20,10,20,10,10'];
+      const polygon = ['10,110,30,110,30,120,10,120,10,110', '10,110,30,110,30,120,10,120,10,110'];
       expect(cmrPolygonToGeoJsonPolygon(polygon)).toEqual({
         type: 'Polygon',
-        coordinates: [[[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]], [[10, 10], [30, 10], [30, 20], [10, 20], [10, 10]]]
+        coordinates: [
+          [[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]],
+          [[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]]
+        ]
       });
     });
   });
@@ -51,24 +54,24 @@ describe('granuleToItem', () => {
 
     it('should return a single GeoJSON geometry for given one point', () => {
       cmrSpatial = {
-        points: ['12,23']
+        points: ['12,123']
       };
-      expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({ coordinates: [12, 23], type: 'Point' });
+      expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({ coordinates: [123, 12], type: 'Point' });
     });
 
     it('should return a collection of GeoJSON geometries given multiple points', () => {
       cmrSpatial = {
-        points: ['12,34', '45,67']
+        points: ['12,134', '45,167']
       };
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
         type: 'GeometryCollection',
         geometries: [{
           type: 'Point',
-          coordinates: [12, 34]
+          coordinates: [134, 12]
         },
         {
           type: 'Point',
-          coordinates: [45, 67]
+          coordinates: [167, 45]
         }]
       });
     });
@@ -98,28 +101,28 @@ describe('granuleToItem', () => {
 
     it('should return a single GeoJSON geometry for a given polygon', () => {
       cmrSpatial = {
-        polygons: [['12,34,56,78']]
+        polygons: [['12,134,56,178']]
       };
 
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
         type: 'Polygon',
-        coordinates: [[[12, 34], [56, 78]]]
+        coordinates: [[[134, 12], [178, 56]]]
       });
     });
 
     it('should return an object with multiple GeoJSON geometries for the given polygons', () => {
       cmrSpatial = {
-        polygons: [['12,34,56,78'], ['98,76,54,32']]
+        polygons: [['12,134,56,178'], ['90,176,54,132']]
       };
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
         type: 'GeometryCollection',
         geometries: [{
           type: 'Polygon',
-          coordinates: [[[12, 34], [56, 78]]]
+          coordinates: [[[134, 12], [178, 56]]]
         },
         {
           type: 'Polygon',
-          coordinates: [[[98, 76], [54, 32]]]
+          coordinates: [[[176, 90], [132, 54]]]
         }]
       });
     });
@@ -185,16 +188,16 @@ describe('granuleToItem', () => {
 
     it('should return a bounding box from given polygon', () => {
       cmrCollection = {
-        polygons: [['30 -10 70 33 -145 66']]
+        polygons: [['30 -110 70 133 -45 166']]
       };
-      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-145, -10, 70, 66]);
+      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-110, -45, 166, 70]);
     });
 
     it('should return a bounding box from given points', () => {
       cmrCollection = {
-        points: ['30 -10', '70 33', '-145 66']
+        points: ['30 -110', '70 133', '-45 166']
       };
-      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-145, -10, 70, 66]);
+      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-110, -45, 166, 70]);
     });
 
     it('should return a bounding box from given lines', () => {
@@ -278,7 +281,7 @@ describe('granuleToItem', () => {
         }
       ],
       data_center: 'USA',
-      points: ['77,39']
+      points: ['77,139']
     }];
 
     const event = { headers: { Host: 'example.com' }, path: '/cmr-stac', queryStringParameters: [] };
@@ -292,8 +295,8 @@ describe('granuleToItem', () => {
           stac_version: settings.stac.version,
           short_name: 'landsat',
           collection: 10,
-          geometry: { type: 'Point', coordinates: [77, 39] },
-          bbox: [77, 39, 77, 39],
+          geometry: { type: 'Point', coordinates: [139, 77] },
+          bbox: [139, 77, 139, 77],
           properties: {
             datetime: '0',
             start_datetime: '0',
