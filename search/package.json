@@ -36,7 +36,6 @@
     "remove": "sls remove --config serverless.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
     "test": "jest --env=node",
-    "build:docs": "redoc-cli bundle \"docs/OAcore+STAC.yaml\" -o docs/index.html --cdn --title \"STAC\"",
     "ci": "npm run lint && npm run test"
   },
   "lint-staged": {
