@@ -242,6 +242,10 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
         href: generateSelfUrl(event)
       },
       {
+        rel: 'root',
+        href: generateAppUrl(event, '/')
+      },
+      {
         rel: 'next',
         href: nextResultsLink
       }
@@ -253,6 +257,10 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
       rel: 'prev',
       href: prevResultsLink
     });
+  }
+
+  if (granulesResponse.features.length < 10) {
+    granulesResponse.links.splice(granulesResponse.links.length-1);
   }
 
   return granulesResponse;
