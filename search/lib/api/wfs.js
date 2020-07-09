@@ -50,7 +50,7 @@ async function getCollections (request, response) {
   }
 
   if (collectionsResponse.collections.length < 10) {
-    collectionsResponse.links.splice(collectionsResponse.links.length-1);
+    collectionsResponse.links.splice(collectionsResponse.links.length - 1);
   }
 
   await assertValid(schemas.collections, collectionsResponse);

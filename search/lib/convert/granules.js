@@ -260,7 +260,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
   }
 
   if (granulesResponse.features.length < 10) {
-    granulesResponse.links.splice(granulesResponse.links.length-1);
+    granulesResponse.links.splice(granulesResponse.links.length - 1);
   }
 
   return granulesResponse;
