@@ -51,7 +51,7 @@
     },
     {
       "rel": "root",
-      "href": "http://example.com/cmr-stac"
+      "href": "http://example.com/cmr-stac/"
     },
     {
       "rel": "provider",

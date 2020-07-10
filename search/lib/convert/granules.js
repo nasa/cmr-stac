@@ -205,7 +205,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       },
       {
         rel: 'root',
-        href: generateAppUrl(event)
+        href: generateAppUrl(event, '/')
       },
       {
         rel: 'provider',
