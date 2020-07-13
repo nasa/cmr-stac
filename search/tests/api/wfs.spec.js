@@ -64,6 +64,24 @@ describe('wfs routes', () => {
       await getCollection(request, response);
       response.expect(exampleData.stacColls[0]);
     });
+
+    describe('when no collection is found', () => {
+      beforeEach(() => {
+        mockFunction(cmr, 'getCollection', Promise.resolve(null));
+      });
+
+      afterEach(() => {
+        revertFunction(cmr, 'getCollection');
+      });
+
+      it('should render a 404.', async () => {
+        await getCollection(request, response);
+        expect(response.getData()).toEqual({
+          status: 404,
+          json: 'Collection [1] not found for provider [LPDAAC]'
+        });
+      });
+    });
   });
 
   describe('getGranules', () => {
@@ -86,7 +104,7 @@ describe('wfs routes', () => {
       });
     });
 
-    it('should generate an item collection response with a prev link', async () => {
+    it('should generate an item collection response with a prev link.', async () => {
       request.apiGateway.event.queryStringParameters = { page_num: '2' };
       await getGranules(request, response);
       response.expect({
@@ -112,7 +130,7 @@ describe('wfs routes', () => {
   });
 
   describe('getGranule', () => {
-    it('should generate a item response.', async () => {
+    it('should generate an item response.', async () => {
       await getGranule(request, response);
       response.expect(exampleData.stacGrans[0]);
     });
