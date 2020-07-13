@@ -17,7 +17,7 @@ function convertProvider (event, provider) {
       wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
         'Root endpoint for this provider'),
       wfs.createLink('root', generateAppUrl(event, '/'),
-          'CMR-STAC Root'),
+        'CMR-STAC Root'),
       wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
         'Collections for this provider'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
@@ -31,7 +31,7 @@ async function getProvider (request, response) {
     const providerId = request.params.providerId;
     logger.info(`GET /${providerId}`);
     const event = request.apiGateway.event;
-    const providerList = await cmr.getProviders()
+    const providerList = await cmr.getProviders();
     const isProvider = providerList.filter(providerObj => providerObj['provider-id'] === providerId);
     if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
     const provider = convertProvider(event, {
@@ -43,7 +43,6 @@ async function getProvider (request, response) {
   } catch (e) {
     response.status(400).json(e.message);
   }
-
 }
 
 async function getProviders (request, response) {

@@ -22,11 +22,11 @@ async function getCollections (request, response) {
 
     const provider = request.params.providerId;
     const params = Object.assign(
-        { provider_short_name: provider },
-        cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
+      { provider_short_name: provider },
+      cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
     );
     const collections = await cmr.findCollections(params);
-    if (!collections.length) throw new Error("Collections not found");
+    if (!collections.length) throw new Error('Collections not found');
     const collectionsResponse = {
       id: provider,
       stac_version: settings.stac.version,
@@ -34,7 +34,7 @@ async function getCollections (request, response) {
       license: 'not-provided',
       links: [
         wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
-            `All collections provided by ${provider}`),
+          `All collections provided by ${provider}`),
         wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root'),
         {
           rel: 'next',
@@ -60,18 +60,22 @@ async function getCollections (request, response) {
   } catch (e) {
     response.status(400).json(e.message);
   }
-
 }
 
 async function getCollection (request, response) {
-  logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}`);
-  const event = request.apiGateway.event;
-  const conceptId = request.params.collectionId;
-  const collection = await cmr.getCollection(conceptId);
-  if (!collection) throw new Error;
-  const collectionResponse = convert.cmrCollToWFSColl(event, collection);
-  await assertValid(schemas.collection, collectionResponse);
-  response.status(200).json(collectionResponse);
+  try {
+    logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}`);
+    const event = request.apiGateway.event;
+    const conceptId = request.params.collectionId;
+    const collection = await cmr.getCollection(conceptId);
+    if (!collection) throw new Error(`Collection [${conceptId}] not found`);
+    const collectionResponse = convert.cmrCollToWFSColl(event, collection);
+    await assertValid(schemas.collection, collectionResponse);
+    response.status(200).json(collectionResponse);
+  } catch (e) {
+    response.status(400).json(e.message);
+  }
+
 }
 
 async function getGranules (request, response) {
@@ -80,18 +84,17 @@ async function getGranules (request, response) {
     logger.info(`GET /${request.params.providerId}/collections/${conceptId}/items`);
     const event = request.apiGateway.event;
     const params = Object.assign(
-        { collection_concept_id: conceptId },
-        cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
+      { collection_concept_id: conceptId },
+      cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
     );
     const granules = await cmr.findGranules(params);
-    if (!granules.length) throw new Error("Items not found");
+    if (!granules.length) throw new Error('Items not found');
     const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granules);
     await assertValid(schemas.items, granulesResponse);
     response.status(200).json(granulesResponse);
   } catch (e) {
     response.status(400).json(e.message);
   }
-
 }
 
 async function getGranule (request, response) {
