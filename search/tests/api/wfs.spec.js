@@ -51,10 +51,6 @@ describe('wfs routes', () => {
             rel: 'root',
             title: 'CMR-STAC Root',
             type: 'application/json'
-          },
-          {
-            rel: 'next',
-            href: 'http://example.com?page_num=2'
           }
         ],
         license: 'not-provided',
@@ -82,8 +78,8 @@ describe('wfs routes', () => {
             href: 'http://example.com'
           },
           {
-            rel: 'next',
-            href: 'http://example.com?page_num=2'
+            rel: 'root',
+            href: 'http://example.com/cmr-stac/'
           }
         ],
         features: exampleData.stacGrans
@@ -102,12 +98,12 @@ describe('wfs routes', () => {
             href: 'http://example.com?page_num=2'
           },
           {
-            rel: 'prev',
-            href: 'http://example.com?page_num=1'
+            rel: 'root',
+            href: 'http://example.com/cmr-stac/'
           },
           {
-            rel: 'next',
-            href: 'http://example.com?page_num=3'
+            rel: 'prev',
+            href: 'http://example.com?page_num=1'
           }
         ],
         features: exampleData.stacGrans

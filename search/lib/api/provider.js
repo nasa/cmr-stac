@@ -16,6 +16,8 @@ function convertProvider (event, provider) {
     links: [
       wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
         'Root endpoint for this provider'),
+      wfs.createLink('root', generateAppUrl(event, '/'),
+        'CMR-STAC Root'),
       wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
         'Collections for this provider'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
@@ -25,26 +27,33 @@ function convertProvider (event, provider) {
 }
 
 async function getProvider (request, response) {
-  const providerId = request.params.providerId;
-  logger.info(`GET /${providerId}`);
-  const event = request.apiGateway.event;
-  const provider = convertProvider(event, {
-    'provider-id': providerId,
-    'short-name': providerId
-  });
-  await assertValid(schemas.catalog, provider);
-  response.status(200).json(provider);
+  try {
+    const providerId = request.params.providerId;
+    logger.info(`GET /${providerId}`);
+    const event = request.apiGateway.event;
+    const providerList = await cmr.getProviders();
+    const isProvider = providerList.filter(providerObj => providerObj['provider-id'] === providerId);
+    if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
+    const provider = convertProvider(event, {
+      'provider-id': providerId,
+      'short-name': providerId
+    });
+    await assertValid(schemas.catalog, provider);
+    response.status(200).json(provider);
+  } catch (e) {
+    response.status(400).json(e.message);
+  }
 }
 
-async function getProviders (req, res) {
-  const event = req.apiGateway.event;
+async function getProviders (request, response) {
+  const event = request.apiGateway.event;
   const providerObjects = (await cmr.getProviders()).map((provider) => convertProvider(event, provider));
   const providerCatalog = {
     id: 'cmr-stac',
     description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
     links: providerObjects
   };
-  res.status(200).json(providerCatalog);
+  response.status(200).json(providerCatalog);
 }
 
 const routes = express.Router();

@@ -324,7 +324,7 @@ describe('granuleToItem', () => {
             },
             {
               rel: 'root',
-              href: 'http://example.com/cmr-stac'
+              href: 'http://example.com/cmr-stac/'
             },
             {
               rel: 'provider',
@@ -338,8 +338,8 @@ describe('granuleToItem', () => {
             href: 'http://example.com/cmr-stac'
           },
           {
-            rel: 'next',
-            href: 'http://example.com/cmr-stac?page_num=2'
+            rel: 'root',
+            href: 'http://example.com/cmr-stac/'
           }
         ]
       });

@@ -28,6 +28,12 @@ const expectedProviders = [
         type: 'application/json'
       },
       {
+        rel: 'root',
+        href: 'http://example.com/cmr-stac/',
+        title: 'CMR-STAC Root',
+        type: 'application/json'
+      },
+      {
         rel: 'collections',
         href: 'http://example.com/cmr-stac/provA/collections',
         title: 'Collections for this provider',
@@ -56,6 +62,12 @@ const expectedProviders = [
         type: 'application/json'
       },
       {
+        rel: 'root',
+        href: 'http://example.com/cmr-stac/',
+        title: 'CMR-STAC Root',
+        type: 'application/json'
+      },
+      {
         rel: 'collections',
         href: 'http://example.com/cmr-stac/provB/collections',
         title: 'Collections for this provider',
@@ -81,6 +93,12 @@ const expectedProviders = [
         rel: 'self',
         href: 'http://example.com/cmr-stac/provC',
         title: 'Root endpoint for this provider',
+        type: 'application/json'
+      },
+      {
+        rel: 'root',
+        href: 'http://example.com/cmr-stac/',
+        title: 'CMR-STAC Root',
         type: 'application/json'
       },
       {
@@ -131,6 +149,12 @@ describe('getProvider', () => {
           rel: 'self',
           href: 'http://example.com/cmr-stac/LARC_ASDC',
           title: 'Root endpoint for this provider',
+          type: 'application/json'
+        },
+        {
+          rel: 'root',
+          href: 'http://example.com/cmr-stac/',
+          title: 'CMR-STAC Root',
           type: 'application/json'
         },
         {

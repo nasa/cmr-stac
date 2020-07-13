@@ -205,7 +205,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
       },
       {
         rel: 'root',
-        href: generateAppUrl(event)
+        href: generateAppUrl(event, '/')
       },
       {
         rel: 'provider',
@@ -242,16 +242,23 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
         href: generateSelfUrl(event)
       },
       {
-        rel: 'next',
-        href: nextResultsLink
+        rel: 'root',
+        href: generateAppUrl(event, '/')
       }
     ]
   };
 
   if (currPage > 1 && granulesResponse.links.length > 1) {
-    granulesResponse.links.splice(1, 0, {
+    granulesResponse.links.push({
       rel: 'prev',
       href: prevResultsLink
+    });
+  }
+
+  if (granulesResponse.features.length === 10) {
+    granulesResponse.links.push({
+      rel: 'next',
+      href: nextResultsLink
     });
   }
 
