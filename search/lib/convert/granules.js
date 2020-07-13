@@ -244,23 +244,22 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
       {
         rel: 'root',
         href: generateAppUrl(event, '/')
-      },
-      {
-        rel: 'next',
-        href: nextResultsLink
       }
     ]
   };
 
   if (currPage > 1 && granulesResponse.links.length > 1) {
-    granulesResponse.links.splice(1, 0, {
+    granulesResponse.links.push({
       rel: 'prev',
       href: prevResultsLink
     });
   }
 
-  if (granulesResponse.features.length < 10) {
-    granulesResponse.links.splice(granulesResponse.links.length - 1);
+  if (granulesResponse.features.length === 10) {
+    granulesResponse.links.push({
+      rel: 'next',
+      href: nextResultsLink
+    });
   }
 
   return granulesResponse;

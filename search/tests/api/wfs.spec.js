@@ -98,12 +98,12 @@ describe('wfs routes', () => {
             href: 'http://example.com?page_num=2'
           },
           {
-            rel: 'prev',
-            href: 'http://example.com?page_num=1'
-          },
-          {
             rel: 'root',
             href: 'http://example.com/cmr-stac/'
+          },
+          {
+            rel: 'prev',
+            href: 'http://example.com?page_num=1'
           }
         ],
         features: exampleData.stacGrans

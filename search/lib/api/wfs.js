@@ -35,24 +35,23 @@ async function getCollections (request, response) {
       links: [
         wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
           `All collections provided by ${provider}`),
-        wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root'),
-        {
-          rel: 'next',
-          href: nextResultsLink
-        }
+        wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root')
       ],
       collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
     };
 
     if (currPage > 1 && collectionsResponse.links.length > 1) {
-      collectionsResponse.links.splice(collectionsResponse.links.length - 1, 0, {
+      collectionsResponse.links.push({
         rel: 'prev',
         href: prevResultsLink
       });
     }
 
-    if (collectionsResponse.collections.length < 10) {
-      collectionsResponse.links.splice(collectionsResponse.links.length - 1);
+    if (collectionsResponse.collections.length === 10) {
+      collectionsResponse.links.push({
+        rel: 'next',
+        href: nextResultsLink
+      });
     }
 
     await assertValid(schemas.collections, collectionsResponse);
@@ -75,7 +74,6 @@ async function getCollection (request, response) {
   } catch (e) {
     response.status(400).json(e.message);
   }
-
 }
 
 async function getGranules (request, response) {
