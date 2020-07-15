@@ -50,8 +50,8 @@ async function findCollections (params = {}) {
   return response.data.feed.entry;
 }
 
-async function getCollection (conceptId) {
-  const collections = await findCollections({ concept_id: conceptId });
+async function getCollection (conceptId, providerId) {
+  const collections = await findCollections({ concept_id: conceptId, provider_id: providerId });
   if (collections.length > 0) return collections[0];
   return null;
 }

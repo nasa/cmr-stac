@@ -1,9 +1,12 @@
 const express = require('express');
+const { isNull } = require('lodash');
 const { wfs, generateAppUrl, logger, makeAsyncHandler, extractParam, generateAppUrlWithoutRelativeRoot } = require('../util');
 const cmr = require('../cmr');
 const convert = require('../convert');
 const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
+
+class NotFoundError extends Error {}
 
 async function getCollections (request, response) {
   try {
@@ -66,13 +69,18 @@ async function getCollection (request, response) {
     logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}`);
     const event = request.apiGateway.event;
     const conceptId = request.params.collectionId;
-    const collection = await cmr.getCollection(conceptId);
-    if (!collection) throw new Error(`Collection [${conceptId}] not found`);
+    const providerId = request.params.providerId;
+    const collection = await cmr.getCollection(conceptId, providerId);
+    if (isNull(collection)) throw new NotFoundError(`Collection [${conceptId}] not found for provider [${providerId}]`);
     const collectionResponse = convert.cmrCollToWFSColl(event, collection);
     await assertValid(schemas.collection, collectionResponse);
     response.status(200).json(collectionResponse);
-  } catch (e) {
-    response.status(400).json(e.message);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      response.status(404).json(error.message);
+    } else {
+      throw error;
+    }
   }
 }
 
