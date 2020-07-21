@@ -56,7 +56,7 @@ function stripStacExtensionsFromURLQuery (query) {
 
 function applyStacExtensions (query, result) {
   let resultToReturn = Object.assign({}, result);
-  if (query.fields) {
+  if ('fields' in query) {
     resultToReturn = applyStacFieldsExtension(query.fields, resultToReturn);
   }
   return resultToReturn;
