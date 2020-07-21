@@ -2,6 +2,8 @@ const express = require('express');
 
 const cmr = require('../cmr');
 const cmrConverter = require('../convert');
+const _ = require('lodash');
+
 const { assertValid, schemas } = require('../validator');
 const { logger, makeAsyncHandler } = require('../util');
 
@@ -63,26 +65,15 @@ function applyStacExtensions (query, result) {
 }
 
 function applyStacFieldsExtension (fields, result) {
-  // 1: Organize fields
   const fieldsArray = fields.split(',');
   const include = fieldsArray.filter(field => field.startsWith('-') === false).map(field => field.replace(/^\+/, ''));
   const exclude = fieldsArray.filter(field => field.startsWith('-') === true).map(field => field.replace(/^-/, ''));
-  const fieldsFilter = buildFieldsFilter({ include, exclude });
+  const { _sourceIncludes, _sourceExcludes } = buildFieldsFilter({ include, exclude });
 
-  result.features.forEach(feature => {
-    const { _sourceIncludes, _sourceExcludes } = fieldsFilter;
-    const featureProperties = Object.getOwnPropertyNames(feature);
-    const additionalFieldsToRemove = featureProperties.filter(function (field) {
-      const index = _sourceIncludes.indexOf(field);
-      let boolToReturn = true;
-      if (index >= 0) {
-        boolToReturn = false;
-      }
-      return boolToReturn;
-    });
-    const excludesConcat = _sourceExcludes.concat(additionalFieldsToRemove);
-    const excludesUnion = [...new Set(excludesConcat)];
-    excludesUnion.forEach(field => { delete feature[`${field}`]; });
+  result.features = result.features.map(feature => {
+    const featureWithIncludes = _.pick(feature, _sourceIncludes);
+    const featureWithoutExcludes = _.omit(featureWithIncludes, _sourceExcludes);
+    return featureWithoutExcludes;
   });
 
   return result;
@@ -115,4 +106,24 @@ function buildFieldsFilter (fields) {
     _sourceExcludes = exclude;
   }
   return { _sourceIncludes, _sourceExcludes };
+}
+
+function deletePropertyPath (obj, path) {
+  if (!obj || !path) {
+    return;
+  }
+
+  if (typeof path === 'string') {
+    path = path.split('.');
+  }
+
+  for (var i = 0; i < path.length - 1; i++) {
+    obj = obj[path[i]];
+
+    if (typeof obj === 'undefined') {
+      return;
+    }
+  }
+
+  delete obj[path.pop()];
 }
