@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
 const { getSearch, postSearch } = require('../../lib/api/stac');

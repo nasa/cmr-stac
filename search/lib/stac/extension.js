@@ -1,4 +1,5 @@
 const fieldsExtension = require('./extensions/fields');
+const _ = require('lodash');
 
 function stripStacExtensionsFromRequestObject (request) {
   const strippedRequestObject = Object.assign({}, request);
@@ -9,7 +10,7 @@ function stripStacExtensionsFromRequestObject (request) {
 
 function applyStacExtensions (extensions, result) {
   let resultToReturn = Object.assign({}, result);
-  if (EXTENSION_TYPES.fields in extensions) {
+  if (_.hasIn(extensions, EXTENSION_TYPES.fields)) {
     let fields = extensions.fields;
     if (typeof fields === 'string' || fields instanceof String) {
       fields = fieldsExtension.convertStacFieldsQueryToObject(fields);
