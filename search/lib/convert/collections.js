@@ -86,7 +86,7 @@ function createLinks (event, cmrCollection) {
 }
 
 function cmrCollToWFSColl (event, cmrCollection) {
-  if (!cmrCollection) return null;
+  if (!cmrCollection) return [];
   return {
     id: cmrCollection.id,
     short_name: cmrCollection.short_name,

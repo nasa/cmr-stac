@@ -16,6 +16,7 @@ const expectedProviders = [
   {
     id: 'provA',
     title: 'provAShort',
+    description: 'Root catalog for provA',
     stac_version: '1.0.0-beta.1',
     rel: 'provider',
     type: 'application/json',
@@ -24,6 +25,12 @@ const expectedProviders = [
         rel: 'self',
         href: 'http://example.com/cmr-stac/provA',
         title: 'Root endpoint for this provider',
+        type: 'application/json'
+      },
+      {
+        rel: 'root',
+        href: 'http://example.com/cmr-stac/',
+        title: 'CMR-STAC Root',
         type: 'application/json'
       },
       {
@@ -43,6 +50,7 @@ const expectedProviders = [
   {
     id: 'provB',
     title: 'provBShort',
+    description: 'Root catalog for provB',
     stac_version: '1.0.0-beta.1',
     rel: 'provider',
     type: 'application/json',
@@ -51,6 +59,12 @@ const expectedProviders = [
         rel: 'self',
         href: 'http://example.com/cmr-stac/provB',
         title: 'Root endpoint for this provider',
+        type: 'application/json'
+      },
+      {
+        rel: 'root',
+        href: 'http://example.com/cmr-stac/',
+        title: 'CMR-STAC Root',
         type: 'application/json'
       },
       {
@@ -70,6 +84,7 @@ const expectedProviders = [
   {
     id: 'provC',
     title: 'provCShort',
+    description: 'Root catalog for provC',
     stac_version: '1.0.0-beta.1',
     rel: 'provider',
     type: 'application/json',
@@ -78,6 +93,12 @@ const expectedProviders = [
         rel: 'self',
         href: 'http://example.com/cmr-stac/provC',
         title: 'Root endpoint for this provider',
+        type: 'application/json'
+      },
+      {
+        rel: 'root',
+        href: 'http://example.com/cmr-stac/',
+        title: 'CMR-STAC Root',
         type: 'application/json'
       },
       {
@@ -116,10 +137,11 @@ describe('getProviders', () => {
 });
 
 describe('getProvider', () => {
-  it('should return a provider json object', () => {
+  it('should return a provider json object', async () => {
     const expectedResponse = {
       id: 'LARC_ASDC',
       title: 'LARC_ASDC',
+      description: 'Root catalog for LARC_ASDC',
       stac_version: settings.stac.version,
       rel: 'provider',
       links: [
@@ -127,6 +149,12 @@ describe('getProvider', () => {
           rel: 'self',
           href: 'http://example.com/cmr-stac/LARC_ASDC',
           title: 'Root endpoint for this provider',
+          type: 'application/json'
+        },
+        {
+          rel: 'root',
+          href: 'http://example.com/cmr-stac/',
+          title: 'CMR-STAC Root',
           type: 'application/json'
         },
         {
@@ -150,7 +178,7 @@ describe('getProvider', () => {
       }
     });
     const response = createMockResponse();
-    getProvider(request, response);
+    await getProvider(request, response);
     response.expect(expectedResponse);
   });
 });

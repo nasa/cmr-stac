@@ -126,29 +126,40 @@ describe('cmr', () => {
     });
   });
 
-  describe('getCollections', () => {
-    beforeEach(() => {
-      axios.get = jest.fn();
-      const cmrResponse = { data: { feed: { entry: { concept_id: 10 } } } };
-      axios.get.mockResolvedValue(cmrResponse);
+  describe('getCollection', () => {
+    describe('when there are results', () => {
+      beforeEach(() => {
+        axios.get = jest.fn();
+        const cmrResponse = { data: { feed: { entry: [{ concept_id: 10 }] } } };
+        axios.get.mockResolvedValue(cmrResponse);
+      });
+
+      it('should return a collection', async () => {
+        const result = await getCollection(10, 'some-provider');
+        expect(axios.get.mock.calls.length).toBe(1);
+        expect(result).toEqual({ concept_id: 10 });
+      });
+
+      it('should include the concept_id and provider_id in the query', async () => {
+        await getCollection(10, 'some-provider');
+        expect(axios.get.mock.calls.length).toBe(1);
+        expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
+        expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true, concept_id: 10, provider_id: 'some-provider' }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+      });
     });
 
-    it('should return a collection', async () => {
-      const conceptId = 10;
-      const result = await findCollections({ concept_id: conceptId });
+    describe('when there are NO results', () => {
+      beforeEach(() => {
+        axios.get = jest.fn();
+        const cmrResponse = { data: { feed: { entry: [] } } };
+        axios.get.mockResolvedValue(cmrResponse);
+      });
 
-      expect(axios.get.mock.calls.length).toBe(1);
-      expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
-      expect(axios.get.mock.calls[0][1]).toEqual({ params: { has_granules: true, concept_id: 10 }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
-      expect(result).toEqual({ concept_id: 10 });
-    });
-
-    it('should return null if there is no conceptId', async () => {
-      const result = await getCollection(10);
-
-      expect(axios.get.mock.calls.length).toBe(1);
-      expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
-      expect(result).toBe(null);
+      it('should return null', async () => {
+        const result = await getCollection(10, 'some-provider');
+        expect(axios.get.mock.calls.length).toBe(1);
+        expect(result).toBeNull();
+      });
     });
   });
 
@@ -171,7 +182,7 @@ describe('cmr', () => {
 
       it('should convert time into temporal.', () => {
         const params = {
-          time: '12:34:00pm'
+          datetime: '12:34:00pm'
         };
         const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
         expect(result).toEqual({ temporal: '12:34:00pm' });

@@ -51,10 +51,6 @@ describe('wfs routes', () => {
             rel: 'root',
             title: 'CMR-STAC Root',
             type: 'application/json'
-          },
-          {
-            rel: 'next',
-            href: 'http://example.com?page_num=2'
           }
         ],
         license: 'not-provided',
@@ -67,6 +63,24 @@ describe('wfs routes', () => {
     it('should generate a single collections metadata response.', async () => {
       await getCollection(request, response);
       response.expect(exampleData.stacColls[0]);
+    });
+
+    describe('when no collection is found', () => {
+      beforeEach(() => {
+        mockFunction(cmr, 'getCollection', Promise.resolve(null));
+      });
+
+      afterEach(() => {
+        revertFunction(cmr, 'getCollection');
+      });
+
+      it('should render a 404.', async () => {
+        await getCollection(request, response);
+        expect(response.getData()).toEqual({
+          status: 404,
+          json: 'Collection [1] not found for provider [LPDAAC]'
+        });
+      });
     });
   });
 
@@ -82,15 +96,15 @@ describe('wfs routes', () => {
             href: 'http://example.com'
           },
           {
-            rel: 'next',
-            href: 'http://example.com?page_num=2'
+            rel: 'root',
+            href: 'http://example.com/cmr-stac/'
           }
         ],
         features: exampleData.stacGrans
       });
     });
 
-    it('should generate an item collection response with a prev link', async () => {
+    it('should generate an item collection response with a prev link.', async () => {
       request.apiGateway.event.queryStringParameters = { page_num: '2' };
       await getGranules(request, response);
       response.expect({
@@ -102,12 +116,12 @@ describe('wfs routes', () => {
             href: 'http://example.com?page_num=2'
           },
           {
-            rel: 'prev',
-            href: 'http://example.com?page_num=1'
+            rel: 'root',
+            href: 'http://example.com/cmr-stac/'
           },
           {
-            rel: 'next',
-            href: 'http://example.com?page_num=3'
+            rel: 'prev',
+            href: 'http://example.com?page_num=1'
           }
         ],
         features: exampleData.stacGrans
@@ -116,7 +130,7 @@ describe('wfs routes', () => {
   });
 
   describe('getGranule', () => {
-    it('should generate a item response.', async () => {
+    it('should generate an item response.', async () => {
       await getGranule(request, response);
       response.expect(exampleData.stacGrans[0]);
     });
