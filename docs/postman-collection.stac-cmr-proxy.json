@@ -301,6 +301,100 @@
         "followAuthorizationHeader": false
       },
       "response": []
+    },
+    {
+      "name": "GET Provider Search for Collection - /:providerId/search?collections=:collectionId",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/GES_DISC/search?collections=C1237113465-GES_DISC&fields=properties.datetime,-assets",
+          "query": [
+            {
+              "key": "collections",
+              "value": "C1237113465-GES_DISC",
+              "disabled": false,
+              "description": null
+            },
+            {
+              "key": "fields",
+              "value": "id,type,geometry,bbox,properties,links,-assets",
+              "disabled": true,
+              "description": null
+            },
+            {
+              "key": "fields",
+              "value": "id,geometry,properties,links,-assets",
+              "disabled": true,
+              "description": null
+            },
+            {
+              "key": "fields",
+              "value": "properties.datetime,-assets",
+              "disabled": false,
+              "description": null
+            }
+          ],
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "GES_DISC",
+            "search"
+          ]
+        },
+        "description": "Run a search against CMR using the STAC API endpoint interface.",
+        "header": [],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "POST Provider Search for Collection - /:providerId/search",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/GES_DISC/search",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "GES_DISC",
+            "search"
+          ]
+        },
+        "description": "",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "disabled": false,
+            "description": null
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "disabled": false,
+          "raw": "{\n  \"collections\": \"C1237113465-GES_DISC\",\n  \"fields\": {\n    \"include\": [\n      \"id\",\n      \"type\",\n      \"bbox\",\n      \"properties\",\n      \"links\",\n      \"assets\"\n    ],\n    \"exclude\": [\n      \"geometry\"\n    ]\n  }\n}"
+        },
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
     }
   ]
 }
