@@ -2,6 +2,7 @@
   "type": "Feature",
   "id": "G1848422111-LANCEMODIS",
   "stac_version": "1.0.0-beta.1",
+  "stac_extensions": [],
   "collection": "C1426617060-LANCEMODIS",
   "geometry": {
     "type": "Polygon",

@@ -24,12 +24,14 @@ describe('wfs routes', () => {
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
     mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
     mockFunction(cmr, 'findGranules', Promise.resolve(exampleData.cmrGrans));
+    mockFunction(cmr, 'findGranulesUmm', Promise.resolve(exampleData.cmrGransUmm));
   });
 
   afterEach(() => {
     revertFunction(cmr, 'findCollections');
     revertFunction(cmr, 'getCollection');
     revertFunction(cmr, 'findGranules');
+    revertFunction(cmr, 'findGranulesUmm');
   });
 
   describe('getCollections', () => {

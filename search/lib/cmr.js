@@ -61,6 +61,11 @@ async function findGranules (params = {}) {
   return response.data.feed.entry;
 }
 
+async function findGranulesUmm (params = {}) {
+  const response = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
+  return response.data.items;
+}
+
 async function getProviders () {
   const providerUrl = UrlBuilder.create()
     .withProtocol(settings.cmrSearchProtocol)
@@ -114,6 +119,7 @@ module.exports = {
   cmrSearch,
   findCollections,
   findGranules,
+  findGranulesUmm,
   getCollection,
   convertParams,
   fromEntries,
