@@ -1,6 +1,10 @@
 const fieldsExtension = require('./extensions/fields');
 const _ = require('lodash');
 
+const EXTENSION_TYPES = {
+  fields: 'fields'
+};
+
 function stripStacExtensionsFromRequestObject (request) {
   const strippedRequestObject = Object.assign({}, request);
   // TODO: All STAC API Extension query params must be stripped from GET requests
@@ -21,12 +25,7 @@ function applyStacExtensions (extensions, result) {
 }
 
 module.exports = {
+  EXTENSION_TYPES,
   stripStacExtensionsFromRequestObject,
   applyStacExtensions
-};
-
-// Private
-
-const EXTENSION_TYPES = {
-  fields: 'fields'
 };
