@@ -1,239 +1,401 @@
 {
-	"info": {
-		"_postman_id": "48cddf13-1e21-4130-8c55-e98e390c75e0",
-		"name": "STAC-CMR-proxy",
-		"description": "Proxy appilcation for STAC translation of CMR objects. Collection of API calls for testing and demoing.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "GET Root - Capabilities",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{protocol}}://{{host}}/",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "GET /collections",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{host}}/collections",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"collections"
-					]
-				},
-				"description": "Get default collections from CMR."
-			},
-			"response": []
-		},
-		{
-			"name": "GET /collections/:collectionId",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{host}}/collections/C1426717545-LANCEMODIS",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"collections",
-						"C1426717545-LANCEMODIS"
-					]
-				},
-				"description": "Get a collection by id."
-			},
-			"response": []
-		},
-		{
-			"name": "GET /collection/:collectionId/items",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{host}}/collections/C1426717545-LANCEMODIS/items",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"collections",
-						"C1426717545-LANCEMODIS",
-						"items"
-					]
-				},
-				"description": "Get an item collection from a collection by id."
-			},
-			"response": []
-		},
-		{
-			"name": "GET /collection/:collectionId/items/:itemId",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{host}}/collections/C1426717545-LANCEMODIS/items/G1633187047-LANCEMODIS",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"collections",
-						"C1426717545-LANCEMODIS",
-						"items",
-						"G1633187047-LANCEMODIS"
-					]
-				},
-				"description": "Get item information by Id."
-			},
-			"response": []
-		},
-		{
-			"name": "GET /stac",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{host}}/stac",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"stac"
-					]
-				},
-				"description": "Root catalog for this STAC collection. Uses CMR to dynamically create a Root Catalog."
-			},
-			"response": []
-		},
-		{
-			"name": "GET /stac/default",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3000/stac/default",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"stac",
-						"default"
-					]
-				},
-				"description": "Get default catalog for CMR collections. This is a zero parameter search against CMR and wrapped into a collection/catalog."
-			},
-			"response": []
-		},
-		{
-			"name": "GET /stac/search",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{protocol}}://{{host}}/stac/search?collectionId=C1237113465-GES_DISC",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"stac",
-						"search"
-					],
-					"query": [
-						{
-							"key": "collectionId",
-							"value": "C1237113465-GES_DISC"
-						}
-					]
-				},
-				"description": "Run a search against CMR using the STAC API endpoint interface."
-			},
-			"response": []
-		},
-		{
-			"name": "POST /stac/search",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"name": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"collectionId\": \"C1237113465-GES_DISC\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{protocol}}://{{host}}/stac/search",
-					"protocol": "{{protocol}}",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"stac",
-						"search"
-					]
-				}
-			},
-			"response": []
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"id": "00f7b2a1-3bbc-41f2-abcb-3dbf7be77103",
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"id": "37c6a7e5-50ad-4592-a80a-6f4f7ce0df57",
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	]
+  "info": {
+    "name": "STAC-CMR",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET Root - Capabilities",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": []
+        },
+        "description": "",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "disabled": false,
+            "description": null
+          }
+        ],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "GET Provider Collections - /:providerId/collections",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/USGS_EROS/collections",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "USGS_EROS",
+            "collections"
+          ]
+        },
+        "description": "Get default collections from CMR.",
+        "header": [],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "GET Collection For Provider - /:providerId/collections/:collectionId",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/LANCEMODIS/collections/C1426717545-LANCEMODIS",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "LANCEMODIS",
+            "collections",
+            "C1426717545-LANCEMODIS"
+          ]
+        },
+        "description": "Get a collection by id.",
+        "header": [],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "GET Collection Items For Provider - /:providerId/collections/:collectionId/items",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/LANCEMODIS/collections/C1426717545-LANCEMODIS",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "LANCEMODIS",
+            "collections",
+            "C1426717545-LANCEMODIS"
+          ]
+        },
+        "description": "Get a collection by id.",
+        "header": [],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "GET Collection Item from Provider Collection - /collection/:collectionId/items/:itemId",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/LANCEMODIS/collections/C1426717545-LANCEMODIS/items/G1888925992-LANCEMODIS",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "LANCEMODIS",
+            "collections",
+            "C1426717545-LANCEMODIS",
+            "items",
+            "G1888925992-LANCEMODIS"
+          ]
+        },
+        "description": "Get item information by Id.",
+        "header": [],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "GET Root Catalog for Provider - /:providerId/",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/USGS_EROS/",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "USGS_EROS"
+          ]
+        },
+        "description": "Root catalog for this STAC collection. Uses CMR to dynamically create a Root Catalog.",
+        "header": [],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "GET Provider Search for Collection - /:providerId/search?collections=:collectionId",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/GES_DISC/search?collections=C1237113465-GES_DISC",
+          "query": [
+            {
+              "key": "collections",
+              "value": "C1237113465-GES_DISC",
+              "disabled": false,
+              "description": null
+            }
+          ],
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "GES_DISC",
+            "search"
+          ]
+        },
+        "description": "Run a search against CMR using the STAC API endpoint interface.",
+        "header": [],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "POST Provider Search for Collection - /:providerId/search",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/GES_DISC/search",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "GES_DISC",
+            "search"
+          ]
+        },
+        "description": "",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "disabled": false,
+            "description": null
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "disabled": false,
+          "raw": "{\"collections\":\"C1237113465-GES_DISC\"}"
+        },
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "POST Provider BBOX Search for Collection - /:providerId/search",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/GES_DISC/search",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "GES_DISC",
+            "search"
+          ]
+        },
+        "description": "",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "disabled": false,
+            "description": null
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "disabled": false,
+          "raw": "{\"bbox\":[-120,-40,-110,-30],\"datetime\":\"1980-01-01T00:00:00.000Z,1980-12-01T00:00:00.000Z\"}"
+        },
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "GET Provider Search for Collection - /:providerId/search?collections=:collectionId",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/GES_DISC/search?collections=C1237113465-GES_DISC&fields=properties.datetime,-assets",
+          "query": [
+            {
+              "key": "collections",
+              "value": "C1237113465-GES_DISC",
+              "disabled": false,
+              "description": null
+            },
+            {
+              "key": "fields",
+              "value": "id,type,geometry,bbox,properties,links,-assets",
+              "disabled": true,
+              "description": null
+            },
+            {
+              "key": "fields",
+              "value": "id,geometry,properties,links,-assets",
+              "disabled": true,
+              "description": null
+            },
+            {
+              "key": "fields",
+              "value": "properties.datetime,-assets",
+              "disabled": false,
+              "description": null
+            }
+          ],
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "GES_DISC",
+            "search"
+          ]
+        },
+        "description": "Run a search against CMR using the STAC API endpoint interface.",
+        "header": [],
+        "body": null,
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    },
+    {
+      "name": "POST Provider Search for Collection - /:providerId/search",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{protocol}}://{{host}}/GES_DISC/search",
+          "query": null,
+          "protocol": "{{protocol}}",
+          "host": [
+            "{{host}}"
+          ],
+          "port": null,
+          "path": [
+            "GES_DISC",
+            "search"
+          ]
+        },
+        "description": "",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "disabled": false,
+            "description": null
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "disabled": false,
+          "raw": "{\n  \"collections\": \"C1237113465-GES_DISC\",\n  \"fields\": {\n    \"include\": [\n      \"id\",\n      \"type\",\n      \"bbox\",\n      \"properties\",\n      \"links\",\n      \"assets\"\n    ],\n    \"exclude\": [\n      \"geometry\"\n    ]\n  }\n}"
+        },
+        "auth": null
+      },
+      "protocolProfileBehavior": {
+        "followRedirects": false,
+        "followOriginalHttpMethod": false,
+        "followAuthorizationHeader": false
+      },
+      "response": []
+    }
+  ]
 }
+

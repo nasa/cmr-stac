@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { getProvider, getProviders } = require('../../lib/api/provider');
 const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
