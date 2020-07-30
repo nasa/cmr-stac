@@ -120,7 +120,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
   let opendapLink;
 
   const extensions = [];
-  if (!_.isEmpty(cmrGranUmm)) {
+  if (!_.isEmpty(cmrGranUmm) && cmrGranUmm.umm.AdditionalAttributes) {
     const attributes = cmrGranUmm.umm.AdditionalAttributes;
     const eo = attributes.filter(attr => attr.Name === 'CLOUD_COVERAGE');
     if (eo.length) {
