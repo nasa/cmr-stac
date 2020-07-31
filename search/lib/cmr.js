@@ -16,7 +16,8 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
 const STAC_QUERY_PARAMS_CONVERSION_MAP = {
   limit: ['limit', (v) => parseInt(v, 10)],
   bbox: ['bbox', parseOrdinateString],
-  datetime: ['temporal', identity]
+  datetime: ['temporal', identity],
+  collectionId: ['collection_concept_id', identity]
 };
 
 const WFS_PARAMS_CONVERSION_MAP = {
@@ -59,6 +60,11 @@ async function getCollection (conceptId, providerId) {
 async function findGranules (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), params);
   return response.data.feed.entry;
+}
+
+async function findGranulesUmm (params = {}) {
+  const response = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
+  return response.data.items;
 }
 
 async function getProviders () {
@@ -114,6 +120,7 @@ module.exports = {
   cmrSearch,
   findCollections,
   findGranules,
+  findGranulesUmm,
   getCollection,
   convertParams,
   fromEntries,

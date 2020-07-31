@@ -108,14 +108,27 @@ const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
-function cmrGranToFeatureGeoJSON (event, cmrGran) {
-  const datetime = cmrGran.time_start;
-  const startDatetime = cmrGran.time_start;
-  const endDatetime = cmrGran.time_end ? cmrGran.time_end : cmrGran.time_start;
+function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
+  const properties = {};
+
+  properties.datetime = cmrGran.time_start;
+  properties.start_datetime = cmrGran.time_start;
+  properties.end_datetime = cmrGran.time_end ? cmrGran.time_end : cmrGran.time_start;
 
   let dataLink;
   let browseLink;
   let opendapLink;
+
+  const extensions = [];
+  if (!_.isEmpty(cmrGranUmm) && cmrGranUmm.umm.AdditionalAttributes) {
+    const attributes = cmrGranUmm.umm.AdditionalAttributes;
+    const eo = attributes.filter(attr => attr.Name === 'CLOUD_COVERAGE');
+    if (eo.length) {
+      extensions.push('eo');
+      const eoValue = eo[0].Values[0];
+      properties['eo:cloud_cover'] = parseInt(eoValue);
+    }
+  }
 
   if (cmrGran.links) {
     dataLink = cmrGran.links.filter(l => l.rel === DATA_REL && !l.inherited);
@@ -186,6 +199,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
     id: cmrGran.id,
     short_name: cmrGran.short_name,
     stac_version: settings.stac.version,
+    stac_extensions: extensions,
     collection: cmrGran.collection_concept_id,
     geometry: cmrSpatialToGeoJSONGeometry(cmrGran),
     bbox: cmrSpatialToStacBbox(cmrGran),
@@ -212,16 +226,12 @@ function cmrGranToFeatureGeoJSON (event, cmrGran) {
         href: generateAppUrl(event, `/${cmrGran.data_center}`)
       }
     ],
-    properties: {
-      datetime: datetime.toString(),
-      start_datetime: startDatetime.toString(),
-      end_datetime: endDatetime.toString()
-    },
+    properties: properties,
     assets
   };
 }
 
-function cmrGranulesToFeatureCollection (event, cmrGrans) {
+function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
   const prevPage = currPage - 1;
@@ -232,10 +242,20 @@ function cmrGranulesToFeatureCollection (event, cmrGrans) {
   const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
 
+  let features = [];
+  if (cmrGransUmm.length) {
+    for (const gran in cmrGrans) {
+      const stacItem = cmrGranToFeatureGeoJSON(event, cmrGrans[gran], cmrGransUmm[gran]);
+      features.push(stacItem);
+    }
+  } else {
+    features = cmrGrans.map(gran => cmrGranToFeatureGeoJSON(event, gran));
+  }
+
   const granulesResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
-    features: cmrGrans.map(gran => cmrGranToFeatureGeoJSON(event, gran)),
+    features: features,
     links: [
       {
         rel: 'self',

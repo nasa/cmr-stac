@@ -18,6 +18,10 @@ const cmrGrans = fileToContents
   .filter(([name]) => name.endsWith('cmr_gran'))
   .map(([, contents]) => contents);
 
+const cmrGransUmm = fileToContents
+  .filter(([name]) => name.endsWith('cmr_gran_umm'))
+  .map(([, contents]) => contents);
+
 const stacGrans = fileToContents
   .filter(([name]) => name.endsWith('stac_gran'))
   .map(([, contents]) => contents);
@@ -38,6 +42,7 @@ module.exports = {
   cmrColls,
   stacColls,
   cmrGrans,
+  cmrGransUmm,
   stacGrans,
   examplesByName
 };

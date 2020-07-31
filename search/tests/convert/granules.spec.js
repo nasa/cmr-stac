@@ -270,8 +270,8 @@ describe('granuleToItem', () => {
       dataset_id: 'datasetId',
       short_name: 'landsat',
       summary: 'summary',
-      time_start: 0,
-      time_end: 1,
+      time_start: '0',
+      time_end: '1',
       links: [
         {
           href: 'http://example.com/cmr-stac/collections/id',
@@ -293,6 +293,7 @@ describe('granuleToItem', () => {
         features: [{
           id: 1,
           stac_version: settings.stac.version,
+          stac_extensions: [],
           short_name: 'landsat',
           collection: 10,
           geometry: { type: 'Point', coordinates: [139, 77] },

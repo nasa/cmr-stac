@@ -87,15 +87,18 @@ async function getCollection (request, response) {
 async function getGranules (request, response) {
   try {
     const conceptId = request.params.collectionId;
-    logger.info(`GET /${request.params.providerId}/collections/${conceptId}/items`);
+    const providerId = request.params.providerId;
+    logger.info(`GET /${providerId}/collections/${conceptId}/items`);
     const event = request.apiGateway.event;
     const params = Object.assign(
-      { collection_concept_id: conceptId },
+      { collection_concept_id: conceptId,
+        provider: providerId },
       cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
     );
     const granules = await cmr.findGranules(params);
+    const granulesUmm = await cmr.findGranulesUmm(params);
     if (!granules.length) throw new Error('Items not found');
-    const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granules);
+    const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granules, granulesUmm);
     await assertValid(schemas.items, granulesResponse);
     response.status(200).json(granulesResponse);
   } catch (e) {
@@ -104,15 +107,19 @@ async function getGranules (request, response) {
 }
 
 async function getGranule (request, response) {
-  logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}/items/${request.params.itemId}`);
-  const event = request.apiGateway.event;
-  const collConceptId = request.params.collectionId;
+  const providerId = request.params.providerId;
+  const collectionId = request.params.collectionId;
   const conceptId = request.params.itemId;
-  const granules = await cmr.findGranules({
-    collection_concept_id: collConceptId,
+  logger.info(`GET /${providerId}/collections/${collectionId}/items/${conceptId}`);
+  const event = request.apiGateway.event;
+  const granParams = {
+    collection_concept_id: collectionId,
+    provider: request.params.providerId,
     concept_id: conceptId
-  });
-  const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0]);
+  };
+  const granules = await cmr.findGranules(granParams);
+  const granulesUmm = await cmr.findGranulesUmm(granParams);
+  const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0], granulesUmm[0]);
   await assertValid(schemas.item, granuleResponse);
   response.status(200).json(granuleResponse);
 }
