@@ -7,13 +7,13 @@ const stacExtension = require('../stac/extension');
 const { assertValid, schemas } = require('../validator');
 const { logger, makeAsyncHandler } = require('../util');
 
-async function search (event, params) {
+async function search(event, params) {
   const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
-  const granules = await cmr.findGranules(cmrParams);
-  return cmrConverter.cmrGranulesToFeatureCollection(event, granules);
+  const granulesResult = await cmr.findGranules(cmrParams);
+  return cmrConverter.cmrGranulesToFeatureCollection(event, granulesResult);
 }
 
-async function getSearch (request, response) {
+async function getSearch(request, response) {
   const providerId = request.params.providerId;
   logger.info(`GET /${providerId}/search`);
   const event = request.apiGateway.event;
@@ -26,7 +26,7 @@ async function getSearch (request, response) {
   response.status(200).json(formatedResult);
 }
 
-async function postSearch (request, response) {
+async function postSearch(request, response) {
   const providerId = request.params.providerId;
   logger.info(`POST /${providerId}/search`);
   const event = request.apiGateway.event;

@@ -95,10 +95,10 @@ async function getGranules (request, response) {
         provider: providerId },
       cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
     );
-    const granules = await cmr.findGranules(params);
+    const granulesResult = await cmr.findGranules(params);
     const granulesUmm = await cmr.findGranulesUmm(params);
-    if (!granules.length) throw new Error('Items not found');
-    const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granules, granulesUmm);
+    if (!granulesResult.granules.length) throw new Error('Items not found');
+    const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granulesResult, granulesUmm);
     await assertValid(schemas.items, granulesResponse);
     response.status(200).json(granulesResponse);
   } catch (e) {
@@ -117,7 +117,7 @@ async function getGranule (request, response) {
     provider: request.params.providerId,
     concept_id: conceptId
   };
-  const granules = await cmr.findGranules(granParams);
+  const granules = (await cmr.findGranules(granParams)).granules;
   const granulesUmm = await cmr.findGranulesUmm(granParams);
   const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0], granulesUmm[0]);
   await assertValid(schemas.item, granuleResponse);

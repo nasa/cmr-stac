@@ -231,7 +231,8 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
   };
 }
 
-function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
+function cmrGranulesToFeatureCollection(event, cmrGranulesResult, cmrGransUmm = []) {
+  const cmrGrans = cmrGranulesResult.granules;
   const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
   const nextPage = currPage + 1;
   const prevPage = currPage - 1;
@@ -251,11 +252,15 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
   } else {
     features = cmrGrans.map(gran => cmrGranToFeatureGeoJSON(event, gran));
   }
-
   const granulesResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
     features: features,
+    context: {
+      returned: features.length,
+      limit: (event.queryStringParameters && event.queryStringParameters.limit) || null,
+      matched: cmrGranulesResult.totalHits,
+    },
     links: [
       {
         rel: 'self',
