@@ -251,7 +251,6 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
   } else {
     features = cmrGrans.map(gran => cmrGranToFeatureGeoJSON(event, gran));
   }
-
   const granulesResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,

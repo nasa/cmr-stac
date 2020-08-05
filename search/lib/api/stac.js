@@ -9,8 +9,9 @@ const { logger, makeAsyncHandler } = require('../util');
 
 async function search (event, params) {
   const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
-  const granules = await cmr.findGranules(cmrParams);
-  return cmrConverter.cmrGranulesToFeatureCollection(event, granules);
+  const searchResult = await cmr.findGranules(cmrParams);
+
+  return { searchResult, featureCollection: cmrConverter.cmrGranulesToFeatureCollection(event, searchResult.granules) };
 }
 
 async function getSearch (request, response) {
@@ -20,10 +21,10 @@ async function getSearch (request, response) {
   const query = stacExtension.stripStacExtensionsFromRequestObject(request.query); // The cmr function to convert params can not handle stac extensions
   const params = Object.assign({ provider: providerId }, query);
   const convertedParams = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, params);
-  const result = await search(event, convertedParams);
-  await assertValid(schemas.items, result);
-  const formatedResult = stacExtension.applyStacExtensions(request.query, result); // Apply any stac extensions that are present
-  response.status(200).json(formatedResult);
+  const { searchResult, featureCollection } = await search(event, convertedParams);
+  await assertValid(schemas.items, featureCollection);
+  const formatted = stacExtension.applyStacExtensions(featureCollection, { fields: request.query.fields, context: { searchResult, query } }); // Apply any stac extensions that are present
+  response.status(200).json(formatted);
 }
 
 async function postSearch (request, response) {
@@ -32,10 +33,10 @@ async function postSearch (request, response) {
   const event = request.apiGateway.event;
   const body = stacExtension.stripStacExtensionsFromRequestObject(request.body);
   const params = Object.assign({ provider: providerId }, body);
-  const result = await search(event, params);
-  await assertValid(schemas.items, result);
-  const formatedResult = stacExtension.applyStacExtensions(request.body, result); // Apply any stac extensions that are present
-  response.status(200).json(formatedResult);
+  const { searchResult, featureCollection } = await search(event, params);
+  await assertValid(schemas.items, featureCollection);
+  const formatted = stacExtension.applyStacExtensions(featureCollection, { fields: request.body.fields, context: { searchResult, query: params } }); // Apply any stac extensions that are present
+  response.status(200).json(formatted);
 }
 
 const routes = express.Router();

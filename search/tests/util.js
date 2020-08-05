@@ -64,7 +64,8 @@ function createRequest (additionalData = null) {
     },
     body: '{}',
     app: { logger: logger },
-    params: { }
+    query: {},
+    params: {}
   }, additionalData);
 }
 

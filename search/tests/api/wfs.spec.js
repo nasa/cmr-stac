@@ -23,7 +23,7 @@ describe('wfs routes', () => {
     response = createMockResponse();
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
     mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
-    mockFunction(cmr, 'findGranules', Promise.resolve(exampleData.cmrGrans));
+    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: exampleData.cmrGrans.length }));
     mockFunction(cmr, 'findGranulesUmm', Promise.resolve(exampleData.cmrGransUmm));
   });
 

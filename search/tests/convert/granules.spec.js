@@ -286,7 +286,7 @@ describe('granuleToItem', () => {
 
     const event = { headers: { Host: 'example.com' }, path: '/cmr-stac', queryStringParameters: [] };
 
-    it('should return a cmrGranule to a FeatureCollection', () => {
+    it('should return a CMR Granules search result to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,

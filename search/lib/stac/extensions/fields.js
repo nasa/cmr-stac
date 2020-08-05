@@ -1,14 +1,9 @@
 
 const _ = require('lodash');
 
-function convertStacFieldsQueryToObject (fieldsQuery) {
-  const fieldsArray = fieldsQuery.split(',');
-  const include = fieldsArray.filter(field => field.startsWith('-') === false).map(field => field.replace(/^\+/, ''));
-  const exclude = fieldsArray.filter(field => field.startsWith('-') === true).map(field => field.replace(/^-/, ''));
-  return { include, exclude };
-}
+function apply (result, fields) {
+  if (_.isUndefined(fields) || _.isNull(fields)) return result;
 
-function applyStacFieldsExtension (fields, result) {
   const { _sourceIncludes, _sourceExcludes } = buildFieldsFilter(fields);
 
   result.features = result.features.map(feature => {
@@ -20,15 +15,19 @@ function applyStacFieldsExtension (fields, result) {
   return result;
 }
 
-module.exports = {
-  convertStacFieldsQueryToObject,
-  applyStacFieldsExtension
-};
+module.exports = { apply };
 
 // Private
+function fieldsStringToObject (fieldsQuery) {
+  const fieldsArray = fieldsQuery.split(',');
+  const include = fieldsArray.filter(field => field.startsWith('-') === false).map(field => field.replace(/^\+/, ''));
+  const exclude = fieldsArray.filter(field => field.startsWith('-') === true).map(field => field.replace(/^-/, ''));
+  return { include, exclude };
+}
 
 function buildFieldsFilter (fields) {
-  const { include, exclude } = fields;
+  const fieldsObject = _.isString(fields) ? fieldsStringToObject(fields) : fields;
+  const { include, exclude } = fieldsObject;
   let _sourceIncludes = [
     'id',
     'type',
