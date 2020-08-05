@@ -287,15 +287,9 @@ describe('granuleToItem', () => {
     const event = { headers: { Host: 'example.com' }, path: '/cmr-stac', queryStringParameters: [] };
 
     it('should return a CMR Granules search result to a FeatureCollection', () => {
-      const granulesSearchResult = { granules: cmrGran, totalHits: 12345 }
-      expect(cmrGranulesToFeatureCollection(event, granulesSearchResult)).toEqual({
+      expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
-        context: {
-          limit: null,
-          matched: 12345,
-          returned: 1
-        },
         features: [{
           id: 1,
           stac_version: settings.stac.version,

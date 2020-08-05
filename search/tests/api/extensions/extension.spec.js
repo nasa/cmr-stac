@@ -7,6 +7,7 @@ const _ = require('lodash');
 const { createRequest } = require('../../util');
 const { stripStacExtensionsFromRequestObject, applyStacExtensions, EXTENSION_TYPES } = require('../../../lib/stac/extension');
 const fieldsExtension = require('../../../lib/stac/extensions/fields');
+const contextExtension = require('../../../lib/stac/extensions/context');
 
 describe('STAC API Extensions', () => {
   let request;
@@ -804,7 +805,8 @@ describe('STAC API Extensions', () => {
   beforeEach(() => {
     request = createRequest({
       body: '{}',
-      params: { providerId: 'LPDAAC',
+      params: {
+        providerId: 'LPDAAC',
         fields: {
           include: [
             'id',
@@ -838,10 +840,12 @@ describe('STAC API Extensions', () => {
 
   describe('applyStacExtensions', () => {
     it('should execute the suite of STAC API Extensions', async () => {
-      const applyFieldsExtensionSpy = jest.spyOn(fieldsExtension, 'applyStacFieldsExtension');
+      const applyFieldsExtensionSpy = jest.spyOn(fieldsExtension, 'apply');
+      const applyContextExtensionSpy = jest.spyOn(contextExtension, 'apply');
       const extensions = request.params;
-      applyStacExtensions(extensions, result);
+      applyStacExtensions(extensions, result, { context: { searchResult: { granules: [] }, query: {} } });
       expect(applyFieldsExtensionSpy).toHaveBeenCalled();
+      expect(applyContextExtensionSpy).toHaveBeenCalled();
     });
   });
 });

@@ -59,8 +59,8 @@ async function getCollection (conceptId, providerId) {
 
 async function findGranules (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), params);
-  const granules = response.data.feed.entry
-  const totalHits = _.get(response, 'headers.cmr-hits', granules.length)
+  const granules = response.data.feed.entry;
+  const totalHits = _.get(response, 'headers.cmr-hits', granules.length);
   return { granules: granules, totalHits: totalHits };
 }
 

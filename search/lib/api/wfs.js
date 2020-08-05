@@ -6,7 +6,7 @@ const convert = require('../convert');
 const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 
-class NotFoundError extends Error {}
+class NotFoundError extends Error { }
 
 async function getCollections (request, response) {
   try {
@@ -91,14 +91,16 @@ async function getGranules (request, response) {
     logger.info(`GET /${providerId}/collections/${conceptId}/items`);
     const event = request.apiGateway.event;
     const params = Object.assign(
-      { collection_concept_id: conceptId,
-        provider: providerId },
+      {
+        collection_concept_id: conceptId,
+        provider: providerId
+      },
       cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
     );
     const granulesResult = await cmr.findGranules(params);
     const granulesUmm = await cmr.findGranulesUmm(params);
     if (!granulesResult.granules.length) throw new Error('Items not found');
-    const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granulesResult, granulesUmm);
+    const granulesResponse = convert.cmrGranulesToFeatureCollection(event, granulesResult.granules, granulesUmm);
     await assertValid(schemas.items, granulesResponse);
     response.status(200).json(granulesResponse);
   } catch (e) {

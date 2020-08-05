@@ -92,11 +92,6 @@ describe('wfs routes', () => {
       response.expect({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
-        context: {
-          limit: null,
-          matched: 2,
-          returned: 2,
-        },
         links: [
           {
             rel: 'self',
@@ -117,11 +112,6 @@ describe('wfs routes', () => {
       response.expect({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
-        context: {
-          limit: null,
-          matched: 2,
-          returned: 2,
-        },
         links: [
           {
             rel: 'self',

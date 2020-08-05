@@ -100,7 +100,7 @@ describe('cmr', () => {
   describe('findGranules', () => {
     beforeEach(() => {
       axios.get = jest.fn();
-      const cmrResponse = { headers: { "cmr-hits": 199 }, data: { feed: { entry: [{ test: 'value' }] } } };
+      const cmrResponse = { headers: { 'cmr-hits': 199 }, data: { feed: { entry: [{ test: 'value' }] } } };
       axios.get.mockResolvedValue(cmrResponse);
     });
 
