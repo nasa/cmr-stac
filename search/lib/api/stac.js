@@ -23,7 +23,7 @@ async function getSearch (request, response) {
   const convertedParams = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, params);
   const { searchResult, featureCollection } = await search(event, convertedParams);
   await assertValid(schemas.items, featureCollection);
-  const formatted = stacExtension.applyStacExtensions(request.query, featureCollection, { context: { searchResult, query } }); // Apply any stac extensions that are present
+  const formatted = stacExtension.applyStacExtensions(featureCollection, { fields: request.params.fields, context: { searchResult, query } }); // Apply any stac extensions that are present
   response.status(200).json(formatted);
 }
 
@@ -35,7 +35,7 @@ async function postSearch (request, response) {
   const params = Object.assign({ provider: providerId }, body);
   const { searchResult, featureCollection } = await search(event, params);
   await assertValid(schemas.items, featureCollection);
-  const formatted = stacExtension.applyStacExtensions(request.body, featureCollection, { context: { searchResult, query: params } }); // Apply any stac extensions that are present
+  const formatted = stacExtension.applyStacExtensions(featureCollection, { fields: request.body.fields, context: { searchResult, query: params } }); // Apply any stac extensions that are present
   response.status(200).json(formatted);
 }
 

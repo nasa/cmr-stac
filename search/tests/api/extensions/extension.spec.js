@@ -842,8 +842,7 @@ describe('STAC API Extensions', () => {
     it('should execute the suite of STAC API Extensions', async () => {
       const applyFieldsExtensionSpy = jest.spyOn(fieldsExtension, 'apply');
       const applyContextExtensionSpy = jest.spyOn(contextExtension, 'apply');
-      const extensions = request.params;
-      applyStacExtensions(extensions, result, { context: { searchResult: { granules: [] }, query: {} } });
+      applyStacExtensions(result, { fields: request.params.fields, context: { searchResult: { granules: [] }, query: {} } });
       expect(applyFieldsExtensionSpy).toHaveBeenCalled();
       expect(applyContextExtensionSpy).toHaveBeenCalled();
     });

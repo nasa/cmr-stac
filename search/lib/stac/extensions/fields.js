@@ -1,7 +1,9 @@
 
 const _ = require('lodash');
 
-function apply (fields, result) {
+function apply (result, fields) {
+  if (_.isUndefined(fields) || _.isNull(fields)) return result;
+
   const { _sourceIncludes, _sourceExcludes } = buildFieldsFilter(fields);
 
   result.features = result.features.map(feature => {

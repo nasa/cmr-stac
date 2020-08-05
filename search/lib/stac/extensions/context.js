@@ -1,4 +1,4 @@
-function apply ({ query, searchResult }, result) {
+function apply (result, { query, searchResult }) {
   return {
     ...result,
     context: {

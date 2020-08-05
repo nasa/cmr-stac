@@ -1,6 +1,5 @@
 const fieldsExtension = require('./extensions/fields');
 const contextExtension = require('./extensions/context');
-const _ = require('lodash');
 
 const EXTENSION_TYPES = {
   fields: 'fields'
@@ -13,13 +12,11 @@ function stripStacExtensionsFromRequestObject (request) {
   return strippedRequestObject;
 }
 
-function applyStacExtensions (extensions, result, options) {
+function applyStacExtensions (result, options) {
   let resultToReturn = Object.assign({}, result);
-  if (_.hasIn(extensions, EXTENSION_TYPES.fields)) {
-    resultToReturn = fieldsExtension.apply(extensions.fields, resultToReturn);
-  }
 
-  resultToReturn = contextExtension.apply(options.context, resultToReturn);
+  resultToReturn = fieldsExtension.apply(resultToReturn, options.fields);
+  resultToReturn = contextExtension.apply(resultToReturn, options.context);
 
   return resultToReturn;
 }
