@@ -5,7 +5,7 @@
 const _ = require('lodash');
 
 const { createRequest } = require('../../util');
-const { stripStacExtensionsFromRequestObject, applyStacExtensions, EXTENSION_TYPES } = require('../../../lib/stac/extension');
+const { prepare, format, EXTENSION_TYPES } = require('../../../lib/stac/extension');
 const fieldsExtension = require('../../../lib/stac/extensions/fields');
 const contextExtension = require('../../../lib/stac/extensions/context');
 
@@ -807,6 +807,7 @@ describe('STAC API Extensions', () => {
       body: '{}',
       params: {
         providerId: 'LPDAAC',
+        sortby: '+id',
         fields: {
           include: [
             'id',
@@ -824,25 +825,20 @@ describe('STAC API Extensions', () => {
     });
   });
 
-  describe('stripStacExtensionsFromRequestObject', () => {
+  describe('prepare', () => {
     it('should remove all STAC API extensions from the HTTP request', async () => {
-      const strippedRequestObject = stripStacExtensionsFromRequestObject(request);
+      const strippedRequestObject = prepare(request);
 
-      // TODO: We need to add support for all STAC API Extensions (e.g. sort, query, etc)
-      let containsSTACExtensions = false;
-      if (_.hasIn(strippedRequestObject, EXTENSION_TYPES.fields)) {
-        containsSTACExtensions = true;
-      }
-
-      expect(containsSTACExtensions).toBe(false);
+      expect(_.hasIn(strippedRequestObject, EXTENSION_TYPES.fields)).toBe(false);
+      expect(_.hasIn(strippedRequestObject, 'sortby')).toBe(false);
     });
   });
 
-  describe('applyStacExtensions', () => {
+  describe('format', () => {
     it('should execute the suite of STAC API Extensions', async () => {
-      const applyFieldsExtensionSpy = jest.spyOn(fieldsExtension, 'apply');
-      const applyContextExtensionSpy = jest.spyOn(contextExtension, 'apply');
-      applyStacExtensions(result, { fields: request.params.fields, context: { searchResult: { granules: [] }, query: {} } });
+      const applyFieldsExtensionSpy = jest.spyOn(fieldsExtension, 'format');
+      const applyContextExtensionSpy = jest.spyOn(contextExtension, 'format');
+      format(result, { fields: request.params.fields, context: { searchResult: { granules: [] }, query: {} } });
       expect(applyFieldsExtensionSpy).toHaveBeenCalled();
       expect(applyContextExtensionSpy).toHaveBeenCalled();
     });

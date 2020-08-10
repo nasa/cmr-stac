@@ -1,7 +1,11 @@
 
 const _ = require('lodash');
 
-function apply (result, fields) {
+function prepare (request) {
+  return _.omit(request, ['fields']);
+}
+
+function format (result, fields) {
   if (_.isUndefined(fields) || _.isNull(fields)) return result;
 
   const { _sourceIncludes, _sourceExcludes } = buildFieldsFilter(fields);
@@ -15,7 +19,7 @@ function apply (result, fields) {
   return result;
 }
 
-module.exports = { apply };
+module.exports = { format, prepare };
 
 // Private
 function fieldsStringToObject (fieldsQuery) {

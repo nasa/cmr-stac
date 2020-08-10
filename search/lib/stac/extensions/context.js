@@ -1,4 +1,4 @@
-function apply (result, { query, searchResult }) {
+function format (result, { query, searchResult }) {
   return {
     ...result,
     context: {
@@ -9,4 +9,4 @@ function apply (result, { query, searchResult }) {
   };
 }
 
-module.exports = { apply };
+module.exports = { format };
