@@ -10,8 +10,9 @@ const { logger, makeAsyncHandler } = require('../util');
 async function search (event, params) {
   const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
   const searchResult = await cmr.findGranules(cmrParams);
+  const granulesUmm = await cmr.findGranulesUmm(cmrParams);
 
-  return { searchResult, featureCollection: cmrConverter.cmrGranulesToFeatureCollection(event, searchResult.granules) };
+  return { searchResult, featureCollection: cmrConverter.cmrGranulesToFeatureCollection(event, searchResult.granules, granulesUmm) };
 }
 
 async function getSearch (request, response) {
