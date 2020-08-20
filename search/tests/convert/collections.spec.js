@@ -13,14 +13,14 @@ describe('collections', () => {
 
     it('should return a bounding box from given polygon', () => {
       cmrCollection = {
-        polygons: [['30 -10 70 33 -145 66']]
+        polygons: [['-10 30 33 70 66 -145']]
       };
       expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-145, -10, 70, 66]);
     });
 
     it('should return a bounding box from given points', () => {
       cmrCollection = {
-        points: ['30 -10', '70 33', '-145 66']
+        points: ['-10 30', '33 70', '66 -145']
       };
       expect(cmrCollSpatialToExtents(cmrCollection)).toEqual([-145, -10, 70, 66]);
     });

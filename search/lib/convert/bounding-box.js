@@ -1,5 +1,5 @@
 const { chunk } = require('lodash');
-const {max, min} = Math;
+const { max, min } = Math;
 
 const WHOLE_WORLD_BBOX = [-180, -90, 180, 90];
 
@@ -9,7 +9,7 @@ const WHOLE_WORLD_BBOX = [-180, -90, 180, 90];
  * @param bbox in a `[W, S, E, N]` format
  * @returns true if the box crosses the antimeridian, false otherwise
  */
-function crossesAntimeridian(bbox) {
+function crossesAntimeridian (bbox) {
   // true if W > E
   return bbox[0] > bbox[2];
 }
@@ -18,7 +18,7 @@ function crossesAntimeridian(bbox) {
  *
  * @param bbox - An array of float coordinates in the format `[W, S, E, N]`
  * @param points - An array of of arrays of two float coordinates in the format [lon, lat]
- * @returns {*[]} - A single array of float coordinates in the format `[W, S, E, N]`
+ * @returns number[] - A single array of float coordinates in the format `[W, S, E, N]`
  */
 function addPointsToBbox (bbox, points) {
   let w; let s; let e; let n;
@@ -99,7 +99,7 @@ function mergeBoxes (box1, box2) {
     // neither cross the Antimeridian
     let b1;
     let b2;
-    if (box1 [0] > box2[0]) {
+    if (box1[0] > box2[0]) {
       b1 = box2;
       b2 = box1;
     } else {
@@ -148,7 +148,8 @@ function parseOrdinateString (numStr) {
  * @returns {unknown[][]} - An array containing arrays of 2 floating points representing coordinate points.
  */
 function pointStringToPoints (pointStr) {
-  return chunk(parseOrdinateString(pointStr), 2);
+  const unorderedPoints = chunk(parseOrdinateString(pointStr), 2);
+  return unorderedPoints.map(([lat, lon]) => [lon, lat]);
 }
 
 /**
@@ -163,7 +164,6 @@ function reorderBoxValues (cmrBox) {
   }
   return [cmrBox[1], cmrBox[0], cmrBox[3], cmrBox[2]];
 }
-
 
 module.exports = {
   addPointsToBbox,

@@ -2,11 +2,11 @@ const _ = require('lodash');
 const cmr = require('../cmr');
 const settings = require('../settings');
 const { pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
+// const { inflectBox } = require('./geodeticConversion');
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
-  let rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
-  rings = rings.map(ring => ring.map(point => [point[1], point[0]]));
+  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
   return {
     type: 'Polygon',
     coordinates: rings
@@ -82,12 +82,11 @@ function cmrSpatialToStacBbox (cmrGran) {
       .map((rings) => rings[0])
       .map(pointStringToPoints)
       .reduce(addPointsToBbox, bbox);
-    bbox = reorderBoxValues(bbox);
   }
   if (cmrGran.points) {
     const points = cmrGran.points.map(parseOrdinateString);
-    bbox = addPointsToBbox(bbox, points);
-    bbox = reorderBoxValues(bbox);
+    const orderedPoints = points.map(([lat, lon]) => [lon, lat]);
+    bbox = addPointsToBbox(bbox, orderedPoints);
   }
   if (cmrGran.lines) {
     const linePoints = cmrGran.lines.map(parseOrdinateString);
@@ -95,8 +94,7 @@ function cmrSpatialToStacBbox (cmrGran) {
     return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   }
   if (cmrGran.boxes) {
-    const mergedBox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
-    bbox = reorderBoxValues(mergedBox);
+    bbox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr))), bbox);
   }
   if (bbox === null) {
     bbox = [];
