@@ -1,5 +1,6 @@
-const fieldsExtension = require('./extensions/fields');
 const contextExtension = require('./extensions/context');
+const fieldsExtension = require('./extensions/fields');
+const queryExtension = require('./extensions/query');
 const sortExtension = require('./extensions/sort');
 
 const EXTENSION_TYPES = {
@@ -11,6 +12,7 @@ function prepare (params) {
   let preparedParams = Object.assign({}, params);
 
   preparedParams = fieldsExtension.prepare(preparedParams);
+  preparedParams = queryExtension.prepare(preparedParams);
   preparedParams = sortExtension.prepare(preparedParams);
 
   return preparedParams;
@@ -31,6 +33,7 @@ module.exports = {
   prepare,
   format,
   errors: {
-    InvalidSortPropertyError: sortExtension.InvalidSortPropertyError
+    InvalidSortPropertyError: sortExtension.InvalidSortPropertyError,
+    InvalidQueryPropertyError: queryExtension.InvalidQueryPropertyError
   }
 };
