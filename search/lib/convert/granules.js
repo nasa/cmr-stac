@@ -247,7 +247,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
   let numberReturned;
 
   let features = [];
-  if (_.has(cmrGransUmm,'items')) {
+  if (_.has(cmrGransUmm, 'items')) {
     numberMatched = cmrGransUmm.hits;
     ummGranules = cmrGransUmm.items;
     numberReturned = ummGranules.length;
