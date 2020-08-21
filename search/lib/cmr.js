@@ -59,12 +59,14 @@ async function getCollection (conceptId, providerId) {
 
 async function findGranules (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), params);
-  return response.data.feed.entry;
+  const granules = response.data.feed.entry;
+  const totalHits = _.get(response, 'headers.cmr-hits', granules.length);
+  return { granules: granules, totalHits: totalHits };
 }
 
 async function findGranulesUmm (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
-  return response.data.items;
+  return response.data;
 }
 
 async function getProviders () {

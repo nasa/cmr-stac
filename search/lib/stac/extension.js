@@ -1,31 +1,39 @@
+const contextExtension = require('./extensions/context');
 const fieldsExtension = require('./extensions/fields');
-const _ = require('lodash');
+const queryExtension = require('./extensions/query');
+const sortExtension = require('./extensions/sort');
 
 const EXTENSION_TYPES = {
   fields: 'fields'
 };
 
-function stripStacExtensionsFromRequestObject (request) {
-  const strippedRequestObject = Object.assign({}, request);
-  // TODO: All STAC API Extension query params must be stripped from GET requests
-  delete strippedRequestObject.fields;
-  return strippedRequestObject;
+// extensions with `prepare` functions modify the request parameters
+function prepare (params) {
+  let preparedParams = Object.assign({}, params);
+
+  preparedParams = fieldsExtension.prepare(preparedParams);
+  preparedParams = queryExtension.prepare(preparedParams);
+  preparedParams = sortExtension.prepare(preparedParams);
+
+  return preparedParams;
 }
 
-function applyStacExtensions (extensions, result) {
+// extensions with `format` functions modify the api response
+function format (result, options) {
   let resultToReturn = Object.assign({}, result);
-  if (_.hasIn(extensions, EXTENSION_TYPES.fields)) {
-    let fields = extensions.fields;
-    if (typeof fields === 'string' || fields instanceof String) {
-      fields = fieldsExtension.convertStacFieldsQueryToObject(fields);
-    }
-    resultToReturn = fieldsExtension.applyStacFieldsExtension(fields, resultToReturn);
-  }
+
+  resultToReturn = fieldsExtension.format(resultToReturn, options.fields);
+  resultToReturn = contextExtension.format(resultToReturn, options.context);
+
   return resultToReturn;
 }
 
 module.exports = {
   EXTENSION_TYPES,
-  stripStacExtensionsFromRequestObject,
-  applyStacExtensions
+  prepare,
+  format,
+  errors: {
+    InvalidSortPropertyError: sortExtension.InvalidSortPropertyError,
+    InvalidQueryPropertyError: queryExtension.InvalidQueryPropertyError
+  }
 };

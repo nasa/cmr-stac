@@ -18,7 +18,7 @@ describe('STAC Search', () => {
       params: { providerId: 'LPDAAC' }
     });
     response = createMockResponse();
-    mockFunction(cmr, 'findGranules', Promise.resolve(exampleData.cmrGrans));
+    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: 19 }));
   });
 
   afterEach(() => {
@@ -28,7 +28,14 @@ describe('STAC Search', () => {
   const expectedResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
+    numberMatched: 0,
+    numberReturned: 0,
     features: exampleData.stacGrans,
+    context: {
+      limit: null,
+      matched: 19,
+      returned: 2
+    },
     links: [
       {
         rel: 'self',

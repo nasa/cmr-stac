@@ -395,7 +395,36 @@
         "followAuthorizationHeader": false
       },
       "response": []
-    }
+    },
+    {
+			"name": "GET Provider Search with Sort",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{protocol}}://{{host}}/ASF/search?collections=C1213921626-ASF&sortby=-properties.datetime",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"ASF",
+						"search"
+					],
+					"query": [
+						{
+							"key": "collections",
+							"value": "C1213921626-ASF"
+						},
+						{
+							"key": "sortby",
+							"value": "-properties.datetime"
+						}
+					]
+				}
+			},
+			"response": []
+		}
   ]
 }
 

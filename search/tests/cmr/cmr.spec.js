@@ -100,7 +100,7 @@ describe('cmr', () => {
   describe('findGranules', () => {
     beforeEach(() => {
       axios.get = jest.fn();
-      const cmrResponse = { data: { feed: { entry: { test: 'value' } } } };
+      const cmrResponse = { headers: { 'cmr-hits': 199 }, data: { feed: { entry: [{ test: 'value' }] } } };
       axios.get.mockResolvedValue(cmrResponse);
     });
 
@@ -108,21 +108,34 @@ describe('cmr', () => {
       jest.restoreAllMocks();
     });
 
-    it('should return a url with /granules.json appended', async () => {
+    it('makes a request to /granules.json', async () => {
+      await findGranules();
+
+      expect(axios.get.mock.calls.length).toBe(1);
+      expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/granules.json');
+    });
+
+    it('makes a request with the supplied params', async () => {
+      await findGranules(params);
+
+      expect(axios.get.mock.calls.length).toBe(1);
+      expect(axios.get.mock.calls[0][1]).toEqual({ params: { param: 'test' }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+    });
+
+    it('returns an object with the returned granules', async () => {
       const result = await findGranules();
 
       expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/granules.json');
-      expect(result).toEqual({ test: 'value' });
+      expect(result).toEqual(expect.objectContaining({ granules: [{ test: 'value' }] }));
     });
 
-    it('should return a url with /granules.json appended and params', async () => {
+    it('returns totalHits from the CMR response header "cmr-hits"', async () => {
       const result = await findGranules(params);
 
       expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/granules.json');
-      expect(axios.get.mock.calls[0][1]).toEqual({ params: { param: 'test' }, headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
-      expect(result).toEqual({ test: 'value' });
+      expect(result).toEqual(expect.objectContaining({ totalHits: 199 }));
     });
   });
 
