@@ -120,7 +120,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
   let opendapLink;
 
   const extensions = [];
-  if (!_.isEmpty(cmrGranUmm) && cmrGranUmm.umm.AdditionalAttributes) {
+  if (!_.isEmpty(cmrGranUmm) && _.has(cmrGranUmm, 'umm.AdditionalAttributes')) {
     const attributes = cmrGranUmm.umm.AdditionalAttributes;
     const eo = attributes.filter(attr => attr.Name === 'CLOUD_COVERAGE');
     if (eo.length) {
@@ -242,10 +242,18 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
   const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
 
+  let numberMatched;
+  let ummGranules;
+  let numberReturned;
+
   let features = [];
-  if (cmrGransUmm.length) {
+  if (_.has(cmrGransUmm,'items')) {
+    numberMatched = cmrGransUmm.hits;
+    ummGranules = cmrGransUmm.items;
+    numberReturned = ummGranules.length;
+
     for (const gran in cmrGrans) {
-      const stacItem = cmrGranToFeatureGeoJSON(event, cmrGrans[gran], cmrGransUmm[gran]);
+      const stacItem = cmrGranToFeatureGeoJSON(event, cmrGrans[gran], ummGranules[gran]);
       features.push(stacItem);
     }
   } else {
@@ -254,6 +262,8 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
   const granulesResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
+    numberMatched,
+    numberReturned,
     features: features,
     links: [
       {
