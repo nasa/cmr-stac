@@ -28,6 +28,8 @@ describe('STAC Search', () => {
   const expectedResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
+    numberMatched: 0,
+    numberReturned: 0,
     features: exampleData.stacGrans,
     context: {
       limit: null,
