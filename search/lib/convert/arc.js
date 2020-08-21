@@ -1,7 +1,7 @@
 import { Coordinate } from './coordinate';
 
 // Class for dealing with operations on great circle arcs
-export default class Arc {
+export class Arc {
   /**
    * @param coordA - Coordinate object
    * @param coordB - Coordinate object

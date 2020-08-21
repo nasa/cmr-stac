@@ -2,7 +2,7 @@ const _ = require('lodash');
 const cmr = require('../cmr');
 const settings = require('../settings');
 const { pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
-// const { inflectBox } = require('./geodeticConversion');
+const { inflectBox } = require('./geodeticCoordinates');
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
@@ -78,10 +78,14 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
 function cmrSpatialToStacBbox (cmrGran) {
   let bbox = null;
   if (cmrGran.polygons) {
-    bbox = cmrGran.polygons
-      .map((rings) => rings[0])
-      .map(pointStringToPoints)
-      .reduce(addPointsToBbox, bbox);
+    // bbox = cmrGran.polygons
+    // .map((rings) => rings[0])
+    // .map(pointStringToPoints);
+    // .reduce(addPointsToBbox, bbox);
+    const polygonPoints = cmrGran.polygons.map((rings) => rings[0])
+      .map(pointStringToPoints);
+    console.log(polygonPoints);
+    bbox = inflectBox(polygonPoints[0]);
   }
   if (cmrGran.points) {
     const points = cmrGran.points.map(parseOrdinateString);
