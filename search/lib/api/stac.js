@@ -41,14 +41,14 @@ async function postSearch (request, response) {
     const providerId = request.params.providerId;
     logger.info(`POST /${providerId}/search`);
     const event = request.apiGateway.event;
-    const body = stacExtension.prepare(request.body);
+    const body = stacExtension.prepare(request.params);
     const params = Object.assign({ provider: providerId }, body);
     const { searchResult, featureCollection } = await search(event, params);
     await assertValid(schemas.items, featureCollection);
     const formatted = stacExtension.format(featureCollection, { fields: request.body.fields, context: { searchResult, query: params } }); // Apply any stac extensions that are present
     response.status(200).json(formatted);
   } catch (error) {
-    if (error instanceof stacExtension.InvalidSortPropertyError) {
+    if (error instanceof stacExtension.errors.InvalidSortPropertyError) {
       response.status(422).json(error.message);
     } else {
       throw error;
