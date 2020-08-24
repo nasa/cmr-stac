@@ -73,7 +73,7 @@
         "operationId": "getProvider",
         "responses": {
           "200": {
-            "$ref": "#/components/responses/providerId"
+            "$ref": "#/components/responses/Collection"
           },
           "500": {
             "$ref": "#/components/responses/ServerError"
@@ -93,12 +93,12 @@
             "$ref": "#/components/parameters/providerId"
           },
           {
-            "$ref": "#/components/parameters/providerId/Collections"
+            "$ref": "#/components/parameters/collections"
           }
         ],
         "responses": {
           "200": {
-            "$ref": "#/components/responses/Provider/Collections"
+            "$ref": "#/components/responses/Collections"
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
@@ -347,6 +347,15 @@
         "name": "collectionId",
         "in": "path",
         "description": "local identifier of a collection",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "providerId": {
+        "name": "providerId",
+        "in": "path",
+        "description": "local identifier of a provider",
         "required": true,
         "schema": {
           "type": "string"
