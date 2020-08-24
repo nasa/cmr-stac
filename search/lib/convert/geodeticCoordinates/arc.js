@@ -1,11 +1,13 @@
 import { Coordinate } from './coordinate';
 
 // Class for dealing with operations on great circle arcs
-export class Arc {
-  /**
-   * @param coordA - Coordinate object
-   * @param coordB - Coordinate object
-   */
+export default class Arc {
+  // coordA: Coordinate;
+
+  // coordB: Coordinate;
+
+  // normal: Coordinate;
+
   constructor (coordA, coordB) {
     let newCoordA = coordA;
     let newCoordB = coordB;
