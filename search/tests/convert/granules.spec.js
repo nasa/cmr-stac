@@ -188,9 +188,9 @@ describe('granuleToItem', () => {
 
     it('should return a bounding box from given polygon', () => {
       cmrCollection = {
-        polygons: [['30 -110 70 133 -45 166']]
+        polygons: [['-46.728858 -130.072843 -51.176483 -163.057516 -69.364972 -164.573697 -61.968957 -112.537606 -46.728858 -130.072843']]
       };
-      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-110, -45, 166, 70]);
+      expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-164.573697, -69.492825, -112.537606, -46.728858]);
     });
 
     it('should return a bounding box from given points', () => {

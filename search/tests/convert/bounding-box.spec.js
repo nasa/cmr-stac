@@ -1,4 +1,4 @@
-const { addPointsToBbox, mergeBoxes, reorderBoxValues } = require('../../lib/convert/bounding-box');
+const { addPointsToBbox, mergeBoxes, reorderBoxValues, crossesAntimeridian } = require('../../lib/convert/bounding-box');
 
 describe('bbox', () => {
   const testBbox = [-10, -10, 10, 10];
@@ -64,6 +64,19 @@ describe('bbox', () => {
 
     it('should return a mix of the two testBoxes, making the largest possible box', () => {
       expect(mergeBoxes(testBbox, testBbox2)).toEqual([-20, -10, 44, 10]);
+    });
+  });
+
+  describe('crossesAntimeridian', () => {
+    const amBox = [170, -10, -175, 5];
+    const nonAmBox = [-150, -60, -130, -40];
+
+    it('should return true if box crosses the antimeridian', () => {
+      expect(crossesAntimeridian(amBox)).toEqual(true);
+    });
+
+    it('should return false if box does not cross antimeridian', () => {
+      expect(crossesAntimeridian(nonAmBox)).toEqual(false);
     });
   });
 });

@@ -3,10 +3,10 @@ const cmr = require('../cmr');
 const settings = require('../settings');
 const { pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
+const { inflectBox } = require('./geodeticCoordinates');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
-  let rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
-  rings = rings.map(ring => ring.map(point => [point[1], point[0]]));
+  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
   return {
     type: 'Polygon',
     coordinates: rings
@@ -78,16 +78,17 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
 function cmrSpatialToStacBbox (cmrGran) {
   let bbox = null;
   if (cmrGran.polygons) {
-    bbox = cmrGran.polygons
+    let points = cmrGran.polygons
       .map((rings) => rings[0])
-      .map(pointStringToPoints)
-      .reduce(addPointsToBbox, bbox);
-    bbox = reorderBoxValues(bbox);
+      .map(pointStringToPoints);
+    points = points[0].map(([lon, lat]) => [lat, lon]);
+    const inflectedPoints = inflectBox(points).map(point => parseFloat(point.toFixed(6)));
+    bbox = reorderBoxValues(inflectedPoints);
   }
   if (cmrGran.points) {
     const points = cmrGran.points.map(parseOrdinateString);
-    bbox = addPointsToBbox(bbox, points);
-    bbox = reorderBoxValues(bbox);
+    const orderedPoints = points.map(([lat, lon]) => [lon, lat]);
+    bbox = addPointsToBbox(bbox, orderedPoints);
   }
   if (cmrGran.lines) {
     const linePoints = cmrGran.lines.map(parseOrdinateString);
@@ -95,8 +96,7 @@ function cmrSpatialToStacBbox (cmrGran) {
     return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   }
   if (cmrGran.boxes) {
-    const mergedBox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
-    bbox = reorderBoxValues(mergedBox);
+    bbox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr))), bbox);
   }
   if (bbox === null) {
     bbox = [];

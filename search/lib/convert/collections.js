@@ -13,7 +13,8 @@ function cmrCollSpatialToExtents (cmrColl) {
   }
   if (cmrColl.points) {
     const points = cmrColl.points.map(parseOrdinateString);
-    bbox = addPointsToBbox(bbox, points);
+    const orderedPoints = points.map(([lat, lon]) => [lon, lat]);
+    bbox = addPointsToBbox(bbox, orderedPoints);
   }
   if (cmrColl.lines) {
     const linePoints = cmrColl.lines.map(parseOrdinateString);
@@ -21,8 +22,7 @@ function cmrCollSpatialToExtents (cmrColl) {
     return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   }
   if (cmrColl.boxes) {
-    const mergedBox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, parseOrdinateString(boxStr)), bbox);
-    bbox = reorderBoxValues(mergedBox);
+    bbox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr))), bbox);
   }
   if (bbox === null) {
     // whole world bbox
