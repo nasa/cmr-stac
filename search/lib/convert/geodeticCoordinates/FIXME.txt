@@ -1,9 +1,0 @@
-This directory contains code from the Harmony project that should be integrated into 
-CMR-STAC at some point in the future. It was translated from TypeScript, but some 
-of the TypeScript-specific code was left in as comments for reference. 
-
-The point of the files in this directory was to map cartesian coordinates to geodetic
-coordinates when converting polygons to bounding boxes in the cmrSpatialToStacBbox() 
-function in search/lib/convert/granules.js. The idea is that the farther towards the 
-poles that a polygon reaches, the more of a possibility there is for the upper limit of
-a bounding box encompassing a polygon to bow towards the pole.

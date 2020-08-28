@@ -30,7 +30,7 @@ describe('STAC Search', () => {
     stac_version: settings.stac.version,
     features: exampleData.stacGrans,
     context: {
-      limit: null,
+      limit: 1000000,
       matched: 19,
       returned: 2
     },

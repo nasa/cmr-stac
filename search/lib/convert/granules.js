@@ -82,8 +82,8 @@ function cmrSpatialToStacBbox (cmrGran) {
       .map((rings) => rings[0])
       .map(pointStringToPoints);
     points = points[0].map(([lon, lat]) => [lat, lon]);
-    bbox = inflectBox(points).map(point => parseFloat(point.toFixed(6)));
-    bbox = reorderBoxValues(bbox);
+    const inflectedPoints = inflectBox(points).map(point => parseFloat(point.toFixed(6)));
+    bbox = reorderBoxValues(inflectedPoints);
   }
   if (cmrGran.points) {
     const points = cmrGran.points.map(parseOrdinateString);
