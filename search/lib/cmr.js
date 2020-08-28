@@ -66,7 +66,7 @@ async function findGranules (params = {}) {
 
 async function findGranulesUmm (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
-  return response.data.items;
+  return response.data;
 }
 
 async function getProviders () {
