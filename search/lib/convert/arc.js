@@ -1,13 +1,7 @@
-import { Coordinate } from './coordinate';
+const { Coordinate } = require('./coordinate');
 
 // Class for dealing with operations on great circle arcs
-export default class Arc {
-  // coordA: Coordinate;
-
-  // coordB: Coordinate;
-
-  // normal: Coordinate;
-
+class Arc {
   constructor (coordA, coordB) {
     let newCoordA = coordA;
     let newCoordB = coordB;
@@ -59,3 +53,7 @@ export default class Arc {
     return (theta > thetaMax) || (theta < thetaMin);
   }
 }
+
+module.exports = {
+  Arc
+};

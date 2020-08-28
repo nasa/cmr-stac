@@ -1,5 +1,5 @@
-import { Coordinate } from './coordinate';
-import { Arc } from './arc';
+const { Coordinate } = require('./coordinate');
+const { Arc } = require('./arc');
 
 function circularMax (lng0, lng1) {
   const [left, right] = Array.from(lng0 < lng1 ? [lng0, lng1] : [lng1, lng0]);
@@ -24,7 +24,7 @@ function circularMin (lng0, lng1) {
 
 /**
  * Finds simple bounding box with inflection to account for geodesic mapping
- * @param latlngs - an array of [lon, lat] coordinate pairs
+ * @param latlngs - an array of [lat, lng] coordinate pairs
  * @returns a bounding box in the form [S, W, N, E]
  */
 function inflectBox (latlngs) {
@@ -33,7 +33,7 @@ function inflectBox (latlngs) {
   let minLng = 181;
   let maxLng = -181;
 
-  const coords = (latlngs.map((latlng) => Coordinate.fromLngLat(latlng)));
+  const coords = (latlngs.map((latlng) => Coordinate.fromLatLng(latlng)));
 
   const len = coords.length;
   const latLngsWithInflections = [];

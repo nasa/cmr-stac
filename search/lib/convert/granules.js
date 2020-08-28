@@ -3,6 +3,7 @@ const cmr = require('../cmr');
 const settings = require('../settings');
 const { pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
 const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
+const { inflectBox } = require('./geodeticCoordinates');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
   const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
@@ -77,10 +78,12 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
 function cmrSpatialToStacBbox (cmrGran) {
   let bbox = null;
   if (cmrGran.polygons) {
-    bbox = cmrGran.polygons
+    let points = cmrGran.polygons
       .map((rings) => rings[0])
-      .map(pointStringToPoints)
-      .reduce(addPointsToBbox, bbox);
+      .map(pointStringToPoints);
+    points = points[0].map(([lon, lat]) => [lat, lon]);
+    bbox = inflectBox(points).map(point => parseFloat(point.toFixed(6)));
+    bbox = reorderBoxValues(bbox);
   }
   if (cmrGran.points) {
     const points = cmrGran.points.map(parseOrdinateString);

@@ -1,26 +1,13 @@
+const { parseOrdinateString } = require('./bounding-box');
+
 const DEG_TO_RAD = Math.PI / 180;
 const RAD_TO_DEG = 180 / Math.PI;
-
-// export interface LatLng{
-//   lat: number;
-//   lng: number;
-// }
 
 // Class for dealing with conversions between lat/lng, phi/theta, and x/y/z as well
 // as operations on the various forms.
 // Consider properties on this class to be immutable.  Changing, say, 'x' will not
 // update `phi` or `theta` and will throw normalization out of whack.
-export class Coordinate {
-  // readonly phi: number;
-
-  // readonly theta: number;
-
-  // readonly x: number;
-
-  // readonly y: number;
-
-  // readonly z: number;
-
+class Coordinate {
   constructor (phi, theta, x, y, z) {
     this.phi = phi;
     this.theta = theta;
@@ -32,10 +19,12 @@ export class Coordinate {
   static fromLatLng (...args) {
     let lat;
     let lng;
+
     if (args.length === 1) {
-      [{ lat, lng }] = (args);
+      const point = parseOrdinateString(args.toString());
+      [lat, lng] = (point);
     } else {
-      [lng, lat] = (args);
+      [lat, lng] = (args);
     }
     return Coordinate.fromPhiTheta(lat * DEG_TO_RAD, lng * DEG_TO_RAD);
   }
@@ -135,3 +124,7 @@ export class Coordinate {
     return `<${this.x.toFixed(3)}, ${this.y.toFixed(3)}, ${this.z.toFixed(3)}>`;
   }
 }
+
+module.exports = {
+  Coordinate
+};
