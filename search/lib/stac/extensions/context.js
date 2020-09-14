@@ -11,4 +11,4 @@ function apply (result, { query, searchResult }) {
   };
 }
 
-module.exports = { format };
+module.exports = { apply };

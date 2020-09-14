@@ -23,7 +23,7 @@ function format (result, options) {
   let resultToReturn = Object.assign({}, result);
 
   resultToReturn = fieldsExtension.format(resultToReturn, options.fields);
-  resultToReturn = contextExtension.format(resultToReturn, options.context);
+  resultToReturn = contextExtension.apply(resultToReturn, options.context);
 
   return resultToReturn;
 }
