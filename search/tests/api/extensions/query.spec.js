@@ -1,4 +1,4 @@
-const { prepare, InvalidQueryPropertyError } = require('../../../lib/stac/extensions/query');
+const { prepare } = require('../../../lib/stac/extensions/query');
 
 /**
  * @jest-environment node
