@@ -41,7 +41,7 @@ async function postSearch (request, response) {
     const providerId = request.params.providerId;
     logger.info(`POST /${providerId}/search`);
     const event = request.apiGateway.event;
-    const body = stacExtension.prepare(request.params);
+    const body = stacExtension.prepare(request.body);
     const params = Object.assign({ provider: providerId }, body);
     const { searchResult, featureCollection } = await search(event, params);
     await assertValid(schemas.items, featureCollection);
