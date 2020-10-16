@@ -34,7 +34,7 @@ const expectedProviders = [
     rel: 'child',
     type: 'application/json',
     href: 'http://example.com/cmr-stac/provC'
-  },
+  }
 ];
 
 describe('getProviders', () => {
