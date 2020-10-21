@@ -14,7 +14,7 @@ describe('STAC Search', () => {
 
   beforeEach(() => {
     request = createRequest({
-      body: '{}',
+      body: {},
       params: { providerId: 'LPDAAC' }
     });
     response = createMockResponse();
