@@ -18,106 +18,22 @@ const mockProviderResponse = [
 
 const expectedProviders = [
   {
-    id: 'provA',
     title: 'provAShort',
-    description: 'Root catalog for provA',
-    stac_version: '1.0.0-beta.1',
-    rel: 'provider',
+    rel: 'child',
     type: 'application/json',
-    links: [
-      {
-        rel: 'self',
-        href: 'http://example.com/cmr-stac/provA',
-        title: 'Root endpoint for this provider',
-        type: 'application/json'
-      },
-      {
-        rel: 'root',
-        href: 'http://example.com/cmr-stac/',
-        title: 'CMR-STAC Root',
-        type: 'application/json'
-      },
-      {
-        rel: 'collections',
-        href: 'http://example.com/cmr-stac/provA/collections',
-        title: 'Collections for this provider',
-        type: 'application/json'
-      },
-      {
-        rel: 'search',
-        href: 'http://example.com/cmr-stac/provA/search',
-        title: 'STAC Search endpoint for this provider',
-        type: 'application/json'
-      }
-    ]
+    href: 'http://example.com/cmr-stac/provA'
   },
   {
-    id: 'provB',
     title: 'provBShort',
-    description: 'Root catalog for provB',
-    stac_version: '1.0.0-beta.1',
-    rel: 'provider',
+    rel: 'child',
     type: 'application/json',
-    links: [
-      {
-        rel: 'self',
-        href: 'http://example.com/cmr-stac/provB',
-        title: 'Root endpoint for this provider',
-        type: 'application/json'
-      },
-      {
-        rel: 'root',
-        href: 'http://example.com/cmr-stac/',
-        title: 'CMR-STAC Root',
-        type: 'application/json'
-      },
-      {
-        rel: 'collections',
-        href: 'http://example.com/cmr-stac/provB/collections',
-        title: 'Collections for this provider',
-        type: 'application/json'
-      },
-      {
-        rel: 'search',
-        href: 'http://example.com/cmr-stac/provB/search',
-        title: 'STAC Search endpoint for this provider',
-        type: 'application/json'
-      }
-    ]
+    href: 'http://example.com/cmr-stac/provB'
   },
   {
-    id: 'provC',
     title: 'provCShort',
-    description: 'Root catalog for provC',
-    stac_version: '1.0.0-beta.1',
-    rel: 'provider',
+    rel: 'child',
     type: 'application/json',
-    links: [
-      {
-        rel: 'self',
-        href: 'http://example.com/cmr-stac/provC',
-        title: 'Root endpoint for this provider',
-        type: 'application/json'
-      },
-      {
-        rel: 'root',
-        href: 'http://example.com/cmr-stac/',
-        title: 'CMR-STAC Root',
-        type: 'application/json'
-      },
-      {
-        rel: 'collections',
-        href: 'http://example.com/cmr-stac/provC/collections',
-        title: 'Collections for this provider',
-        type: 'application/json'
-      },
-      {
-        rel: 'search',
-        href: 'http://example.com/cmr-stac/provC/search',
-        title: 'STAC Search endpoint for this provider',
-        type: 'application/json'
-      }
-    ]
+    href: 'http://example.com/cmr-stac/provC'
   }
 ];
 
@@ -134,6 +50,8 @@ describe('getProviders', () => {
     await getProviders(createRequest(), response);
     response.expect({
       description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
+      title: 'NASA CMR STAC Proxy',
+      stac_version: settings.stac.version,
       id: 'cmr-stac',
       links: expectedProviders
     });
@@ -147,7 +65,6 @@ describe('getProvider', () => {
       title: 'LARC_ASDC',
       description: 'Root catalog for LARC_ASDC',
       stac_version: settings.stac.version,
-      rel: 'provider',
       links: [
         {
           rel: 'self',
@@ -173,8 +90,7 @@ describe('getProvider', () => {
           title: 'STAC Search endpoint for this provider',
           type: 'application/json'
         }
-      ],
-      type: 'application/json'
+      ]
     };
     const request = createRequest({
       params: {

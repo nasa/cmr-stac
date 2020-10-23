@@ -11,8 +11,6 @@ function convertProvider (event, provider) {
     title: provider['short-name'],
     description: `Root catalog for ${providerId}`,
     stac_version: settings.stac.version,
-    rel: 'provider',
-    type: 'application/json',
     links: [
       wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
         'Root endpoint for this provider'),
@@ -47,9 +45,19 @@ async function getProvider (request, response) {
 
 async function getProviders (request, response) {
   const event = request.apiGateway.event;
-  const providerObjects = (await cmr.getProviders()).map((provider) => convertProvider(event, provider));
+  const providerObjects = (await cmr.getProviders()).map((provider) => {
+    const prov = convertProvider(event, provider);
+    return {
+      title: prov.title,
+      rel: 'child',
+      type: 'application/json',
+      href: prov.links[0].href
+    };
+  });
   const providerCatalog = {
     id: 'cmr-stac',
+    title: 'NASA CMR STAC Proxy',
+    stac_version: settings.stac.version,
     description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
     links: providerObjects
   };
