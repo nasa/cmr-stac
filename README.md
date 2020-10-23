@@ -15,7 +15,7 @@ There is more detailed documentation in the [docs](docs/readme.md) folder of thi
 
 ### Setup
 
-This application is a service that support the STAC proxy. It is organized as a NPM module and will install all dependencies if you run the following command:
+This application is a service that supports the STAC proxy. It is organized as an NPM module and will install all dependencies if you run the following command:
 
 `npm install`
 
