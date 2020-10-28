@@ -8,6 +8,19 @@ const { errorHandler } = require('./error-handler');
 const { logger } = require('./util');
 const settings = require('./settings');
 
+/**
+ * Express middleware for rewriting URLs to allow for redirects in AWS.
+ */
+const urlRewriteMiddleware = (req, res, next) => {
+  const routeAliases = settings.cmrStacRouteAliases ? settings.cmrStacRouteAliases.split(',') : ['/cmr-stac'];
+  const reqUrlRoot = '/' + req.url.split('/')[1];
+
+  if (routeAliases.indexOf(reqUrlRoot) !== -1) {
+    req.url = req.url.replace(reqUrlRoot, settings.cmrStacRelativeRootUrl);
+  }
+  next();
+};
+
 async function initialize () {
   logger.debug('Initialize Application');
 
@@ -15,6 +28,7 @@ async function initialize () {
 
   application.use(express.json());
   application.use(awsServerlessMiddleware.eventContext());
+  application.use(urlRewriteMiddleware);
   application.use(settings.cmrStacRelativeRootUrl, api.routes);
   application.use(cors());
   application.use(errorHandler);

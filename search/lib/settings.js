@@ -49,7 +49,9 @@ function getSettings () {
     // If we want a invalid STAC response to result in an Internal Server Error
     settings.invalidResponseIsError = process.env.INVALID_RESPONSE_IS_ERROR === 'true';
 
-    settings.cmrStacRelativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/cmr-stac';
+    // comma separated list of URL aliases
+    settings.cmrStacRouteAliases = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/cmr-stac';
+    settings.cmrStacRelativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/stac';
     settings.cmrSearchHost = process.env.CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov/search';
     settings.cmrProviderHost = process.env.CMR_PROVIDER_HOST || 'cmr.earthdata.nasa.gov/ingest/providers';
     settings.cmrSearchProtocol = process.env.CMR_SEARCH_PROTOCOL || 'https';

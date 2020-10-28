@@ -8,19 +8,19 @@
   "links": [
     {
       "rel": "self",
-      "href": "http://example.com/cmr-stac/LARC/collections/C1288777589-LARC",
+      "href": "http://example.com/stac/LARC/collections/C1288777589-LARC",
       "title": "Info about this collection",
       "type": "application/json"
     },
     {
       "rel": "provider",
-      "href": "http://example.com/cmr-stac/LARC",
+      "href": "http://example.com/stac/LARC",
       "title": "Root for this provider",
       "type": "application/json"
     },
     {
       "rel": "stac",
-      "href": "http://example.com/cmr-stac/LARC/search?collections=C1288777589-LARC",
+      "href": "http://example.com/stac/LARC/search?collections=C1288777589-LARC",
       "title": "STAC Search this collection",
       "type": "application/json"
     },
@@ -32,7 +32,7 @@
     },
     {
       "rel": "items",
-      "href": "http://example.com/cmr-stac/LARC/collections/C1288777589-LARC/items",
+      "href": "http://example.com/stac/LARC/collections/C1288777589-LARC/items",
       "title": "Granules in this collection",
       "type": "application/json"
     },

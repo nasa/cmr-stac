@@ -43,13 +43,13 @@ describe('wfs routes', () => {
         description: 'All collections provided by LPDAAC',
         links: [
           {
-            href: 'http://example.com/cmr-stac/LPDAAC/collections',
+            href: 'http://example.com/stac/LPDAAC/collections',
             rel: 'self',
             title: 'All collections provided by LPDAAC',
             type: 'application/json'
           },
           {
-            href: 'http://example.com/cmr-stac/',
+            href: 'http://example.com/stac/',
             rel: 'root',
             title: 'CMR-STAC Root',
             type: 'application/json'
@@ -99,7 +99,7 @@ describe('wfs routes', () => {
           },
           {
             rel: 'root',
-            href: 'http://example.com/cmr-stac/'
+            href: 'http://example.com/stac/'
           }
         ],
         features: exampleData.stacGrans
@@ -119,7 +119,7 @@ describe('wfs routes', () => {
           },
           {
             rel: 'root',
-            href: 'http://example.com/cmr-stac/'
+            href: 'http://example.com/stac/'
           },
           {
             rel: 'prev',

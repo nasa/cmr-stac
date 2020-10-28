@@ -21,19 +21,19 @@ const expectedProviders = [
     title: 'provAShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/cmr-stac/provA'
+    href: 'http://example.com/stac/provA'
   },
   {
     title: 'provBShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/cmr-stac/provB'
+    href: 'http://example.com/stac/provB'
   },
   {
     title: 'provCShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/cmr-stac/provC'
+    href: 'http://example.com/stac/provC'
   }
 ];
 
@@ -52,7 +52,7 @@ describe('getProviders', () => {
       description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
       title: 'NASA CMR STAC Proxy',
       stac_version: settings.stac.version,
-      id: 'cmr-stac',
+      id: 'stac',
       links: expectedProviders
     });
   });
@@ -68,25 +68,25 @@ describe('getProvider', () => {
       links: [
         {
           rel: 'self',
-          href: 'http://example.com/cmr-stac/LARC_ASDC',
+          href: 'http://example.com/stac/LARC_ASDC',
           title: 'Root endpoint for this provider',
           type: 'application/json'
         },
         {
           rel: 'root',
-          href: 'http://example.com/cmr-stac/',
+          href: 'http://example.com/stac/',
           title: 'CMR-STAC Root',
           type: 'application/json'
         },
         {
           rel: 'collections',
-          href: 'http://example.com/cmr-stac/LARC_ASDC/collections',
+          href: 'http://example.com/stac/LARC_ASDC/collections',
           title: 'Collections for this provider',
           type: 'application/json'
         },
         {
           rel: 'search',
-          href: 'http://example.com/cmr-stac/LARC_ASDC/search',
+          href: 'http://example.com/stac/LARC_ASDC/search',
           title: 'STAC Search endpoint for this provider',
           type: 'application/json'
         }

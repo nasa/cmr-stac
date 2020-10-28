@@ -43,15 +43,15 @@ describe('generateAppUrl', () => {
   });
 
   it('should create a URL based on event input.', () => {
-    expect(generateAppUrl(event, path)).toBe('http://example.com/cmr-stac/path/to/resource');
+    expect(generateAppUrl(event, path)).toBe('http://example.com/stac/path/to/resource');
   });
 
   it('should create a URL based on event input with proper query params.', () => {
-    expect(generateAppUrl(event, path, params)).toBe('http://example.com/cmr-stac/path/to/resource?param=test');
+    expect(generateAppUrl(event, path, params)).toBe('http://example.com/stac/path/to/resource?param=test');
   });
 
   it('should create a secure url if event has secure protocol.', () => {
     event.headers['X-Forwarded-Proto'] = 'https';
-    expect(generateAppUrl(event, path)).toBe('https://example.com/cmr-stac/path/to/resource');
+    expect(generateAppUrl(event, path)).toBe('https://example.com/stac/path/to/resource');
   });
 });

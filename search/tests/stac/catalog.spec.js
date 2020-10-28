@@ -5,7 +5,7 @@ describe('createRootCatalog', () => {
   let rootCatalog;
 
   beforeEach(() => {
-    rootCatalog = createRootCatalog('/cmr-stac/stac');
+    rootCatalog = createRootCatalog('/stac/stac');
   });
 
   it('should contain a collection of links.', () => {
@@ -16,16 +16,16 @@ describe('createRootCatalog', () => {
   it('should create a catalog with a self link.', () => {
     const selfLink = rootCatalog.links.find((link) => link.rel === 'self');
     expect(selfLink).toBeDefined();
-    expect(selfLink.href).toBe('/cmr-stac/stac');
+    expect(selfLink.href).toBe('/stac/stac');
     expect(selfLink.type).toBe('application/json');
     expect(selfLink.title).toBe('Root Catalog');
   });
 
   it('should create a catalog with a self link that does not contain a question mark.', () => {
-    const newRootCatalog = createRootCatalog('/cmr-stac/stac?');
+    const newRootCatalog = createRootCatalog('/stac/stac?');
     const selfLink = newRootCatalog.links.find((link) => link.rel === 'self');
     expect(selfLink).toBeDefined();
-    expect(selfLink.href).toBe('/cmr-stac/stac');
+    expect(selfLink.href).toBe('/stac/stac');
     expect(selfLink.type).toBe('application/json');
     expect(selfLink.title).toBe('Root Catalog');
   });
@@ -57,15 +57,15 @@ describe('createRootCatalog', () => {
     rootCatalog.addChild('Default Catalog', '/default');
     const childLink = rootCatalog.links.find((link) => link.rel === 'child');
     expect(childLink).toBeDefined();
-    expect(childLink.href).toBe('/cmr-stac/stac/default');
+    expect(childLink.href).toBe('/stac/stac/default');
   });
 
   it('should be able to add a next rel to pagination links', () => {
-    rootCatalog = createRootCatalog('/cmr-stac/stac/provider');
+    rootCatalog = createRootCatalog('/stac/stac/provider');
     rootCatalog.addNext('Page 2', '/page/2');
     const paginationLink = rootCatalog.links.find(link => link.rel === 'next');
     expect(paginationLink).toBeDefined();
     expect(paginationLink.rel).toBe('next');
-    expect(paginationLink.href).toBe('/cmr-stac/stac/provider/page/2');
+    expect(paginationLink.href).toBe('/stac/stac/provider/page/2');
   });
 });

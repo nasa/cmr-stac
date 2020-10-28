@@ -12,7 +12,7 @@ provider:
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
 
 custom:
-  cmrStacRelativeRootUrl: /cmr-stac
+  cmrStacRelativeRootUrl: /stac
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
 

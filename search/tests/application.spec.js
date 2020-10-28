@@ -9,3 +9,10 @@ describe('application', () => {
     expect(application.handler({}, {})).toBeDefined();
   });
 });
+
+
+describe('url rewrite', () => {
+  it('should redirect and rewrite urls if the original route was provided', () => {
+
+  })
+})

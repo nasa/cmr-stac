@@ -57,23 +57,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176677-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176677-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -134,23 +134,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180610-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180610-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -211,23 +211,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180632-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180632-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -288,23 +288,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180519-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180519-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -365,23 +365,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176599-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176599-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -442,23 +442,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176788-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176788-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -519,23 +519,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180454-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180454-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -596,23 +596,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176581-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176581-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -673,23 +673,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180600-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266180600-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -750,23 +750,23 @@ describe('STAC API Extensions', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176594-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items/G1266176594-GES_DISC'
           },
           {
             rel: 'parent',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC/items'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC/items'
           },
           {
             rel: 'collection',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC/collections/C1237113465-GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC/collections/C1237113465-GES_DISC'
           },
           {
             rel: 'root',
-            href: 'http://localhost:3000/cmr-stac/'
+            href: 'http://localhost:3000/stac/'
           },
           {
             rel: 'provider',
-            href: 'http://localhost:3000/cmr-stac/GES_DISC'
+            href: 'http://localhost:3000/stac/GES_DISC'
           }
         ],
         properties: {
@@ -789,15 +789,15 @@ describe('STAC API Extensions', () => {
     links: [
       {
         rel: 'self',
-        href: 'http://localhost:3000/cmr-stac/GES_DISC/search'
+        href: 'http://localhost:3000/stac/GES_DISC/search'
       },
       {
         rel: 'root',
-        href: 'http://localhost:3000/cmr-stac/'
+        href: 'http://localhost:3000/stac/'
       },
       {
         rel: 'next',
-        href: 'http://localhost:3000/cmr-stac/GES_DISC/search?page_num=2'
+        href: 'http://localhost:3000/stac/GES_DISC/search?page_num=2'
       }
     ]
   };
