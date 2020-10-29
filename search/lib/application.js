@@ -9,15 +9,35 @@ const { logger } = require('./util');
 const settings = require('./settings');
 
 /**
+ * Update a URL path to change the first part of the path to a different
+ * value.
+ *
+ * @param path Original path
+ * @param alt Path root replacement
+ * @param allowedAliases List of allowed roots to re-write
+ * @example
+ *  rewritePathRoot("/cmr-stac/LPDAAC", "/stac") => "/stac/LPDAAC"
+ */
+const rewritePathRoot = (path, alt, allowedAliases) => {
+  const origRoot = '/' + path.split('/')[1];
+
+  let newPath = path;
+
+  if (allowedAliases.indexOf(origRoot) !== -1) {
+    newPath = path.replace(origRoot, alt);
+  }
+
+  return newPath;
+};
+
+/**
  * Express middleware for rewriting URLs to allow for redirects in AWS.
  */
 const urlRewriteMiddleware = (req, res, next) => {
-  const routeAliases = settings.cmrStacRouteAliases ? settings.cmrStacRouteAliases.split(',') : ['/cmr-stac'];
-  const reqUrlRoot = '/' + req.url.split('/')[1];
-
-  if (routeAliases.indexOf(reqUrlRoot) !== -1) {
-    req.url = req.url.replace(reqUrlRoot, settings.cmrStacRelativeRootUrl);
-  }
+  const routeAliases = settings.cmrStacRouteAliases
+                               .split(',')
+                               .map(s => s.trim());
+  req.url = rewritePathRoot(req.url, settings.cmrStacRelativeRootUrl, routeAliases);
   next();
 };
 
