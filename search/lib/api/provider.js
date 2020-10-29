@@ -55,7 +55,7 @@ async function getProviders (request, response) {
     };
   });
   const providerCatalog = {
-    id: 'cmr-stac',
+    id: 'stac',
     title: 'NASA CMR STAC Proxy',
     stac_version: settings.stac.version,
     description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',

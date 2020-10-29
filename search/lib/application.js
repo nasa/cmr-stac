@@ -8,6 +8,39 @@ const { errorHandler } = require('./error-handler');
 const { logger } = require('./util');
 const settings = require('./settings');
 
+/**
+ * Update a URL path to change the first part of the path to a different
+ * value.
+ *
+ * @param path Original path
+ * @param alt Path root replacement
+ * @param allowedAliases List of allowed roots to re-write
+ * @example
+ *  rewritePathRoot("/cmr-stac/LPDAAC", "/stac") => "/stac/LPDAAC"
+ */
+const rewritePathRoot = (path, alt, allowedAliases) => {
+  const origRoot = '/' + path.split('/')[1];
+
+  let newPath = path;
+
+  if (allowedAliases.indexOf(origRoot) !== -1) {
+    newPath = path.replace(origRoot, alt);
+  }
+
+  return newPath;
+};
+
+/**
+ * Express middleware for rewriting URLs to allow for redirects in AWS.
+ */
+const urlRewriteMiddleware = (req, res, next) => {
+  const routeAliases = settings.cmrStacRouteAliases
+                               .split(',')
+                               .map(s => s.trim());
+  req.url = rewritePathRoot(req.url, settings.cmrStacRelativeRootUrl, routeAliases);
+  next();
+};
+
 async function initialize () {
   logger.debug('Initialize Application');
 
@@ -15,6 +48,7 @@ async function initialize () {
 
   application.use(express.json());
   application.use(awsServerlessMiddleware.eventContext());
+  application.use(urlRewriteMiddleware);
   application.use(settings.cmrStacRelativeRootUrl, api.routes);
   application.use(cors());
   application.use(errorHandler);

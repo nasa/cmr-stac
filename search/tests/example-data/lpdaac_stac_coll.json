@@ -8,19 +8,19 @@
   "links": [
     {
       "rel": "self",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS/collections/C1299783579-LPDAAC_ECS",
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1299783579-LPDAAC_ECS",
       "title": "Info about this collection",
       "type": "application/json"
     },
     {
       "rel": "provider",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS",
+      "href": "http://example.com/stac/LPDAAC_ECS",
       "title": "Root for this provider",
       "type": "application/json"
     },
     {
       "rel": "stac",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS/search?collections=C1299783579-LPDAAC_ECS",
+      "href": "http://example.com/stac/LPDAAC_ECS/search?collections=C1299783579-LPDAAC_ECS",
       "title": "STAC Search this collection",
       "type": "application/json"
     },
@@ -32,7 +32,7 @@
     },
     {
       "rel": "items",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS/collections/C1299783579-LPDAAC_ECS/items",
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1299783579-LPDAAC_ECS/items",
       "title": "Granules in this collection",
       "type": "application/json"
     },

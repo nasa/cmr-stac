@@ -43,7 +43,7 @@ describe('STAC Search', () => {
       },
       {
         rel: 'root',
-        href: 'http://example.com/cmr-stac/'
+        href: 'http://example.com/stac/'
       }
     ]
   };

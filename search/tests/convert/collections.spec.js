@@ -82,11 +82,11 @@ describe('collections', () => {
     };
 
     it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID, collProvider)).toEqual('http://example.com/cmr-stac/LPDAAC/search?eo_cloud_cover=2&collections=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(event, collID, collProvider)).toEqual('http://example.com/stac/LPDAAC/search?eo_cloud_cover=2&collections=landsat-8-l1');
     });
 
     it('should return a search url with no params', () => {
-      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider)).toEqual('http://example.com/cmr-stac/LPDAAC/search?collections=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider)).toEqual('http://example.com/stac/LPDAAC/search?collections=landsat-8-l1');
     });
   });
 
@@ -159,17 +159,17 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/cmr-stac/LPDAAC/collections/id',
+            href: 'http://example.com/stac/LPDAAC/collections/id',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
             rel: 'provider',
-            href: 'http://example.com/cmr-stac/LPDAAC',
+            href: 'http://example.com/stac/LPDAAC',
             title: 'Root for this provider',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/LPDAAC/search?collections=id',
+            href: 'http://example.com/stac/LPDAAC/search?collections=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
@@ -179,7 +179,7 @@ describe('collections', () => {
             title: 'CMR Search this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/LPDAAC/collections/id/items',
+            href: 'http://example.com/stac/LPDAAC/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -234,17 +234,17 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/cmr-stac/LPDAAC/collections/id',
+            href: 'http://example.com/stac/LPDAAC/collections/id',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
             rel: 'provider',
-            href: 'http://example.com/cmr-stac/LPDAAC',
+            href: 'http://example.com/stac/LPDAAC',
             title: 'Root for this provider',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/LPDAAC/search?collections=id',
+            href: 'http://example.com/stac/LPDAAC/search?collections=id',
             rel: 'stac',
             title: 'STAC Search this collection',
             type: 'application/json'
@@ -254,7 +254,7 @@ describe('collections', () => {
             title: 'CMR Search this collection',
             type: 'application/json'
           }, {
-            href: 'http://example.com/cmr-stac/LPDAAC/collections/id/items',
+            href: 'http://example.com/stac/LPDAAC/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'

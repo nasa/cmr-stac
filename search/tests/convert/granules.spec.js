@@ -274,7 +274,7 @@ describe('granuleToItem', () => {
       time_end: '1',
       links: [
         {
-          href: 'http://example.com/cmr-stac/collections/id',
+          href: 'http://example.com/stac/collections/id',
           rel: 'self',
           title: 'Info about this collection',
           type: 'application/json'
@@ -284,7 +284,7 @@ describe('granuleToItem', () => {
       points: ['77,139']
     }];
 
-    const event = { headers: { Host: 'example.com' }, path: '/cmr-stac', queryStringParameters: [] };
+    const event = { headers: { Host: 'example.com' }, path: '/stac', queryStringParameters: [] };
 
     it('should return a CMR Granules search result to a FeatureCollection', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
@@ -313,34 +313,34 @@ describe('granuleToItem', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com/cmr-stac/USA/collections/10/items/1'
+              href: 'http://example.com/stac/USA/collections/10/items/1'
             },
             {
               rel: 'parent',
-              href: 'http://example.com/cmr-stac/USA/collections/10/items'
+              href: 'http://example.com/stac/USA/collections/10/items'
             },
             {
               rel: 'collection',
-              href: 'http://example.com/cmr-stac/USA/collections/10'
+              href: 'http://example.com/stac/USA/collections/10'
             },
             {
               rel: 'root',
-              href: 'http://example.com/cmr-stac/'
+              href: 'http://example.com/stac/'
             },
             {
               rel: 'provider',
-              href: 'http://example.com/cmr-stac/USA'
+              href: 'http://example.com/stac/USA'
             }
           ]
         }],
         links: [
           {
             rel: 'self',
-            href: 'http://example.com/cmr-stac'
+            href: 'http://example.com/stac'
           },
           {
             rel: 'root',
-            href: 'http://example.com/cmr-stac/'
+            href: 'http://example.com/stac/'
           }
         ]
       });

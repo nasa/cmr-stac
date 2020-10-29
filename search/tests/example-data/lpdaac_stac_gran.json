@@ -40,23 +40,23 @@
   "links": [
     {
       "rel": "self",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS/items/G1328420897-LPDAAC_ECS"
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS/items/G1328420897-LPDAAC_ECS"
     },
     {
       "rel": "parent",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS/items"
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS/items"
     },
     {
       "rel": "collection",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS"
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS"
     },
     {
       "rel": "root",
-      "href": "http://example.com/cmr-stac/"
+      "href": "http://example.com/stac/"
     },
     {
       "rel": "provider",
-      "href": "http://example.com/cmr-stac/LPDAAC_ECS"
+      "href": "http://example.com/stac/LPDAAC_ECS"
     }
   ],
   "properties": {
