@@ -44,7 +44,7 @@
     },
     {
       "rel": "parent",
-      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS/items"
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS"
     },
     {
       "rel": "collection",
