@@ -70,7 +70,7 @@ function createLinks (event, cmrCollection) {
   return [
     wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${id}`),
       'Info about this collection'),
-    wfs.createLink('root', generateAppUrl(event, ""),
+    wfs.createLink('root', generateAppUrl(event, ''),
       'Root catalog'),
     wfs.createLink('parent', generateAppUrl(event, `/${provider}`),
       'Parent catalog'),
