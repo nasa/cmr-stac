@@ -35,8 +35,8 @@ const rewritePathRoot = (path, alt, allowedAliases) => {
  */
 const urlRewriteMiddleware = (req, res, next) => {
   const routeAliases = settings.cmrStacRouteAliases
-                               .split(',')
-                               .map(s => s.trim());
+    .split(',')
+    .map(s => s.trim());
   req.url = rewritePathRoot(req.url, settings.cmrStacRelativeRootUrl, routeAliases);
   next();
 };

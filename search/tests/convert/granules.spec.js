@@ -317,7 +317,7 @@ describe('granuleToItem', () => {
             },
             {
               rel: 'parent',
-              href: 'http://example.com/stac/USA/collections/10/items'
+              href: 'http://example.com/stac/USA/collections/10'
             },
             {
               rel: 'collection',
