@@ -44,7 +44,7 @@
     },
     {
       "rel": "parent",
-      "href": "http://example.com/stac/LANCEMODIS/collections/C1426617060-LANCEMODIS/items"
+      "href": "http://example.com/stac/LANCEMODIS/collections/C1426617060-LANCEMODIS"
     },
     {
       "rel": "collection",

@@ -164,9 +164,14 @@ describe('collections', () => {
             title: 'Info about this collection',
             type: 'application/json'
           }, {
-            rel: 'provider',
+            rel: 'root',
+            href: 'http://example.com/stac',
+            title: 'Root catalog',
+            type: 'application/json'
+          }, {
+            rel: 'parent',
             href: 'http://example.com/stac/LPDAAC',
-            title: 'Root for this provider',
+            title: 'Parent catalog',
             type: 'application/json'
           }, {
             href: 'http://example.com/stac/LPDAAC/search?collections=id',
@@ -239,9 +244,14 @@ describe('collections', () => {
             title: 'Info about this collection',
             type: 'application/json'
           }, {
-            rel: 'provider',
+            rel: 'root',
+            href: 'http://example.com/stac',
+            title: 'Root catalog',
+            type: 'application/json'
+          }, {
+            rel: 'parent',
             href: 'http://example.com/stac/LPDAAC',
-            title: 'Root for this provider',
+            title: 'Parent catalog',
             type: 'application/json'
           }, {
             href: 'http://example.com/stac/LPDAAC/search?collections=id',

@@ -211,7 +211,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
       },
       {
         rel: 'parent',
-        href: generateAppUrl(event, `/${cmrGran.data_center}/collections/${cmrGran.collection_concept_id}/items`)
+        href: generateAppUrl(event, `/${cmrGran.data_center}/collections/${cmrGran.collection_concept_id}`)
       },
       {
         rel: 'collection',
