@@ -4,14 +4,18 @@ const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 const cmr = require('../cmr');
 
-function convertProvider (event, provider) {
-  const providerId = provider['provider-id'];
-  return {
-    id: providerId,
-    title: provider['short-name'],
-    description: `Root catalog for ${providerId}`,
-    stac_version: settings.stac.version,
-    links: [
+async function getProvider (request, response) {
+  try {
+    const providerId = request.params.providerId;
+    logger.info(`GET /${providerId}`);
+    const event = request.apiGateway.event;
+
+    // validate that providerId is valid
+    const providerList = await cmr.getProviders();
+    const isProvider = providerList.filter(providerObj => providerObj['provider-id'] === providerId);
+    if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
+
+    const links = [
       wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
         'Provider catalog'),
       wfs.createLink('root', generateAppUrl(event, '/'),
@@ -20,22 +24,22 @@ function convertProvider (event, provider) {
         'Provider Collections'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
         'Provider Item Search')
-    ]
-  };
-}
+    ];
 
-async function getProvider (request, response) {
-  try {
-    const providerId = request.params.providerId;
-    logger.info(`GET /${providerId}`);
-    const event = request.apiGateway.event;
-    const providerList = await cmr.getProviders();
-    const isProvider = providerList.filter(providerObj => providerObj['provider-id'] === providerId);
-    if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
-    const provider = convertProvider(event, {
-      'provider-id': providerId,
-      'short-name': providerId
+    const childLinks = (await cmr.getProvider(providerId)).map((collection) => {
+      return wfs.createLink(
+        'child',
+        generateAppUrl(event, `/${providerId}/collections/${collection['concept-id']}`),
+        collection['entry-title']);
     });
+
+    const provider = {
+      id: providerId,
+      title: providerId,
+      description: `Root catalog for ${providerId}`,
+      stac_version: settings.stac.version,
+      links: [...links, ...childLinks]
+    };
     await assertValid(schemas.catalog, provider);
     response.status(200).json(provider);
   } catch (e) {
@@ -46,12 +50,11 @@ async function getProvider (request, response) {
 async function getProviders (request, response) {
   const event = request.apiGateway.event;
   const providerObjects = (await cmr.getProviders()).map((provider) => {
-    const prov = convertProvider(event, provider);
     return {
-      title: prov.title,
+      title: provider['short-name'],
       rel: 'child',
       type: 'application/json',
-      href: prov.links[0].href
+      href: generateAppUrl(event, `/${provider['provider-id']}`)
     };
   });
   const providerCatalog = {
