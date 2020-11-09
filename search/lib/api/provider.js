@@ -13,13 +13,13 @@ function convertProvider (event, provider) {
     stac_version: settings.stac.version,
     links: [
       wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
-        'Root endpoint for this provider'),
+        'Provider catalog'),
       wfs.createLink('root', generateAppUrl(event, '/'),
-        'CMR-STAC Root'),
+        'CMR-STAC Root catalog'),
       wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
-        'Collections for this provider'),
+        'Provider Collections'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
-        'STAC Search endpoint for this provider')
+        'Provider Item Search')
     ]
   };
 }
