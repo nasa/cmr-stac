@@ -61,44 +61,46 @@ describe('getProviders', () => {
 describe('getProvider', () => {
   it('should return a provider json object', async () => {
     const expectedResponse = {
-      id: 'LARC_ASDC',
-      title: 'LARC_ASDC',
-      description: 'Root catalog for LARC_ASDC',
+      id: 'USGS_EROS',
+      title: 'USGS_EROS',
+      description: 'Root catalog for USGS_EROS',
       stac_version: settings.stac.version,
       links: [
         {
           rel: 'self',
-          href: 'http://example.com/stac/LARC_ASDC',
-          title: 'Root endpoint for this provider',
+          href: 'http://example.com/stac/USGS_EROS',
+          title: 'Provider catalog',
           type: 'application/json'
         },
         {
           rel: 'root',
           href: 'http://example.com/stac/',
-          title: 'CMR-STAC Root',
+          title: 'CMR-STAC Root catalog',
           type: 'application/json'
         },
         {
           rel: 'collections',
-          href: 'http://example.com/stac/LARC_ASDC/collections',
-          title: 'Collections for this provider',
+          href: 'http://example.com/stac/USGS_EROS/collections',
+          title: 'Provider Collections',
           type: 'application/json'
         },
         {
           rel: 'search',
-          href: 'http://example.com/stac/LARC_ASDC/search',
-          title: 'STAC Search endpoint for this provider',
+          href: 'http://example.com/stac/USGS_EROS/search',
+          title: 'Provider Item Search',
           type: 'application/json'
         }
       ]
     };
     const request = createRequest({
       params: {
-        providerId: 'LARC_ASDC'
+        providerId: 'USGS_EROS'
       }
     });
     const response = createMockResponse();
     await getProvider(request, response);
+    const dat = response.getData();
+    dat.json.links = dat.json.links.slice(0, 4);
     response.expect(expectedResponse);
   });
 });

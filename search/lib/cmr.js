@@ -41,7 +41,7 @@ const headers = {
 
 async function cmrSearch (url, params) {
   if (!url || !params) throw new Error('Missing url or parameters');
-  logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
+  logger.info(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
   return axios.get(url, { params, headers });
 }
 
@@ -66,6 +66,16 @@ async function findGranules (params = {}) {
 
 async function findGranulesUmm (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
+  return response.data;
+}
+
+async function getProvider (providerId) {
+  const url = UrlBuilder.create()
+    .withProtocol(settings.cmrSearchProtocol)
+    .withHost(`${settings.cmrSearchHost}/provider_holdings.json`)
+    .withQuery({ providerId })
+    .build();
+  const response = await axios.get(url);
   return response.data;
 }
 
@@ -126,5 +136,6 @@ module.exports = {
   getCollection,
   convertParams,
   fromEntries,
+  getProvider,
   getProviders
 };
