@@ -68,4 +68,23 @@ describe('createRootCatalog', () => {
     expect(paginationLink.rel).toBe('next');
     expect(paginationLink.href).toBe('/stac/stac/provider/page/2');
   });
+
+  it('should be able to add a parent catalog.', () => {
+    rootCatalog.createParent('/stac');
+    const parentLink = rootCatalog.links.find((link) => link.rel === 'parent');
+    expect(parentLink).toBeDefined();
+    console.log(parentLink);
+    expect(parentLink.href).toBe('/stac');
+    expect(parentLink.rel).toBe('parent');
+    expect(parentLink.title).toBe('Parent Catalog');
+  });
+
+  it('should be able to add an item.', () => {
+    rootCatalog.addItem('stac item', 'provider', 'collection', 'id');
+    const itemLink = rootCatalog.links.find((link) => link.rel === 'item');
+    expect(itemLink).toBeDefined();
+    expect(itemLink.href).toBe('/stac/stac/provider/collections/collection/items/id');
+    expect(itemLink.rel).toBe('item');
+    expect(itemLink.title).toBe('stac item');
+  });
 });

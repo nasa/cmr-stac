@@ -20,10 +20,20 @@ class Catalog {
     this.links.push(link.createRoot('Root Catalog', href));
   }
 
+  createParent (href) {
+    this.links.push(link.createParent('Parent Catalog', href));
+  }
+
   addChild (title, relativeUrl) {
     const root = this.links.find((l) => l.rel === link.RELATION_TYPES.self);
     const child = link.createChild(title, `${root.href}${relativeUrl}`);
     this.links.push(child);
+  }
+
+  addItem (title, providerId, colId, id) {
+    const root = this.links.find((l) => l.rel === link.RELATION_TYPES.root);
+    const item = link.createItem(title, `${root.href}/${providerId}/collections/${colId}/items/${id}`);
+    this.links.push(item);
   }
 
   addNext (title, relativeUrl) {
