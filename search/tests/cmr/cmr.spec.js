@@ -8,7 +8,9 @@ const {
   findGranules,
   getCollection,
   convertParams,
-  fromEntries
+  fromEntries,
+  getFacetParams,
+  getGranuleTemporalFacets
 } = require('../../lib/cmr');
 
 describe('cmr', () => {
@@ -147,6 +149,10 @@ describe('cmr', () => {
         axios.get.mockResolvedValue(cmrResponse);
       });
 
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
       it('should return a collection', async () => {
         const result = await getCollection(10, 'some-provider');
         expect(axios.get.mock.calls.length).toBe(1);
@@ -166,6 +172,10 @@ describe('cmr', () => {
         axios.get = jest.fn();
         const cmrResponse = { data: { feed: { entry: [] } } };
         axios.get.mockResolvedValue(cmrResponse);
+      });
+
+      afterEach(() => {
+        jest.restoreAllMocks();
       });
 
       it('should return null', async () => {
@@ -235,6 +245,86 @@ describe('cmr', () => {
         };
         const result = convertParams(STAC_QUERY_PARAMS_CONVERSION_MAP, params);
         expect(result).toEqual({ limit: 10 });
+      });
+    });
+  });
+
+  describe('facets', () => {
+    const cmrParams = {
+      collection_concept_id: 'C1379757686-USGS_EROS',
+      provider: 'USGS_EROS'
+    };
+
+    describe('getFacetParams', () => {
+      it('should have 2 params', () => {
+        const params = getFacetParams();
+        expect(Object.keys(params).length).toEqual(2);
+        expect(params.page_size).toEqual(0);
+        expect(params.include_facets).toEqual('v2');
+      });
+      it('should respect year arg', () => {
+        const params = getFacetParams('2000');
+        expect(params['temporal_facet[0][year]']).toEqual('2000');
+      });
+      it('should respect month arg', () => {
+        const params = getFacetParams('2000', '05');
+        expect(params['temporal_facet[0][year]']).toEqual('2000');
+        expect(params['temporal_facet[0][month]']).toEqual('05');
+      });
+      it('should respect day arg', () => {
+        const params = getFacetParams('2000', '05', '20');
+        expect(params['temporal_facet[0][year]']).toEqual('2000');
+        expect(params['temporal_facet[0][month]']).toEqual('05');
+        expect(params['temporal_facet[0][day]']).toEqual('20');
+      });
+    });
+
+    describe('getGranuleTemporalFacets', () => {
+      beforeEach(() => {
+        axios.get = jest.fn();
+        const resp = { data: { feed: { facets: { children: [{
+          title: 'Temporal',
+          children: [{
+            title: 'Year',
+            children: [
+              {
+                title: '2001',
+                children: [{
+                  title: 'Month',
+                  children: [
+                    {
+                      title: '05',
+                      children: [{
+                        title: 'Day',
+                        children: [{ title: '20' }, { title: '22' }, { title: '23' }]
+                      }]
+                    },
+                    { title: '06' }
+                  ]
+                }]
+              },
+              { title: '2002' }
+            ]
+          }]
+        }] } } } };
+        axios.get.mockResolvedValue(resp);
+      });
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it('should return year facets', async () => {
+        const facets = await getGranuleTemporalFacets(cmrParams);
+        expect(Object.keys(facets['years']).length).toEqual(2);
+      });
+      it('should return month facets', async () => {
+        const facets = await getGranuleTemporalFacets(cmrParams, '2001');
+        expect(Object.keys(facets['months']).length).toEqual(2);
+      });
+      it('should return day facets', async () => {
+        const facets = await getGranuleTemporalFacets(cmrParams, '2001', '05');
+        expect(Object.keys(facets['days']).length).toEqual(3);
       });
     });
   });
