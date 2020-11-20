@@ -73,6 +73,11 @@ async function getCollection (request, response) {
     const collection = await cmr.getCollection(conceptId, providerId);
     if (isNull(collection)) throw new NotFoundError(`Collection [${conceptId}] not found for provider [${providerId}]`);
     const collectionResponse = convert.cmrCollToWFSColl(event, collection);
+    // add browse links
+    if (process.env.BROWSE_PATH) {
+      const browseLinks = await convert.createBrowseLinks(event, providerId, conceptId);
+      collectionResponse.links = collectionResponse.links.concat(browseLinks);
+    }
     await assertValid(schemas.collection, collectionResponse);
     response.status(200).json(collectionResponse);
   } catch (error) {

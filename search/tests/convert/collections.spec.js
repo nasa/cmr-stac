@@ -2,8 +2,10 @@ const {
   cmrCollSpatialToExtents,
   stacSearchWithCurrentParams,
   cmrGranuleSearchWithCurrentParams,
-  cmrCollToWFSColl
+  cmrCollToWFSColl,
+  createBrowseLinks
 } = require('../../lib/convert/collections');
+const axios = require('axios');
 const { WHOLE_WORLD_BBOX } = require('../../lib/convert');
 const settings = require('../../lib/settings');
 
@@ -111,6 +113,28 @@ describe('collections', () => {
   });
 
   describe('cmrCollToWFSCol', () => {
+    beforeEach(() => {
+      axios.get = jest.fn();
+      const resp = { data: { feed: { facets: { children: [{
+        title: 'Temporal',
+        children: [{
+          title: 'Year',
+          children: [
+            { title: '2001' },
+            { title: '2002' },
+            { title: '2003' },
+            { title: '2004' },
+            { title: '2005' }
+          ]
+        }]
+      }] } } } };
+      axios.get.mockResolvedValue(resp);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
     const cmrColl = {
       id: 'id',
       license: 'Apache-2.0',
@@ -290,6 +314,14 @@ describe('collections', () => {
         short_name: 'id-LPDAAC',
         stac_version: settings.stac.version,
         license: 'not-provided'
+      });
+    });
+
+    it('should return browse links', async () => {
+      const links = await createBrowseLinks(event, cmrColl.data_center, cmrColl.dataset_id);
+      expect(links.length).toEqual(5);
+      [1, 2, 3, 4, 5].forEach(x => {
+        expect(links[x - 1].href).toEqual(`http://example.com/stac/LPDAAC/collections/datasetId/200${x}`);
       });
     });
   });
