@@ -157,7 +157,7 @@ describe('wfs routes', () => {
       await getCatalog(request, response);
       const cat = response.getData().json;
       expect(cat.links.length).toEqual(5);
-      expect(cat.id).toEqual('2001');
+      expect(cat.id).toEqual('1-2001');
     });
 
     it('should return Days catalog given a Month catalog', async () => {
@@ -167,7 +167,7 @@ describe('wfs routes', () => {
       await getCatalog(request, response);
       const cat = response.getData().json;
       expect(cat.links.length).toEqual(5);
-      expect(cat.id).toEqual('2001/05');
+      expect(cat.id).toEqual('1-2001-05');
     });
 
     it('should return Item catalog given a Day catalog', async () => {
@@ -177,7 +177,7 @@ describe('wfs routes', () => {
       await getCatalog(request, response);
       const cat = response.getData().json;
       expect(cat.links.length).toEqual(4);
-      expect(cat.id).toEqual('2001/05/20');
+      expect(cat.id).toEqual('1-2001-05-20');
     });
   });
 });
