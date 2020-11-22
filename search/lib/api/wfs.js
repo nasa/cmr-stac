@@ -156,12 +156,16 @@ async function getCatalog (request, response) {
   );
   logger.debug(`browseParams = ${inspect(browseParams)}`);
 
+  const provider = request.params.providerId
+  const collection = request.params.collectionId
+
   // create catalog
+  const date = request.params['0'].replace(/\//g, '-');
   const cat = new Catalog();
   cat.stac_version = settings.stac.version;
-  cat.id = request.params['0'];
-  cat.title = `${request.params['0']} Catalog`;
-  cat.description = `Sub-catalog for ${JSON.stringify(browseParams)}`;
+  cat.id = `${collection}-${date}`
+  cat.title = `${collection} ${date}`;
+  cat.description = `${provider} sub-catalog for ${date}`;
 
   // get path from event
   const event = request.apiGateway.event;
@@ -173,9 +177,8 @@ async function getCatalog (request, response) {
   cat.createParent(selfUrl.slice(0, selfUrl.lastIndexOf('/')));
 
   const granParams = {
-    collection_concept_id: request.params.collectionId,
-    provider: request.params.providerId,
-    concept_id: request.params.itemId
+    collection_concept_id: collection,
+    provider
   };
   const { year, month, day } = browseParams;
   const facets = await cmr.getGranuleTemporalFacets(granParams, year, month, day);
