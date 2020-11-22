@@ -149,21 +149,21 @@ async function getCatalog (request, response) {
   logger.debug(`browseTemplate = ${inspect(browseTemplate)}`);
   logger.debug(`params = ${inspect(params)}`);
   logger.debug(params.map((val, idx) => [browseTemplate[idx], val]));
-  // defining fromEntires can be removed if Node updated to 12
+  // defining fromEntries can be removed if Node updated to 12
   Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
   const browseParams = Object.fromEntries(
     params.map((val, idx) => [browseTemplate[idx], val])
   );
   logger.debug(`browseParams = ${inspect(browseParams)}`);
 
-  const provider = request.params.providerId
-  const collection = request.params.collectionId
+  const provider = request.params.providerId;
+  const collection = request.params.collectionId;
 
   // create catalog
   const date = request.params['0'].replace(/\//g, '-');
   const cat = new Catalog();
   cat.stac_version = settings.stac.version;
-  cat.id = `${collection}-${date}`
+  cat.id = `${collection}-${date}`;
   cat.title = `${collection} ${date}`;
   cat.description = `${provider} sub-catalog for ${date}`;
 
