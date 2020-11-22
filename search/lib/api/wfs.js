@@ -5,6 +5,7 @@ const cmr = require('../cmr');
 const convert = require('../convert');
 const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
+const { inspect } = require('util');
 
 class NotFoundError extends Error { }
 
@@ -139,11 +140,64 @@ const CONFORMANCE_RESPONSE = {
   ]
 };
 
+const { Catalog } = require('../stac/catalog');
+
+async function getCatalog (request, response) {
+  // create parameter dictionary from browse_path_template and provided values
+  const browseTemplate = process.env.BROWSE_PATH.split('/');
+  const params = request.params['0'].split('/');
+  logger.debug(`browseTemplate = ${inspect(browseTemplate)}`);
+  logger.debug(`params = ${inspect(params)}`);
+  logger.debug(params.map((val, idx) => [browseTemplate[idx], val]));
+  // defining fromEntires can be removed if Node updated to 12
+  Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
+  const browseParams = Object.fromEntries(
+    params.map((val, idx) => [browseTemplate[idx], val])
+  );
+  logger.debug(`browseParams = ${inspect(browseParams)}`);
+
+  // create catalog
+  const cat = new Catalog();
+  cat.stac_version = settings.stac.version;
+  cat.id = request.params['0'];
+  cat.title = `${request.params['0']} Catalog`;
+  cat.description = `Sub-catalog for ${JSON.stringify(browseParams)}`;
+
+  // get path from event
+  const event = request.apiGateway.event;
+  const path = event.path.replace(/^(\/stac)/, '');
+  // add links
+  cat.createRoot(generateAppUrl(event, ''));
+  const selfUrl = generateAppUrl(event, path);
+  cat.createSelf(selfUrl);
+  cat.createParent(selfUrl.slice(0, selfUrl.lastIndexOf('/')));
+
+  const granParams = {
+    collection_concept_id: request.params.collectionId,
+    provider: request.params.providerId,
+    concept_id: request.params.itemId
+  };
+  const { year, month, day } = browseParams;
+  const facets = await cmr.getGranuleTemporalFacets(granParams, year, month, day);
+  if (day) {
+    facets.itemids.forEach(id => cat.addItem(id, granParams.provider, granParams.collection_concept_id, id));
+  } else if (month) {
+    facets.days.forEach(d => cat.addChild(`${year}-${month}-${d} catalog`, `/${d}`));
+  } else if (year) {
+    facets.months.forEach(m => cat.addChild(`${year}-${m} catalog`, `/${m}`));
+  }
+
+  response.status(200).json(cat);
+}
+
 const routes = express.Router();
 routes.get('/:providerId/collections', makeAsyncHandler(getCollections));
 routes.get('/:providerId/collections/:collectionId', makeAsyncHandler(getCollection));
 routes.get('/:providerId/collections/:collectionId/items', makeAsyncHandler(getGranules));
 routes.get('/:providerId/collections/:collectionId/items/:itemId', makeAsyncHandler(getGranule));
+if (process.env.BROWSE_PATH !== undefined) {
+  routes.get('/:providerId/collections/:collectionId/*', makeAsyncHandler(getCatalog));
+}
 routes.get('/conformance', (req, res) => res.status(200).json(CONFORMANCE_RESPONSE));
 
 module.exports = {
@@ -151,5 +205,6 @@ module.exports = {
   getCollection,
   getGranules,
   getGranule,
+  getCatalog,
   routes
 };
