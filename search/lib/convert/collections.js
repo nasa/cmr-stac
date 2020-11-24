@@ -79,23 +79,23 @@ function createLinks (event, cmrCollection) {
 
   const links = [
     wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${id}`),
-                   'Info about this collection'),
+      'Info about this collection'),
     wfs.createLink('root', generateAppUrl(event, ''),
-                   'Root catalog'),
+      'Root catalog'),
     wfs.createLink('parent', generateAppUrl(event, `/${provider}`),
-                   'Parent catalog'),
+      'Parent catalog'),
     wfs.createLink('stac', stacSearchWithCurrentParams(event, id, provider),
-                   'STAC Search this collection'),
+      'STAC Search this collection'),
     wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, id),
-                   'CMR Search this collection'),
+      'CMR Search this collection'),
     wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${id}/items`),
-                   'Granules in this collection'),
+      'Granules in this collection'),
     wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${id}.html`),
-                   'HTML metadata for collection'),
+      'HTML metadata for collection'),
     wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.native`),
-                   'Native metadata for collection'),
+      'Native metadata for collection'),
     wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.umm_json`),
-                   'JSON metadata for collection')
+      'JSON metadata for collection')
   ];
   return links;
 }

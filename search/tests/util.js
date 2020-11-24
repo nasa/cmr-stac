@@ -46,8 +46,10 @@ function createMockResponse (statusCode = 200) {
     },
     getData: () => data,
     expect: (expectedData) => {
-      expect(data)
-        .toHaveProperty('json', expectedData);
+      expect(data).toHaveProperty('json', expectedData);
+      if (statusCode !== 200) {
+        expect(data).toHaveProperty('status', statusCode);
+      }
     }
   };
   return mockResp;
