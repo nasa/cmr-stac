@@ -2,5 +2,8 @@
   "extends": "semistandard",
   "env": {
     "jest": true
+  },
+  "rules": {
+    "max-len": ["warn", 100]
   }
 }

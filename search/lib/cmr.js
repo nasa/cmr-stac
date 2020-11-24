@@ -69,6 +69,58 @@ async function findGranulesUmm (params = {}) {
   return response.data;
 }
 
+function getFacetParams (year, month, day) {
+  // add temporal facet specific paramters
+  const facetParams = {
+    include_facets: 'v2',
+    page_size: 0
+  };
+  if (year) {
+    facetParams[`temporal_facet[0][year]`] = year;
+  }
+  if (month) {
+    facetParams[`temporal_facet[0][month]`] = month;
+  }
+  if (day) {
+    facetParams[`temporal_facet[0][day]`] = day;
+    facetParams.page_size = 1000;
+  }
+  return facetParams;
+}
+
+async function getGranuleTemporalFacets (params = {}, year, month, day) {
+  const cmrParams = Object.assign(params, getFacetParams(year, month, day));
+
+  const facets = {};
+  const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), cmrParams);
+  const temporalFacets = response.data.feed.facets.children.find(f => f.title === 'Temporal');
+  // always a year facet
+  const yearFacet = temporalFacets.children.find(f => f.title === 'Year');
+  const years = yearFacet.children.map(y => y.title);
+  facets.years = years;
+  if (year) {
+    // if year provided, get months
+    const monthFacet = yearFacet
+      .children.find(y => y.title === year)
+      .children.find(y => y.title === 'Month');
+    const months = monthFacet.children.map(y => y.title);
+    facets.months = months;
+    if (month) {
+      // if month also provided, get days
+      const days = monthFacet
+        .children.find(y => y.title === month)
+        .children.find(y => y.title === 'Day')
+        .children.map(y => y.title);
+      facets.days = days;
+    }
+    if (day) {
+      const itemids = response.data.feed.entry.map(i => i.id);
+      facets.itemids = itemids;
+    }
+  }
+  return facets;
+}
+
 async function getProvider (providerId) {
   const url = UrlBuilder.create()
     .withProtocol(settings.cmrSearchProtocol)
@@ -133,6 +185,8 @@ module.exports = {
   findCollections,
   findGranules,
   findGranulesUmm,
+  getFacetParams,
+  getGranuleTemporalFacets,
   getCollection,
   convertParams,
   fromEntries,

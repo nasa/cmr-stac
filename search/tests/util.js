@@ -33,7 +33,7 @@ function revertFunction (obj, name) {
   return obj;
 }
 
-function createMockResponse () {
+function createMockResponse (statusCode = 200) {
   const data = {};
   const mockResp = {
     status: (v) => {
@@ -46,10 +46,10 @@ function createMockResponse () {
     },
     getData: () => data,
     expect: (expectedData) => {
-      expect(data).toEqual({
-        status: 200,
-        json: expectedData
-      });
+      expect(data).toHaveProperty('json', expectedData);
+      if (statusCode !== 200) {
+        expect(data).toHaveProperty('status', statusCode);
+      }
     }
   };
   return mockResp;

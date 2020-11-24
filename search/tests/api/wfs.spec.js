@@ -1,13 +1,28 @@
 const settings = require('../../lib/settings');
-const { mockFunction, revertFunction, createMockResponse, createRequest } = require('../util');
+const {
+  mockFunction,
+  revertFunction,
+  createMockResponse,
+  createRequest } = require('../util');
 const cmr = require('../../lib/cmr');
 const exampleData = require('../example-data');
 const {
   getCollections,
   getCollection,
   getGranules,
-  getGranule
+  getGranule,
+  getCatalog
 } = require('../../lib/api/wfs');
+const { logger } = require('../../lib/util');
+
+const origLogLevel = logger.level;
+beforeAll(() => {
+  logger.level = 'error';
+});
+
+afterAll(() => {
+  logger.level = origLogLevel;
+});
 
 describe('wfs routes', () => {
   let request, response;
@@ -25,6 +40,9 @@ describe('wfs routes', () => {
     mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
     mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: exampleData.cmrGrans.length }));
     mockFunction(cmr, 'findGranulesUmm', Promise.resolve(exampleData.cmrGransUmm));
+    mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
+    mockFunction(cmr, 'getGranuleTemporalFacets',
+      { years: ['2001', '2002'], months: ['05', '06'], days: ['20', '21'], itemids: ['test1'] });
   });
 
   afterEach(() => {
@@ -32,6 +50,8 @@ describe('wfs routes', () => {
     revertFunction(cmr, 'getCollection');
     revertFunction(cmr, 'findGranules');
     revertFunction(cmr, 'findGranulesUmm');
+    revertFunction(cmr, 'getCatalog');
+    revertFunction(cmr, 'getGranuleTemporalFacets');
   });
 
   describe('getCollections', () => {
@@ -135,6 +155,43 @@ describe('wfs routes', () => {
     it('should generate an item response.', async () => {
       await getGranule(request, response);
       response.expect(exampleData.stacGrans[0]);
+    });
+  });
+
+  describe('getCatalog', () => {
+    beforeEach(() => {
+      process.env.BROWSE_PATH = 'year/month/day';
+      request.apiGateway = { event: { headers: { Host: 'example.com' }, queryStringParameters: [] } };
+    });
+
+    it('should return Months catalog given a year catalog', async () => {
+      request.params['0'] = '2001';
+      // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+      request.apiGateway.event.path = '/2001';
+      await getCatalog(request, response);
+      const cat = response.getData().json;
+      expect(cat.links.length).toEqual(5);
+      expect(cat.id).toEqual('1-2001');
+    });
+
+    it('should return Days catalog given a Month catalog', async () => {
+      request.params['0'] = '2001/05';
+      // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+      request.apiGateway.event.path = '/2001/05';
+      await getCatalog(request, response);
+      const cat = response.getData().json;
+      expect(cat.links.length).toEqual(5);
+      expect(cat.id).toEqual('1-2001-05');
+    });
+
+    it('should return Item catalog given a Day catalog', async () => {
+      request.params['0'] = '2001/05/20';
+      // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+      request.apiGateway.event.path = '/2001/05/20';
+      await getCatalog(request, response);
+      const cat = response.getData().json;
+      expect(cat.links.length).toEqual(4);
+      expect(cat.id).toEqual('1-2001-05-20');
     });
   });
 });

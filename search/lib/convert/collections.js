@@ -1,7 +1,13 @@
 const cmr = require('../cmr');
 const settings = require('../settings');
 const { wfs, generateAppUrl } = require('../util');
-const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
+const {
+  WHOLE_WORLD_BBOX,
+  pointStringToPoints,
+  parseOrdinateString,
+  addPointsToBbox,
+  mergeBoxes,
+  reorderBoxValues } = require('./bounding-box');
 
 function cmrCollSpatialToExtents (cmrColl) {
   let bbox = null;
@@ -22,7 +28,10 @@ function cmrCollSpatialToExtents (cmrColl) {
     return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   }
   if (cmrColl.boxes) {
-    bbox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr))), bbox);
+    bbox = cmrColl.boxes
+      .reduce((box, boxStr) => {
+        return mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr)));
+      }, bbox);
   }
   if (bbox === null) {
     // whole world bbox
@@ -67,7 +76,8 @@ function createExtent (cmrCollection) {
 function createLinks (event, cmrCollection) {
   const id = cmrCollection.id;
   const provider = cmrCollection.data_center;
-  return [
+
+  const links = [
     wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${id}`),
       'Info about this collection'),
     wfs.createLink('root', generateAppUrl(event, ''),
@@ -87,11 +97,25 @@ function createLinks (event, cmrCollection) {
     wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.umm_json`),
       'JSON metadata for collection')
   ];
+  return links;
+}
+
+async function createBrowseLinks (event, provider, colid) {
+  // get all child years
+  const facets = await cmr.getGranuleTemporalFacets({
+    collection_concept_id: colid, provider
+  });
+  const path = `/${provider}/collections/${colid}`;
+  // create catalog link for each year
+  const links = facets.years.map(y =>
+    wfs.createLink('child', generateAppUrl(event, `${path}/${y}`), `${y} catalog`)
+  );
+  return links;
 }
 
 function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return [];
-  return {
+  const collection = {
     id: cmrCollection.id,
     short_name: cmrCollection.short_name,
     stac_version: settings.stac.version,
@@ -101,11 +125,13 @@ function cmrCollToWFSColl (event, cmrCollection) {
     links: createLinks(event, cmrCollection),
     extent: createExtent(cmrCollection)
   };
+  return collection;
 }
 
 module.exports = {
   cmrCollSpatialToExtents,
   stacSearchWithCurrentParams,
   cmrGranuleSearchWithCurrentParams,
+  createBrowseLinks,
   cmrCollToWFSColl
 };
