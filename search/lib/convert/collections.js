@@ -1,8 +1,13 @@
 const cmr = require('../cmr');
 const settings = require('../settings');
 const { wfs, generateAppUrl } = require('../util');
-// const logger = require('../util/logger');
-const { WHOLE_WORLD_BBOX, pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
+const {
+  WHOLE_WORLD_BBOX,
+  pointStringToPoints,
+  parseOrdinateString,
+  addPointsToBbox,
+  mergeBoxes,
+  reorderBoxValues } = require('./bounding-box');
 
 function cmrCollSpatialToExtents (cmrColl) {
   let bbox = null;
@@ -23,7 +28,10 @@ function cmrCollSpatialToExtents (cmrColl) {
     return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   }
   if (cmrColl.boxes) {
-    bbox = cmrColl.boxes.reduce((box, boxStr) => mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr))), bbox);
+    bbox = cmrColl.boxes
+      .reduce((box, boxStr) => {
+        return mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr)));
+      }, bbox);
   }
   if (bbox === null) {
     // whole world bbox
@@ -71,23 +79,23 @@ function createLinks (event, cmrCollection) {
 
   const links = [
     wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${id}`),
-      'Info about this collection'),
+                   'Info about this collection'),
     wfs.createLink('root', generateAppUrl(event, ''),
-      'Root catalog'),
+                   'Root catalog'),
     wfs.createLink('parent', generateAppUrl(event, `/${provider}`),
-      'Parent catalog'),
+                   'Parent catalog'),
     wfs.createLink('stac', stacSearchWithCurrentParams(event, id, provider),
-      'STAC Search this collection'),
+                   'STAC Search this collection'),
     wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, id),
-      'CMR Search this collection'),
+                   'CMR Search this collection'),
     wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${id}/items`),
-      'Granules in this collection'),
+                   'Granules in this collection'),
     wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${id}.html`),
-      'HTML metadata for collection'),
+                   'HTML metadata for collection'),
     wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.native`),
-      'Native metadata for collection'),
+                   'Native metadata for collection'),
     wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.umm_json`),
-      'JSON metadata for collection')
+                   'JSON metadata for collection')
   ];
   return links;
 }
