@@ -1,4 +1,6 @@
 const { firstIfArray } = require('../../lib/util');
+const { extractParam } = require('../../lib/util');
+const { generateAppUrl } = require('../../lib/util');
 
 describe('firstIfArray', () => {
   it('should return value if not an array.', () => {
@@ -15,8 +17,6 @@ describe('firstIfArray', () => {
   });
 });
 
-const { extractParam } = require('../../lib/util');
-
 describe('extractParam', () => {
   it('should return the default value if requested param does not exist.', () => {
     expect(extractParam({}, 'test', 'default')).toBe('default');
@@ -30,8 +30,6 @@ describe('extractParam', () => {
     expect(extractParam({ test: ['value'] }, 'test', 'default')).toBe('value');
   });
 });
-
-const { generateAppUrl } = require('../../lib/util');
 
 describe('generateAppUrl', () => {
   let event, path, params;
@@ -47,11 +45,13 @@ describe('generateAppUrl', () => {
   });
 
   it('should create a URL based on event input with proper query params.', () => {
-    expect(generateAppUrl(event, path, params)).toBe('http://example.com/stac/path/to/resource?param=test');
+    expect(generateAppUrl(event, path, params))
+      .toBe('http://example.com/stac/path/to/resource?param=test');
   });
 
   it('should create a secure url if event has secure protocol.', () => {
     event.headers['X-Forwarded-Proto'] = 'https';
-    expect(generateAppUrl(event, path)).toBe('https://example.com/stac/path/to/resource');
+    expect(generateAppUrl(event, path))
+      .toBe('https://example.com/stac/path/to/resource');
   });
 });

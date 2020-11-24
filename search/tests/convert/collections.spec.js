@@ -84,11 +84,13 @@ describe('collections', () => {
     };
 
     it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID, collProvider)).toEqual('http://example.com/stac/LPDAAC/search?eo_cloud_cover=2&collections=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(event, collID, collProvider))
+        .toEqual('http://example.com/stac/LPDAAC/search?eo_cloud_cover=2&collections=landsat-8-l1');
     });
 
     it('should return a search url with no params', () => {
-      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider)).toEqual('http://example.com/stac/LPDAAC/search?collections=landsat-8-l1');
+      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider))
+        .toEqual('http://example.com/stac/LPDAAC/search?collections=landsat-8-l1');
     });
   });
 
@@ -104,11 +106,13 @@ describe('collections', () => {
     const otherEvent = {};
 
     it('should return a CMR search url containing given parameters', () => {
-      expect(cmrGranuleSearchWithCurrentParams(event, collID)).toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1&cloud_cover=0.2');
+      expect(cmrGranuleSearchWithCurrentParams(event, collID))
+        .toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1&cloud_cover=0.2');
     });
 
     it('should return a CMR search url without any parameters', () => {
-      expect(cmrGranuleSearchWithCurrentParams(otherEvent, collID)).toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1');
+      expect(cmrGranuleSearchWithCurrentParams(otherEvent, collID))
+        .toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1');
     });
   });
 
@@ -321,7 +325,8 @@ describe('collections', () => {
       const links = await createBrowseLinks(event, cmrColl.data_center, cmrColl.dataset_id);
       expect(links.length).toEqual(5);
       [1, 2, 3, 4, 5].forEach(x => {
-        expect(links[x - 1].href).toEqual(`http://example.com/stac/LPDAAC/collections/datasetId/200${x}`);
+        expect(links[x - 1].href)
+          .toEqual(`http://example.com/stac/LPDAAC/collections/datasetId/200${x}`);
       });
     });
   });

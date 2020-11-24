@@ -1,8 +1,18 @@
 const _ = require('lodash');
 const cmr = require('../cmr');
 const settings = require('../settings');
-const { pointStringToPoints, parseOrdinateString, addPointsToBbox, mergeBoxes, reorderBoxValues } = require('./bounding-box');
-const { generateAppUrl, generateAppUrlWithoutRelativeRoot, wfs, extractParam, generateSelfUrl } = require('../util');
+const {
+  pointStringToPoints,
+  parseOrdinateString,
+  addPointsToBbox,
+  mergeBoxes,
+  reorderBoxValues } = require('./bounding-box');
+const {
+  generateAppUrl,
+  generateAppUrlWithoutRelativeRoot,
+  wfs,
+  extractParam,
+  generateSelfUrl } = require('../util');
 const { inflectBox } = require('./geodeticCoordinates');
 
 function cmrPolygonToGeoJsonPolygon (polygon) {

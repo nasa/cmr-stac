@@ -1,5 +1,9 @@
 const settings = require('../../lib/settings');
-const { mockFunction, revertFunction, createMockResponse, createRequest } = require('../util');
+const {
+  mockFunction,
+  revertFunction,
+  createMockResponse,
+  createRequest } = require('../util');
 const cmr = require('../../lib/cmr');
 const exampleData = require('../example-data');
 const {
@@ -9,6 +13,16 @@ const {
   getGranule,
   getCatalog
 } = require('../../lib/api/wfs');
+const { logger } = require('../../lib/util');
+
+const origLogLevel = logger.level;
+beforeAll(() => {
+  logger.level = 'error';
+});
+
+afterAll(() => {
+  logger.level = origLogLevel;
+});
 
 describe('wfs routes', () => {
   let request, response;

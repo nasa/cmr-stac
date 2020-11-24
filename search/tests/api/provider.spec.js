@@ -5,7 +5,21 @@
 const { getProvider, getProviders } = require('../../lib/api/provider');
 const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
-const { mockFunction, revertFunction, createMockResponse, createRequest } = require('../util');
+const {
+  mockFunction,
+  revertFunction,
+  createMockResponse,
+  createRequest } = require('../util');
+const { logger } = require('../../lib/util');
+
+const origLogLevel = logger.level;
+beforeAll(() => {
+  logger.level = 'error';
+});
+
+afterAll(() => {
+  logger.level = origLogLevel;
+});
 
 const mockProviderResponse = [
   'provA',
