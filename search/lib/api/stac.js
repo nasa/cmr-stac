@@ -48,7 +48,7 @@ async function getSearch (request, response) {
 }
 
 /**
- *
+ * Search via POST.
  */
 async function postSearch (request, response) {
   const providerId = request.params.providerId;
