@@ -3,10 +3,10 @@ const { isNull } = require('lodash');
 const {
   wfs,
   generateAppUrl,
+  generateNavLinks,
   logger,
-  makeAsyncHandler,
-  extractParam,
-  generateAppUrlWithoutRelativeRoot } = require('../util');
+  makeAsyncHandler
+} = require('../util');
 const cmr = require('../cmr');
 const convert = require('../convert');
 const { assertValid, schemas } = require('../validator');
@@ -30,25 +30,6 @@ env.CONFORMANCE_RESPONSE = CONFORMANCE_RESPONSE;
  * Fetch a list of collections from CMR.
  */
 async function getCollections (request, response) {
-  logger.info(`GET ${request.params.providerId}/collections`);
-  const event = request.apiGateway.event;
-
-  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
-  const nextPage = currPage + 1;
-  const prevPage = currPage - 1;
-  const newParams = { ...event.queryStringParameters } || {};
-  newParams.page_num = nextPage;
-  const newPrevParams = { ...event.queryStringParameters } || {};
-  newPrevParams.page_num = prevPage;
-  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
-  const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
-
-  const provider = request.params.providerId;
-  const params = Object.assign(
-    { provider_short_name: provider },
-    cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
-  );
-
   try {
     logger.info(`GET ${request.params.providerId}/collections`);
     const event = request.apiGateway.event;
