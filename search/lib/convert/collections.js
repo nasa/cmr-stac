@@ -119,8 +119,8 @@ function cmrCollToWFSColl (event, cmrCollection) {
     license: cmrCollection.license || 'not-provided',
     title: cmrCollection.dataset_id,
     description: cmrCollection.summary,
-    links: createLinks.call({ cmr }, event, cmrCollection),
-    extent: createExtent.call({ cmr }, cmrCollection)
+    links: createLinks(event, cmrCollection),
+    extent: createExtent(cmrCollection)
   };
   return collection;
 }
