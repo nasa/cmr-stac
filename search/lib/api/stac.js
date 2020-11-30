@@ -1,7 +1,7 @@
 const express = require('express');
 
 const cmr = require('../cmr');
-const cmrConverter = require('../convert');
+const { cmrGranulesToFeatureCollection } = require('../convert');
 const stacExtension = require('../stac/extension');
 
 const { assertValid, schemas } = require('../validator');

@@ -50,6 +50,16 @@ async function getCollections (request, response) {
   );
 
   try {
+    logger.info(`GET ${request.params.providerId}/collections`);
+    const event = request.apiGateway.event;
+
+    const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
+
+    const provider = request.params.providerId;
+    const params = Object.assign(
+      { provider_short_name: provider },
+      cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
+    );
     const collections = await cmr.findCollections(params);
     if (!collections.length) {
       return response.status(400).json('Collections not found');

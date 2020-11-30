@@ -1,12 +1,21 @@
 const _ = require('lodash');
 const axios = require('axios');
 const { UrlBuilder } = require('./util/url-builder');
-const { parseOrdinateString, identity, logger } = require('./util');
+const {
+  identity,
+  logger,
+  makeCmrSearchUrl
+} = require('./util');
 const settings = require('./settings');
+
+const {
+  parseOrdinateString,
+  parseDateTime
+} = require('./convert');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],
-  datetime: ['temporal', identity],
+  datetime: ['temporal', parseDateTime],
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', identity],
   collections: ['collection_concept_id', identity],
@@ -16,33 +25,24 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
 const STAC_QUERY_PARAMS_CONVERSION_MAP = {
   limit: ['limit', (v) => parseInt(v, 10)],
   bbox: ['bbox', parseOrdinateString],
-  datetime: ['temporal', identity],
+  datetime: ['temporal', parseDateTime],
   collectionId: ['collection_concept_id', identity]
 };
 
 const WFS_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', _.identity],
-  datetime: ['temporal', _.identity],
+  datetime: ['temporal', parseDateTime],
   limit: ['page_size', _.identity]
 };
 
-const makeCmrSearchUrl = (path, queryParams = null) => {
-  return UrlBuilder.create()
-    .withProtocol(settings.cmrSearchProtocol)
-    .withHost(settings.cmrSearchHost)
-    .withPath(path)
-    .withQuery(queryParams)
-    .build();
-};
-
-const headers = {
+const DEFAULT_HEADERS = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
 async function cmrSearch (url, params) {
   if (!url || !params) throw new Error('Missing url or parameters');
-  logger.info(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
-  return axios.get(url, { params, headers });
+  logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
+  return axios.get(url, { params, headers: DEFAULT_HEADERS });
 }
 
 async function findCollections (params = {}) {

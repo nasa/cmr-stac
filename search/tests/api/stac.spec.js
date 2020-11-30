@@ -28,15 +28,21 @@ describe('STAC Search', () => {
 
   beforeEach(() => {
     request = createRequest({
-      body: {},
       params: { providerId: 'LPDAAC' }
     });
     response = createMockResponse();
-    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: 19 }));
+    mockFunction(cmr,
+      'findGranules',
+      Promise.resolve({ granules: exampleData.cmrGrans, totalHits: 19 }));
+
+    mockFunction(cmr,
+      'findGranulesUmm',
+      Promise.resolve({ hits: 0, items: [] }));
   });
 
   afterEach(() => {
     revertFunction(cmr, 'findGranules');
+    revertFunction(cmr, 'findGranulesUmm');
   });
 
   const expectedResponse = {

@@ -12,6 +12,16 @@ const {
   getFacetParams,
   getGranuleTemporalFacets
 } = require('../../lib/cmr');
+const { logger } = require('../../lib/util');
+
+const origLogLevel = logger.level;
+beforeAll(() => {
+  logger.level = 'error';
+});
+
+afterAll(() => {
+  logger.level = origLogLevel;
+});
 
 describe('cmr', () => {
   let path, params;
