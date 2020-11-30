@@ -9,9 +9,9 @@ const { createLogger } = require('./logger');
 const logger = createLogger(settings.logger);
 
 function getKeyCaseInsensitive (object, key) {
-  return object[Object.keys(object)
-    .find(k => k.toLowerCase() === key.toLowerCase())
-  ];
+  const i = Object.keys(object)
+    .find(k => k.toLowerCase() === key.toLowerCase());
+  return object[i];
 }
 
 function getHostHeader (event) {
@@ -19,7 +19,8 @@ function getHostHeader (event) {
 }
 
 function getProtoHeader (event) {
-  return getKeyCaseInsensitive(event.headers, 'CloudFront-Forwarded-Proto') || getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
+  return getKeyCaseInsensitive(event.headers, 'CloudFront-Forwarded-Proto') ||
+    getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
 }
 
 function createRedirectUrl (event, redirectPath) {
