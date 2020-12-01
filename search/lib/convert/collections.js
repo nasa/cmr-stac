@@ -1,13 +1,14 @@
 const cmr = require('../cmr');
 const settings = require('../settings');
-const { wfs, generateAppUrl } = require('../util');
+const { wfs, generateAppUrl, makeCmrSearchUrl } = require('../util');
 const {
   WHOLE_WORLD_BBOX,
   pointStringToPoints,
   parseOrdinateString,
   addPointsToBbox,
   mergeBoxes,
-  reorderBoxValues } = require('./bounding-box');
+  reorderBoxValues
+} = require('./bounding-box');
 
 function cmrCollSpatialToExtents (cmrColl) {
   let bbox = null;
@@ -16,24 +17,20 @@ function cmrCollSpatialToExtents (cmrColl) {
       .map((rings) => rings[0])
       .map(pointStringToPoints)
       .reduce(addPointsToBbox, bbox);
-  }
-  if (cmrColl.points) {
+  } else if (cmrColl.points) {
     const points = cmrColl.points.map(parseOrdinateString);
     const orderedPoints = points.map(([lat, lon]) => [lon, lat]);
     bbox = addPointsToBbox(bbox, orderedPoints);
-  }
-  if (cmrColl.lines) {
+  } else if (cmrColl.lines) {
     const linePoints = cmrColl.lines.map(parseOrdinateString);
     const orderedLines = linePoints.map(reorderBoxValues);
-    return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
-  }
-  if (cmrColl.boxes) {
+    bbox = orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
+  } else if (cmrColl.boxes) {
     bbox = cmrColl.boxes
-      .reduce((box, boxStr) => {
-        return mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr)));
-      }, bbox);
-  }
-  if (bbox === null) {
+      .reduce((box, boxStr) => mergeBoxes(
+        box,
+        reorderBoxValues(parseOrdinateString(boxStr))), bbox);
+  } else {
     // whole world bbox
     bbox = WHOLE_WORLD_BBOX;
   }
@@ -54,7 +51,7 @@ function cmrGranuleSearchWithCurrentParams (event, collId) {
   delete newParams.collectionId;
   delete newParams.provider;
   delete newParams.page_num;
-  return cmr.makeCmrSearchUrl('granules.json', newParams);
+  return makeCmrSearchUrl('granules.json', newParams);
 }
 
 function createExtent (cmrCollection) {
@@ -90,11 +87,11 @@ function createLinks (event, cmrCollection) {
       'CMR Search this collection'),
     wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${id}/items`),
       'Granules in this collection'),
-    wfs.createLink('overview', cmr.makeCmrSearchUrl(`/concepts/${id}.html`),
+    wfs.createLink('overview', makeCmrSearchUrl(`/concepts/${id}.html`),
       'HTML metadata for collection'),
-    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.native`),
+    wfs.createLink('metadata', makeCmrSearchUrl(`/concepts/${id}.native`),
       'Native metadata for collection'),
-    wfs.createLink('metadata', cmr.makeCmrSearchUrl(`/concepts/${id}.umm_json`),
+    wfs.createLink('metadata', makeCmrSearchUrl(`/concepts/${id}.umm_json`),
       'JSON metadata for collection')
   ];
   return links;

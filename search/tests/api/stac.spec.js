@@ -1,17 +1,15 @@
-/**
- * @jest-environment node
- */
-
 const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
 const { getSearch, postSearch } = require('../../lib/api/stac');
 const exampleData = require('../example-data');
+const axios = require('axios');
 
 const {
   mockFunction,
   revertFunction,
   createMockResponse,
-  createRequest } = require('../util');
+  createRequest
+} = require('../util');
 const { logger } = require('../../lib/util');
 
 const origLogLevel = logger.level;
@@ -28,15 +26,21 @@ describe('STAC Search', () => {
 
   beforeEach(() => {
     request = createRequest({
-      body: {},
       params: { providerId: 'LPDAAC' }
     });
     response = createMockResponse();
-    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: 19 }));
+    mockFunction(cmr,
+      'findGranules',
+      Promise.resolve({ granules: exampleData.cmrGrans, totalHits: 19 }));
+
+    mockFunction(cmr,
+      'findGranulesUmm',
+      Promise.resolve({ hits: 0, items: [] }));
   });
 
   afterEach(() => {
     revertFunction(cmr, 'findGranules');
+    revertFunction(cmr, 'findGranulesUmm');
   });
 
   const expectedResponse = {
@@ -73,6 +77,160 @@ describe('STAC Search', () => {
     it('should return a set of items that match a simple query', async () => {
       await postSearch(request, response);
       response.expect(expectedResponse);
+    });
+  });
+});
+
+describe('STAC Search Params', () => {
+  let request, response;
+
+  beforeEach(() => {
+    response = createMockResponse(200, { feed: { entry: [] } });
+    axios.get = jest.fn(async () => {
+      return Promise.resolve({
+        headers: { 'cmr-hits': 0 },
+        data: { feed: { entry: [] } },
+        json: (v) => JSON.stringify(v, null, 2)
+      });
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe('datetime', () => {
+    it('should query with range when given a single datetime', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '2020-11-02T00:00:00Z' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '2020-11-02T00:00:00Z,2020-11-03T00:00:00Z'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
+    });
+
+    it('query using a range when given a range datetime, comma delimited', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '2019-02-01T00:00:00Z,2019-05-05T00:30:00Z' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '2019-02-01T00:00:00Z,2019-05-05T00:30:00Z'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
+    });
+
+    it('query using a range when given a range datetime, slash delimited', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '2019-02-01T00:00:00Z/2019-05-05T00:30:00Z' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '2019-02-01T00:00:00Z,2019-05-05T00:30:00Z'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
+    });
+
+    it('should query with a time given a time', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '12:15:09pm' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '12:15:09pm'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
+    });
+
+    it('should query with range when given a single date', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '2020-10-01' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '2020-10-01T00:00:00Z,2020-10-02T00:00:00Z'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
+    });
+
+    it('should query with range when given a date range, comma delimited', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '2020-09-03,2020-10-26' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '2020-09-03T00:00:00Z,2020-10-26T00:00:00Z'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
+    });
+
+    it('should query with range when given a date range, slash delimited', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '2020-09-03/2020-10-26' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '2020-09-03T00:00:00Z,2020-10-26T00:00:00Z'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
     });
   });
 });

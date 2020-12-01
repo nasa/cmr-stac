@@ -1,19 +1,19 @@
 const _ = require('lodash');
-const cmr = require('../cmr');
 const settings = require('../settings');
 const {
-  pointStringToPoints,
-  parseOrdinateString,
   addPointsToBbox,
   mergeBoxes,
-  reorderBoxValues } = require('./bounding-box');
-const {
-  generateAppUrl,
-  generateAppUrlWithoutRelativeRoot,
-  wfs,
-  extractParam,
-  generateSelfUrl } = require('../util');
+  parseOrdinateString,
+  pointStringToPoints,
+  reorderBoxValues
+} = require('./bounding-box');
+const { generateAppUrl, wfs, generateSelfUrl, generateNavLinks } = require('../util');
 const { inflectBox } = require('./geodeticCoordinates');
+const { makeCmrSearchUrl } = require('../util');
+
+const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
+const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
+const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
   const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
@@ -94,29 +94,24 @@ function cmrSpatialToStacBbox (cmrGran) {
     points = points[0].map(([lon, lat]) => [lat, lon]);
     const inflectedPoints = inflectBox(points).map(point => parseFloat(point.toFixed(6)));
     bbox = reorderBoxValues(inflectedPoints);
-  }
-  if (cmrGran.points) {
+  } else if (cmrGran.points) {
     const points = cmrGran.points.map(parseOrdinateString);
     const orderedPoints = points.map(([lat, lon]) => [lon, lat]);
     bbox = addPointsToBbox(bbox, orderedPoints);
-  }
-  if (cmrGran.lines) {
+  } else if (cmrGran.lines) {
     const linePoints = cmrGran.lines.map(parseOrdinateString);
     const orderedLines = linePoints.map(reorderBoxValues);
-    return orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
-  }
-  if (cmrGran.boxes) {
-    bbox = cmrGran.boxes.reduce((box, boxStr) => mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr))), bbox);
-  }
-  if (bbox === null) {
+    bbox = orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
+  } else if (cmrGran.boxes) {
+    bbox = cmrGran.boxes
+      .reduce((box, boxStr) => mergeBoxes(
+        box,
+        reorderBoxValues(parseOrdinateString(boxStr))), bbox);
+  } else {
     bbox = [];
   }
   return bbox;
 }
-
-const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
-const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
-const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
 function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
   const properties = {};
@@ -203,7 +198,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
     assets.opendap = linkToAsset(opendapLink);
   }
 
-  assets.metadata = wfs.createAssetLink(cmr.makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`));
+  assets.metadata = wfs.createAssetLink(makeCmrSearchUrl(`/concepts/${cmrGran.id}.native`));
   return {
     type: 'Feature',
     id: cmrGran.id,
@@ -242,15 +237,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
 }
 
 function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
-  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
-  const nextPage = currPage + 1;
-  const prevPage = currPage - 1;
-  const newParams = { ...event.queryStringParameters } || {};
-  newParams.page_num = nextPage;
-  const newPrevParams = { ...event.queryStringParameters } || {};
-  newPrevParams.page_num = prevPage;
-  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
-  const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
+  const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
   let numberMatched;
   let ummGranules;

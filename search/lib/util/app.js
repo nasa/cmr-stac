@@ -1,50 +1,42 @@
-const _ = require('lodash');
-
-function firstIfArray (value) {
-  return Array.isArray(value) && value.length === 1 ? value[0] : value;
-}
-
-const extractParam = (queryStringParams, param, defaultVal = null) => {
-  if (queryStringParams && _.has(queryStringParams, param)) {
-    return firstIfArray(queryStringParams[param]);
-  }
-  return defaultVal;
-};
-
-const createLink = (rel, href = '', title, type = 'application/json') => {
+/**
+ * Extract desired type from an href
+ * @param href
+ * @returns {string}
+ */
+function extractTypeFromHref (href) {
+  let type;
   if (href.includes('.txt') || href.includes('.text')) {
     type = 'application/text';
+  } else if (href.includes('.native')) {
+    type = 'application/xml';
+  } else if (href.includes('.xml')) {
+    type = 'application/xml';
+  } else if (href.includes('.html')) {
+    type = 'text/html';
+  } else {
+    type = null;
   }
+  return type;
+}
+
+const createLink = (rel, href = '', title, type = 'application/json') => {
+  type = extractTypeFromHref(href) || type;
+
   if (href.includes('.native')) {
     href = href.replace('.native', '.xml');
-    type = 'application/xml';
-  }
-  if (href.includes('.xml')) {
-    type = 'application/xml';
-  }
-  if (href.includes('.html')) {
-    type = 'text/html';
   }
 
   return { rel: rel, href: href, title: title, type: type };
 };
 
 const createAssetLink = (href = '', title, type = 'application/json') => {
-  if (href.includes('.txt') || href.includes('.text')) {
-    type = 'application/text';
-  }
+  type = extractTypeFromHref(href) || type;
+
   if (href.includes('.native')) {
     href = href.replace('.native', '.xml');
-    type = 'application/xml';
-  }
-  if (href.includes('.xml')) {
-    type = 'application/xml';
-  }
-  if (href.includes('.html')) {
-    type = 'text/html';
   }
 
-  if (title === undefined) {
+  if (!title) {
     return { href: href, type: type };
   } else {
     return { href: href, title: title, type: type };
@@ -52,8 +44,6 @@ const createAssetLink = (href = '', title, type = 'application/json') => {
 };
 
 module.exports = {
-  firstIfArray,
-  extractParam,
   wfs: {
     createLink,
     createAssetLink

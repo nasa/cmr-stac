@@ -1,7 +1,7 @@
 const express = require('express');
 
 const cmr = require('../cmr');
-const cmrConverter = require('../convert');
+const { cmrGranulesToFeatureCollection } = require('../convert');
 const stacExtension = require('../stac/extension');
 
 const { assertValid, schemas } = require('../validator');
@@ -12,7 +12,7 @@ async function search (event, params) {
   const searchResult = await cmr.findGranules(cmrParams);
   const granulesUmm = await cmr.findGranulesUmm(cmrParams);
 
-  const featureCollection = cmrConverter.cmrGranulesToFeatureCollection(event,
+  const featureCollection = cmrGranulesToFeatureCollection(event,
     searchResult.granules,
     granulesUmm);
 
@@ -34,8 +34,10 @@ async function getSearch (request, response) {
     const { searchResult, featureCollection } = await search(event, convertedParams);
     await assertValid(schemas.items, featureCollection);
     const formatted = stacExtension.format(featureCollection,
-      { fields: request.query.fields,
-        context: { searchResult, query } });
+      {
+        fields: request.query.fields,
+        context: { searchResult, query }
+      });
     // Apply any stac extensions that are present
     response.json(formatted);
   } catch (error) {
@@ -61,8 +63,10 @@ async function postSearch (request, response) {
     const { searchResult, featureCollection } = await search(event, params);
     await assertValid(schemas.items, featureCollection);
     const formatted = stacExtension.format(featureCollection,
-      { fields: request.body.fields,
-        context: { searchResult, query: params } });
+      {
+        fields: request.body.fields,
+        context: { searchResult, query: params }
+      });
     // Apply any stac extensions that are present
     response.json(formatted);
   } catch (error) {

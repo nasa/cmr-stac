@@ -1,5 +1,6 @@
-const settings = require('../settings');
+const _ = require('lodash');
 
+const settings = require('../settings');
 const app = require('./app');
 const { UrlBuilder } = require('./url-builder');
 const { WfsLink } = require('./wfs-link');
@@ -8,9 +9,9 @@ const { createLogger } = require('./logger');
 const logger = createLogger(settings.logger);
 
 function getKeyCaseInsensitive (object, key) {
-  return object[Object.keys(object)
-    .find(k => k.toLowerCase() === key.toLowerCase())
-  ];
+  const i = Object.keys(object)
+    .find(k => k.toLowerCase() === key.toLowerCase());
+  return object[i];
 }
 
 function getHostHeader (event) {
@@ -18,7 +19,8 @@ function getHostHeader (event) {
 }
 
 function getProtoHeader (event) {
-  return getKeyCaseInsensitive(event.headers, 'CloudFront-Forwarded-Proto') || getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
+  return getKeyCaseInsensitive(event.headers, 'CloudFront-Forwarded-Proto') ||
+    getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
 }
 
 function createRedirectUrl (event, redirectPath) {
@@ -81,6 +83,39 @@ function makeAsyncHandler (fn) {
   };
 }
 
+const makeCmrSearchUrl = (path, queryParams = null) => {
+  return UrlBuilder.create()
+    .withProtocol(settings.cmrSearchProtocol)
+    .withHost(settings.cmrSearchHost)
+    .withPath(path)
+    .withQuery(queryParams)
+    .build();
+};
+
+function firstIfArray (value) {
+  return Array.isArray(value) && value.length === 1 ? value[0] : value;
+}
+
+const extractParam = (queryStringParams, param, defaultVal = null) => {
+  if (queryStringParams && _.has(queryStringParams, param)) {
+    return firstIfArray(queryStringParams[param]);
+  }
+  return defaultVal;
+};
+
+function generateNavLinks (event) {
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const nextPage = currPage + 1;
+  const prevPage = currPage - 1;
+  const newParams = { ...event.queryStringParameters } || {};
+  newParams.page_num = nextPage;
+  const newPrevParams = { ...event.queryStringParameters } || {};
+  newPrevParams.page_num = prevPage;
+  const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
+  const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
+  return { currPage, prevResultsLink, nextResultsLink };
+}
+
 module.exports = {
   ...app,
   createRedirectUrl,
@@ -91,8 +126,12 @@ module.exports = {
   generateSelfUrl,
   getStacBaseUrl,
   identity,
+  makeCmrSearchUrl,
   WfsLink,
   createLogger,
   logger,
-  makeAsyncHandler
+  makeAsyncHandler,
+  generateNavLinks,
+  firstIfArray,
+  extractParam
 };
