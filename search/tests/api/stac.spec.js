@@ -103,7 +103,7 @@ describe('STAC Search Params', () => {
     it('should query with range when given a single datetime', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
-        query: { datetime: '2020-11-01T00:00:00Z' }
+        query: { datetime: '2020-11-02T00:00:00Z' }
       });
 
       await getSearch(request, response);
@@ -113,16 +113,35 @@ describe('STAC Search Params', () => {
         {
           params: {
             provider: 'LPDAAC',
-            temporal: '2020-11-01T00:00:00Z,2020-11-01T00:00:00Z'
+            temporal: '2020-11-02T00:00:00Z,2020-11-03T00:00:00Z'
           },
           headers: { 'Client-Id': 'cmr-stac-api-proxy' }
         });
     });
 
-    it('query using a range when given a range datetime', async () => {
+    it('query using a range when given a range datetime, comma delimited', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
         query: { datetime: '2019-02-01T00:00:00Z,2019-05-05T00:30:00Z' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '2019-02-01T00:00:00Z,2019-05-05T00:30:00Z'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
+    });
+
+    it('query using a range when given a range datetime, slash delimited', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '2019-02-01T00:00:00Z/2019-05-05T00:30:00Z' }
       });
 
       await getSearch(request, response);
@@ -176,10 +195,29 @@ describe('STAC Search Params', () => {
         });
     });
 
-    it('should query with range when given a date range', async () => {
+    it('should query with range when given a date range, comma delimited', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
         query: { datetime: '2020-09-03,2020-10-26' }
+      });
+
+      await getSearch(request, response);
+
+      expect(axios.get).toHaveBeenCalledWith(
+        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        {
+          params: {
+            provider: 'LPDAAC',
+            temporal: '2020-09-03T00:00:00Z,2020-10-26T00:00:00Z'
+          },
+          headers: { 'Client-Id': 'cmr-stac-api-proxy' }
+        });
+    });
+
+    it('should query with range when given a date range, slash delimited', async () => {
+      request = createRequest({
+        params: { providerId: 'LPDAAC' },
+        query: { datetime: '2020-09-03/2020-10-26' }
       });
 
       await getSearch(request, response);
