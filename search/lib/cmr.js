@@ -10,12 +10,12 @@ const settings = require('./settings');
 
 const {
   parseOrdinateString,
-  parseDateTime
+  convertDateTimeToCMR
 } = require('./convert');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],
-  datetime: ['temporal', parseDateTime],
+  datetime: ['temporal', convertDateTimeToCMR],
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', identity],
   collections: ['collection_concept_id', identity],
@@ -25,13 +25,13 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
 const STAC_QUERY_PARAMS_CONVERSION_MAP = {
   limit: ['limit', (v) => parseInt(v, 10)],
   bbox: ['bbox', parseOrdinateString],
-  datetime: ['temporal', parseDateTime],
+  datetime: ['temporal', convertDateTimeToCMR],
   collectionId: ['collection_concept_id', identity]
 };
 
 const WFS_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', _.identity],
-  datetime: ['temporal', parseDateTime],
+  datetime: ['temporal', convertDateTimeToCMR],
   limit: ['page_size', _.identity]
 };
 

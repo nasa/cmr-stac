@@ -1,9 +1,9 @@
-const { parseDateTime } = require('../../lib/convert/datetime');
+const { convertDateTimeToCMR } = require('../../lib/convert/datetime');
 
 describe('parseDateTime', () => {
   it('makes single datetimes into a range starting and stopping on the same time', () => {
     const dt = '2020-06-01T00:00:00Z';
-    expect(parseDateTime(dt)).toBe('2020-06-01T00:00:00Z,2020-06-02T00:00:00Z');
+    expect(convertDateTimeToCMR(dt)).toBe('2020-06-01T00:00:00Z,2020-06-02T00:00:00Z');
   });
 
   it('datetime range returns as identity', () => {
@@ -11,7 +11,7 @@ describe('parseDateTime', () => {
     const dtEnd = '2020-10-01T00:00:00Z';
     const dt = `${dtStart}/${dtEnd}`;
 
-    expect(parseDateTime(dt)).toBe(dt.split('/').join(','));
+    expect(convertDateTimeToCMR(dt)).toBe(dt.split('/').join(','));
   });
 
   it('handles slash delimited datetimes', () => {
@@ -19,7 +19,7 @@ describe('parseDateTime', () => {
     const dtEnd = '2020-10-01T00:00:00Z';
     const dt = `${dtStart}/${dtEnd}`;
 
-    expect(parseDateTime(dt)).toBe(dt.split('/').join(','));
+    expect(convertDateTimeToCMR(dt)).toBe(dt.split('/').join(','));
   });
 
   it('handles comma delimited datetimes', () => {
@@ -27,7 +27,7 @@ describe('parseDateTime', () => {
     const dtEnd = '2020-10-01T00:00:00Z';
     const dt = `${dtStart},${dtEnd}`;
 
-    expect(parseDateTime(dt)).toBe(dt);
+    expect(convertDateTimeToCMR(dt)).toBe(dt);
   });
 
   it('handles slash delimited dates', () => {
@@ -35,7 +35,7 @@ describe('parseDateTime', () => {
     const dtEnd = '2020-07-23';
     const dt = `${dtStart}/${dtEnd}`;
 
-    expect(parseDateTime(dt)).toBe('2020-06-01T00:00:00Z,2020-07-23T00:00:00Z');
+    expect(convertDateTimeToCMR(dt)).toBe('2020-06-01T00:00:00Z,2020-07-23T00:00:00Z');
   });
 
   it('handles comma delimited dates', () => {
@@ -43,6 +43,33 @@ describe('parseDateTime', () => {
     const dtEnd = '2020-10-01';
     const dt = `${dtStart},${dtEnd}`;
 
-    expect(parseDateTime(dt)).toBe('2018-06-01T00:00:00Z,2020-10-01T00:00:00Z');
+    expect(convertDateTimeToCMR(dt)).toBe('2018-06-01T00:00:00Z,2020-10-01T00:00:00Z');
+  });
+
+  it('handles times', () => {
+    expect(convertDateTimeToCMR('07:03:21am'))
+      .toBe('07:03:21am');
+  });
+
+  it('handles ISO 8601 single datetimes', () => {
+    expect(convertDateTimeToCMR('2012-10-06T00:00:00+00:00'))
+      .toBe('2012-10-06T00:00:00Z,2012-10-07T00:00:00Z');
+  });
+
+  it('handles ISO 8601 datetimes ranges', () => {
+    expect(convertDateTimeToCMR('2012-10-06T00:00:00+00:00/2013-05-01T00:00:00+00:00'))
+      .toBe('2012-10-06T00:00:00Z,2013-05-01T00:00:00Z');
+  });
+
+  it('handles malformed dates', () => {
+    expect(() => {
+      convertDateTimeToCMR('2018-06-0');
+    }).toThrowError('Provided datetime value does match any valid date format.');
+  });
+
+  it('handles malformed date ranges', () => {
+    expect(() => {
+      convertDateTimeToCMR('/2018-06-0');
+    }).toThrowError('Provided datetime value does match any valid date format.');
   });
 });

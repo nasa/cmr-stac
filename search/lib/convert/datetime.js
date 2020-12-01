@@ -1,5 +1,8 @@
-const DATE_TIME_RX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{2:4})?Z/;
-const DATE_RX = /\d{4}-\d{2}-\d{2}/;
+const ISO_8601_DATE_RX = new RegExp(
+  '(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})[+-](\\d{2}):(\\d{2})');
+const DATE_TIME_RX = new RegExp('\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{2:4})?Z');
+const DATE_RX = new RegExp('\\d{4}-\\d{2}-\\d{2}');
+const TIME_RX = new RegExp('\\d{2}:\\d{2}:\\d{2}([a|p]m)?', 'i');
 
 /**
  * Split a string on the first delimiter found. Returns the list of splits.
@@ -29,20 +32,23 @@ function splitOnDelimiters (str, delimiters) {
  * @returns {*}
  */
 function parseDateTimeHelper (dateTimes) {
-  let rc;
+  let beginDate, endDate, begin, end;
   if (dateTimes.length === 1) {
-    const date = new Date(dateTimes[0]);
+    beginDate = new Date(dateTimes[0]);
 
-    const begin = date.toISOString().replace('.000', '');
-    date.setDate(date.getDate() + 1);
-    const end = date.toISOString().replace('.000', '');
-    dateTimes.push(end);
+    begin = beginDate.toISOString().replace('.000', '');
 
-    rc = `${begin},${end}`;
+    endDate = new Date(beginDate);
+    endDate.setDate(endDate.getDate() + 1);
+    end = endDate.toISOString().replace('.000', '');
   } else {
-    rc = dateTimes.join(',');
+    beginDate = new Date(dateTimes[0]);
+    begin = beginDate.toISOString().replace('.000', '');
+
+    endDate = new Date(dateTimes[1]);
+    end = endDate.toISOString().replace('.000', '');
   }
-  return rc;
+  return `${begin},${end}`;
 }
 
 /**
@@ -54,12 +60,14 @@ function parseDateTimeHelper (dateTimes) {
 function parseDateHelper (dates) {
   let begin, end;
   if (dates.length === 1) {
-    const date = new Date(dates[0]);
+    const beginDate = new Date(dates[0]);
 
     // DST may alter expected outputs by an hour
-    begin = date.toISOString().replace('.000', '');
-    date.setDate(date.getDate() + 1);
-    end = date.toISOString().replace('.000', '');
+    begin = beginDate.toISOString().replace('.000', '');
+
+    const endDate = new Date(beginDate);
+    endDate.setDate(endDate.getDate() + 1);
+    end = endDate.toISOString().replace('.000', '');
   } else {
     begin = `${dates[0]}T00:00:00Z`;
     end = `${dates[1]}T00:00:00Z`;
@@ -71,22 +79,26 @@ function parseDateHelper (dates) {
  * Converts a datetime string to a CMR temporal range.
  * If the value is a time, identity.
  * If the value is a datetime => CMR range
+ * @param dateTime
+ * @returns {string}
  */
-function parseDateTime (dt) {
-  const dates = splitOnDelimiters(dt, [',', '/']);
+function convertDateTimeToCMR (dateTime) {
+  const dates = splitOnDelimiters(dateTime, [',', '/']);
 
-  let rc;
-  if (dates[0].match(DATE_TIME_RX)) {
-    rc = parseDateTimeHelper(dates);
-  } else if (dates[0].match(DATE_RX)) {
-    rc = parseDateHelper(dates);
-  } else {
+  let output;
+  if (DATE_TIME_RX.test(dates[0]) || ISO_8601_DATE_RX.test(dates[0])) {
+    output = parseDateTimeHelper(dates);
+  } else if (DATE_RX.test(dates[0])) {
+    output = parseDateHelper(dates);
+  } else if (TIME_RX.test(dates[0])) {
     // identity
-    rc = dt;
+    output = dateTime;
+  } else {
+    throw new Error('Provided datetime value does match any valid date format.');
   }
-  return rc;
+  return output;
 }
 
 module.exports = {
-  parseDateTime
+  convertDateTimeToCMR
 };
