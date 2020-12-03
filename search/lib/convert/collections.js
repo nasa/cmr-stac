@@ -1,4 +1,3 @@
-const cmr = require('../cmr');
 const settings = require('../settings');
 const { wfs, generateAppUrl, makeCmrSearchUrl } = require('../util');
 const {
@@ -97,19 +96,6 @@ function createLinks (event, cmrCollection) {
   return links;
 }
 
-async function createBrowseLinks (event, provider, colid) {
-  // get all child years
-  const facets = await cmr.getGranuleTemporalFacets({
-    collection_concept_id: colid, provider
-  });
-  const path = `/${provider}/collections/${colid}`;
-  // create catalog link for each year
-  const links = facets.years.map(y =>
-    wfs.createLink('child', generateAppUrl(event, `${path}/${y}`), `${y} catalog`)
-  );
-  return links;
-}
-
 function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return [];
   const collection = {
@@ -129,6 +115,5 @@ module.exports = {
   cmrCollSpatialToExtents,
   stacSearchWithCurrentParams,
   cmrGranuleSearchWithCurrentParams,
-  createBrowseLinks,
   cmrCollToWFSColl
 };

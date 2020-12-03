@@ -7,8 +7,8 @@ const {
   logger,
   makeAsyncHandler
 } = require('../util');
-const cmr = require('../cmr');
 const convert = require('../convert');
+const cmr = require('../cmr');
 const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 const { inspect } = require('util');
@@ -80,6 +80,19 @@ async function getCollections (request, response) {
   }
 }
 
+async function createBrowseLinks (event, provider, colid) {
+  // get all child years
+  const facets = await cmr.getGranuleTemporalFacets({
+    collection_concept_id: colid, provider
+  });
+  const path = `/${provider}/collections/${colid}`;
+  // create catalog link for each year
+  const links = facets.years.map(y =>
+    wfs.createLink('child', generateAppUrl(event, `${path}/${y}`), `${y} catalog`)
+  );
+  return links;
+}
+
 /**
  * Fetch a collection from CMR.
  */
@@ -98,7 +111,7 @@ async function getCollection (request, response) {
   const collectionResponse = convert.cmrCollToWFSColl(event, collection);
   // add browse links
   if (process.env.BROWSE_PATH) {
-    const browseLinks = await convert.createBrowseLinks(event, providerId, conceptId);
+    const browseLinks = await createBrowseLinks(event, providerId, conceptId);
     collectionResponse.links = collectionResponse.links.concat(browseLinks);
   }
   await assertValid(schemas.collection, collectionResponse);
