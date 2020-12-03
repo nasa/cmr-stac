@@ -127,7 +127,7 @@ describe('wfs routes', () => {
     });
 
     it('should generate an item collection response with a prev link.', async () => {
-      request.apiGateway.event.queryStringParameters = { page_num: '2' };
+      request.apiGateway.event.queryStringParameters = { page: '2' };
       await getGranules(request, response);
       response.expect({
         type: 'FeatureCollection',
@@ -135,7 +135,7 @@ describe('wfs routes', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://example.com?page_num=2'
+            href: 'http://example.com?page=2'
           },
           {
             rel: 'root',
@@ -143,7 +143,7 @@ describe('wfs routes', () => {
           },
           {
             rel: 'prev',
-            href: 'http://example.com?page_num=1'
+            href: 'http://example.com?page=1'
           }
         ],
         features: exampleData.stacGrans

@@ -104,13 +104,13 @@ const extractParam = (queryStringParams, param, defaultVal = null) => {
 };
 
 function generateNavLinks (event) {
-  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page', '1'), 10);
   const nextPage = currPage + 1;
   const prevPage = currPage - 1;
   const newParams = { ...event.queryStringParameters } || {};
-  newParams.page_num = nextPage;
+  newParams.page = nextPage;
   const newPrevParams = { ...event.queryStringParameters } || {};
-  newPrevParams.page_num = prevPage;
+  newPrevParams.page = prevPage;
   const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
   return { currPage, prevResultsLink, nextResultsLink };

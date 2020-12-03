@@ -40,7 +40,7 @@ function stacSearchWithCurrentParams (event, collId, collProvider) {
   const newParams = { ...event.queryStringParameters } || {};
   newParams.collections = collId;
   delete newParams.provider;
-  delete newParams.page_num;
+  delete newParams.page;
   return generateAppUrl(event, `/${collProvider}/search`, newParams);
 }
 
@@ -49,7 +49,7 @@ function cmrGranuleSearchWithCurrentParams (event, collId) {
   newParams.collection_concept_id = collId;
   delete newParams.collectionId;
   delete newParams.provider;
-  delete newParams.page_num;
+  delete newParams.page;
   return makeCmrSearchUrl('granules.json', newParams);
 }
 

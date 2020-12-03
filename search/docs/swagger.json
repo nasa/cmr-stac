@@ -232,7 +232,7 @@
             "$ref": "#/components/parameters/limit"
           },
           {
-            "$ref": "#/components/parameters/page_num"
+            "$ref": "#/components/parameters/page"
           },
           {
             "$ref": "#/components/parameters/ids"
@@ -395,8 +395,8 @@
         "style": "form",
         "explode": false
       },
-      "page_num": {
-        "name": "page_num",
+      "page": {
+        "name": "page",
         "in": "query",
         "description": "The optional page parameter returns the specified page of results\n(with each page having size=limit).\n\n* Minimum = 1\n* Default = 1\n",
         "required": false,
