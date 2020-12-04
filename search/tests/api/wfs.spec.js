@@ -39,7 +39,7 @@ describe('wfs routes', () => {
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
     mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
     mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: exampleData.cmrGrans.length }));
-    mockFunction(cmr, 'findGranulesUmm', Promise.resolve(exampleData.cmrGransUmm));
+    mockFunction(cmr, 'findGranulesUmm', Promise.resolve(exampleData.cmrGransUmm[0]));
     mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
     mockFunction(cmr, 'getGranuleTemporalFacets',
       { years: ['2001', '2002'], months: ['05', '06'], days: ['20', '21'], itemids: ['test1'] });
@@ -112,6 +112,8 @@ describe('wfs routes', () => {
       response.expect({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
+        numberMatched: 19,
+        numberReturned: 1,
         links: [
           {
             rel: 'self',
@@ -120,6 +122,11 @@ describe('wfs routes', () => {
           {
             rel: 'root',
             href: 'http://example.com/stac/'
+          },
+          {
+            rel: 'next',
+            href: 'http://example.com?page=2',
+            method: 'GET'
           }
         ],
         features: exampleData.stacGrans
@@ -127,11 +134,13 @@ describe('wfs routes', () => {
     });
 
     it('should generate an item collection response with a prev link.', async () => {
-      request.apiGateway.event.queryStringParameters = { page: '2' };
+      request.apiGateway.event.queryStringParameters = { page: 2 };
       await getGranules(request, response);
       response.expect({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
+        numberMatched: 19,
+        numberReturned: 1,
         links: [
           {
             rel: 'self',
@@ -143,7 +152,13 @@ describe('wfs routes', () => {
           },
           {
             rel: 'prev',
+            method: 'GET',
             href: 'http://example.com?page=1'
+          },
+          {
+            rel: 'next',
+            method: 'GET',
+            href: 'http://example.com?page=3'
           }
         ],
         features: exampleData.stacGrans
