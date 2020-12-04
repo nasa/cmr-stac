@@ -130,7 +130,6 @@ function createNavLink (event, params, rel) {
     link = {
       rel,
       method,
-      headers: {},
       merge: false,
       body: newParams,
       href: generateAppUrlWithoutRelativeRoot(event, event.path)
