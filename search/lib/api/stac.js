@@ -14,7 +14,9 @@ async function search (event, params) {
 
   const featureCollection = cmrGranulesToFeatureCollection(event,
     searchResult.granules,
-    granulesUmm);
+    granulesUmm,
+    params
+  );
 
   return { searchResult, featureCollection };
 }
@@ -28,10 +30,9 @@ async function getSearch (request, response) {
   const event = request.apiGateway.event;
   const query = stacExtension.prepare(request.query);
   const params = Object.assign({ provider: providerId }, query);
-  const convertedParams = cmr.convertParams(cmr.STAC_QUERY_PARAMS_CONVERSION_MAP, params);
 
   try {
-    const { searchResult, featureCollection } = await search(event, convertedParams);
+    const { searchResult, featureCollection } = await search(event, params);
     await assertValid(schemas.items, featureCollection);
     const formatted = stacExtension.format(featureCollection,
       {
