@@ -116,6 +116,36 @@ function generateNavLinks (event) {
   return { currPage, prevResultsLink, nextResultsLink };
 }
 
+function createNavLink (event, params, rel) {
+  const method = event.requestContext.httpMethod;
+  const currPage = parseInt(_.get(params, 'page', 1), 10);
+
+  const page = (rel === 'prev') ? currPage - 1 : currPage + 1;
+
+  const newParams = { ...params };
+  newParams.page = page;
+
+  let link = {};
+  if (method === 'POST') {
+    link = {
+      rel,
+      method,
+      headers: {},
+      merge: false,
+      body: newParams,
+      href: generateAppUrlWithoutRelativeRoot(event, event.path)
+    };
+  } else {
+    link = {
+      rel,
+      method,
+      href: generateAppUrlWithoutRelativeRoot(event, event.path, newParams)
+    };
+  }
+
+  return link;
+}
+
 module.exports = {
   ...app,
   createRedirectUrl,
@@ -132,6 +162,7 @@ module.exports = {
   logger,
   makeAsyncHandler,
   generateNavLinks,
+  createNavLink,
   firstIfArray,
   extractParam
 };

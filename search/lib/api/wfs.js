@@ -140,9 +140,11 @@ async function getGranules (request, response) {
     if (!granulesResult.granules.length) {
       return response.status(400).json('Items not found');
     }
+
     const granulesResponse = convert.cmrGranulesToFeatureCollection(event,
       granulesResult.granules,
-      granulesUmm);
+      granulesUmm,
+      event.queryStringParameters);
     await assertValid(schemas.items, granulesResponse);
     response.json(granulesResponse);
   } catch (e) {

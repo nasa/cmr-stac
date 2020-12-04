@@ -7,7 +7,7 @@ const {
   pointStringToPoints,
   reorderBoxValues
 } = require('./bounding-box');
-const { generateAppUrl, wfs, generateSelfUrl, generateNavLinks } = require('../util');
+const { generateAppUrl, wfs, generateSelfUrl, createNavLink } = require('../util');
 const { inflectBox } = require('./geodeticCoordinates');
 const { makeCmrSearchUrl } = require('../util');
 
@@ -236,9 +236,7 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
   };
 }
 
-function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
-  const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
-
+function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = [], params = {}) {
   let numberMatched;
   let ummGranules;
   let numberReturned;
@@ -274,18 +272,17 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = []) {
     ]
   };
 
-  if (currPage > 1 && granulesResponse.links.length > 1) {
-    granulesResponse.links.push({
-      rel: 'prev',
-      href: prevResultsLink
-    });
+  const currPage = parseInt(_.get(params, 'page', 1), 10);
+  const limit = _.get(params, 'limit', 10);
+  // total items up to and including this page
+  const totalItems = (currPage - 1) * limit + numberReturned;
+
+  if (currPage > 1 && totalItems > limit) {
+    granulesResponse.links.push(createNavLink(event, params, 'prev'));
   }
 
-  if (granulesResponse.features.length === 10) {
-    granulesResponse.links.push({
-      rel: 'next',
-      href: nextResultsLink
-    });
+  if (totalItems < numberMatched) {
+    granulesResponse.links.push(createNavLink(event, params, 'next'));
   }
 
   return granulesResponse;
