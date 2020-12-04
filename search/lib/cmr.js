@@ -18,6 +18,7 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   datetime: ['temporal', convertDateTimeToCMR],
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', identity],
+  page: ['page_num', identity],
   collections: ['collection_concept_id', identity],
   ids: ['concept_id', identity]
 };
@@ -32,7 +33,8 @@ const STAC_QUERY_PARAMS_CONVERSION_MAP = {
 const WFS_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', _.identity],
   datetime: ['temporal', convertDateTimeToCMR],
-  limit: ['page_size', _.identity]
+  limit: ['page_size', _.identity],
+  page: ['page_num', identity]
 };
 
 const DEFAULT_HEADERS = {

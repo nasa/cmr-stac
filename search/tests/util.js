@@ -60,7 +60,12 @@ const logger = createLogger({ logLevel: 'silly' });
 function createRequest (additionalData = null) {
   return Object.assign({
     apiGateway: {
-      event: { headers: { Host: 'example.com' } }
+      event: {
+        headers: { Host: 'example.com' },
+        requestContext: {
+          httpMethod: 'GET'
+        }
+      }
     },
     body: '{}',
     app: { logger: logger },

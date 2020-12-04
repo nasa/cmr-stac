@@ -797,7 +797,7 @@ describe('STAC API Extensions', () => {
       },
       {
         rel: 'next',
-        href: 'http://localhost:3000/stac/GES_DISC/search?page_num=2'
+        href: 'http://localhost:3000/stac/GES_DISC/search?page=2'
       }
     ]
   };

@@ -1,6 +1,6 @@
 {
   "hits": 19,
-  "items": {
+  "items": [{
     "meta": {
       "concept-type": "granule",
       "concept-id": "G1328420897-LPDAAC_ECS",
@@ -102,5 +102,5 @@
         "Version": "1.6.1"
       }
     }
-  }
+  }]
 }

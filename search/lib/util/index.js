@@ -104,16 +104,45 @@ const extractParam = (queryStringParams, param, defaultVal = null) => {
 };
 
 function generateNavLinks (event) {
-  const currPage = parseInt(extractParam(event.queryStringParameters, 'page_num', '1'), 10);
+  const currPage = parseInt(extractParam(event.queryStringParameters, 'page', '1'), 10);
   const nextPage = currPage + 1;
   const prevPage = currPage - 1;
   const newParams = { ...event.queryStringParameters } || {};
-  newParams.page_num = nextPage;
+  newParams.page = nextPage;
   const newPrevParams = { ...event.queryStringParameters } || {};
-  newPrevParams.page_num = prevPage;
+  newPrevParams.page = prevPage;
   const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
   return { currPage, prevResultsLink, nextResultsLink };
+}
+
+function createNavLink (event, params, rel) {
+  const method = event.requestContext.httpMethod;
+  const currPage = parseInt(_.get(params, 'page', 1), 10);
+
+  const page = (rel === 'prev') ? currPage - 1 : currPage + 1;
+
+  const newParams = { ...params };
+  newParams.page = page;
+
+  let link = {};
+  if (method === 'POST') {
+    link = {
+      rel,
+      method,
+      merge: false,
+      body: newParams,
+      href: generateAppUrlWithoutRelativeRoot(event, event.path)
+    };
+  } else {
+    link = {
+      rel,
+      method,
+      href: generateAppUrlWithoutRelativeRoot(event, event.path, newParams)
+    };
+  }
+
+  return link;
 }
 
 module.exports = {
@@ -132,6 +161,7 @@ module.exports = {
   logger,
   makeAsyncHandler,
   generateNavLinks,
+  createNavLink,
   firstIfArray,
   extractParam
 };
