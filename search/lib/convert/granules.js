@@ -7,9 +7,15 @@ const {
   pointStringToPoints,
   reorderBoxValues
 } = require('./bounding-box');
-const { generateAppUrl, wfs, generateSelfUrl, createNavLink } = require('../util');
+const {
+  logger,
+  generateAppUrl,
+  wfs,
+  generateSelfUrl,
+  createNavLink,
+  makeCmrSearchUrl
+} = require('../util');
 const { inflectBox } = require('./geodeticCoordinates');
-const { makeCmrSearchUrl } = require('../util');
 
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
@@ -277,12 +283,18 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = [], para
   // total items up to and including this page
   const totalItems = (currPage - 1) * limit + numberReturned;
 
+  logger.debug(`numberReturned=${numberReturned}, numberMatched=${numberMatched}, totalItems=${totalItems}`)
+
   if (currPage > 1 && totalItems > limit) {
-    granulesResponse.links.push(createNavLink(event, params, 'prev'));
+    const navLink = createNavLink(event, params, 'prev');
+    logger.debug(`navLink = ${JSON.stringify(navLink)}`)
+    granulesResponse.links.push(navLink);
   }
 
   if (totalItems < numberMatched) {
-    granulesResponse.links.push(createNavLink(event, params, 'next'));
+    const navLink = createNavLink(event, params, 'next');
+    logger.debug(`navLink = ${JSON.stringify(navLink)}`)
+    granulesResponse.links.push(navLink);
   }
 
   return granulesResponse;
