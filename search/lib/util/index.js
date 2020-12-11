@@ -141,7 +141,7 @@ function createNavLink (event, params, rel) {
       href: generateAppUrlWithoutRelativeRoot(event, event.path, newParams)
     };
   } else {
-    logger.warning(`Unable to create navigation links for unknown httpMethod: ${method}`);
+    logger.warn(`Unable to create navigation links for unknown httpMethod: ${method}`);
   }
 
   return link;
