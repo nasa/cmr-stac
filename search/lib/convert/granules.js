@@ -283,17 +283,17 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = [], para
   // total items up to and including this page
   const totalItems = (currPage - 1) * limit + numberReturned;
 
-  logger.debug(`numberReturned=${numberReturned}, numberMatched=${numberMatched}, totalItems=${totalItems}`)
+  logger.debug(`numberReturned=${numberReturned}, numberMatched=${numberMatched}, totalItems=${totalItems}`);
 
   if (currPage > 1 && totalItems > limit) {
     const navLink = createNavLink(event, params, 'prev');
-    logger.debug(`navLink = ${JSON.stringify(navLink)}`)
+    logger.debug(`navLink = ${JSON.stringify(navLink)}`);
     granulesResponse.links.push(navLink);
   }
 
   if (totalItems < numberMatched) {
     const navLink = createNavLink(event, params, 'next');
-    logger.debug(`navLink = ${JSON.stringify(navLink)}`)
+    logger.debug(`navLink = ${JSON.stringify(navLink)}`);
     granulesResponse.links.push(navLink);
   }
 
