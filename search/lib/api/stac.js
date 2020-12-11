@@ -28,6 +28,7 @@ async function getSearch (request, response) {
   const providerId = request.params.providerId;
   logger.info(`GET /${providerId}/search`);
   const event = request.apiGateway.event;
+  logger.debug(`Event: ${JSON.stringify(event)}`);
   const query = stacExtension.prepare(request.query);
   const params = Object.assign({ provider: providerId }, query);
 
@@ -57,6 +58,7 @@ async function postSearch (request, response) {
   const providerId = request.params.providerId;
   logger.info(`POST /${providerId}/search`);
   const event = request.apiGateway.event;
+  logger.debug(`Event: ${JSON.stringify(event)}`);
   const body = stacExtension.prepare(request.body);
   const params = Object.assign({ provider: providerId }, body);
 
