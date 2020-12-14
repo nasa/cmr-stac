@@ -72,4 +72,10 @@ describe('parseDateTime', () => {
       convertDateTimeToCMR('/2018-06-0');
     }).toThrowError('Provided datetime value does match any valid date format.');
   });
+
+  it('does not extend to past midnight of the given date', () => {
+    const dt = '2020-06-20T23:50:00Z';
+
+    expect(convertDateTimeToCMR(dt)).toBe('2020-06-20T23:50:00Z,2020-06-21T00:00:00Z');
+  });
 });

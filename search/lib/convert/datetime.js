@@ -26,29 +26,52 @@ function splitOnDelimiters (str, delimiters) {
 }
 
 /**
+ * Handle single date case. End on the same day even if given a time.
+ */
+function handleSingleDate (dateTimes) {
+  const beginDate = new Date(dateTimes[0]);
+
+  const begin = beginDate.toISOString().replace('.000', '');
+
+  const endDate = new Date(beginDate);
+  endDate.setDate(endDate.getDate() + 1);
+  endDate.setUTCHours(0);
+  endDate.setMinutes(0);
+  endDate.setSeconds(0);
+  endDate.setMilliseconds(0);
+
+  const end = endDate.toISOString().replace('.000', '');
+
+  return { begin, end };
+}
+
+/**
+ * Handle a give range, only convert to valid CMR query string.
+ */
+function handleDateRange (dateTimes) {
+  const beginDate = new Date(dateTimes[0]);
+  const begin = beginDate.toISOString().replace('.000', '');
+
+  const endDate = new Date(dateTimes[1]);
+  const end = endDate.toISOString().replace('.000', '');
+
+  return { begin, end };
+}
+
+/**
  * Convert a datetime to a temporal range value.
  * If a single datetime is given, duplicate it to be the end of the range.
  * @param dateTimes
  * @returns {*}
  */
 function parseDateTimeHelper (dateTimes) {
-  let beginDate, endDate, begin, end;
+  let range;
   if (dateTimes.length === 1) {
-    beginDate = new Date(dateTimes[0]);
-
-    begin = beginDate.toISOString().replace('.000', '');
-
-    endDate = new Date(beginDate);
-    endDate.setDate(endDate.getDate() + 1);
-    end = endDate.toISOString().replace('.000', '');
+    range = handleSingleDate(dateTimes);
   } else {
-    beginDate = new Date(dateTimes[0]);
-    begin = beginDate.toISOString().replace('.000', '');
-
-    endDate = new Date(dateTimes[1]);
-    end = endDate.toISOString().replace('.000', '');
+    range = handleDateRange(dateTimes);
   }
-  return `${begin},${end}`;
+  return `${range.begin},${range.end}`;
 }
 
 /**
