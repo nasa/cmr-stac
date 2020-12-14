@@ -46,7 +46,7 @@ function handleSingleDate (dateTimes) {
 }
 
 /**
- * Handle a give range, only convert to valid CMR query string.
+ * Handle a given range, only convert to valid CMR query string.
  */
 function handleDateRange (dateTimes) {
   const beginDate = new Date(dateTimes[0]);
