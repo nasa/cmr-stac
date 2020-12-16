@@ -117,7 +117,7 @@ function generateNavLinks (event) {
 }
 
 function createNavLink (event, params, rel) {
-  const method = event.requestContext.httpMethod;
+  const method = event.httpMethod;
   const currPage = parseInt(_.get(params, 'page', 1), 10);
 
   const page = (rel === 'prev') ? currPage - 1 : currPage + 1;
@@ -134,12 +134,14 @@ function createNavLink (event, params, rel) {
       body: newParams,
       href: generateAppUrlWithoutRelativeRoot(event, event.path)
     };
-  } else {
+  } else if (method === 'GET') {
     link = {
       rel,
       method,
       href: generateAppUrlWithoutRelativeRoot(event, event.path, newParams)
     };
+  } else {
+    logger.warn(`Unable to create navigation links for unknown httpMethod: ${method}`);
   }
 
   return link;

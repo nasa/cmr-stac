@@ -108,6 +108,7 @@ describe('wfs routes', () => {
 
   describe('getGranules', () => {
     it('should generate a item collection response.', async () => {
+      request.apiGateway.event.httpMethod = 'GET';
       await getGranules(request, response);
       response.expect({
         type: 'FeatureCollection',
@@ -135,6 +136,7 @@ describe('wfs routes', () => {
 
     it('should generate an item collection response with a prev link.', async () => {
       request.apiGateway.event.queryStringParameters = { page: 2 };
+      request.apiGateway.event.httpMethod = 'GET';
       await getGranules(request, response);
       response.expect({
         type: 'FeatureCollection',
