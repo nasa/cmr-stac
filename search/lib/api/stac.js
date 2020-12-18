@@ -7,68 +7,44 @@ const stacExtension = require('../stac/extension');
 const { assertValid, schemas } = require('../validator');
 const { logger, makeAsyncHandler } = require('../util');
 
-async function search (event, params) {
-  const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
-  const searchResult = await cmr.findGranules(cmrParams);
-  const granulesUmm = await cmr.findGranulesUmm(cmrParams);
-
-  const featureCollection = cmrGranulesToFeatureCollection(event,
-    searchResult.granules,
-    granulesUmm,
-    params
-  );
-
-  return { searchResult, featureCollection };
-}
-
 /**
  * Primary search function for STAC.
  */
-async function getSearch (request, response) {
+async function search (request, response) {
   const providerId = request.params.providerId;
-  logger.info(`GET /${providerId}/search`);
   const event = request.apiGateway.event;
+  const method = event.httpMethod;
   logger.debug(`Event: ${JSON.stringify(event)}`);
-  const query = stacExtension.prepare(request.query);
+  logger.info(`${method} /${providerId}/search`);
+
+  let query, fields;
+  if (method === 'GET') {
+    query = stacExtension.prepare(request.query);
+    fields = request.query.fields;
+  } else if (method === 'POST') {
+    query = stacExtension.prepare(request.body);
+    fields = request.body.fields;
+  } else {
+    throw new Error(`Invalid httpMethod ${method}`);
+  }
   const params = Object.assign({ provider: providerId }, query);
 
   try {
-    const { searchResult, featureCollection } = await search(event, params);
+    const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
+    const searchResult = await cmr.findGranules(cmrParams);
+    const granulesUmm = await cmr.findGranulesUmm(cmrParams);
+
+    const featureCollection = cmrGranulesToFeatureCollection(event,
+      searchResult.granules,
+      granulesUmm,
+      params
+    );
+
     await assertValid(schemas.items, featureCollection);
     const formatted = stacExtension.format(featureCollection,
       {
-        fields: request.query.fields,
+        fields,
         context: { searchResult, query }
-      });
-    // Apply any stac extensions that are present
-    response.json(formatted);
-  } catch (error) {
-    if (error instanceof stacExtension.errors.InvalidSortPropertyError) {
-      response.status(422).json(error.message);
-    } else {
-      throw error;
-    }
-  }
-}
-
-/**
- * Search via POST.
- */
-async function postSearch (request, response) {
-  const providerId = request.params.providerId;
-  logger.info(`POST /${providerId}/search`);
-  const event = request.apiGateway.event;
-  logger.debug(`Event: ${JSON.stringify(event)}`);
-  const body = stacExtension.prepare(request.body);
-  const params = Object.assign({ provider: providerId }, body);
-
-  try {
-    const { searchResult, featureCollection } = await search(event, params);
-    await assertValid(schemas.items, featureCollection);
-    const formatted = stacExtension.format(featureCollection,
-      {
-        fields: request.body.fields,
-        context: { searchResult, query: params }
       });
     // Apply any stac extensions that are present
     response.json(formatted);
@@ -83,11 +59,10 @@ async function postSearch (request, response) {
 
 const routes = express.Router();
 
-routes.get('/:providerId/search', makeAsyncHandler(getSearch));
-routes.post('/:providerId/search', makeAsyncHandler(postSearch));
+routes.get('/:providerId/search', makeAsyncHandler(search));
+routes.post('/:providerId/search', makeAsyncHandler(search));
 
 module.exports = {
-  getSearch,
-  postSearch,
+  search,
   routes
 };
