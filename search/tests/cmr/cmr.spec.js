@@ -1,7 +1,6 @@
 const axios = require('axios');
 const {
   STAC_SEARCH_PARAMS_CONVERSION_MAP,
-  STAC_QUERY_PARAMS_CONVERSION_MAP,
   makeCmrSearchUrl,
   cmrSearch,
   findCollections,
@@ -222,7 +221,7 @@ describe('cmr', () => {
       expect(convertParams(map, original)).toEqual(converted);
     });
 
-    describe('STAC_QUERY_PARAMS_CONVERSION_MAP', () => {
+    describe('STAC_SEARCH_PARAMS_CONVERSION_MAP', () => {
       it('should convert a bounding_box to a bbox.', () => {
         const params = {
           bbox: [10, 10, 10, 10]
@@ -263,16 +262,6 @@ describe('cmr', () => {
         };
         const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
         expect(result).toEqual({ collection_concept_id: [1] });
-      });
-    });
-
-    describe('STAC_QUERY_PARAMS_CONVERSION_MAP', () => {
-      it('should convert limit to limit.', function () {
-        const params = {
-          limit: '10'
-        };
-        const result = convertParams(STAC_QUERY_PARAMS_CONVERSION_MAP, params);
-        expect(result).toEqual({ limit: 10 });
       });
     });
   });

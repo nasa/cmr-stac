@@ -9,7 +9,6 @@ const {
 const settings = require('./settings');
 
 const {
-  parseOrdinateString,
   convertDateTimeToCMR
 } = require('./convert');
 
@@ -21,13 +20,6 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   page: ['page_num', identity],
   collections: ['collection_concept_id', identity],
   ids: ['concept_id', identity]
-};
-
-const STAC_QUERY_PARAMS_CONVERSION_MAP = {
-  limit: ['limit', (v) => parseInt(v, 10)],
-  bbox: ['bbox', parseOrdinateString],
-  datetime: ['temporal', convertDateTimeToCMR],
-  collectionId: ['collection_concept_id', identity]
 };
 
 const WFS_PARAMS_CONVERSION_MAP = {
@@ -180,7 +172,6 @@ function convertParams (conversionMap, params) {
 
 module.exports = {
   STAC_SEARCH_PARAMS_CONVERSION_MAP,
-  STAC_QUERY_PARAMS_CONVERSION_MAP,
   WFS_PARAMS_CONVERSION_MAP,
   makeCmrSearchUrl,
   cmrSearch,
