@@ -7,7 +7,7 @@
   "author": "Element 84",
   "license": "Apache-2.0",
   "dependencies": {
-    "ajv": "6.5.1",
+    "ajv": "6.12.3",
     "aws-serverless-express": "3.3.6",
     "axios": "0.18.1",
     "cors": "^2.8.5",
