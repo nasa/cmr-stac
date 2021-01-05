@@ -46,8 +46,8 @@ describe('STAC Search', () => {
   const expectedResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
-    numberMatched: 0,
-    numberReturned: 0,
+    numberMatched: 19,
+    numberReturned: 2,
     features: exampleData.stacGrans,
     context: {
       limit: 1000000,
@@ -62,6 +62,11 @@ describe('STAC Search', () => {
       {
         rel: 'root',
         href: 'http://example.com/stac/'
+      },
+      {
+        rel: 'next',
+        href: 'http://example.com?page=2',
+        method: 'GET'
       }
     ]
   };

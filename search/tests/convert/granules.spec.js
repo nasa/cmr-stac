@@ -289,14 +289,13 @@ describe('granuleToItem', () => {
     const event = { headers: { Host: 'example.com' }, path: '/stac', queryStringParameters: [] };
 
     it('should return a CMR Granules search result to a FeatureCollection', () => {
-      expect(cmrGranulesToFeatureCollection(event, cmrGran)).toEqual({
+      expect(cmrGranulesToFeatureCollection(event, cmrGran, [], 1)).toEqual({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
         features: [{
           id: 1,
           stac_version: settings.stac.version,
           stac_extensions: [],
-          short_name: 'landsat',
           collection: 10,
           geometry: { type: 'Point', coordinates: [139, 77] },
           bbox: [139, 77, 139, 77],

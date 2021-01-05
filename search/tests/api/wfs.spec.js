@@ -113,8 +113,42 @@ describe('wfs routes', () => {
       response.expect({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
-        numberMatched: 19,
-        numberReturned: 1,
+        numberMatched: 2,
+        numberReturned: 2,
+        context: {
+          limit: 1000000,
+          matched: 2,
+          returned: 2
+        },
+        links: [
+          {
+            rel: 'self',
+            href: 'http://example.com'
+          },
+          {
+            rel: 'root',
+            href: 'http://example.com/stac/'
+          }
+        ],
+        features: exampleData.stacGrans
+      });
+    });
+
+    it('should generate a item collection response with a next link.', async () => {
+      request.apiGateway.event.httpMethod = 'GET';
+      request.query.limit = 2;
+      mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: 10 }));
+      await getGranules(request, response);
+      response.expect({
+        type: 'FeatureCollection',
+        stac_version: settings.stac.version,
+        numberMatched: 10,
+        numberReturned: 2,
+        context: {
+          limit: 2,
+          matched: 10,
+          returned: 2
+        },
         links: [
           {
             rel: 'self',
@@ -126,7 +160,7 @@ describe('wfs routes', () => {
           },
           {
             rel: 'next',
-            href: 'http://example.com?page=2',
+            href: 'http://example.com?limit=2&page=2',
             method: 'GET'
           }
         ],
@@ -136,13 +170,18 @@ describe('wfs routes', () => {
 
     it('should generate an item collection response with a prev link.', async () => {
       request.apiGateway.event.queryStringParameters = { page: 2 };
-      request.apiGateway.event.httpMethod = 'GET';
+      request.query.page = 2;
       await getGranules(request, response);
       response.expect({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
-        numberMatched: 19,
-        numberReturned: 1,
+        numberMatched: 2,
+        numberReturned: 2,
+        context: {
+          limit: 1000000,
+          matched: 2,
+          returned: 2
+        },
         links: [
           {
             rel: 'self',
@@ -156,11 +195,6 @@ describe('wfs routes', () => {
             rel: 'prev',
             method: 'GET',
             href: 'http://example.com?page=1'
-          },
-          {
-            rel: 'next',
-            method: 'GET',
-            href: 'http://example.com?page=3'
           }
         ],
         features: exampleData.stacGrans
