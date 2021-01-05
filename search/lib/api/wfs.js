@@ -13,6 +13,7 @@ const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 const { inspect } = require('util');
 const { Catalog } = require('../stac/catalog');
+const stacExtension = require('../stac/extension');
 
 const CONFORMANCE_RESPONSE = {
   conformsTo: [
@@ -122,33 +123,56 @@ async function getCollection (request, response) {
  * Fetch a list of granules from CMR.
  */
 async function getGranules (request, response) {
-  const conceptId = request.params.collectionId;
+  const collectionId = request.params.collectionId;
   const providerId = request.params.providerId;
-  logger.info(`GET /${providerId}/collections/${conceptId}/items`);
   const event = request.apiGateway.event;
-  const params = Object.assign(
-    {
-      collection_concept_id: conceptId,
-      provider: providerId
-    },
-    cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
-  );
+  const method = event.httpMethod;
+  logger.debug(`Event: ${JSON.stringify(event)}`);
+  logger.info(`${method} ${event.path}`);
+
+  let query, fields;
+  if (method === 'GET') {
+    query = stacExtension.prepare(request.query);
+    fields = request.query.fields;
+  } else if (method === 'POST') {
+    query = stacExtension.prepare(request.body);
+    fields = request.body.fields;
+  } else {
+    throw new Error(`Invalid httpMethod ${method}`);
+  }
+  const params = Object.assign({ provider: providerId }, query);
+  if (collectionId) {
+    params.collection_concept_id = collectionId;
+  }
+  const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
 
   try {
-    const granulesResult = await cmr.findGranules(params);
-    const granulesUmm = await cmr.findGranulesUmm(params);
+    const granulesResult = await cmr.findGranules(cmrParams);
+    const granulesUmm = await cmr.findGranulesUmm(cmrParams);
     if (!granulesResult.granules.length) {
       return response.status(400).json('Items not found');
     }
 
-    const granulesResponse = convert.cmrGranulesToFeatureCollection(event,
+    const featureCollection = convert.cmrGranulesToFeatureCollection(event,
       granulesResult.granules,
       granulesUmm,
-      event.queryStringParameters);
-    await assertValid(schemas.items, granulesResponse);
-    response.json(granulesResponse);
-  } catch (e) {
-    response.status(400).json(e.message);
+      granulesResult.totalHits,
+      query);
+    await assertValid(schemas.items, featureCollection);
+
+    const formatted = stacExtension.format(featureCollection,
+      {
+        fields,
+        context: { searchResult: granulesResult, query }
+      });
+
+    response.json(formatted);
+  } catch (err) {
+    if (err instanceof stacExtension.errors.InvalidSortPropertyError) {
+      response.status(422).json(err.message);
+    } else {
+      response.status(400).json(err.message);
+    }
   }
 }
 
