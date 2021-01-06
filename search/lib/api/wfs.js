@@ -156,7 +156,7 @@ async function getGranules (request, response) {
     const featureCollection = convert.cmrGranulesToFeatureCollection(event,
       granulesResult.granules,
       granulesUmm,
-      granulesResult.totalHits,
+      parseInt(granulesResult.totalHits),
       query);
     await assertValid(schemas.items, featureCollection);
 
