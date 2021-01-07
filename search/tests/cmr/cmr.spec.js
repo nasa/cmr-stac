@@ -227,7 +227,7 @@ describe('cmr', () => {
           bbox: [10, 10, 10, 10]
         };
         const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
-        expect(result).toEqual({ bounding_box: [10,10,10,10] });
+        expect(result).toEqual({ bounding_box: [10, 10, 10, 10] });
       });
 
       it('should convert time into temporal.', () => {
