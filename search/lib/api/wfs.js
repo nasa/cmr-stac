@@ -140,15 +140,16 @@ async function getGranules (request, response) {
   } else {
     throw new Error(`Invalid httpMethod ${method}`);
   }
-  const params = Object.assign({ provider: providerId }, query);
+  const params = Object.assign(
+    { provider: providerId },
+    cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, query)
+  );
   if (collectionId) {
     params.collection_concept_id = collectionId;
   }
-  const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
-
   try {
-    const granulesResult = await cmr.findGranules(cmrParams);
-    const granulesUmm = await cmr.findGranulesUmm(cmrParams);
+    const granulesResult = await cmr.findGranules(params);
+    const granulesUmm = await cmr.findGranulesUmm(params);
     if (!granulesResult.granules.length) {
       return response.status(400).json('Items not found');
     }

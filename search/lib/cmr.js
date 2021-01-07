@@ -142,7 +142,9 @@ function fromEntries (entries) {
 }
 
 function convertParam (converterPair, key, value) {
-  if (!converterPair) return [key, value];
+  if (!converterPair) {
+    throw Error(`Unsupported parameter ${key}`);
+  }
 
   const [newName, converter] = converterPair;
   return [newName, converter(value)];
@@ -152,7 +154,6 @@ function convertParams (conversionMap, params) {
   try {
     const converted = Object.entries(params || {})
       .map(([k, v]) => convertParam(conversionMap[k], k, v));
-    console.log(converted)
     return fromEntries(converted);
   } catch (error) {
     logger.error(error.message);
