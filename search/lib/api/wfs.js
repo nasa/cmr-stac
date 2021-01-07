@@ -40,7 +40,7 @@ async function getCollections (request, response) {
     const provider = request.params.providerId;
     const params = Object.assign(
       { provider_short_name: provider },
-      cmr.convertParams(cmr.WFS_PARAMS_CONVERSION_MAP, request.query)
+      cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, request.query)
     );
     const collections = await cmr.findCollections(params);
     if (!collections.length) {

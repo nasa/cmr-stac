@@ -2,7 +2,6 @@ const _ = require('lodash');
 const axios = require('axios');
 const { UrlBuilder } = require('./util/url-builder');
 const {
-  identity,
   logger,
   makeCmrSearchUrl
 } = require('./util');
@@ -16,17 +15,10 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', (v) => v.join(',')],
   datetime: ['temporal', convertDateTimeToCMR],
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
-  limit: ['page_size', identity],
-  page: ['page_num', identity],
-  collections: ['collection_concept_id', identity],
-  ids: ['concept_id', identity]
-};
-
-const WFS_PARAMS_CONVERSION_MAP = {
-  bbox: ['bounding_box', _.identity],
-  datetime: ['temporal', convertDateTimeToCMR],
   limit: ['page_size', _.identity],
-  page: ['page_num', identity]
+  page: ['page_num', _.identity],
+  collections: ['collection_concept_id', _.identity],
+  ids: ['concept_id', _.identity]
 };
 
 const DEFAULT_HEADERS = {
@@ -160,6 +152,7 @@ function convertParams (conversionMap, params) {
   try {
     const converted = Object.entries(params || {})
       .map(([k, v]) => convertParam(conversionMap[k], k, v));
+    console.log(converted)
     return fromEntries(converted);
   } catch (error) {
     logger.error(error.message);
@@ -172,7 +165,6 @@ function convertParams (conversionMap, params) {
 
 module.exports = {
   STAC_SEARCH_PARAMS_CONVERSION_MAP,
-  WFS_PARAMS_CONVERSION_MAP,
   makeCmrSearchUrl,
   cmrSearch,
   findCollections,
