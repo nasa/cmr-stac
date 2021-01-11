@@ -207,7 +207,6 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
   return {
     type: 'Feature',
     id: cmrGran.id,
-    // : cmrGran.short_name,
     stac_version: settings.stac.version,
     stac_extensions: extensions,
     collection: cmrGran.collection_concept_id,
