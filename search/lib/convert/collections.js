@@ -84,7 +84,7 @@ function createLinks (event, cmrCollection) {
       'CMR Search this collection'),
     wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${id}/items`),
       'Granules in this collection'),
-    wfs.createLink('overview', makeCmrSearchUrl(`/concepts/${id}.html`),
+    wfs.createLink('about', makeCmrSearchUrl(`/concepts/${id}.html`),
       'HTML metadata for collection'),
     wfs.createLink('via', makeCmrSearchUrl(`/concepts/${id}.json`),
       'CMR JSON metadata for collection')

@@ -212,7 +212,7 @@ describe('collections', () => {
             type: 'application/json'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
-            rel: 'overview',
+            rel: 'about',
             title: 'HTML metadata for collection',
             type: 'text/html'
           }, {
@@ -282,7 +282,7 @@ describe('collections', () => {
             type: 'application/json'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
-            rel: 'overview',
+            rel: 'about',
             title: 'HTML metadata for collection',
             type: 'text/html'
           }, {

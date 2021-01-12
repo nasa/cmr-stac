@@ -37,7 +37,7 @@
       "type": "application/json"
     },
     {
-      "rel": "overview",
+      "rel": "about",
       "href": "https://cmr.earthdata.nasa.gov/search/concepts/C1299783579-LPDAAC_ECS.html",
       "title": "HTML metadata for collection",
       "type": "text/html"
