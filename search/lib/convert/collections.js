@@ -86,10 +86,8 @@ function createLinks (event, cmrCollection) {
       'Granules in this collection'),
     wfs.createLink('overview', makeCmrSearchUrl(`/concepts/${id}.html`),
       'HTML metadata for collection'),
-    wfs.createLink('metadata', makeCmrSearchUrl(`/concepts/${id}.native`),
-      'Native metadata for collection'),
-    wfs.createLink('metadata', makeCmrSearchUrl(`/concepts/${id}.umm_json`),
-      'JSON metadata for collection')
+    wfs.createLink('via', makeCmrSearchUrl(`/concepts/${id}.json`),
+      'CMR JSON metadata for collection')
   ];
   return links;
 }
