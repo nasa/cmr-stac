@@ -233,6 +233,14 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
       {
         rel: 'provider',
         href: generateAppUrl(event, `/${cmrGran.data_center}`)
+      },
+      {
+        rel: 'via',
+        href: makeCmrSearchUrl(`/concepts/${cmrGran.id}.json`)
+      },
+      {
+        rel: 'via',
+        href: makeCmrSearchUrl(`/concepts/${cmrGran.id}.umm_json`)
       }
     ],
     properties: properties,

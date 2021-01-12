@@ -333,6 +333,14 @@ describe('granuleToItem', () => {
             {
               rel: 'provider',
               href: 'http://example.com/stac/USA'
+            },
+            {
+              rel: 'via',
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.json'
+            },
+            {
+              rel: 'via',
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.umm_json'
             }
           ]
         }],
