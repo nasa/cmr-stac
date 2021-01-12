@@ -25,12 +25,6 @@
       "type": "application/json"
     },
     {
-      "rel": "stac",
-      "href": "http://example.com/stac/LPDAAC_ECS/search?collections=C1299783579-LPDAAC_ECS",
-      "title": "STAC Search this collection",
-      "type": "application/json"
-    },
-    {
       "rel": "cmr",
       "href": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C1299783579-LPDAAC_ECS",
       "title": "CMR Search this collection",

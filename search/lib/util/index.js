@@ -69,10 +69,6 @@ function generateSelfUrl (event) {
   return generateAppUrlWithoutRelativeRoot(event, event.path, event.queryStringParameters);
 }
 
-function identity (x) {
-  return x;
-}
-
 function makeAsyncHandler (fn) {
   return async (req, res, next) => {
     try {
@@ -156,7 +152,6 @@ module.exports = {
   generateAppUrlWithoutRelativeRoot,
   generateSelfUrl,
   getStacBaseUrl,
-  identity,
   makeCmrSearchUrl,
   WfsLink,
   createLogger,

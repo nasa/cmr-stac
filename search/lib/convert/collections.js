@@ -80,8 +80,6 @@ function createLinks (event, cmrCollection) {
       'Root catalog'),
     wfs.createLink('parent', generateAppUrl(event, `/${provider}`),
       'Parent catalog'),
-    wfs.createLink('stac', stacSearchWithCurrentParams(event, id, provider),
-      'STAC Search this collection'),
     wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, id),
       'CMR Search this collection'),
     wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${id}/items`),

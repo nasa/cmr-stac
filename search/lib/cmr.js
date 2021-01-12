@@ -2,39 +2,23 @@ const _ = require('lodash');
 const axios = require('axios');
 const { UrlBuilder } = require('./util/url-builder');
 const {
-  identity,
   logger,
   makeCmrSearchUrl
 } = require('./util');
 const settings = require('./settings');
 
 const {
-  parseOrdinateString,
   convertDateTimeToCMR
 } = require('./convert');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
-  bbox: ['bounding_box', (v) => v.join(',')],
-  datetime: ['temporal', convertDateTimeToCMR],
-  intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
-  limit: ['page_size', identity],
-  page: ['page_num', identity],
-  collections: ['collection_concept_id', identity],
-  ids: ['concept_id', identity]
-};
-
-const STAC_QUERY_PARAMS_CONVERSION_MAP = {
-  limit: ['limit', (v) => parseInt(v, 10)],
-  bbox: ['bbox', parseOrdinateString],
-  datetime: ['temporal', convertDateTimeToCMR],
-  collectionId: ['collection_concept_id', identity]
-};
-
-const WFS_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', _.identity],
   datetime: ['temporal', convertDateTimeToCMR],
+  intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', _.identity],
-  page: ['page_num', identity]
+  page: ['page_num', _.identity],
+  collections: ['collection_concept_id', _.identity],
+  ids: ['concept_id', _.identity]
 };
 
 const DEFAULT_HEADERS = {
@@ -158,7 +142,9 @@ function fromEntries (entries) {
 }
 
 function convertParam (converterPair, key, value) {
-  if (!converterPair) return [key, value];
+  if (!converterPair) {
+    throw Error(`Unsupported parameter ${key}`);
+  }
 
   const [newName, converter] = converterPair;
   return [newName, converter(value)];
@@ -180,8 +166,6 @@ function convertParams (conversionMap, params) {
 
 module.exports = {
   STAC_SEARCH_PARAMS_CONVERSION_MAP,
-  STAC_QUERY_PARAMS_CONVERSION_MAP,
-  WFS_PARAMS_CONVERSION_MAP,
   makeCmrSearchUrl,
   cmrSearch,
   findCollections,

@@ -201,11 +201,6 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'http://example.com/stac/LPDAAC/search?collections=id',
-            rel: 'stac',
-            title: 'STAC Search this collection',
-            type: 'application/json'
-          }, {
             href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
             rel: 'cmr',
             title: 'CMR Search this collection',
@@ -279,11 +274,6 @@ describe('collections', () => {
             rel: 'parent',
             href: 'http://example.com/stac/LPDAAC',
             title: 'Parent catalog',
-            type: 'application/json'
-          }, {
-            href: 'http://example.com/stac/LPDAAC/search?collections=id',
-            rel: 'stac',
-            title: 'STAC Search this collection',
             type: 'application/json'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',

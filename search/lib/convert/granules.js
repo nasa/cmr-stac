@@ -207,7 +207,6 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
   return {
     type: 'Feature',
     id: cmrGran.id,
-    short_name: cmrGran.short_name,
     stac_version: settings.stac.version,
     stac_extensions: extensions,
     collection: cmrGran.collection_concept_id,
@@ -241,16 +240,16 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
   };
 }
 
-function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = [], params = {}) {
+function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = [], hits = 0, params = {}) {
   let numberMatched;
   let ummGranules;
   let numberReturned;
 
   let features = [];
   if (_.has(cmrGransUmm, 'items')) {
-    numberMatched = cmrGransUmm.hits;
+    numberMatched = hits;
     ummGranules = cmrGransUmm.items;
-    numberReturned = ummGranules.length;
+    numberReturned = cmrGrans.length;
 
     for (const gran in cmrGrans) {
       const stacItem = cmrGranToFeatureGeoJSON(event, cmrGrans[gran], ummGranules[gran]);
@@ -279,6 +278,7 @@ function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = [], para
 
   const currPage = parseInt(_.get(params, 'page', 1), 10);
   const limit = _.get(params, 'limit', 10);
+
   // total items up to and including this page
   const totalItems = (currPage - 1) * limit + numberReturned;
 

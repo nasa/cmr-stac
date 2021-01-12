@@ -62,9 +62,7 @@ function createRequest (additionalData = null) {
     apiGateway: {
       event: {
         headers: { Host: 'example.com' },
-        requestContext: {
-          httpMethod: 'GET'
-        }
+        httpMethod: 'GET'
       }
     },
     body: '{}',

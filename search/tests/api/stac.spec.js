@@ -1,6 +1,6 @@
 const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
-const { getSearch, postSearch } = require('../../lib/api/stac');
+const { search } = require('../../lib/api/stac');
 const exampleData = require('../example-data');
 const axios = require('axios');
 
@@ -46,8 +46,8 @@ describe('STAC Search', () => {
   const expectedResponse = {
     type: 'FeatureCollection',
     stac_version: settings.stac.version,
-    numberMatched: 0,
-    numberReturned: 0,
+    numberMatched: 19,
+    numberReturned: 2,
     features: exampleData.stacGrans,
     context: {
       limit: 1000000,
@@ -62,20 +62,18 @@ describe('STAC Search', () => {
       {
         rel: 'root',
         href: 'http://example.com/stac/'
+      },
+      {
+        rel: 'next',
+        href: 'http://example.com?page=2',
+        method: 'GET'
       }
     ]
   };
 
-  describe('getSearch', () => {
+  describe('search', () => {
     it('should return a set of items that match a simple query', async () => {
-      await getSearch(request, response);
-      response.expect(expectedResponse);
-    });
-  });
-
-  describe('postSearch', () => {
-    it('should return a set of items that match a simple query', async () => {
-      await postSearch(request, response);
+      await search(request, response);
       response.expect(expectedResponse);
     });
   });
@@ -106,7 +104,7 @@ describe('STAC Search Params', () => {
         query: { datetime: '2020-11-02T00:00:00Z' }
       });
 
-      await getSearch(request, response);
+      await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
         'https://cmr.earthdata.nasa.gov/search/granules.json',
@@ -125,7 +123,7 @@ describe('STAC Search Params', () => {
         query: { datetime: '2019-02-01T00:00:00Z,2019-05-05T00:30:00Z' }
       });
 
-      await getSearch(request, response);
+      await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
         'https://cmr.earthdata.nasa.gov/search/granules.json',
@@ -144,7 +142,7 @@ describe('STAC Search Params', () => {
         query: { datetime: '2019-02-01T00:00:00Z/2019-05-05T00:30:00Z' }
       });
 
-      await getSearch(request, response);
+      await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
         'https://cmr.earthdata.nasa.gov/search/granules.json',
@@ -163,7 +161,7 @@ describe('STAC Search Params', () => {
         query: { datetime: '12:15:09pm' }
       });
 
-      await getSearch(request, response);
+      await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
         'https://cmr.earthdata.nasa.gov/search/granules.json',
@@ -182,7 +180,7 @@ describe('STAC Search Params', () => {
         query: { datetime: '2020-10-01' }
       });
 
-      await getSearch(request, response);
+      await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
         'https://cmr.earthdata.nasa.gov/search/granules.json',
@@ -201,7 +199,7 @@ describe('STAC Search Params', () => {
         query: { datetime: '2020-09-03,2020-10-26' }
       });
 
-      await getSearch(request, response);
+      await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
         'https://cmr.earthdata.nasa.gov/search/granules.json',
@@ -220,7 +218,7 @@ describe('STAC Search Params', () => {
         query: { datetime: '2020-09-03/2020-10-26' }
       });
 
-      await getSearch(request, response);
+      await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
         'https://cmr.earthdata.nasa.gov/search/granules.json',

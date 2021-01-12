@@ -1,93 +1,21 @@
 const express = require('express');
 
-const cmr = require('../cmr');
-const { cmrGranulesToFeatureCollection } = require('../convert');
-const stacExtension = require('../stac/extension');
-
-const { assertValid, schemas } = require('../validator');
-const { logger, makeAsyncHandler } = require('../util');
-
-async function search (event, params) {
-  const cmrParams = cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
-  const searchResult = await cmr.findGranules(cmrParams);
-  const granulesUmm = await cmr.findGranulesUmm(cmrParams);
-
-  const featureCollection = cmrGranulesToFeatureCollection(event,
-    searchResult.granules,
-    granulesUmm,
-    params
-  );
-
-  return { searchResult, featureCollection };
-}
+const { makeAsyncHandler } = require('../util');
+const { getGranules } = require('./wfs');
 
 /**
  * Primary search function for STAC.
  */
-async function getSearch (request, response) {
-  const providerId = request.params.providerId;
-  logger.info(`GET /${providerId}/search`);
-  const event = request.apiGateway.event;
-  logger.debug(`Event: ${JSON.stringify(event)}`);
-  const query = stacExtension.prepare(request.query);
-  const params = Object.assign({ provider: providerId }, query);
-
-  try {
-    const { searchResult, featureCollection } = await search(event, params);
-    await assertValid(schemas.items, featureCollection);
-    const formatted = stacExtension.format(featureCollection,
-      {
-        fields: request.query.fields,
-        context: { searchResult, query }
-      });
-    // Apply any stac extensions that are present
-    response.json(formatted);
-  } catch (error) {
-    if (error instanceof stacExtension.errors.InvalidSortPropertyError) {
-      response.status(422).json(error.message);
-    } else {
-      throw error;
-    }
-  }
-}
-
-/**
- * Search via POST.
- */
-async function postSearch (request, response) {
-  const providerId = request.params.providerId;
-  logger.info(`POST /${providerId}/search`);
-  const event = request.apiGateway.event;
-  logger.debug(`Event: ${JSON.stringify(event)}`);
-  const body = stacExtension.prepare(request.body);
-  const params = Object.assign({ provider: providerId }, body);
-
-  try {
-    const { searchResult, featureCollection } = await search(event, params);
-    await assertValid(schemas.items, featureCollection);
-    const formatted = stacExtension.format(featureCollection,
-      {
-        fields: request.body.fields,
-        context: { searchResult, query: params }
-      });
-    // Apply any stac extensions that are present
-    response.json(formatted);
-  } catch (error) {
-    if (error instanceof stacExtension.errors.InvalidSortPropertyError) {
-      response.status(422).json(error.message);
-    } else {
-      throw error;
-    }
-  }
+async function search (request, response) {
+  return getGranules(request, response);
 }
 
 const routes = express.Router();
 
-routes.get('/:providerId/search', makeAsyncHandler(getSearch));
-routes.post('/:providerId/search', makeAsyncHandler(postSearch));
+routes.get('/:providerId/search', makeAsyncHandler(search));
+routes.post('/:providerId/search', makeAsyncHandler(search));
 
 module.exports = {
-  getSearch,
-  postSearch,
+  search,
   routes
 };
