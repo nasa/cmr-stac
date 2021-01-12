@@ -292,6 +292,8 @@ describe('granuleToItem', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran, [], 1)).toEqual({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
+        numberMatched: 1,
+        numberReturned: 1,
         features: [{
           id: 1,
           stac_version: settings.stac.version,
