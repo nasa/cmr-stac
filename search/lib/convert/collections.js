@@ -36,14 +36,6 @@ function cmrCollSpatialToExtents (cmrColl) {
   return bbox;
 }
 
-function stacSearchWithCurrentParams (event, collId, collProvider) {
-  const newParams = { ...event.queryStringParameters } || {};
-  newParams.collections = collId;
-  delete newParams.provider;
-  delete newParams.page;
-  return generateAppUrl(event, `/${collProvider}/search`, newParams);
-}
-
 function createExtent (cmrCollection) {
   return {
     crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
@@ -98,6 +90,5 @@ function cmrCollToWFSColl (event, cmrCollection) {
 
 module.exports = {
   cmrCollSpatialToExtents,
-  stacSearchWithCurrentParams,
   cmrCollToWFSColl
 };

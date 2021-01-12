@@ -1,6 +1,5 @@
 const {
   cmrCollSpatialToExtents,
-  stacSearchWithCurrentParams,
   cmrCollToWFSColl
 } = require('../../lib/convert/collections');
 const axios = require('axios');
@@ -58,37 +57,6 @@ describe('collections', () => {
     it('should return a bounding box containing the WHOLE_WORLD_BBOX', () => {
       cmrCollection = {};
       expect(cmrCollSpatialToExtents(cmrCollection)).toEqual(WHOLE_WORLD_BBOX);
-    });
-  });
-
-  describe('stacSearchWithCurrentParams', () => {
-    const collID = 'landsat-8-l1';
-    const collProvider = 'LPDAAC';
-
-    const event = {
-      headers: {
-        Host: 'example.com'
-      },
-      queryStringParameters: {
-        eo_cloud_cover: 2
-      }
-    };
-
-    const otherEvent = {
-      headers: {
-        Host: 'example.com'
-      },
-      queryStringParameters: {}
-    };
-
-    it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID, collProvider))
-        .toEqual('http://example.com/stac/LPDAAC/search?eo_cloud_cover=2&collections=landsat-8-l1');
-    });
-
-    it('should return a search url with no params', () => {
-      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider))
-        .toEqual('http://example.com/stac/LPDAAC/search?collections=landsat-8-l1');
     });
   });
 
