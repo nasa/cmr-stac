@@ -7,13 +7,13 @@
   "author": "Element 84",
   "license": "Apache-2.0",
   "dependencies": {
-    "ajv": "6.5.1",
+    "ajv": "6.12.3",
     "aws-serverless-express": "3.3.6",
     "axios": "0.18.1",
     "cors": "^2.8.5",
     "express": "4.17.1",
     "js-yaml": "3.13.1",
-    "lodash": "4.17.15",
+    "lodash": "4.17.20",
     "mime-types": "2.1.19",
     "winston": "3.2.1"
   },
