@@ -1,7 +1,6 @@
 const {
   cmrCollSpatialToExtents,
   stacSearchWithCurrentParams,
-  cmrGranuleSearchWithCurrentParams,
   cmrCollToWFSColl
 } = require('../../lib/convert/collections');
 const axios = require('axios');
@@ -93,28 +92,6 @@ describe('collections', () => {
     });
   });
 
-  describe('cmrGranuleSearchWithCurrentParams', () => {
-    const collID = 'landsat-8-l1';
-    const event = {
-      queryStringParameters: {
-        collection_concept_id: 'C1234567-PODAAC',
-        cloud_cover: 0.2
-      }
-    };
-
-    const otherEvent = {};
-
-    it('should return a CMR search url containing given parameters', () => {
-      expect(cmrGranuleSearchWithCurrentParams(event, collID))
-        .toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1&cloud_cover=0.2');
-    });
-
-    it('should return a CMR search url without any parameters', () => {
-      expect(cmrGranuleSearchWithCurrentParams(otherEvent, collID))
-        .toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1');
-    });
-  });
-
   describe('cmrCollToWFSCol', () => {
     beforeEach(() => {
       axios.get = jest.fn();
@@ -201,11 +178,6 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
-            rel: 'cmr',
-            title: 'CMR Search this collection',
-            type: 'application/json'
-          }, {
             href: 'http://example.com/stac/LPDAAC/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
@@ -269,11 +241,6 @@ describe('collections', () => {
             rel: 'parent',
             href: 'http://example.com/stac/LPDAAC',
             title: 'Parent catalog',
-            type: 'application/json'
-          }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
-            rel: 'cmr',
-            title: 'CMR Search this collection',
             type: 'application/json'
           }, {
             href: 'http://example.com/stac/LPDAAC/collections/id/items',

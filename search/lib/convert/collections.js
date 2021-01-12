@@ -44,15 +44,6 @@ function stacSearchWithCurrentParams (event, collId, collProvider) {
   return generateAppUrl(event, `/${collProvider}/search`, newParams);
 }
 
-function cmrGranuleSearchWithCurrentParams (event, collId) {
-  const newParams = { ...event.queryStringParameters } || {};
-  newParams.collection_concept_id = collId;
-  delete newParams.collectionId;
-  delete newParams.provider;
-  delete newParams.page;
-  return makeCmrSearchUrl('granules.json', newParams);
-}
-
 function createExtent (cmrCollection) {
   return {
     crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
@@ -80,8 +71,6 @@ function createLinks (event, cmrCollection) {
       'Root catalog'),
     wfs.createLink('parent', generateAppUrl(event, `/${provider}`),
       'Parent catalog'),
-    wfs.createLink('cmr', cmrGranuleSearchWithCurrentParams(event, id),
-      'CMR Search this collection'),
     wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${id}/items`),
       'Granules in this collection'),
     wfs.createLink('about', makeCmrSearchUrl(`/concepts/${id}.html`),
@@ -110,6 +99,5 @@ function cmrCollToWFSColl (event, cmrCollection) {
 module.exports = {
   cmrCollSpatialToExtents,
   stacSearchWithCurrentParams,
-  cmrGranuleSearchWithCurrentParams,
   cmrCollToWFSColl
 };
