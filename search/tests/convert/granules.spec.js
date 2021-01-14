@@ -292,6 +292,8 @@ describe('granuleToItem', () => {
       expect(cmrGranulesToFeatureCollection(event, cmrGran, [], 1)).toEqual({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
+        numberMatched: 1,
+        numberReturned: 1,
         features: [{
           id: 1,
           stac_version: settings.stac.version,
@@ -331,6 +333,14 @@ describe('granuleToItem', () => {
             {
               rel: 'provider',
               href: 'http://example.com/stac/USA'
+            },
+            {
+              rel: 'via',
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.json'
+            },
+            {
+              rel: 'via',
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.umm_json'
             }
           ]
         }],

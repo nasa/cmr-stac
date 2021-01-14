@@ -57,6 +57,14 @@
     {
       "rel": "provider",
       "href": "http://example.com/stac/LANCEMODIS"
+    },
+    {
+      "rel": "via",
+      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1848422111-LANCEMODIS.json"
+    },
+    {
+      "rel": "via",
+      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1848422111-LANCEMODIS.umm_json"
     }
   ],
   "properties": {

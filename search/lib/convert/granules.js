@@ -233,6 +233,14 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
       {
         rel: 'provider',
         href: generateAppUrl(event, `/${cmrGran.data_center}`)
+      },
+      {
+        rel: 'via',
+        href: makeCmrSearchUrl(`/concepts/${cmrGran.id}.json`)
+      },
+      {
+        rel: 'via',
+        href: makeCmrSearchUrl(`/concepts/${cmrGran.id}.umm_json`)
       }
     ],
     properties: properties,
@@ -241,18 +249,14 @@ function cmrGranToFeatureGeoJSON (event, cmrGran, cmrGranUmm = {}) {
 }
 
 function cmrGranulesToFeatureCollection (event, cmrGrans, cmrGransUmm = [], hits = 0, params = {}) {
-  let numberMatched;
-  let ummGranules;
-  let numberReturned;
+  const numberMatched = hits;
+  const numberReturned = cmrGrans.length;
 
   let features = [];
-  if (_.has(cmrGransUmm, 'items')) {
-    numberMatched = hits;
-    ummGranules = cmrGransUmm.items;
-    numberReturned = cmrGrans.length;
 
+  if (_.has(cmrGransUmm, 'items')) {
     for (const gran in cmrGrans) {
-      const stacItem = cmrGranToFeatureGeoJSON(event, cmrGrans[gran], ummGranules[gran]);
+      const stacItem = cmrGranToFeatureGeoJSON(event, cmrGrans[gran], cmrGransUmm.items[gran]);
       features.push(stacItem);
     }
   } else {

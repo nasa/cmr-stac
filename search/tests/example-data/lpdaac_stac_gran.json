@@ -57,6 +57,14 @@
     {
       "rel": "provider",
       "href": "http://example.com/stac/LPDAAC_ECS"
+    },
+    {
+      "rel": "via",
+      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1328420897-LPDAAC_ECS.json"
+    },
+    {
+      "rel": "via",
+      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1328420897-LPDAAC_ECS.umm_json"
     }
   ],
   "properties": {

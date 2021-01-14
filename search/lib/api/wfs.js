@@ -194,7 +194,7 @@ async function getGranule (request, response) {
   };
   const granules = (await cmr.findGranules(granParams)).granules;
   const granulesUmm = await cmr.findGranulesUmm(granParams);
-  const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0], granulesUmm[0]);
+  const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0], granulesUmm.items[0]);
   await assertValid(schemas.item, granuleResponse);
   response.json(granuleResponse);
 }

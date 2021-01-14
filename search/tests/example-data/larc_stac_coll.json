@@ -25,33 +25,21 @@
       "type": "application/json"
     },
     {
-      "rel": "cmr",
-      "href": "https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=C1288777589-LARC",
-      "title": "CMR Search this collection",
-      "type": "application/json"
-    },
-    {
       "rel": "items",
       "href": "http://example.com/stac/LARC/collections/C1288777589-LARC/items",
       "title": "Granules in this collection",
       "type": "application/json"
     },
     {
-      "rel": "overview",
+      "rel": "about",
       "href": "https://cmr.earthdata.nasa.gov/search/concepts/C1288777589-LARC.html",
       "title": "HTML metadata for collection",
       "type": "text/html"
     },
     {
-      "rel": "metadata",
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/C1288777589-LARC.xml",
-      "title": "Native metadata for collection",
-      "type": "application/xml"
-    },
-    {
-      "rel": "metadata",
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/C1288777589-LARC.umm_json",
-      "title": "JSON metadata for collection",
+      "rel": "via",
+      "href": "https://cmr.earthdata.nasa.gov/search/concepts/C1288777589-LARC.json",
+      "title": "CMR JSON metadata for collection",
       "type": "application/json"
     }
   ],

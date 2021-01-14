@@ -1,7 +1,5 @@
 const {
   cmrCollSpatialToExtents,
-  stacSearchWithCurrentParams,
-  cmrGranuleSearchWithCurrentParams,
   cmrCollToWFSColl
 } = require('../../lib/convert/collections');
 const axios = require('axios');
@@ -59,59 +57,6 @@ describe('collections', () => {
     it('should return a bounding box containing the WHOLE_WORLD_BBOX', () => {
       cmrCollection = {};
       expect(cmrCollSpatialToExtents(cmrCollection)).toEqual(WHOLE_WORLD_BBOX);
-    });
-  });
-
-  describe('stacSearchWithCurrentParams', () => {
-    const collID = 'landsat-8-l1';
-    const collProvider = 'LPDAAC';
-
-    const event = {
-      headers: {
-        Host: 'example.com'
-      },
-      queryStringParameters: {
-        eo_cloud_cover: 2
-      }
-    };
-
-    const otherEvent = {
-      headers: {
-        Host: 'example.com'
-      },
-      queryStringParameters: {}
-    };
-
-    it('should return a search url with current params', () => {
-      expect(stacSearchWithCurrentParams(event, collID, collProvider))
-        .toEqual('http://example.com/stac/LPDAAC/search?eo_cloud_cover=2&collections=landsat-8-l1');
-    });
-
-    it('should return a search url with no params', () => {
-      expect(stacSearchWithCurrentParams(otherEvent, collID, collProvider))
-        .toEqual('http://example.com/stac/LPDAAC/search?collections=landsat-8-l1');
-    });
-  });
-
-  describe('cmrGranuleSearchWithCurrentParams', () => {
-    const collID = 'landsat-8-l1';
-    const event = {
-      queryStringParameters: {
-        collection_concept_id: 'C1234567-PODAAC',
-        cloud_cover: 0.2
-      }
-    };
-
-    const otherEvent = {};
-
-    it('should return a CMR search url containing given parameters', () => {
-      expect(cmrGranuleSearchWithCurrentParams(event, collID))
-        .toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1&cloud_cover=0.2');
-    });
-
-    it('should return a CMR search url without any parameters', () => {
-      expect(cmrGranuleSearchWithCurrentParams(otherEvent, collID))
-        .toEqual('https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=landsat-8-l1');
     });
   });
 
@@ -201,29 +146,19 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
-            rel: 'cmr',
-            title: 'CMR Search this collection',
-            type: 'application/json'
-          }, {
             href: 'http://example.com/stac/LPDAAC/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
-            rel: 'overview',
+            rel: 'about',
             title: 'HTML metadata for collection',
             type: 'text/html'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.xml',
-            rel: 'metadata',
-            title: 'Native metadata for collection',
-            type: 'application/xml'
-          }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
-            rel: 'metadata',
-            title: 'JSON metadata for collection',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.json',
+            rel: 'via',
+            title: 'CMR JSON metadata for collection',
             type: 'application/json'
           }
         ],
@@ -276,29 +211,19 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/granules.json?collection_concept_id=id',
-            rel: 'cmr',
-            title: 'CMR Search this collection',
-            type: 'application/json'
-          }, {
             href: 'http://example.com/stac/LPDAAC/collections/id/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
           }, {
             href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
-            rel: 'overview',
+            rel: 'about',
             title: 'HTML metadata for collection',
             type: 'text/html'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.xml',
-            rel: 'metadata',
-            title: 'Native metadata for collection',
-            type: 'application/xml'
-          }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.umm_json',
-            rel: 'metadata',
-            title: 'JSON metadata for collection',
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.json',
+            rel: 'via',
+            title: 'CMR JSON metadata for collection',
             type: 'application/json'
           }
         ],
