@@ -1,5 +1,4 @@
 const express = require('express');
-const { isNull } = require('lodash');
 const {
   wfs,
   generateAppUrl,
@@ -103,13 +102,14 @@ async function getCollection (request, response) {
   const conceptId = request.params.collectionId;
   const providerId = request.params.providerId;
 
-  const collection = await cmr.getCollection(conceptId, providerId);
-  if (isNull(collection)) {
+  const collections = await cmr.findCollections({ concept_id: conceptId, provider_id: providerId });
+
+  if ((!collections) || (collections.length === 0)) {
     return response
       .status(404)
       .json(`Collection [${conceptId}] not found for provider [${providerId}]`);
   }
-  const collectionResponse = convert.cmrCollToWFSColl(event, collection);
+  const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
   // add browse links
   if (process.env.BROWSE_PATH) {
     const browseLinks = await createBrowseLinks(event, providerId, conceptId);

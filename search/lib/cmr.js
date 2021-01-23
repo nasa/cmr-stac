@@ -33,14 +33,9 @@ async function cmrSearch (url, params) {
 
 async function findCollections (params = {}) {
   params.has_granules = true;
+  logger.info(`Collections: ${params}`);
   const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), params);
   return response.data.feed.entry;
-}
-
-async function getCollection (conceptId, providerId) {
-  const collections = await findCollections({ concept_id: conceptId, provider_id: providerId });
-  if (collections.length > 0) return collections[0];
-  return null;
 }
 
 async function findGranules (params = {}) {
@@ -173,7 +168,6 @@ module.exports = {
   findGranulesUmm,
   getFacetParams,
   getGranuleTemporalFacets,
-  getCollection,
   convertParams,
   fromEntries,
   getProvider,

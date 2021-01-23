@@ -37,17 +37,14 @@ describe('wfs routes', () => {
     });
     response = createMockResponse();
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
-    mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
     mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: exampleData.cmrGrans.length }));
     mockFunction(cmr, 'findGranulesUmm', Promise.resolve(exampleData.cmrGransUmm[0]));
-    mockFunction(cmr, 'getCollection', Promise.resolve(exampleData.cmrColls[0]));
     mockFunction(cmr, 'getGranuleTemporalFacets',
       { years: ['2001', '2002'], months: ['05', '06'], days: ['20', '21'], itemids: ['test1'] });
   });
 
   afterEach(() => {
     revertFunction(cmr, 'findCollections');
-    revertFunction(cmr, 'getCollection');
     revertFunction(cmr, 'findGranules');
     revertFunction(cmr, 'findGranulesUmm');
     revertFunction(cmr, 'getCatalog');
@@ -89,11 +86,11 @@ describe('wfs routes', () => {
 
     describe('when no collection is found', () => {
       beforeEach(() => {
-        mockFunction(cmr, 'getCollection', Promise.resolve(null));
+        mockFunction(cmr, 'findCollections', Promise.resolve(null));
       });
 
       afterEach(() => {
-        revertFunction(cmr, 'getCollection');
+        revertFunction(cmr, 'findCollections');
       });
 
       it('should render a 404.', async () => {

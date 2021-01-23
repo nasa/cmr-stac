@@ -5,7 +5,6 @@ const {
   cmrSearch,
   findCollections,
   findGranules,
-  getCollection,
   convertParams,
   fromEntries,
   getFacetParams,
@@ -82,38 +81,74 @@ describe('cmr', () => {
   });
 
   describe('findCollections', () => {
-    beforeEach(() => {
-      axios.get = jest.fn();
-      const cmrResponse = { data: { feed: { entry: { test: 'value' } } } };
-      axios.get.mockResolvedValue(cmrResponse);
+    describe('when there are results', () => {
+      beforeEach(() => {
+        axios.get = jest.fn();
+        const cmrResponse = { data: { feed: { entry: [{ concept_id: 10, test: 'value' }] } } };
+        axios.get.mockResolvedValue(cmrResponse);
+      });
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it('should return a collection', async () => {
+        const result = await findCollections({ concept_id: 10, provider_id: 'some-provider' });
+        expect(axios.get.mock.calls.length).toBe(1);
+        expect(result[0]).toEqual({ concept_id: 10, test: 'value' });
+      });
+
+      it('should include the concept_id and provider_id in the query', async () => {
+        await findCollections({ concept_id: 10, provider_id: 'some-provider' });
+        expect(axios.get.mock.calls.length).toBe(1);
+        expect(axios.get.mock.calls[0][0])
+          .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
+        expect(axios.get.mock.calls[0][1])
+          .toEqual({ params: { has_granules: true, concept_id: 10, provider_id: 'some-provider' },
+            headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+      });
+
+      it('should return a url with granules and downloadable as true', async () => {
+        const result = await findCollections();
+
+        expect(axios.get.mock.calls.length).toBe(1);
+        expect(axios.get.mock.calls[0][0])
+          .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
+        expect(axios.get.mock.calls[0][1])
+          .toEqual({ params: { has_granules: true },
+            headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+        expect(result[0]).toEqual({ concept_id: 10, test: 'value' });
+      });
+
+      it('should return a url with granues and downloadable as true as well as params', async () => {
+        const result = await findCollections(params);
+
+        expect(axios.get.mock.calls.length).toBe(1);
+        expect(axios.get.mock.calls[0][0])
+          .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
+        expect(axios.get.mock.calls[0][1])
+          .toEqual({ params: { has_granules: true, param: 'test' },
+            headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
+        expect(result[0]).toEqual({ concept_id: 10, test: 'value' });
+      });
     });
 
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
+    describe('when there are NO results', () => {
+      beforeEach(() => {
+        axios.get = jest.fn();
+        const cmrResponse = { data: { feed: { entry: [] } } };
+        axios.get.mockResolvedValue(cmrResponse);
+      });
 
-    it('should return a url with granules and downloadable as true', async () => {
-      const result = await findCollections();
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
 
-      expect(axios.get.mock.calls.length).toBe(1);
-      expect(axios.get.mock.calls[0][0])
-        .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
-      expect(axios.get.mock.calls[0][1])
-        .toEqual({ params: { has_granules: true },
-          headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
-      expect(result).toEqual({ test: 'value' });
-    });
-
-    it('should return a url with granues and downloadable as true as well as params', async () => {
-      const result = await findCollections(params);
-
-      expect(axios.get.mock.calls.length).toBe(1);
-      expect(axios.get.mock.calls[0][0])
-        .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
-      expect(axios.get.mock.calls[0][1])
-        .toEqual({ params: { has_granules: true, param: 'test' },
-          headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
-      expect(result).toEqual({ test: 'value' });
+      it('should return empty features', async () => {
+        const result = await findCollections({ concept_id: 10, provider_id: 'some-provider' });
+        expect(axios.get.mock.calls.length).toBe(1);
+        expect(result).toEqual(([]));
+      });
     });
   });
 
@@ -162,54 +197,6 @@ describe('cmr', () => {
       expect(axios.get.mock.calls[0][0])
         .toBe('https://cmr.earthdata.nasa.gov/search/granules.json');
       expect(result).toEqual(expect.objectContaining({ totalHits: 199 }));
-    });
-  });
-
-  describe('getCollection', () => {
-    describe('when there are results', () => {
-      beforeEach(() => {
-        axios.get = jest.fn();
-        const cmrResponse = { data: { feed: { entry: [{ concept_id: 10 }] } } };
-        axios.get.mockResolvedValue(cmrResponse);
-      });
-
-      afterEach(() => {
-        jest.restoreAllMocks();
-      });
-
-      it('should return a collection', async () => {
-        const result = await getCollection(10, 'some-provider');
-        expect(axios.get.mock.calls.length).toBe(1);
-        expect(result).toEqual({ concept_id: 10 });
-      });
-
-      it('should include the concept_id and provider_id in the query', async () => {
-        await getCollection(10, 'some-provider');
-        expect(axios.get.mock.calls.length).toBe(1);
-        expect(axios.get.mock.calls[0][0])
-          .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
-        expect(axios.get.mock.calls[0][1])
-          .toEqual({ params: { has_granules: true, concept_id: 10, provider_id: 'some-provider' },
-            headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
-      });
-    });
-
-    describe('when there are NO results', () => {
-      beforeEach(() => {
-        axios.get = jest.fn();
-        const cmrResponse = { data: { feed: { entry: [] } } };
-        axios.get.mockResolvedValue(cmrResponse);
-      });
-
-      afterEach(() => {
-        jest.restoreAllMocks();
-      });
-
-      it('should return null', async () => {
-        const result = await getCollection(10, 'some-provider');
-        expect(axios.get.mock.calls.length).toBe(1);
-        expect(result).toBeNull();
-      });
     });
   });
 
