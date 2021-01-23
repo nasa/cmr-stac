@@ -203,28 +203,26 @@ async function getGranule (request, response) {
  * Create parameter dictionary from browse_path_template and provided values
  */
 async function getCatalog (request, response) {
+  // browse parameters
   const browseTemplate = process.env.BROWSE_PATH.split('/');
   const params = request.params['0'].split('/');
-  logger.debug(`browseTemplate = ${inspect(browseTemplate)}`);
-  logger.debug(`params = ${inspect(params)}`);
-  logger.debug(params.map((val, idx) => [browseTemplate[idx], val]));
-
   Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
   const browseParams = Object.fromEntries(
     params.map((val, idx) => [browseTemplate[idx], val])
   );
+  const { year, month, day } = browseParams;
   logger.debug(`browseParams = ${inspect(browseParams)}`);
 
-  const provider = request.params.providerId;
-  const collection = request.params.collectionId;
+  const providerId = request.params.providerId;
+  const collectionId = request.params.collectionId;
 
   // create catalog
   const date = request.params['0'].replace(/\//g, '-');
   const cat = new Catalog();
   cat.stac_version = settings.stac.version;
-  cat.id = `${collection}-${date}`;
-  cat.title = `${collection} ${date}`;
-  cat.description = `${provider} sub-catalog for ${date}`;
+  cat.id = `${collectionId}-${date}`;
+  cat.title = `${collectionId} ${date}`;
+  cat.description = `${providerId} sub-catalog for ${date}`;
 
   // get path from event
   const event = request.apiGateway.event;
@@ -236,15 +234,11 @@ async function getCatalog (request, response) {
   cat.createSelf(selfUrl);
   cat.createParent(selfUrl.slice(0, selfUrl.lastIndexOf('/')));
 
-  const granParams = {
-    collection_concept_id: collection,
-    provider
-  };
-  const { year, month, day } = browseParams;
-  const facets = await cmr.getGranuleTemporalFacets(granParams, year, month, day);
-
+  // add browse links
+  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+  const facets = await cmr.getGranuleTemporalFacets(cmrParams, year, month, day);
   if (day) {
-    facets.itemids.forEach(id => cat.addItem(id, granParams.provider, granParams.collection_concept_id, id));
+    facets.itemids.forEach(id => cat.addItem(id, providerId, collectionId, id));
   } else if (month) {
     facets.days.forEach(d => cat.addChild(`${year}-${month}-${d} catalog`, `/${d}`));
   } else if (year) {
