@@ -114,6 +114,7 @@ describe('getProvider', () => {
     const response = createMockResponse();
     await getProvider(request, response);
     const dat = response.getData();
+
     dat.json.links = dat.json.links.slice(0, 4);
     response.expect(expectedResponse);
   });

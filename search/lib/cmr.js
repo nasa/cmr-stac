@@ -25,6 +25,17 @@ const DEFAULT_HEADERS = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
+function stacCollectionToCmrParams (providerId, collectionId) {
+  const collectionIds = collectionId.split('.');
+  const version = collectionIds.pop();
+  const shortName = collectionIds.join('.');
+  return {
+    provider_id: providerId,
+    short_name: shortName,
+    version
+  };
+}
+
 async function cmrSearch (url, params) {
   if (!url || !params) throw new Error('Missing url or parameters');
   logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
@@ -161,6 +172,7 @@ function convertParams (conversionMap, params) {
 
 module.exports = {
   STAC_SEARCH_PARAMS_CONVERSION_MAP,
+  stacCollectionToCmrParams,
   makeCmrSearchUrl,
   cmrSearch,
   findCollections,

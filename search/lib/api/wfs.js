@@ -80,12 +80,11 @@ async function getCollections (request, response) {
   }
 }
 
-async function createBrowseLinks (event, provider, colid) {
+async function createBrowseLinks (event, provider, collectionId) {
   // get all child years
-  const facets = await cmr.getGranuleTemporalFacets({
-    collection_concept_id: colid, provider
-  });
-  const path = `/${provider}/collections/${colid}`;
+  const params = cmr.stacCollectionToCmrParams(provider, collectionId);
+  const facets = await cmr.getGranuleTemporalFacets(params);
+  const path = `/${provider}/collections/${collectionId}`;
   // create catalog link for each year
   const links = facets.years.map(y =>
     wfs.createLink('child', generateAppUrl(event, `${path}/${y}`), `${y} catalog`)
@@ -99,20 +98,21 @@ async function createBrowseLinks (event, provider, colid) {
 async function getCollection (request, response) {
   logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}`);
   const event = request.apiGateway.event;
-  const conceptId = request.params.collectionId;
   const providerId = request.params.providerId;
+  const collectionId = request.params.collectionId;
 
-  const collections = await cmr.findCollections({ concept_id: conceptId, provider_id: providerId });
+  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+  const collections = await cmr.findCollections(cmrParams);
 
   if ((!collections) || (collections.length === 0)) {
     return response
       .status(404)
-      .json(`Collection [${conceptId}] not found for provider [${providerId}]`);
+      .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
   }
   const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
   // add browse links
   if (process.env.BROWSE_PATH) {
-    const browseLinks = await createBrowseLinks(event, providerId, conceptId);
+    const browseLinks = await createBrowseLinks(event, providerId, collectionId);
     collectionResponse.links = collectionResponse.links.concat(browseLinks);
   }
   await assertValid(schemas.collection, collectionResponse);
