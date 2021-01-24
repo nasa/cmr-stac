@@ -9,7 +9,7 @@ const settings = require('./settings');
 
 const {
   convertDateTimeToCMR
-} = require('./convert');
+} = require('./convert/datetime');
 const NodeCache = require('node-cache');
 const myCache = new NodeCache();
 
@@ -28,7 +28,7 @@ const DEFAULT_HEADERS = {
 };
 
 function stacCollectionToCmrParams (providerId, collectionId) {
-  const collectionIds = collectionId.split('.');
+  const collectionIds = collectionId.split('.v');
   const version = collectionIds.pop();
   const shortName = collectionIds.join('.');
   return {
@@ -56,21 +56,29 @@ async function cmrCollectionIdToStacId (collectionId) {
     return stacId;
   }
   const collections = await findCollections({ concept_id: collectionId });
-  stacId = `${collections[0].short_name}.${collections[0].version_id}`;
+  stacId = `${collections[0].short_name}.v${collections[0].version_id}`;
   myCache.set(`collection_${collectionId}`, stacId, 14400);
   return stacId;
 }
 
 async function findGranules (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), params);
-  const granules = response.data.feed.entry;
-  const totalHits = _.get(response, 'headers.cmr-hits', granules.length);
-  return { granules: granules, totalHits: totalHits };
-}
+  const granules = response.data.feed.entry.reduce(
+    (obj, item) => ({
+      ...obj,
+      [item.id]: item
+    }),
+    {}
+  );
+  // get UMM version
+  const responseUmm = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
+  responseUmm.data.items.forEach((g) => {
+    granules[g.meta['concept-id']].meta = g.meta;
+    granules[g.meta['concept-id']].umm = g.umm;
+  });
 
-async function findGranulesUmm (params = {}) {
-  const response = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
-  return response.data;
+  const hits = _.get(response, 'headers.cmr-hits', granules.length);
+  return { granules: Object.values(granules), hits: hits };
 }
 
 function getFacetParams (year, month, day) {
@@ -190,7 +198,6 @@ module.exports = {
   findCollections,
   cmrCollectionIdToStacId,
   findGranules,
-  findGranulesUmm,
   getFacetParams,
   getGranuleTemporalFacets,
   convertParams,
