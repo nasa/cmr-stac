@@ -53,7 +53,7 @@ function createExtent (cmrCollection) {
 }
 
 function createLinks (event, cmrCollection) {
-  const collectionId = `${cmrCollection.short_name}.${cmrCollection.version_id}`;
+  const collectionId = `${cmrCollection.short_name}.v${cmrCollection.version_id}`;
   const provider = cmrCollection.data_center;
 
   const links = [
@@ -76,7 +76,7 @@ function createLinks (event, cmrCollection) {
 function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return [];
   const collection = {
-    id: `${cmrCollection.short_name}.${cmrCollection.version_id}`,
+    id: `${cmrCollection.short_name}.v${cmrCollection.version_id}`,
     stac_version: settings.stac.version,
     license: cmrCollection.license || 'not-provided',
     title: cmrCollection.dataset_id,

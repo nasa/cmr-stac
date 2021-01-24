@@ -3,7 +3,7 @@
   "id": "G1328420897-LPDAAC_ECS",
   "stac_version": "1.0.0-beta.2",
   "stac_extensions": [],
-  "collection": "C1328403374-LPDAAC_ECS",
+  "collection": "VIP01.v004",
   "geometry": {
     "type": "Polygon",
     "coordinates": [
@@ -40,15 +40,15 @@
   "links": [
     {
       "rel": "self",
-      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS/items/G1328420897-LPDAAC_ECS"
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/VIP01.v004/items/G1328420897-LPDAAC_ECS"
     },
     {
       "rel": "parent",
-      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS"
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/VIP01.v004"
     },
     {
       "rel": "collection",
-      "href": "http://example.com/stac/LPDAAC_ECS/collections/C1328403374-LPDAAC_ECS"
+      "href": "http://example.com/stac/LPDAAC_ECS/collections/VIP01.v004"
     },
     {
       "rel": "root",

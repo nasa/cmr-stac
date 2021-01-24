@@ -142,23 +142,21 @@ async function getGranules (request, response) {
   }
 
   try {
-    const params = Object.assign(
+    const cmrParams = Object.assign(
       { provider: providerId },
       cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, query)
     );
     if (collectionId) {
-      params.collection_concept_id = collectionId;
+      Object.assign(cmrParams, cmr.stacCollectionToCmrParams(providerId, collectionId));
     }
-    const granulesResult = await cmr.findGranules(params);
-    const granulesUmm = await cmr.findGranulesUmm(params);
+    const granulesResult = await cmr.findGranules(cmrParams);
     if (!granulesResult.granules.length) {
       return response.status(400).json('Items not found');
     }
 
-    const featureCollection = convert.cmrGranulesToFeatureCollection(event,
+    const featureCollection = await convert.cmrGranulesToStac(event,
       granulesResult.granules,
-      granulesUmm,
-      parseInt(granulesResult.totalHits),
+      parseInt(granulesResult.hits),
       query);
     await assertValid(schemas.items, featureCollection);
 
@@ -187,15 +185,15 @@ async function getGranule (request, response) {
   const conceptId = request.params.itemId;
   logger.info(`GET /${providerId}/collections/${collectionId}/items/${conceptId}`);
   const event = request.apiGateway.event;
-  const granParams = {
-    collection_concept_id: collectionId,
-    provider: request.params.providerId,
-    concept_id: conceptId
-  };
-  const granules = (await cmr.findGranules(granParams)).granules;
-  const granulesUmm = await cmr.findGranulesUmm(granParams);
-  const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0], granulesUmm.items[0]);
-  await assertValid(schemas.item, granuleResponse);
+
+  const cmrParams = Object.assign(
+    { concept_id: conceptId },
+    cmr.stacCollectionToCmrParams(providerId, collectionId)
+  );
+
+  const granules = (await cmr.findGranules(cmrParams)).granules;
+  const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
+  // await assertValid(schemas.item, granuleResponse);
   response.json(granuleResponse);
 }
 
