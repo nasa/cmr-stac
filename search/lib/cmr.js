@@ -10,6 +10,8 @@ const settings = require('./settings');
 const {
   convertDateTimeToCMR
 } = require('./convert');
+const NodeCache = require('node-cache');
+const myCache = new NodeCache();
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', _.identity],
@@ -44,9 +46,19 @@ async function cmrSearch (url, params) {
 
 async function findCollections (params = {}) {
   params.has_granules = true;
-  logger.info(`Collections: ${params}`);
   const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), params);
   return response.data.feed.entry;
+}
+
+async function cmrCollectionIdToStacId (collectionId) {
+  let stacId = myCache.get(`collection_${collectionId}`);
+  if (stacId) {
+    return stacId;
+  }
+  const collections = await findCollections({ concept_id: collectionId });
+  stacId = `${collections[0].short_name}.${collections[0].version_id}`;
+  myCache.set(`collection_${collectionId}`, stacId, 14400);
+  return stacId;
 }
 
 async function findGranules (params = {}) {
@@ -176,6 +188,7 @@ module.exports = {
   makeCmrSearchUrl,
   cmrSearch,
   findCollections,
+  cmrCollectionIdToStacId,
   findGranules,
   findGranulesUmm,
   getFacetParams,
