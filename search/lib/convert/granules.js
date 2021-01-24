@@ -49,7 +49,6 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
   let geoJsonSpatial;
   if (cmrGran.polygons) {
     geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon));
-    console.log(JSON.stringify(geometry));
   }
   if (cmrGran.boxes) {
     geometry = geometry.concat(cmrGran.boxes.map(cmrBoxToGeoJsonPolygon));

@@ -193,7 +193,7 @@ async function getGranule (request, response) {
 
   const granules = (await cmr.findGranules(cmrParams)).granules;
   const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
-  // await assertValid(schemas.item, granuleResponse);
+  await assertValid(schemas.item, granuleResponse);
   response.json(granuleResponse);
 }
 
