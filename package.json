@@ -4,7 +4,7 @@
   "description": "An implementation of the STAC API on top of NASA's [Common Metadata Repository](https://cmr.earthdata.nasa.gov/search/).",
   "scripts": {
     "postinstall": "node bin/install.js; bin/get_stac_spec_schemas.sh",
-    "test": "jest --detectOpenHandles --forceExit --env=node --coverage",
+    "test": "jest --detectOpenHandles --forceExit --env=node --coverage --reporters=jest-junit",
     "start": "cd search; npm start",
     "lint": "cd search; npm run lint"
   },
@@ -22,6 +22,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
     "jest": "^24.9.0",
+    "jest-junit": "^12.0.0",
     "serverless": "^1.49.0",
     "serverless-offline": "^5.8.0"
   }
