@@ -1,5 +1,5 @@
 {
-  "id": "MOP02N.7",
+  "id": "MOP02N.v7",
   "stac_version": "1.0.0-beta.2",
   "license": "not-provided",
   "title": "Measurements Of Pollution In The Troposphere (MOPITT) Level 2 Derived CO (Near and Thermal Infrared Radiances) (MOP02N) V007",
@@ -7,7 +7,7 @@
   "links": [
     {
       "rel": "self",
-      "href": "http://example.com/stac/LARC/collections/MOP02N.7",
+      "href": "http://example.com/stac/LARC/collections/MOP02N.v7",
       "title": "Info about this collection",
       "type": "application/json"
     },
@@ -25,7 +25,7 @@
     },
     {
       "rel": "items",
-      "href": "http://example.com/stac/LARC/collections/MOP02N.7/items",
+      "href": "http://example.com/stac/LARC/collections/MOP02N.v7/items",
       "title": "Granules in this collection",
       "type": "application/json"
     },

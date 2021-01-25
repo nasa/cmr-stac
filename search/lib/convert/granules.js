@@ -24,40 +24,81 @@ const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
   const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
-  return {
-    type: 'Polygon',
-    coordinates: rings
-  };
+  return rings;
 }
 
 function cmrBoxToGeoJsonPolygon (box) {
   const [s, w, n, e] = parseOrdinateString(box);
-  return {
-    type: 'Polygon',
-    coordinates: [[
-      [w, s],
-      [e, s],
-      [e, n],
-      [w, n],
-      [w, s]
-    ]]
-  };
+  return [[
+    [w, s],
+    [e, s],
+    [e, n],
+    [w, n],
+    [w, s]
+  ]];
 }
 
 function cmrSpatialToGeoJSONGeometry (cmrGran) {
   let geometry = [];
   let geoJsonSpatial;
+
+  // Polygons
   if (cmrGran.polygons) {
     geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon));
-  } else if (cmrGran.boxes) {
-    geometry = geometry.concat(cmrGran.boxes.map(cmrBoxToGeoJsonPolygon));
+    if (geometry.length > 1) {
+      geoJsonSpatial = {
+        type: 'MultiPolygon',
+        coordinates: geometry
+      };
+      return geoJsonSpatial;
+    } else if (geometry.length === 1) {
+      geoJsonSpatial = {
+        type: 'Polygon',
+        coordinates: geometry[0]
+      };
+      return geoJsonSpatial;
+    }
   }
+
+  if (cmrGran.boxes) {
+    geometry = geometry.concat(cmrGran.boxes.map(cmrBoxToGeoJsonPolygon));
+    if (geometry.length > 1) {
+      geoJsonSpatial = {
+        type: 'MultiPolygon',
+        coordinates: geometry
+      };
+      return geoJsonSpatial;
+    } else if (geometry.length === 1) {
+      geoJsonSpatial = {
+        type: 'Polygon',
+        coordinates: geometry[0]
+      };
+      return geoJsonSpatial;
+    }
+  }
+
+  // Points
   if (cmrGran.points) {
     geometry = geometry.concat(cmrGran.points.map((ps) => {
       const [lat, lon] = parseOrdinateString(ps);
-      return { type: 'Point', coordinates: [lon, lat] };
+      return [lon, lat];
     }));
+    if (geometry.length > 1) {
+      geoJsonSpatial = {
+        type: 'MultiPoint',
+        coordinates: geometry
+      };
+      return geoJsonSpatial;
+    } else if (geometry.length === 1) {
+      geoJsonSpatial = {
+        type: 'Point',
+        coordinates: geometry[0]
+      };
+      return geoJsonSpatial;
+    }
   }
+
+  // Lines
   if (cmrGran.lines) {
     geometry = cmrGran.lines.map(ls => {
       const linePoints = parseOrdinateString(ls);
@@ -71,7 +112,7 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
         coordinates: geometry
       };
       return geoJsonSpatial;
-    } else {
+    } else if (geometry.length === 1) {
       geoJsonSpatial = {
         type: 'LineString',
         coordinates: geometry[0]
@@ -79,11 +120,8 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
       return geoJsonSpatial;
     }
   }
-  if (geometry.length === 1) {
-    return geometry[0];
-  } else {
-    throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
-  }
+
+  throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
 }
 
 function cmrSpatialToStacBbox (cmrGran) {

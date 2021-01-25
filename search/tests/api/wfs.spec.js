@@ -37,8 +37,7 @@ describe('wfs routes', () => {
     });
     response = createMockResponse();
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
-    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: exampleData.cmrGrans.length }));
-    mockFunction(cmr, 'findGranulesUmm', Promise.resolve(exampleData.cmrGransUmm[0]));
+    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: exampleData.cmrGrans.length }));
     mockFunction(cmr, 'getGranuleTemporalFacets',
       { years: ['2001', '2002'], months: ['05', '06'], days: ['20', '21'], itemids: ['test1'] });
   });
@@ -46,7 +45,6 @@ describe('wfs routes', () => {
   afterEach(() => {
     revertFunction(cmr, 'findCollections');
     revertFunction(cmr, 'findGranules');
-    revertFunction(cmr, 'findGranulesUmm');
     revertFunction(cmr, 'getCatalog');
     revertFunction(cmr, 'getGranuleTemporalFacets');
   });
@@ -134,7 +132,7 @@ describe('wfs routes', () => {
     it('should generate a item collection response with a next link.', async () => {
       request.apiGateway.event.httpMethod = 'GET';
       request.query.limit = 2;
-      mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, totalHits: 10 }));
+      mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
       await getGranules(request, response);
       response.expect({
         type: 'FeatureCollection',

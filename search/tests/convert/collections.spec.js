@@ -134,7 +134,7 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/stac/LPDAAC/collections/name.version',
+            href: 'http://example.com/stac/LPDAAC/collections/name.vversion',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
@@ -149,7 +149,7 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'http://example.com/stac/LPDAAC/collections/name.version/items',
+            href: 'http://example.com/stac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -165,7 +165,7 @@ describe('collections', () => {
             type: 'application/json'
           }
         ],
-        id: 'name.version',
+        id: 'name.vversion',
         title: 'datasetId',
         stac_version: settings.stac.version,
         license: 'Apache-2.0'
@@ -199,7 +199,7 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/stac/LPDAAC/collections/name.version',
+            href: 'http://example.com/stac/LPDAAC/collections/name.vversion',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
@@ -214,7 +214,7 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'http://example.com/stac/LPDAAC/collections/name.version/items',
+            href: 'http://example.com/stac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -230,7 +230,7 @@ describe('collections', () => {
             type: 'application/json'
           }
         ],
-        id: 'name.version',
+        id: 'name.vversion',
         title: 'datasetId',
         stac_version: settings.stac.version,
         license: 'not-provided'

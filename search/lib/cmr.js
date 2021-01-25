@@ -71,10 +71,12 @@ async function findGranules (params = {}) {
   );
   // get UMM version
   const responseUmm = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
-  responseUmm.data.items.forEach((g) => {
-    granules[g.meta['concept-id']].meta = g.meta;
-    granules[g.meta['concept-id']].umm = g.umm;
-  });
+  if (_.has(responseUmm.data, 'items')) {
+    responseUmm.data.items.forEach((g) => {
+      granules[g.meta['concept-id']].meta = g.meta;
+      granules[g.meta['concept-id']].umm = g.umm;
+    });
+  }
 
   const hits = _.get(response, 'headers.cmr-hits', granules.length);
   return { granules: Object.values(granules), hits: hits };

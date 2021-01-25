@@ -73,7 +73,6 @@ describe('createRootCatalog', () => {
     rootCatalog.createParent('/stac');
     const parentLink = rootCatalog.links.find((link) => link.rel === 'parent');
     expect(parentLink).toBeDefined();
-    console.log(parentLink);
     expect(parentLink.href).toBe('/stac');
     expect(parentLink.rel).toBe('parent');
     expect(parentLink.title).toBe('Parent Catalog');
