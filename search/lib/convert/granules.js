@@ -79,16 +79,11 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
       return geoJsonSpatial;
     }
   }
-  if (geometry.length === 0) {
-    throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
-  }
   if (geometry.length === 1) {
     return geometry[0];
+  } else {
+    throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
   }
-  return {
-    type: 'GeometryCollection',
-    geometries: geometry
-  };
 }
 
 function cmrSpatialToStacBbox (cmrGran) {
