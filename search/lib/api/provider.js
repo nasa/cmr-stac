@@ -3,6 +3,7 @@ const { wfs, generateAppUrl, logger, makeAsyncHandler } = require('../util');
 const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 const cmr = require('../cmr');
+const Promise = require('bluebird');
 
 async function getProvider (request, response) {
   try {
@@ -26,10 +27,12 @@ async function getProvider (request, response) {
         'Provider Item Search')
     ];
 
-    const childLinks = (await cmr.getProvider(providerId)).map((collection) => {
+    const providerHoldings = await cmr.getProvider(providerId);
+    const childLinks = await Promise.map(providerHoldings, async (collection) => {
+      const collectionId = await cmr.cmrCollectionIdToStacId(collection['concept-id']);
       return wfs.createLink(
         'child',
-        generateAppUrl(event, `/${providerId}/collections/${collection['concept-id']}`),
+        generateAppUrl(event, `/${providerId}/collections/${collectionId}`),
         collection['entry-title']);
     });
 
@@ -49,7 +52,8 @@ async function getProvider (request, response) {
 
 async function getProviders (request, response) {
   const event = request.apiGateway.event;
-  const providerObjects = (await cmr.getProviders()).map((provider) => {
+  const providers = await cmr.getProviders();
+  const providerLinks = await Promise.map(providers, async (provider) => {
     return {
       title: provider['short-name'],
       rel: 'child',
@@ -62,7 +66,7 @@ async function getProviders (request, response) {
     title: 'NASA CMR STAC Proxy',
     stac_version: settings.stac.version,
     description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
-    links: providerObjects
+    links: providerLinks
   };
   response.status(200).json(providerCatalog);
 }

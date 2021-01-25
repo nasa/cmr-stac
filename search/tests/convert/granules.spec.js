@@ -4,10 +4,15 @@ const {
   cmrBoxToGeoJsonPolygon,
   cmrSpatialToGeoJSONGeometry,
   cmrSpatialToStacBbox,
-  cmrGranToFeatureGeoJSON,
-  cmrGranulesToFeatureCollection
+  cmrGranuleToStac,
+  cmrGranulesToStac
 } = require('../../lib/convert');
 const exampleData = require('../example-data');
+const {
+  mockFunction,
+  revertFunction
+} = require('../util');
+const cmr = require('../../lib/cmr');
 
 const schemaValidator = require('../../lib/validator');
 
@@ -15,37 +20,30 @@ describe('granuleToItem', () => {
   describe('cmrPolygonToGeoJsonPolygon', () => {
     it('should return an array of coordinates for a GeoJson Polygon given one ring', () => {
       const polygon = ['10,110,30,110,30,120,10,120,10,110'];
-      expect(cmrPolygonToGeoJsonPolygon(polygon)).toEqual({
-        type: 'Polygon',
-        coordinates: [[[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]]]
-      });
+      expect(cmrPolygonToGeoJsonPolygon(polygon)).toEqual(
+        [[[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]]]
+      );
     });
 
     it('should return an array of coordinates for a GeoJson Polygon given multiple rings', () => {
       const polygon = ['10,110,30,110,30,120,10,120,10,110', '10,110,30,110,30,120,10,120,10,110'];
-      expect(cmrPolygonToGeoJsonPolygon(polygon)).toEqual({
-        type: 'Polygon',
-        coordinates: [
-          [[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]],
-          [[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]]
-        ]
-      });
+      expect(cmrPolygonToGeoJsonPolygon(polygon)).toEqual([
+        [[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]],
+        [[110, 10], [110, 30], [120, 30], [120, 10], [110, 10]]
+      ]);
     });
   });
 
   describe('cmrBoxToGeoJsonPolygon', () => {
     it('turn a CMR bounding box into a GeoJSON Polygon', () => {
       const cmrBox = '33,-56,27.2,80';
-      expect(cmrBoxToGeoJsonPolygon(cmrBox)).toEqual({
-        type: 'Polygon',
-        coordinates: [[
-          [-56, 33],
-          [80, 33],
-          [80, 27.2],
-          [-56, 27.2],
-          [-56, 33]
-        ]]
-      });
+      expect(cmrBoxToGeoJsonPolygon(cmrBox)).toEqual([[
+        [-56, 33],
+        [80, 33],
+        [80, 27.2],
+        [-56, 27.2],
+        [-56, 33]
+      ]]);
     });
   });
 
@@ -64,15 +62,11 @@ describe('granuleToItem', () => {
         points: ['12,134', '45,167']
       };
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
-        type: 'GeometryCollection',
-        geometries: [{
-          type: 'Point',
-          coordinates: [134, 12]
-        },
-        {
-          type: 'Point',
-          coordinates: [167, 45]
-        }]
+        type: 'MultiPoint',
+        coordinates: [
+          [134, 12],
+          [167, 45]
+        ]
       });
     });
 
@@ -106,7 +100,9 @@ describe('granuleToItem', () => {
 
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
         type: 'Polygon',
-        coordinates: [[[134, 12], [178, 56]]]
+        coordinates: [
+          [[134, 12], [178, 56]]
+        ]
       });
     });
 
@@ -115,60 +111,62 @@ describe('granuleToItem', () => {
         polygons: [['12,134,56,178'], ['90,176,54,132']]
       };
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
-        type: 'GeometryCollection',
-        geometries: [{
-          type: 'Polygon',
-          coordinates: [[[134, 12], [178, 56]]]
-        },
-        {
-          type: 'Polygon',
-          coordinates: [[[176, 90], [132, 54]]]
-        }]
+        type: 'MultiPolygon',
+        coordinates: [
+          [
+            [[134, 12], [178, 56]]
+          ],
+          [
+            [[176, 90], [132, 54]]
+          ]
+        ]
       });
     });
 
-    it('should return a single geoJSON gemoetry for a given box', () => {
+    it('should return a single geoJSON geometry for a given box', () => {
       cmrSpatial = {
         boxes: ['32,44,10,18']
       };
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
         type: 'Polygon',
-        coordinates: [[
-          [44, 32],
-          [18, 32],
-          [18, 10],
-          [44, 10],
-          [44, 32]
-        ]]
-      });
-    });
-
-    it('should return an object with multiple GeoJSON gemoetries for the given boxes', () => {
-      cmrSpatial = {
-        boxes: ['22,44.4,93.9,77', '32,44,10,18'] // s, w, n, e
-      };
-      expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
-        type: 'GeometryCollection',
-        geometries: [{
-          type: 'Polygon',
-          coordinates: [[
-            [44.4, 22],
-            [77, 22],
-            [77, 93.9],
-            [44.4, 93.9],
-            [44.4, 22]
-          ]]
-        },
-        {
-          type: 'Polygon',
-          coordinates: [[
+        coordinates: [
+          [
             [44, 32],
             [18, 32],
             [18, 10],
             [44, 10],
             [44, 32]
-          ]]
-        }]
+          ]
+        ]
+      });
+    });
+
+    it('should return an object with multiple GeoJSON geometries for the given boxes', () => {
+      cmrSpatial = {
+        boxes: ['22,44.4,93.9,77', '32,44,10,18'] // s, w, n, e
+      };
+      expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
+        type: 'MultiPolygon',
+        coordinates: [
+          [
+            [
+              [44.4, 22],
+              [77, 22],
+              [77, 93.9],
+              [44.4, 93.9],
+              [44.4, 22]
+            ]
+          ],
+          [
+            [
+              [44, 32],
+              [18, 32],
+              [18, 10],
+              [44, 10],
+              [44, 32]
+            ]
+          ]
+        ]
       });
     });
 
@@ -235,14 +233,14 @@ describe('granuleToItem', () => {
     });
   });
 
-  describe('cmrGranToFeatureGeoJSON', () => {
+  describe('cmrGranuleToStac', async () => {
     const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
     const expectedStacGran = exampleData.examplesByName.lancemodisStacGran;
 
     const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
 
-    it('should return a FeatureGeoJSON from a cmrGran', () => {
-      const stacItem = cmrGranToFeatureGeoJSON(event, cmrGran);
+    it('should return a FeatureGeoJSON from a cmrGran', async () => {
+      const stacItem = await cmrGranuleToStac(event, cmrGran);
       expect(stacItem).toEqual(expectedStacGran);
     });
 
@@ -265,12 +263,21 @@ describe('granuleToItem', () => {
     });
   });
 
-  describe('cmrGranulesToFeatureCollection', () => {
+  describe('cmrGranulesToStac', async () => {
+    beforeEach(() => {
+      mockFunction(cmr, 'cmrCollectionIdToStacId', Promise.resolve('landsat.v1'));
+    });
+
+    afterEach(() => {
+      revertFunction(cmr, 'cmrCollectionIdToStacId');
+    });
+
     const cmrGran = [{
       id: 1,
       collection_concept_id: 10,
       dataset_id: 'datasetId',
       short_name: 'landsat',
+      version_id: '1',
       summary: 'summary',
       time_start: '0',
       time_end: '1',
@@ -288,8 +295,9 @@ describe('granuleToItem', () => {
 
     const event = { headers: { Host: 'example.com' }, path: '/stac', queryStringParameters: [] };
 
-    it('should return a CMR Granules search result to a FeatureCollection', () => {
-      expect(cmrGranulesToFeatureCollection(event, cmrGran, [], 1)).toEqual({
+    it('should return a CMR Granules search result to a FeatureCollection', async () => {
+      const items = await cmrGranulesToStac(event, cmrGran, 1);
+      expect(items).toEqual({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
         numberMatched: 1,
@@ -298,7 +306,7 @@ describe('granuleToItem', () => {
           id: 1,
           stac_version: settings.stac.version,
           stac_extensions: [],
-          collection: 10,
+          collection: 'landsat.v1',
           geometry: { type: 'Point', coordinates: [139, 77] },
           bbox: [139, 77, 139, 77],
           properties: {
@@ -316,15 +324,15 @@ describe('granuleToItem', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com/stac/USA/collections/10/items/1'
+              href: 'http://example.com/stac/USA/collections/landsat.v1/items/1'
             },
             {
               rel: 'parent',
-              href: 'http://example.com/stac/USA/collections/10'
+              href: 'http://example.com/stac/USA/collections/landsat.v1'
             },
             {
               rel: 'collection',
-              href: 'http://example.com/stac/USA/collections/10'
+              href: 'http://example.com/stac/USA/collections/landsat.v1'
             },
             {
               rel: 'root',

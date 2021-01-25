@@ -85,6 +85,8 @@ describe('collections', () => {
 
     const cmrColl = {
       id: 'id',
+      short_name: 'name',
+      version_id: 'version',
       license: 'Apache-2.0',
       dataset_id: 'datasetId',
       data_center: 'LPDAAC',
@@ -95,9 +97,10 @@ describe('collections', () => {
 
     const cmrCollTemporal = {
       id: 'id',
+      short_name: 'name',
+      version_id: 'version',
       dataset_id: 'datasetId',
       data_center: 'LPDAAC',
-      short_name: 'id-LPDAAC',
       summary: 'summary',
       time_start: '2009-01-01T00:00:00Z'
     };
@@ -131,7 +134,7 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/stac/LPDAAC/collections/id',
+            href: 'http://example.com/stac/LPDAAC/collections/name.vversion',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
@@ -146,7 +149,7 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'http://example.com/stac/LPDAAC/collections/id/items',
+            href: 'http://example.com/stac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -162,7 +165,7 @@ describe('collections', () => {
             type: 'application/json'
           }
         ],
-        id: 'id',
+        id: 'name.vversion',
         title: 'datasetId',
         stac_version: settings.stac.version,
         license: 'Apache-2.0'
@@ -196,7 +199,7 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'http://example.com/stac/LPDAAC/collections/id',
+            href: 'http://example.com/stac/LPDAAC/collections/name.vversion',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
@@ -211,7 +214,7 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'http://example.com/stac/LPDAAC/collections/id/items',
+            href: 'http://example.com/stac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -227,9 +230,8 @@ describe('collections', () => {
             type: 'application/json'
           }
         ],
-        id: 'id',
+        id: 'name.vversion',
         title: 'datasetId',
-        short_name: 'id-LPDAAC',
         stac_version: settings.stac.version,
         license: 'not-provided'
       });

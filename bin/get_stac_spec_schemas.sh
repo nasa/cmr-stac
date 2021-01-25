@@ -9,7 +9,7 @@ if [[ ! -d stac-spec ]]; then
   fi
 fi
 cd stac-spec
-git checkout 37ff5fe75f3639e25d452f483a2c84a7c34374bf
+git checkout 4988a40f6071666d345e4a1c5adc9a6338973769
 if [[ $? != 0 ]]; then
   echo 'git checkout failed'
   exit 1

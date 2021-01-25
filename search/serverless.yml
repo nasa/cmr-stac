@@ -36,7 +36,7 @@ functions:
       BROWSE_PATH: year/month/day
       LOG_DISABLED: false
       LOG_LEVEL: info
-      STAC_VERSION: 1.0.0-beta.1
+      STAC_VERSION: 1.0.0-beta.2
 
 resources:
   Resources:

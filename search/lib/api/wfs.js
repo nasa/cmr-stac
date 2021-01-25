@@ -1,5 +1,4 @@
 const express = require('express');
-const { isNull } = require('lodash');
 const {
   wfs,
   generateAppUrl,
@@ -81,12 +80,11 @@ async function getCollections (request, response) {
   }
 }
 
-async function createBrowseLinks (event, provider, colid) {
+async function createBrowseLinks (event, provider, collectionId) {
   // get all child years
-  const facets = await cmr.getGranuleTemporalFacets({
-    collection_concept_id: colid, provider
-  });
-  const path = `/${provider}/collections/${colid}`;
+  const params = cmr.stacCollectionToCmrParams(provider, collectionId);
+  const facets = await cmr.getGranuleTemporalFacets(params);
+  const path = `/${provider}/collections/${collectionId}`;
   // create catalog link for each year
   const links = facets.years.map(y =>
     wfs.createLink('child', generateAppUrl(event, `${path}/${y}`), `${y} catalog`)
@@ -100,19 +98,21 @@ async function createBrowseLinks (event, provider, colid) {
 async function getCollection (request, response) {
   logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}`);
   const event = request.apiGateway.event;
-  const conceptId = request.params.collectionId;
   const providerId = request.params.providerId;
+  const collectionId = request.params.collectionId;
 
-  const collection = await cmr.getCollection(conceptId, providerId);
-  if (isNull(collection)) {
+  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+  const collections = await cmr.findCollections(cmrParams);
+
+  if ((!collections) || (collections.length === 0)) {
     return response
       .status(404)
-      .json(`Collection [${conceptId}] not found for provider [${providerId}]`);
+      .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
   }
-  const collectionResponse = convert.cmrCollToWFSColl(event, collection);
+  const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
   // add browse links
   if (process.env.BROWSE_PATH) {
-    const browseLinks = await createBrowseLinks(event, providerId, conceptId);
+    const browseLinks = await createBrowseLinks(event, providerId, collectionId);
     collectionResponse.links = collectionResponse.links.concat(browseLinks);
   }
   await assertValid(schemas.collection, collectionResponse);
@@ -142,23 +142,21 @@ async function getGranules (request, response) {
   }
 
   try {
-    const params = Object.assign(
+    const cmrParams = Object.assign(
       { provider: providerId },
       cmr.convertParams(cmr.STAC_SEARCH_PARAMS_CONVERSION_MAP, query)
     );
     if (collectionId) {
-      params.collection_concept_id = collectionId;
+      Object.assign(cmrParams, cmr.stacCollectionToCmrParams(providerId, collectionId));
     }
-    const granulesResult = await cmr.findGranules(params);
-    const granulesUmm = await cmr.findGranulesUmm(params);
+    const granulesResult = await cmr.findGranules(cmrParams);
     if (!granulesResult.granules.length) {
       return response.status(400).json('Items not found');
     }
 
-    const featureCollection = convert.cmrGranulesToFeatureCollection(event,
+    const featureCollection = await convert.cmrGranulesToStac(event,
       granulesResult.granules,
-      granulesUmm,
-      parseInt(granulesResult.totalHits),
+      parseInt(granulesResult.hits),
       query);
     await assertValid(schemas.items, featureCollection);
 
@@ -187,14 +185,14 @@ async function getGranule (request, response) {
   const conceptId = request.params.itemId;
   logger.info(`GET /${providerId}/collections/${collectionId}/items/${conceptId}`);
   const event = request.apiGateway.event;
-  const granParams = {
-    collection_concept_id: collectionId,
-    provider: request.params.providerId,
-    concept_id: conceptId
-  };
-  const granules = (await cmr.findGranules(granParams)).granules;
-  const granulesUmm = await cmr.findGranulesUmm(granParams);
-  const granuleResponse = convert.cmrGranToFeatureGeoJSON(event, granules[0], granulesUmm.items[0]);
+
+  const cmrParams = Object.assign(
+    { concept_id: conceptId },
+    cmr.stacCollectionToCmrParams(providerId, collectionId)
+  );
+
+  const granules = (await cmr.findGranules(cmrParams)).granules;
+  const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
   await assertValid(schemas.item, granuleResponse);
   response.json(granuleResponse);
 }
@@ -203,28 +201,26 @@ async function getGranule (request, response) {
  * Create parameter dictionary from browse_path_template and provided values
  */
 async function getCatalog (request, response) {
+  // browse parameters
   const browseTemplate = process.env.BROWSE_PATH.split('/');
   const params = request.params['0'].split('/');
-  logger.debug(`browseTemplate = ${inspect(browseTemplate)}`);
-  logger.debug(`params = ${inspect(params)}`);
-  logger.debug(params.map((val, idx) => [browseTemplate[idx], val]));
-
   Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
   const browseParams = Object.fromEntries(
     params.map((val, idx) => [browseTemplate[idx], val])
   );
+  const { year, month, day } = browseParams;
   logger.debug(`browseParams = ${inspect(browseParams)}`);
 
-  const provider = request.params.providerId;
-  const collection = request.params.collectionId;
+  const providerId = request.params.providerId;
+  const collectionId = request.params.collectionId;
 
   // create catalog
   const date = request.params['0'].replace(/\//g, '-');
   const cat = new Catalog();
   cat.stac_version = settings.stac.version;
-  cat.id = `${collection}-${date}`;
-  cat.title = `${collection} ${date}`;
-  cat.description = `${provider} sub-catalog for ${date}`;
+  cat.id = `${collectionId}-${date}`;
+  cat.title = `${collectionId} ${date}`;
+  cat.description = `${providerId} sub-catalog for ${date}`;
 
   // get path from event
   const event = request.apiGateway.event;
@@ -236,15 +232,11 @@ async function getCatalog (request, response) {
   cat.createSelf(selfUrl);
   cat.createParent(selfUrl.slice(0, selfUrl.lastIndexOf('/')));
 
-  const granParams = {
-    collection_concept_id: collection,
-    provider
-  };
-  const { year, month, day } = browseParams;
-  const facets = await cmr.getGranuleTemporalFacets(granParams, year, month, day);
-
+  // add browse links
+  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+  const facets = await cmr.getGranuleTemporalFacets(cmrParams, year, month, day);
   if (day) {
-    facets.itemids.forEach(id => cat.addItem(id, granParams.provider, granParams.collection_concept_id, id));
+    facets.itemids.forEach(id => cat.addItem(id, providerId, collectionId, id));
   } else if (month) {
     facets.days.forEach(d => cat.addChild(`${year}-${month}-${d} catalog`, `/${d}`));
   } else if (year) {
