@@ -26,6 +26,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build --if-present
-    - run: jest --detectOpenHandles --forceExit --env=node --coverage
+    - run: npm test
       env:
         CI: true
