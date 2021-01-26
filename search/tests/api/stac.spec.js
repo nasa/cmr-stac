@@ -31,16 +31,11 @@ describe('STAC Search', () => {
     response = createMockResponse();
     mockFunction(cmr,
       'findGranules',
-      Promise.resolve({ granules: exampleData.cmrGrans, totalHits: 19 }));
-
-    mockFunction(cmr,
-      'findGranulesUmm',
-      Promise.resolve({ hits: 0, items: [] }));
+      Promise.resolve({ granules: exampleData.cmrGrans, hits: 19 }));
   });
 
   afterEach(() => {
     revertFunction(cmr, 'findGranules');
-    revertFunction(cmr, 'findGranulesUmm');
   });
 
   const expectedResponse = {

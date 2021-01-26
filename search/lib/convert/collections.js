@@ -53,21 +53,21 @@ function createExtent (cmrCollection) {
 }
 
 function createLinks (event, cmrCollection) {
-  const id = cmrCollection.id;
+  const collectionId = `${cmrCollection.short_name}.v${cmrCollection.version_id}`;
   const provider = cmrCollection.data_center;
 
   const links = [
-    wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${id}`),
+    wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${collectionId}`),
       'Info about this collection'),
     wfs.createLink('root', generateAppUrl(event, ''),
       'Root catalog'),
     wfs.createLink('parent', generateAppUrl(event, `/${provider}`),
       'Parent catalog'),
-    wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${id}/items`),
+    wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${collectionId}/items`),
       'Granules in this collection'),
-    wfs.createLink('about', makeCmrSearchUrl(`/concepts/${id}.html`),
+    wfs.createLink('about', makeCmrSearchUrl(`/concepts/${cmrCollection.id}.html`),
       'HTML metadata for collection'),
-    wfs.createLink('via', makeCmrSearchUrl(`/concepts/${id}.json`),
+    wfs.createLink('via', makeCmrSearchUrl(`/concepts/${cmrCollection.id}.json`),
       'CMR JSON metadata for collection')
   ];
   return links;
@@ -76,8 +76,7 @@ function createLinks (event, cmrCollection) {
 function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return [];
   const collection = {
-    id: cmrCollection.id,
-    short_name: cmrCollection.short_name,
+    id: `${cmrCollection.short_name}.v${cmrCollection.version_id}`,
     stac_version: settings.stac.version,
     license: cmrCollection.license || 'not-provided',
     title: cmrCollection.dataset_id,
