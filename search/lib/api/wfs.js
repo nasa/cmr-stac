@@ -150,9 +150,6 @@ async function getGranules (request, response) {
       Object.assign(cmrParams, cmr.stacCollectionToCmrParams(providerId, collectionId));
     }
     const granulesResult = await cmr.findGranules(cmrParams);
-    if (!granulesResult.granules.length) {
-      return response.status(400).json('Items not found');
-    }
 
     const featureCollection = await convert.cmrGranulesToStac(event,
       granulesResult.granules,
