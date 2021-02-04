@@ -104,41 +104,44 @@ function getFacetParams (year, month, day) {
 async function getGranuleTemporalFacets (params = {}, year, month, day) {
   const cmrParams = Object.assign(params, getFacetParams(year, month, day));
 
-  const facets = {};
+  const facets = {
+    years: [],
+    months: [],
+    days: [],
+    itemids: []
+  };
   const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), cmrParams);
   const cmrFacets = response.data.feed.facets;
-  if (cmrFacets.has_children) {
-    const temporalFacets = cmrFacets.children.find(f => f.title === 'Temporal');
-    // always a year facet
-    const yearFacet = temporalFacets.children.find(f => f.title === 'Year');
-    const years = yearFacet.children.map(y => y.title);
-    facets.years = years;
-    if (year) {
-      // if year provided, get months
-      const monthFacet = yearFacet
-        .children.find(y => y.title === year)
-        .children.find(y => y.title === 'Month');
-      const months = monthFacet.children.map(y => y.title);
-      facets.months = months;
-      if (month) {
-        // if month also provided, get days
-        const days = monthFacet
-          .children.find(y => y.title === month)
-          .children.find(y => y.title === 'Day')
-          .children.map(y => y.title);
-        facets.days = days;
-      }
-      if (day) {
-        const itemids = response.data.feed.entry.map(i => i.id);
-        facets.itemids = itemids;
-      }
-    }
-  } else {
-    facets.years = [];
-    facets.months = [];
-    facets.days = [];
-    facets.itemids = [];
+  if (!cmrFacets.has_children) {
+    return facets;
   }
+
+  const temporalFacets = cmrFacets.children.find(f => f.title === 'Temporal');
+  // always a year facet
+  const yearFacet = temporalFacets.children.find(f => f.title === 'Year');
+  const years = yearFacet.children.map(y => y.title);
+  facets.years = years;
+  if (year) {
+    // if year provided, get months
+    const monthFacet = yearFacet
+      .children.find(y => y.title === year)
+      .children.find(y => y.title === 'Month');
+    const months = monthFacet.children.map(y => y.title);
+    facets.months = months;
+    if (month) {
+      // if month also provided, get days
+      const days = monthFacet
+        .children.find(y => y.title === month)
+        .children.find(y => y.title === 'Day')
+        .children.map(y => y.title);
+      facets.days = days;
+    }
+    if (day) {
+      const itemids = response.data.feed.entry.map(i => i.id);
+      facets.itemids = itemids;
+    }
+  }
+
   return facets;
 }
 
