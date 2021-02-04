@@ -288,31 +288,32 @@ describe('cmr', () => {
     describe('getGranuleTemporalFacets', () => {
       beforeEach(() => {
         axios.get = jest.fn();
-        const resp = { data: { feed: { facets: { children: [{
-          title: 'Temporal',
+        const resp = { data: { feed: { facets: { has_children: true,
           children: [{
-            title: 'Year',
-            children: [
-              {
-                title: '2001',
-                children: [{
-                  title: 'Month',
-                  children: [
-                    {
-                      title: '05',
-                      children: [{
-                        title: 'Day',
-                        children: [{ title: '20' }, { title: '22' }, { title: '23' }]
-                      }]
-                    },
-                    { title: '06' }
-                  ]
-                }]
-              },
-              { title: '2002' }
-            ]
-          }]
-        }] } } } };
+            title: 'Temporal',
+            children: [{
+              title: 'Year',
+              children: [
+                {
+                  title: '2001',
+                  children: [{
+                    title: 'Month',
+                    children: [
+                      {
+                        title: '05',
+                        children: [{
+                          title: 'Day',
+                          children: [{ title: '20' }, { title: '22' }, { title: '23' }]
+                        }]
+                      },
+                      { title: '06' }
+                    ]
+                  }]
+                },
+                { title: '2002' }
+              ]
+            }]
+          }] } } } };
         axios.get.mockResolvedValue(resp);
       });
 
