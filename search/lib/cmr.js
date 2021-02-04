@@ -134,10 +134,10 @@ async function getGranuleTemporalFacets (params = {}, year, month, day) {
       }
     }
   } else {
-    facets.years = []
-    facets.months = []
-    facets.days = []
-    facets.itemids = []
+    facets.years = [];
+    facets.months = [];
+    facets.days = [];
+    facets.itemids = [];
   }
   return facets;
 }
