@@ -104,9 +104,19 @@ function getFacetParams (year, month, day) {
 async function getGranuleTemporalFacets (params = {}, year, month, day) {
   const cmrParams = Object.assign(params, getFacetParams(year, month, day));
 
-  const facets = {};
+  const facets = {
+    years: [],
+    months: [],
+    days: [],
+    itemids: []
+  };
   const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), cmrParams);
-  const temporalFacets = response.data.feed.facets.children.find(f => f.title === 'Temporal');
+  const cmrFacets = response.data.feed.facets;
+  if (!cmrFacets.has_children) {
+    return facets;
+  }
+
+  const temporalFacets = cmrFacets.children.find(f => f.title === 'Temporal');
   // always a year facet
   const yearFacet = temporalFacets.children.find(f => f.title === 'Year');
   const years = yearFacet.children.map(y => y.title);
@@ -131,6 +141,7 @@ async function getGranuleTemporalFacets (params = {}, year, month, day) {
       facets.itemids = itemids;
     }
   }
+
   return facets;
 }
 
