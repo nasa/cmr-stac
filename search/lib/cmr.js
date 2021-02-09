@@ -12,6 +12,7 @@ const {
 } = require('./convert/datetime');
 const NodeCache = require('node-cache');
 const myCache = new NodeCache();
+const Promise = require('bluebird');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   bbox: ['bounding_box', _.identity],
@@ -50,13 +51,14 @@ async function findCollections (params = {}) {
 }
 
 async function cmrCollectionIdToStacId (collectionId) {
-  let stacId = myCache.get(`collection_${collectionId}`);
+  const cacheKey = `collectionId_${collectionId}`;
+  let stacId = myCache.get(cacheKey);
   if (stacId) {
     return stacId;
   }
   const collections = await findCollections({ concept_id: collectionId });
   stacId = `${collections[0].short_name}.v${collections[0].version_id}`;
-  myCache.set(`collection_${collectionId}`, stacId, 14400);
+  myCache.set(cacheKey, stacId, 14400);
   return stacId;
 }
 
@@ -179,19 +181,19 @@ function fromEntries (entries) {
   }, {});
 }
 
-function convertParam (converterPair, key, value) {
+async function convertParam (converterPair, key, value) {
   if (!converterPair) {
     throw Error(`Unsupported parameter ${key}`);
   }
-
   const [newName, converter] = converterPair;
   return [newName, converter(value)];
 }
 
-function convertParams (conversionMap, params) {
+async function convertParams (params = {}) {
   try {
-    const converted = Object.entries(params || {})
-      .map(([k, v]) => convertParam(conversionMap[k], k, v));
+    const converted = await Promise.map(Object.entries(params), async ([k, v]) => {
+      return convertParam(STAC_SEARCH_PARAMS_CONVERSION_MAP[k], k, v);
+    });
     return fromEntries(converted);
   } catch (error) {
     logger.error(error.message);
@@ -203,7 +205,6 @@ function convertParams (conversionMap, params) {
 }
 
 module.exports = {
-  STAC_SEARCH_PARAMS_CONVERSION_MAP,
   stacCollectionToCmrParams,
   makeCmrSearchUrl,
   cmrSearch,
