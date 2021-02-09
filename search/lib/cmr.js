@@ -28,6 +28,11 @@ const DEFAULT_HEADERS = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
+/**
+ * Convert a STAC Collection ID to set of CMR query parameters
+ * @param {string} providerId The CMR Provider ID
+ * @param {string} collectionId The STAC Collection ID
+ */
 function stacCollectionToCmrParams (providerId, collectionId) {
   const collectionIds = collectionId.split('.v');
   const version = collectionIds.pop();
@@ -39,39 +44,56 @@ function stacCollectionToCmrParams (providerId, collectionId) {
   };
 }
 
+/**
+ * Query URL with CMR parameters
+ * @param {string} url URL to query
+ * @param {object} params Set of CMR parameters
+ */
 async function cmrSearch (url, params) {
   if (!url || !params) throw new Error('Missing url or parameters');
   logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
   return axios.get(url, { params, headers: DEFAULT_HEADERS });
 }
 
+/**
+ * Search CMR for collections matching query parameters
+ * @param {object} params CMR Query parameters
+ */
 async function findCollections (params = {}) {
   const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), params);
   return response.data.feed.entry;
 }
 
+/**
+ * Map STAC Collection ID to CMR Collection ID - uses cache to save mappings
+ * @param {string} providerId CMR Provider ID
+ * @param {string} stacId A STAC COllection ID
+ */
 async function stacIdToCmrCollectionId (providerId, stacId) {
-  const cacheKey = `stacId_${stacId}`;
-  let collectionId = myCache.get(cacheKey);
+  let collectionId = myCache.get(stacId);
   if (collectionId) {
     return collectionId;
   }
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
   const collections = await findCollections(cmrParams);
   collectionId = collections[0].id;
-  myCache.set(cacheKey, collectionId, 14400);
+  myCache.set(stacId, collectionId, 14400);
   return collectionId;
 }
 
+/**
+ * Map CMR Collection ID to STAC Collection ID - uses cache to save mappings
+ * @param {string} providerId CMR Provider ID
+ * @param {string} collectionId CMR Collection ID
+ */
 async function cmrCollectionIdToStacId (collectionId) {
-  const cacheKey = `collectionId_${collectionId}`;
-  let stacId = myCache.get(cacheKey);
+  let stacId = myCache.get(collectionId);
   if (stacId) {
     return stacId;
   }
   const collections = await findCollections({ concept_id: collectionId });
   stacId = `${collections[0].short_name}.v${collections[0].version_id}`;
-  myCache.set(cacheKey, stacId, 14400);
+  myCache.set(collectionId, stacId, 14400);
   return stacId;
 }
 
@@ -194,11 +216,18 @@ function fromEntries (entries) {
   }, {});
 }
 
+/**
+ * Converts STAC parameter to equivalent CMR parameter
+ * @param {string} providerId CMR Provider ID 
+ * @param {string} key The STAC field name
+ * @param {string} value The STAC value
+ */
 async function convertParam (providerId, key, value) {
   if (!Object.keys(STAC_SEARCH_PARAMS_CONVERSION_MAP).includes(key)) {
     throw Error(`Unsupported parameter ${key}`);
   }
   if (key === 'collections') {
+    // async map to do collection ID conversions in parallel
     const collections = await Promise.map(value, async (v) => {
       return stacIdToCmrCollectionId(providerId, v);
     });
@@ -209,8 +238,14 @@ async function convertParam (providerId, key, value) {
   }
 }
 
+/**
+ * Converts STAC parameters to CMR parameters
+ * @param {string} providerId CMR Provider ID 
+ * @param {object} params STAC parameters
+ */
 async function convertParams (providerId, params = {}) {
   try {
+    // async map to do all param conversions in parallel
     const converted = await Promise.map(Object.entries(params), async ([k, v]) => {
       return convertParam(providerId, k, v);
     });
