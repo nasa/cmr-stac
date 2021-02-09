@@ -207,7 +207,7 @@ describe('cmr', () => {
         const params = {
           bbox: [10, 10, 10, 10]
         };
-        const result = await convertParams(params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ bounding_box: [10, 10, 10, 10] });
       });
 
@@ -215,7 +215,7 @@ describe('cmr', () => {
         const params = {
           datetime: '12:34:00pm'
         };
-        const result = await convertParams(params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ temporal: '12:34:00pm' });
       });
 
@@ -225,7 +225,7 @@ describe('cmr', () => {
             coordinates: [[10, 10], [10, 0], [0, 10]]
           }
         };
-        const result = await convertParams(params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ polygon: '10,10' });
       });
 
@@ -233,15 +233,19 @@ describe('cmr', () => {
         const params = {
           limit: 5
         };
-        const result = await convertParams(params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ page_size: 5 });
       });
 
-      it('should convert collection_concept_id to collections', async () => {
+      it('should convert collections into collection_concept_id', async () => {
+        axios.get = jest.fn();
+        const cmrResponse = { data: { feed: { entry: [{ id: 1 }] } } };
+        axios.get.mockResolvedValue(cmrResponse);
+
         const params = {
-          collections: [1]
+          collections: ['name.v0']
         };
-        const result = await convertParams(params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ collection_concept_id: [1] });
       });
     });

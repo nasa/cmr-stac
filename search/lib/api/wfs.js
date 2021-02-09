@@ -39,7 +39,7 @@ async function getCollections (request, response) {
     const provider = request.params.providerId;
     const params = Object.assign(
       { provider_short_name: provider },
-      await cmr.convertParams(request.query)
+      await cmr.convertParams(provider, request.query)
     );
     const collections = await cmr.findCollections(params);
     if (!collections.length) {
@@ -144,7 +144,7 @@ async function getGranules (request, response) {
   try {
     const cmrParams = Object.assign(
       { provider: providerId },
-      await cmr.convertParams(query)
+      await cmr.convertParams(providerId, query)
     );
     if (collectionId) {
       Object.assign(cmrParams, cmr.stacCollectionToCmrParams(providerId, collectionId));

@@ -50,6 +50,19 @@ async function findCollections (params = {}) {
   return response.data.feed.entry;
 }
 
+async function stacIdToCmrCollectionId (providerId, stacId) {
+  const cacheKey = `stacId_${stacId}`;
+  let collectionId = myCache.get(cacheKey);
+  if (collectionId) {
+    return collectionId;
+  }
+  const cmrParams = stacCollectionToCmrParams(providerId, stacId);
+  const collections = await findCollections(cmrParams);
+  collectionId = collections[0].id;
+  myCache.set(cacheKey, collectionId, 14400);
+  return collectionId;
+}
+
 async function cmrCollectionIdToStacId (collectionId) {
   const cacheKey = `collectionId_${collectionId}`;
   let stacId = myCache.get(cacheKey);
@@ -181,19 +194,28 @@ function fromEntries (entries) {
   }, {});
 }
 
-async function convertParam (converterPair, key, value) {
-  if (!converterPair) {
+async function convertParam (providerId, key, value) {
+  if (!Object.keys(STAC_SEARCH_PARAMS_CONVERSION_MAP).includes(key)) {
     throw Error(`Unsupported parameter ${key}`);
   }
-  const [newName, converter] = converterPair;
-  return [newName, converter(value)];
+  if (key === 'collections') {
+    const collections = await Promise.map(value, async (v) => {
+      return stacIdToCmrCollectionId(providerId, v);
+    });
+    return ['collection_concept_id', collections];
+  } else {
+    const [newName, converter] = STAC_SEARCH_PARAMS_CONVERSION_MAP[key];
+    return [newName, converter(value)];
+  }
 }
 
-async function convertParams (params = {}) {
+async function convertParams (providerId, params = {}) {
   try {
     const converted = await Promise.map(Object.entries(params), async ([k, v]) => {
-      return convertParam(STAC_SEARCH_PARAMS_CONVERSION_MAP[k], k, v);
+      return convertParam(providerId, k, v);
     });
+    logger.debug(`Params: ${JSON.stringify(params)}`);
+    logger.debug(`Converted Params: ${JSON.stringify(converted)}`);
     return fromEntries(converted);
   } catch (error) {
     logger.error(error.message);
@@ -209,6 +231,7 @@ module.exports = {
   makeCmrSearchUrl,
   cmrSearch,
   findCollections,
+  stacIdToCmrCollectionId,
   cmrCollectionIdToStacId,
   findGranules,
   getFacetParams,
