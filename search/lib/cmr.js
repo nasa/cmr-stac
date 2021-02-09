@@ -218,7 +218,7 @@ function fromEntries (entries) {
 
 /**
  * Converts STAC parameter to equivalent CMR parameter
- * @param {string} providerId CMR Provider ID 
+ * @param {string} providerId CMR Provider ID
  * @param {string} key The STAC field name
  * @param {string} value The STAC value
  */
@@ -240,7 +240,7 @@ async function convertParam (providerId, key, value) {
 
 /**
  * Converts STAC parameters to CMR parameters
- * @param {string} providerId CMR Provider ID 
+ * @param {string} providerId CMR Provider ID
  * @param {object} params STAC parameters
  */
 async function convertParams (providerId, params = {}) {

@@ -229,7 +229,7 @@ describe('cmr', () => {
         expect(result).toEqual({ polygon: '10,10' });
       });
 
-      it('should convert page_size to limit.', async () => {
+      it('should convert limit to page_size.', async () => {
         const params = {
           limit: 5
         };
