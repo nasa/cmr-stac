@@ -1,6 +1,5 @@
 const axios = require('axios');
 const {
-  STAC_SEARCH_PARAMS_CONVERSION_MAP,
   makeCmrSearchUrl,
   cmrSearch,
   findCollections,
@@ -203,53 +202,50 @@ describe('cmr', () => {
   });
 
   describe('convertParams', () => {
-    it('should create a new set of params based on a conversion Map.', () => {
-      const map = { originalKey: ['key', (v) => v.toUpperCase()] };
-      const original = { originalKey: 'test' };
-      const converted = { key: 'TEST' };
-      expect(convertParams(map, original)).toEqual(converted);
-    });
-
     describe('STAC_SEARCH_PARAMS_CONVERSION_MAP', () => {
-      it('should convert a bbox to bounding_box.', () => {
+      it('should convert a bbox to bounding_box.', async () => {
         const params = {
           bbox: [10, 10, 10, 10]
         };
-        const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ bounding_box: [10, 10, 10, 10] });
       });
 
-      it('should convert time into temporal.', () => {
+      it('should convert time into temporal.', async () => {
         const params = {
           datetime: '12:34:00pm'
         };
-        const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ temporal: '12:34:00pm' });
       });
 
-      it('should convert intersects into polygon.', () => {
+      it('should convert intersects into polygon.', async () => {
         const params = {
           intersects: {
             coordinates: [[10, 10], [10, 0], [0, 10]]
           }
         };
-        const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ polygon: '10,10' });
       });
 
-      it('should convert page_size to limit.', () => {
+      it('should convert limit to page_size.', async () => {
         const params = {
           limit: 5
         };
-        const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ page_size: 5 });
       });
 
-      it('should convert collection_concept_id to collections', () => {
+      it('should convert collections into collection_concept_id', async () => {
+        axios.get = jest.fn();
+        const cmrResponse = { data: { feed: { entry: [{ id: 1 }] } } };
+        axios.get.mockResolvedValue(cmrResponse);
+
         const params = {
-          collections: [1]
+          collections: ['name.v0']
         };
-        const result = convertParams(STAC_SEARCH_PARAMS_CONVERSION_MAP, params);
+        const result = await convertParams('provider', params);
         expect(result).toEqual({ collection_concept_id: [1] });
       });
     });
