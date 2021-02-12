@@ -27,7 +27,7 @@ env.BROWSE_PATH = process.env.BROWSE_PATH;
 env.CONFORMANCE_RESPONSE = CONFORMANCE_RESPONSE;
 
 /**
- * Fetch a list of collections from CMR.
+ * Fetch a list of collections from CMR for a provider.
  */
 async function getCollections (request, response) {
   try {
@@ -37,11 +37,7 @@ async function getCollections (request, response) {
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
     const provider = request.params.providerId;
-    const params = Object.assign(
-      { provider_short_name: provider },
-      await cmr.convertParams(provider, request.query)
-    );
-    const collections = await cmr.findCollections(params);
+    const collections = await cmr.findCollections({ provider_short_name: provider });
     if (!collections.length) {
       return response.status(400).json('Collections not found');
     }
@@ -82,8 +78,8 @@ async function getCollections (request, response) {
 
 async function createBrowseLinks (event, provider, collectionId) {
   // get all child years
-  const params = cmr.stacCollectionToCmrParams(provider, collectionId);
-  const facets = await cmr.getGranuleTemporalFacets(params);
+  const cmrParams = await cmr.convertParams(provider, { collections: [collectionId] });
+  const facets = await cmr.getGranuleTemporalFacets(cmrParams);
   const path = `/${provider}/collections/${collectionId}`;
   // create catalog link for each year
   const links = facets.years.map(y =>
@@ -101,22 +97,22 @@ async function getCollection (request, response) {
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
 
-  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
-  const collections = await cmr.findCollections(cmrParams);
-
-  if ((!collections) || (collections.length === 0)) {
-    return response
-      .status(404)
-      .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
+  try {
+    // convert collection ID to CMR <short_name> and <version>
+    const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+    const collections = await cmr.findCollections(cmrParams);
+    // There will only be one collection returned
+    const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
+    // add browse links
+    if (process.env.BROWSE_PATH) {
+      const browseLinks = await createBrowseLinks(event, providerId, collectionId);
+      collectionResponse.links = collectionResponse.links.concat(browseLinks);
+    }
+    await assertValid(schemas.collection, collectionResponse);
+    response.json(collectionResponse);
+  } catch (err) {
+    response.status(404).json(`Collection ${collectionId} not found for provider ${providerId}`);
   }
-  const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
-  // add browse links
-  if (process.env.BROWSE_PATH) {
-    const browseLinks = await createBrowseLinks(event, providerId, collectionId);
-    collectionResponse.links = collectionResponse.links.concat(browseLinks);
-  }
-  await assertValid(schemas.collection, collectionResponse);
-  response.json(collectionResponse);
 }
 
 /**
@@ -127,40 +123,38 @@ async function getGranules (request, response) {
   const providerId = request.params.providerId;
   const event = request.apiGateway.event;
   const method = event.httpMethod;
-  logger.debug(`Event: ${JSON.stringify(event)}`);
   logger.info(`${method} ${event.path}`);
 
-  let query, fields;
+  let params, fields;
   if (method === 'GET') {
-    query = stacExtension.prepare(request.query);
+    params = stacExtension.prepare(request.query);
     fields = request.query.fields;
   } else if (method === 'POST') {
-    query = stacExtension.prepare(request.body);
+    params = stacExtension.prepare(request.body);
     fields = request.body.fields;
   } else {
     throw new Error(`Invalid httpMethod ${method}`);
   }
 
   try {
-    const cmrParams = Object.assign(
-      { provider: providerId },
-      await cmr.convertParams(providerId, query)
-    );
+    // CollectionId Path parameter (e.g., /collections/<collectionId>/items vs /search)
     if (collectionId) {
-      Object.assign(cmrParams, cmr.stacCollectionToCmrParams(providerId, collectionId));
+      Object.assign(params, { collections: [collectionId] });
     }
+    // convert STAC params to CMR Params
+    const cmrParams = await cmr.convertParams(providerId, params);
     const granulesResult = await cmr.findGranules(cmrParams);
 
     const featureCollection = await convert.cmrGranulesToStac(event,
       granulesResult.granules,
       parseInt(granulesResult.hits),
-      query);
+      params);
     await assertValid(schemas.items, featureCollection);
 
     const formatted = stacExtension.format(featureCollection,
       {
         fields,
-        context: { searchResult: granulesResult, query }
+        context: { searchResult: granulesResult, query: params }
       });
 
     response.json(formatted);
@@ -183,11 +177,10 @@ async function getGranule (request, response) {
   logger.info(`GET /${providerId}/collections/${collectionId}/items/${conceptId}`);
   const event = request.apiGateway.event;
 
-  const cmrParams = Object.assign(
-    { concept_id: conceptId },
-    cmr.stacCollectionToCmrParams(providerId, collectionId)
-  );
-
+  const cmrParams = {
+    provider_id: providerId,
+    concept_id: conceptId
+  };
   const granules = (await cmr.findGranules(cmrParams)).granules;
   const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
   await assertValid(schemas.item, granuleResponse);
@@ -230,7 +223,7 @@ async function getCatalog (request, response) {
   cat.createParent(selfUrl.slice(0, selfUrl.lastIndexOf('/')));
 
   // add browse links
-  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+  const cmrParams = await cmr.convertParams(providerId, { collections: [collectionId] });
   const facets = await cmr.getGranuleTemporalFacets(cmrParams, year, month, day);
   if (day) {
     facets.itemids.forEach(id => cat.addItem(id, providerId, collectionId, id));
