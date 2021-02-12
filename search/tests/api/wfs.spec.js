@@ -31,7 +31,7 @@ describe('wfs routes', () => {
     request = createRequest({
       params: {
         providerId: 'LPDAAC',
-        collectionId: '1',
+        collectionId: '1.v1',
         itemId: '1'
       }
     });
@@ -97,7 +97,7 @@ describe('wfs routes', () => {
         await getCollection(request, response);
         expect(response.getData()).toEqual({
           status: 404,
-          json: 'Collection [1] not found for provider [LPDAAC]'
+          json: 'Collection 1.v1 not found for provider LPDAAC'
         });
       });
     });
@@ -157,7 +157,7 @@ describe('wfs routes', () => {
           },
           {
             rel: 'next',
-            href: 'http://example.com?limit=2&collections=1&page=2',
+            href: 'http://example.com?limit=2&collections=1.v1&page=2',
             method: 'GET'
           }
         ],
@@ -191,7 +191,7 @@ describe('wfs routes', () => {
           {
             rel: 'prev',
             method: 'GET',
-            href: 'http://example.com?page=1&collections=1'
+            href: 'http://example.com?page=1&collections=1.v1'
           }
         ],
         features: exampleData.stacGrans
@@ -224,7 +224,7 @@ describe('wfs routes', () => {
       await getCatalog(request, response);
       const cat = response.getData().json;
       expect(cat.links.length).toEqual(5);
-      expect(cat.id).toEqual('1-2001');
+      expect(cat.id).toEqual('1.v1-2001');
     });
 
     it('should return Days catalog given a Month catalog', async () => {
@@ -234,7 +234,7 @@ describe('wfs routes', () => {
       await getCatalog(request, response);
       const cat = response.getData().json;
       expect(cat.links.length).toEqual(5);
-      expect(cat.id).toEqual('1-2001-05');
+      expect(cat.id).toEqual('1.v1-2001-05');
     });
 
     it('should return Item catalog given a Day catalog', async () => {
@@ -244,7 +244,7 @@ describe('wfs routes', () => {
       await getCatalog(request, response);
       const cat = response.getData().json;
       expect(cat.links.length).toEqual(4);
-      expect(cat.id).toEqual('1-2001-05-20');
+      expect(cat.id).toEqual('1.v1-2001-05-20');
     });
   });
 });

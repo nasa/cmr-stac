@@ -97,23 +97,21 @@ async function getCollection (request, response) {
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
 
-  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+  try {
+    const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+    const collections = await cmr.findCollections(cmrParams);
 
-  const collections = await cmr.findCollections(cmrParams);
-
-  if ((!collections) || (collections.length === 0)) {
-    return response
-      .status(404)
-      .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
+    const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
+    // add browse links
+    if (process.env.BROWSE_PATH) {
+      const browseLinks = await createBrowseLinks(event, providerId, collectionId);
+      collectionResponse.links = collectionResponse.links.concat(browseLinks);
+    }
+    await assertValid(schemas.collection, collectionResponse);
+    response.json(collectionResponse);
+  } catch (err) {
+    response.status(404).json(`Collection ${collectionId} not found for provider ${providerId}`);
   }
-  const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
-  // add browse links
-  if (process.env.BROWSE_PATH) {
-    const browseLinks = await createBrowseLinks(event, providerId, collectionId);
-    collectionResponse.links = collectionResponse.links.concat(browseLinks);
-  }
-  await assertValid(schemas.collection, collectionResponse);
-  response.json(collectionResponse);
 }
 
 /**

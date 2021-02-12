@@ -104,9 +104,12 @@ async function findGranules (params = {}) {
  * @param {string} collectionId The STAC Collection ID
  */
 function stacCollectionToCmrParams (providerId, collectionId) {
-  const collectionIds = collectionId.split('.v');
-  const version = collectionIds.pop();
-  const shortName = collectionIds.join('.');
+  const parts = collectionId.split('.v');
+  if (parts.length < 2) {
+    throw new Error(`Collection ${collectionId} not found for provider ${providerId}`);
+  }
+  const version = parts.pop();
+  const shortName = parts.join('.');
   return {
     provider_id: providerId,
     short_name: shortName,
@@ -127,7 +130,7 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
   const collections = await findCollections(cmrParams);
   if (collections.length === 0) {
-    throw new Error(`Collection {stacId} not found for provider {providerId}`);
+    throw new Error(`Collection ${stacId} not found for provider ${providerId}`);
   } else {
     collectionId = collections[0].id;
     myCache.set(stacId, collectionId, 14400);
@@ -238,7 +241,7 @@ function fromEntries (entries) {
 async function convertParam (providerId, key, value) {
   // Invalid STAC parameter
   if (!Object.keys(STAC_SEARCH_PARAMS_CONVERSION_MAP).includes(key)) {
-    throw Error(`Unsupported parameter ${key}`);
+    throw new Error(`Unsupported parameter ${key}`);
   }
   // If collection parameter need to translate to CMR parameter
   if (key === 'collections') {
