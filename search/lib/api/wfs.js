@@ -98,9 +98,10 @@ async function getCollection (request, response) {
   const collectionId = request.params.collectionId;
 
   try {
+    // convert collection ID to CMR <short_name> and <version>
     const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
     const collections = await cmr.findCollections(cmrParams);
-
+    // There will only be one collection returned
     const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
     // add browse links
     if (process.env.BROWSE_PATH) {
@@ -122,7 +123,6 @@ async function getGranules (request, response) {
   const providerId = request.params.providerId;
   const event = request.apiGateway.event;
   const method = event.httpMethod;
-  logger.debug(`Event: ${JSON.stringify(event)}`);
   logger.info(`${method} ${event.path}`);
 
   let params, fields;

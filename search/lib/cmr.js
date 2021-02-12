@@ -35,7 +35,8 @@ const DEFAULT_HEADERS = {
  */
 async function cmrSearch (path, params) {
   // should be search path (e.g., granules.json, collections, etc)
-  if (!path || !params) throw new Error('Missing url or parameters');
+  if (!path) throw new Error('Missing url');
+  if (!params) throw new Error('Missing parameters');
   const url = makeCmrSearchUrl(path);
   logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
   return axios.get(url, { params, headers: DEFAULT_HEADERS });
