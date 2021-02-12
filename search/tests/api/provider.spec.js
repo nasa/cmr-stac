@@ -53,10 +53,10 @@ const expectedProviders = [
 
 describe('getProviders', () => {
   beforeEach(() => {
-    mockFunction(cmr, 'getProviders', Promise.resolve(mockProviderResponse));
+    mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
   });
   afterEach(() => {
-    revertFunction(cmr, 'getProviders');
+    revertFunction(cmr, 'getProviderList');
   });
 
   it('should return an array', async () => {

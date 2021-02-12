@@ -12,7 +12,7 @@ async function getProvider (request, response) {
     const event = request.apiGateway.event;
 
     // validate that providerId is valid
-    const providerList = await cmr.getProviders();
+    const providerList = await cmr.getProviderList();
     const isProvider = providerList.filter(providerObj => providerObj['provider-id'] === providerId);
     if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
 
@@ -52,7 +52,7 @@ async function getProvider (request, response) {
 
 async function getProviders (request, response) {
   const event = request.apiGateway.event;
-  const providers = await cmr.getProviders();
+  const providers = await cmr.getProviderList();
   const providerLinks = await Promise.map(providers, async (provider) => {
     return {
       title: provider['short-name'],

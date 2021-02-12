@@ -1,11 +1,9 @@
 const axios = require('axios');
 const {
-  makeCmrSearchUrl,
   cmrSearch,
   findCollections,
   findGranules,
   convertParams,
-  fromEntries,
   getFacetParams,
   getGranuleTemporalFacets
 } = require('../../lib/cmr');
@@ -21,31 +19,10 @@ afterAll(() => {
 });
 
 describe('cmr', () => {
-  let path, params;
+  let params;
 
   beforeEach(() => {
-    path = 'path/to/resource';
     params = { param: 'test' };
-  });
-
-  describe('makeCmrSearchUrl', () => {
-    it('should exist', () => {
-      expect(makeCmrSearchUrl).toBeDefined();
-    });
-    it('should create a url with zero params.', () => {
-      expect(makeCmrSearchUrl())
-        .toBe('https://cmr.earthdata.nasa.gov/search');
-    });
-
-    it('should create a url with path and no query params', () => {
-      expect(makeCmrSearchUrl(path))
-        .toBe('https://cmr.earthdata.nasa.gov/search/path/to/resource');
-    });
-
-    it('should create a url with a path and query params', () => {
-      expect(makeCmrSearchUrl(path, params))
-        .toBe('https://cmr.earthdata.nasa.gov/search/path/to/resource?param=test');
-    });
   });
 
   describe('cmrSearch', () => {
@@ -72,9 +49,9 @@ describe('cmr', () => {
     });
 
     it('should return a cmr collection', async () => {
-      cmrSearch('https://example.com', { });
+      cmrSearch('test-endpoint', { });
       expect(axios.get.mock.calls.length).toBe(1);
-      expect(axios.get.mock.calls[0][0]).toBe('https://example.com');
+      expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/test-endpoint');
       expect(axios.get.mock.calls[0][1]).toEqual({ headers: { 'Client-Id': 'cmr-stac-api-proxy' }, params: { } });
     });
   });
@@ -208,7 +185,7 @@ describe('cmr', () => {
           bbox: [10, 10, 10, 10]
         };
         const result = await convertParams('provider', params);
-        expect(result).toEqual({ bounding_box: [10, 10, 10, 10] });
+        expect(result).toEqual({ provider: 'provider', bounding_box: [10, 10, 10, 10] });
       });
 
       it('should convert time into temporal.', async () => {
@@ -216,7 +193,7 @@ describe('cmr', () => {
           datetime: '12:34:00pm'
         };
         const result = await convertParams('provider', params);
-        expect(result).toEqual({ temporal: '12:34:00pm' });
+        expect(result).toEqual({ provider: 'provider', temporal: '12:34:00pm' });
       });
 
       it('should convert intersects into polygon.', async () => {
@@ -226,7 +203,7 @@ describe('cmr', () => {
           }
         };
         const result = await convertParams('provider', params);
-        expect(result).toEqual({ polygon: '10,10' });
+        expect(result).toEqual({ provider: 'provider', polygon: '10,10' });
       });
 
       it('should convert limit to page_size.', async () => {
@@ -234,7 +211,7 @@ describe('cmr', () => {
           limit: 5
         };
         const result = await convertParams('provider', params);
-        expect(result).toEqual({ page_size: 5 });
+        expect(result).toEqual({ provider: 'provider', page_size: 5 });
       });
 
       it('should convert collections into collection_concept_id', async () => {
@@ -246,7 +223,7 @@ describe('cmr', () => {
           collections: ['name.v0']
         };
         const result = await convertParams('provider', params);
-        expect(result).toEqual({ collection_concept_id: [1] });
+        expect(result).toEqual({ provider: 'provider', collection_concept_id: [1] });
       });
     });
   });
@@ -329,21 +306,6 @@ describe('cmr', () => {
         const facets = await getGranuleTemporalFacets(cmrParams, '2001', '05');
         expect(Object.keys(facets['days']).length).toEqual(3);
       });
-    });
-  });
-
-  describe('fromEntries', () => {
-    it('should exist', () => {
-      expect(fromEntries).toBeDefined();
-    });
-
-    it('should accept a parameter', () => {
-      expect(() => fromEntries()).toThrow();
-    });
-
-    it('should return an object made of entries', () => {
-      expect(fromEntries([['a', 'd'], ['b', 'e'], ['c', 'f']]))
-        .toEqual({ a: 'd', b: 'e', c: 'f' });
     });
   });
 });

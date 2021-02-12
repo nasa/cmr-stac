@@ -37,6 +37,7 @@ describe('wfs routes', () => {
     });
     response = createMockResponse();
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
+    mockFunction(cmr, 'convertParams', {});
     mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: exampleData.cmrGrans.length }));
     mockFunction(cmr, 'getGranuleTemporalFacets',
       { years: ['2001', '2002'], months: ['05', '06'], days: ['20', '21'], itemids: ['test1'] });
@@ -44,6 +45,7 @@ describe('wfs routes', () => {
 
   afterEach(() => {
     revertFunction(cmr, 'findCollections');
+    revertFunction(cmr, 'convertParams');
     revertFunction(cmr, 'findGranules');
     revertFunction(cmr, 'getCatalog');
     revertFunction(cmr, 'getGranuleTemporalFacets');
@@ -155,7 +157,7 @@ describe('wfs routes', () => {
           },
           {
             rel: 'next',
-            href: 'http://example.com?limit=2&page=2',
+            href: 'http://example.com?limit=2&collections=1&page=2',
             method: 'GET'
           }
         ],
@@ -189,7 +191,7 @@ describe('wfs routes', () => {
           {
             rel: 'prev',
             method: 'GET',
-            href: 'http://example.com?page=1'
+            href: 'http://example.com?page=1&collections=1'
           }
         ],
         features: exampleData.stacGrans
@@ -208,6 +210,11 @@ describe('wfs routes', () => {
     beforeEach(() => {
       process.env.BROWSE_PATH = 'year/month/day';
       request.apiGateway = { event: { headers: { Host: 'example.com' }, queryStringParameters: [] } };
+      mockFunction(cmr, 'convertParams', {});
+    });
+
+    afterEach(() => {
+      revertFunction(cmr, 'convertParams');
     });
 
     it('should return Months catalog given a year catalog', async () => {

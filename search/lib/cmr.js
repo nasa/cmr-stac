@@ -29,6 +29,76 @@ const DEFAULT_HEADERS = {
 };
 
 /**
+ * Query a CMR Search endpoint with optional parameters
+ * @param {string} path CMR path to append to search URL (e.g., granules.json, collections.json)
+ * @param {object} params Set of CMR parameters
+ */
+async function cmrSearch (path, params) {
+  // should be search path (e.g., granules.json, collections, etc)
+  if (!path || !params) throw new Error('Missing url or parameters');
+  const url = makeCmrSearchUrl(path);
+  logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
+  return axios.get(url, { params, headers: DEFAULT_HEADERS });
+}
+
+/**
+ * Get list of providers
+ */
+async function getProviderList () {
+  const providerUrl = UrlBuilder.create()
+    .withProtocol(settings.cmrSearchProtocol)
+    .withHost(settings.cmrProviderHost)
+    .build();
+  const rawProviders = await axios.get(providerUrl);
+  return rawProviders.data;
+}
+
+/**
+ * Get set of collections for provider
+ * @param {string} providerId The CMR Provider ID
+ */
+async function getProvider (providerId) {
+  const response = await cmrSearch('provider_holdings.json', { providerId });
+  return response.data;
+}
+
+/**
+ * Search CMR for collections matching query parameters
+ * @param {object} params CMR Query parameters
+ */
+async function findCollections (params = {}) {
+  const response = await cmrSearch('/collections.json', params);
+  return response.data.feed.entry;
+}
+
+/**
+ * Search CMR for granules matching CMR query parameters
+ * @param {object} params Object of CMR Search parameters
+ */
+async function findGranules (params = {}) {
+  const response = await cmrSearch('/granules.json', params);
+  const granules = response.data.feed.entry.reduce(
+    (obj, item) => ({
+      ...obj,
+      [item.id]: item
+    }),
+    {}
+  );
+  // get UMM version
+  const responseUmm = await cmrSearch('/granules.umm_json', params);
+  if (_.has(responseUmm.data, 'items')) {
+    // associate and add UMM granule to standard granule
+    responseUmm.data.items.forEach((g) => {
+      granules[g.meta['concept-id']].meta = g.meta;
+      granules[g.meta['concept-id']].umm = g.umm;
+    });
+  }
+  // get total number of hits for this query from the returned header
+  const hits = _.get(response, 'headers.cmr-hits', granules.length);
+  return { granules: Object.values(granules), hits: hits };
+}
+
+/**
  * Convert a STAC Collection ID to set of CMR query parameters
  * @param {string} providerId The CMR Provider ID
  * @param {string} collectionId The STAC Collection ID
@@ -45,26 +115,6 @@ function stacCollectionToCmrParams (providerId, collectionId) {
 }
 
 /**
- * Query URL with CMR parameters
- * @param {string} url URL to query
- * @param {object} params Set of CMR parameters
- */
-async function cmrSearch (url, params) {
-  if (!url || !params) throw new Error('Missing url or parameters');
-  logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
-  return axios.get(url, { params, headers: DEFAULT_HEADERS });
-}
-
-/**
- * Search CMR for collections matching query parameters
- * @param {object} params CMR Query parameters
- */
-async function findCollections (params = {}) {
-  const response = await cmrSearch(makeCmrSearchUrl('/collections.json'), params);
-  return response.data.feed.entry;
-}
-
-/**
  * Map STAC Collection ID to CMR Collection ID - uses cache to save mappings
  * @param {string} providerId CMR Provider ID
  * @param {string} stacId A STAC COllection ID
@@ -76,9 +126,13 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
   }
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
   const collections = await findCollections(cmrParams);
-  collectionId = collections[0].id;
-  myCache.set(stacId, collectionId, 14400);
-  return collectionId;
+  if (collections.length === 0) {
+    throw new Error(`Collection {stacId} not found for provider {providerId}`);
+  } else {
+    collectionId = collections[0].id;
+    myCache.set(stacId, collectionId, 14400);
+    return collectionId;
+  }
 }
 
 /**
@@ -95,28 +149,6 @@ async function cmrCollectionIdToStacId (collectionId) {
   stacId = `${collections[0].short_name}.v${collections[0].version_id}`;
   myCache.set(collectionId, stacId, 14400);
   return stacId;
-}
-
-async function findGranules (params = {}) {
-  const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), params);
-  const granules = response.data.feed.entry.reduce(
-    (obj, item) => ({
-      ...obj,
-      [item.id]: item
-    }),
-    {}
-  );
-  // get UMM version
-  const responseUmm = await cmrSearch(makeCmrSearchUrl('/granules.umm_json'), params);
-  if (_.has(responseUmm.data, 'items')) {
-    responseUmm.data.items.forEach((g) => {
-      granules[g.meta['concept-id']].meta = g.meta;
-      granules[g.meta['concept-id']].umm = g.umm;
-    });
-  }
-
-  const hits = _.get(response, 'headers.cmr-hits', granules.length);
-  return { granules: Object.values(granules), hits: hits };
 }
 
 function getFacetParams (year, month, day) {
@@ -147,7 +179,7 @@ async function getGranuleTemporalFacets (params = {}, year, month, day) {
     days: [],
     itemids: []
   };
-  const response = await cmrSearch(makeCmrSearchUrl('/granules.json'), cmrParams);
+  const response = await cmrSearch('/granules.json', cmrParams);
   const cmrFacets = response.data.feed.facets;
   if (!cmrFacets.has_children) {
     return facets;
@@ -182,25 +214,6 @@ async function getGranuleTemporalFacets (params = {}, year, month, day) {
   return facets;
 }
 
-async function getProvider (providerId) {
-  const url = UrlBuilder.create()
-    .withProtocol(settings.cmrSearchProtocol)
-    .withHost(`${settings.cmrSearchHost}/provider_holdings.json`)
-    .withQuery({ providerId })
-    .build();
-  const response = await axios.get(url);
-  return response.data;
-}
-
-async function getProviders () {
-  const providerUrl = UrlBuilder.create()
-    .withProtocol(settings.cmrSearchProtocol)
-    .withHost(settings.cmrProviderHost)
-    .build();
-  const rawProviders = await axios.get(providerUrl);
-  return rawProviders.data;
-}
-
 /**
  * Patch for Object.fromEntries which is introduced in NodeJS 12.
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries
@@ -223,9 +236,11 @@ function fromEntries (entries) {
  * @param {string} value The STAC value
  */
 async function convertParam (providerId, key, value) {
+  // Invalid STAC parameter
   if (!Object.keys(STAC_SEARCH_PARAMS_CONVERSION_MAP).includes(key)) {
     throw Error(`Unsupported parameter ${key}`);
   }
+  // If collection parameter need to translate to CMR parameter
   if (key === 'collections') {
     // async map to do collection ID conversions in parallel
     const collections = await Promise.map(value, async (v) => {
@@ -251,28 +266,24 @@ async function convertParams (providerId, params = {}) {
     });
     logger.debug(`Params: ${JSON.stringify(params)}`);
     logger.debug(`Converted Params: ${JSON.stringify(converted)}`);
-    return fromEntries(converted);
+    return Object.assign({ provider: providerId }, fromEntries(converted));
   } catch (error) {
     logger.error(error.message);
     if (settings.throwCmrConvertParamErrors) {
       throw error;
     }
-    return params;
   }
 }
 
 module.exports = {
-  stacCollectionToCmrParams,
-  makeCmrSearchUrl,
   cmrSearch,
+  getProvider,
+  getProviderList,
   findCollections,
-  stacIdToCmrCollectionId,
-  cmrCollectionIdToStacId,
   findGranules,
+  stacCollectionToCmrParams,
+  cmrCollectionIdToStacId,
   getFacetParams,
   getGranuleTemporalFacets,
-  convertParams,
-  fromEntries,
-  getProvider,
-  getProviders
+  convertParams
 };
