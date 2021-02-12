@@ -39,7 +39,7 @@ describe('cmr', () => {
     });
 
     it('should take in a url and a params object', async () => {
-      const error = new Error('Missing url or parameters');
+      const error = new Error('Missing url');
       expect.assertions(1);
       try {
         await cmrSearch();
