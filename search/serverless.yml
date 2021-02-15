@@ -13,6 +13,7 @@ provider:
 
 custom:
   cmrStacRelativeRootUrl: /stac
+  cmrCloudStacRelativeRootUrl: /cloudstac
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
 
@@ -27,12 +28,14 @@ functions:
           priority: 84
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
+            path: ${self:custom.cmrCloudStacRelativeRootUrl}*
     logSubscription: true
     environment:
       CMR_SEARCH_HOST: ${opt:cmr-search-host, 'cmr.earthdata.nasa.gov/search'}
       CMR_PROVIDER_HOST: ${opt:cmr-provider-host, 'cmr.earthdata.nasa.gov/ingest/providers'}
       CMR_SEARCH_PROTOCOL: ${opt:cmr-search-protocol, 'https'}
       CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
+      CMR_CLOUDSTAC_RELATIVE_ROOT_URL: ${self:custom.cmrCloudStacRelativeRootUrl}
       BROWSE_PATH: year/month/day
       LOG_DISABLED: false
       LOG_LEVEL: info

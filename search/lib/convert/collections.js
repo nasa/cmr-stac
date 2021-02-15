@@ -1,5 +1,5 @@
 const settings = require('../settings');
-const { wfs, generateAppUrl, makeCmrSearchUrl } = require('../util');
+const { wfs, logger, generateAppUrl, generateCloudAppUrl, makeCmrSearchUrl } = require('../util');
 const {
   WHOLE_WORLD_BBOX,
   pointStringToPoints,
@@ -53,6 +53,7 @@ function createExtent (cmrCollection) {
 }
 
 function createLinks (event, cmrCollection) {
+  logger.info(`In createLinks`);
   const collectionId = `${cmrCollection.short_name}.v${cmrCollection.version_id}`;
   const provider = cmrCollection.data_center;
 
@@ -73,7 +74,30 @@ function createLinks (event, cmrCollection) {
   return links;
 }
 
+function createCloudLinks (event, cmrCollection) {
+  logger.info(`In createCloudLinks`);
+  const collectionId = `${cmrCollection.short_name}.v${cmrCollection.version_id}`;
+  const provider = cmrCollection.data_center;
+
+  const links = [
+    wfs.createLink('self', generateCloudAppUrl(event, `/${provider}/collections/${collectionId}`),
+      'Info about this collection'),
+    wfs.createLink('root', generateCloudAppUrl(event, ''),
+      'Root catalog'),
+    wfs.createLink('parent', generateCloudAppUrl(event, `/${provider}`),
+      'Parent catalog'),
+    wfs.createLink('items', generateCloudAppUrl(event, `/${provider}/collections/${collectionId}/items`),
+      'Granules in this collection'),
+    wfs.createLink('about', makeCmrSearchUrl(`/concepts/${cmrCollection.id}.html`),
+      'HTML metadata for collection'),
+    wfs.createLink('via', makeCmrSearchUrl(`/concepts/${cmrCollection.id}.json`),
+      'CMR JSON metadata for collection')
+  ];
+  return links;
+}
+
 function cmrCollToWFSColl (event, cmrCollection) {
+  logger.info(`In cmrCollToWFSColl`);
   if (!cmrCollection) return [];
   const collection = {
     id: `${cmrCollection.short_name}.v${cmrCollection.version_id}`,
@@ -87,7 +111,23 @@ function cmrCollToWFSColl (event, cmrCollection) {
   return collection;
 }
 
+function cmrCloudCollToWFSColl (event, cmrCollection) {
+  logger.info(`In cmrCloudCollToWFSColl`);
+  if (!cmrCollection) return [];
+  const collection = {
+    id: `${cmrCollection.short_name}.v${cmrCollection.version_id}`,
+    stac_version: settings.stac.version,
+    license: cmrCollection.license || 'not-provided',
+    title: cmrCollection.dataset_id,
+    description: cmrCollection.summary,
+    links: createCloudLinks(event, cmrCollection),
+    extent: createExtent(cmrCollection)
+  };
+  return collection;
+}
+
 module.exports = {
   cmrCollSpatialToExtents,
-  cmrCollToWFSColl
+  cmrCollToWFSColl,
+  cmrCloudCollToWFSColl
 };

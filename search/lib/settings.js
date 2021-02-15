@@ -51,7 +51,9 @@ function getSettings () {
 
     // comma separated list of URL aliases
     settings.cmrStacRouteAliases = process.env.CMR_STAC_ROOT_ALIASES || '/cmr-stac';
+    settings.cmrCloudStacRouteAliases = process.env.CMR_CLOUDSTAC_ROOT_ALIASES || '/cmr-cloudstac';
     settings.cmrStacRelativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/stac';
+    settings.cmrCloudStacRelativeRootUrl = process.env.CMR_CLOUDSTAC_RELATIVE_ROOT_URL || '/cloudstac';
     settings.cmrSearchHost = process.env.CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov/search';
     settings.cmrProviderHost = process.env.CMR_PROVIDER_HOST || 'cmr.earthdata.nasa.gov/ingest/providers';
     settings.cmrSearchProtocol = process.env.CMR_SEARCH_PROTOCOL || 'https';

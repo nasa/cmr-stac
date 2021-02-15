@@ -9,6 +9,7 @@ const {
 } = require('./bounding-box');
 const {
   generateAppUrl,
+  generateCloudAppUrl,
   wfs,
   generateSelfUrl,
   createNavLink,
@@ -283,6 +284,137 @@ async function cmrGranuleToStac (event, granule) {
   };
 }
 
+async function cmrGranuleToCloudStac (event, granule) {
+  const properties = {};
+
+  properties.datetime = granule.time_start;
+  properties.start_datetime = granule.time_start;
+  properties.end_datetime = granule.time_end ? granule.time_end : granule.time_start;
+
+  let dataLink;
+  let browseLink;
+  let opendapLink;
+
+  const extensions = [];
+  if (_.has(granule, 'umm.AdditionalAttributes')) {
+    const attributes = granule.umm.AdditionalAttributes;
+    const eo = attributes.filter(attr => attr.Name === 'CLOUD_COVERAGE');
+    if (eo.length) {
+      extensions.push('eo');
+      const eoValue = eo[0].Values[0];
+      properties['eo:cloud_cover'] = parseInt(eoValue);
+    }
+  }
+
+  if (granule.links) {
+    dataLink = granule.links.filter(l => l.rel === DATA_REL && !l.inherited);
+    browseLink = _.first(
+      granule.links.filter(l => l.rel === BROWSE_REL)
+    );
+    opendapLink = _.first(
+      granule.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
+    );
+  }
+
+  const linkToAsset = (l) => {
+    if (l.title === undefined) {
+      return {
+        href: l.href,
+        type: l.type
+      };
+    } else {
+      return {
+        name: l.title,
+        href: l.href,
+        type: l.type
+      };
+    }
+  };
+
+  const assets = {};
+  if (dataLink && dataLink.length) {
+    if (dataLink.length > 1) {
+      dataLink.forEach(l => {
+        const splitLink = l.href.split('.');
+        const fileType = splitLink[splitLink.length - 2];
+        assets[fileType] = linkToAsset(l);
+      });
+    } else {
+      assets.data = linkToAsset(dataLink[0]);
+    }
+  }
+  if (browseLink) {
+    assets.browse = linkToAsset(browseLink);
+
+    const splitBrowseLink = browseLink.href.split('.');
+    const browseExtension = splitBrowseLink[splitBrowseLink.length - 1];
+
+    switch (browseExtension) {
+      case 'png':
+        assets.browse.type = 'image/png';
+        break;
+      case 'tiff':
+      case 'tif':
+        assets.browse.type = 'image/tiff';
+        break;
+      case 'raw':
+        assets.browse.type = 'image/raw';
+        break;
+      default:
+        assets.browse.type = 'image/jpeg';
+        break;
+    }
+  }
+  if (opendapLink) {
+    assets.opendap = linkToAsset(opendapLink);
+  }
+
+  assets.metadata = wfs.createAssetLink(makeCmrSearchUrl(`/concepts/${granule.id}.native`));
+  const collectionId = await cmr.cmrCollectionIdToStacId(granule.collection_concept_id);
+  return {
+    type: 'Feature',
+    id: granule.id,
+    stac_version: settings.stac.version,
+    stac_extensions: extensions,
+    collection: collectionId,
+    geometry: cmrSpatialToGeoJSONGeometry(granule),
+    bbox: cmrSpatialToStacBbox(granule),
+    links: [
+      {
+        rel: 'self',
+        href: generateCloudAppUrl(event,
+          `/${granule.data_center}/collections/${collectionId}/items/${granule.id}`)
+      },
+      {
+        rel: 'parent',
+        href: generateCloudAppUrl(event, `/${granule.data_center}/collections/${collectionId}`)
+      },
+      {
+        rel: 'collection',
+        href: generateCloudAppUrl(event, `/${granule.data_center}/collections/${collectionId}`)
+      },
+      {
+        rel: 'root',
+        href: generateCloudAppUrl(event, '/')
+      },
+      {
+        rel: 'provider',
+        href: generateCloudAppUrl(event, `/${granule.data_center}`)
+      },
+      {
+        rel: 'via',
+        href: makeCmrSearchUrl(`/concepts/${granule.id}.json`)
+      },
+      {
+        rel: 'via',
+        href: makeCmrSearchUrl(`/concepts/${granule.id}.umm_json`)
+      }
+    ],
+    properties: properties,
+    assets
+  };
+}
+
 async function cmrGranulesToStac (event, granules, hits = 0, params = {}) {
   const numberMatched = hits;
   const numberReturned = granules.length;
@@ -328,11 +460,58 @@ async function cmrGranulesToStac (event, granules, hits = 0, params = {}) {
   return granulesResponse;
 }
 
+async function cmrGranulesToCloudStac (event, granules, hits = 0, params = {}) {
+  const numberMatched = hits;
+  const numberReturned = granules.length;
+
+  const items = await Promise.map(granules, async (granule) => {
+    return cmrGranuleToCloudStac(event, granule);
+  });
+
+  const granulesResponse = {
+    type: 'FeatureCollection',
+    stac_version: settings.stac.version,
+    numberMatched,
+    numberReturned,
+    features: items,
+    links: [
+      {
+        rel: 'self',
+        href: generateSelfUrl(event)
+      },
+      {
+        rel: 'root',
+        href: generateCloudAppUrl(event, '/')
+      }
+    ]
+  };
+
+  const currPage = parseInt(_.get(params, 'page', 1), 10);
+  const limit = _.get(params, 'limit', 10);
+
+  // total items up to and including this page
+  const totalItems = (currPage - 1) * limit + numberReturned;
+
+  if (currPage > 1 && totalItems > limit) {
+    const navLink = createNavLink(event, params, 'prev');
+    granulesResponse.links.push(navLink);
+  }
+
+  if (totalItems < numberMatched) {
+    const navLink = createNavLink(event, params, 'next');
+    granulesResponse.links.push(navLink);
+  }
+
+  return granulesResponse;
+}
+
 module.exports = {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
   cmrSpatialToGeoJSONGeometry,
   cmrSpatialToStacBbox,
   cmrGranuleToStac,
-  cmrGranulesToStac
+  cmrGranuleToCloudStac,
+  cmrGranulesToStac,
+  cmrGranulesToCloudStac
 };

@@ -32,6 +32,14 @@ routes.use(provider.routes);
 routes.use(stac.routes);
 routes.use(wfs.routes);
 
+const cloudroutes = express.Router();
+cloudroutes.use('/docs', express.static(path.join(__dirname, '../../docs/index.html')));
+cloudroutes.use('/health', (req, res) => getHealth(res));
+cloudroutes.use(provider.cloudroutes);
+cloudroutes.use(stac.cloudroutes);
+cloudroutes.use(wfs.cloudroutes);
+
 module.exports = {
-  routes
+  routes,
+  cloudroutes
 };

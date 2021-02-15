@@ -43,6 +43,19 @@ async function cmrSearch (path, params) {
 }
 
 /**
+ * Query a CMR Search endpoint with optional parameters using POST.
+ * @param {string} path CMR path to append to search URL (e.g., granules.json, collections.json)
+ * @param {object} params Set of CMR parameters
+ */
+async function cmrSearchPost (path, params) {
+  // should be search path (e.g., granules.json, collections, etc)
+  if (!path) throw new Error('Missing url');
+  if (!params) throw new Error('Missing parameters');
+  const url = makeCmrSearchUrl(path);
+  return axios.post(url, params, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
+}
+
+/**
  * Get list of providers
  */
 async function getProviderList () {
@@ -100,20 +113,69 @@ async function findGranules (params = {}) {
 }
 
 /**
+ * Search CMR for cloud granules matching CMR query parameters using POST
+ * @param {object} params Object of CMR Search parameters
+ */
+async function findCloudGranules (params = {}) {
+  const response = await cmrSearchPost('/granules.json', params);
+  const granules = response.data.feed.entry.reduce(
+    (obj, item) => ({
+      ...obj,
+      [item.id]: item
+    }),
+    {}
+  );
+  // get UMM version
+  const responseUmm = await cmrSearchPost('/granules.umm_json', params);
+  if (_.has(responseUmm.data, 'items')) {
+    // associate and add UMM granule to standard granule
+    responseUmm.data.items.forEach((g) => {
+      granules[g.meta['concept-id']].meta = g.meta;
+      granules[g.meta['concept-id']].umm = g.umm;
+    });
+  }
+  // get total number of hits for this query from the returned header
+  const hits = _.get(response, 'headers.cmr-hits', granules.length);
+  logger.info(`findGranules hits: ${hits}`);
+  return { granules: Object.values(granules), hits: hits };
+}
+
+/**
  * Convert a STAC Collection ID to set of CMR query parameters
  * @param {string} providerId The CMR Provider ID
  * @param {string} collectionId The STAC Collection ID
  */
 function stacCollectionToCmrParams (providerId, collectionId) {
+  logger.info(`stacCollectionToCmrParams collectionId: ${collectionId}`);
   const parts = collectionId.split('.v');
   if (parts.length < 2) {
-    throw new Error(`Collection ${collectionId} not found for provider ${providerId}`);
+    throw new Error(`Collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
   }
   const version = parts.pop();
   const shortName = parts.join('.');
   return {
     provider_id: providerId,
     short_name: shortName,
+    version
+  };
+}
+
+/**
+ * Convert a CLOUDSTAC Collection ID to set of CMR query parameters
+ * @param {string} providerId The CMR Provider ID
+ * @param {string} collectionId The CLOUDSTAC Collection ID
+ */
+function cloudstacCollectionToCmrParams (providerId, collectionId) {
+  const parts = collectionId.split('.v');
+  if (parts.length < 2) {
+    throw new Error(`Cloud collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
+  }
+  const version = parts.pop();
+  const shortName = parts.join('.');
+  return {
+    provider_id: providerId,
+    short_name: shortName,
+    tag_key: "gov.nasa.earthdatacloud.s3",
     version
   };
 }
@@ -285,7 +347,9 @@ module.exports = {
   getProviderList,
   findCollections,
   findGranules,
+  findCloudGranules,
   stacCollectionToCmrParams,
+  cloudstacCollectionToCmrParams,
   cmrCollectionIdToStacId,
   getFacetParams,
   getGranuleTemporalFacets,

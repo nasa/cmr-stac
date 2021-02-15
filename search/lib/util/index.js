@@ -65,6 +65,11 @@ function generateAppUrl (event, path, queryParams = null) {
   return generateAppUrlWithoutRelativeRoot(event, newPath, queryParams);
 }
 
+function generateCloudAppUrl (event, path, queryParams = null) {
+  const newPath = path ? `${settings.cmrCloudStacRelativeRootUrl}${path}` : settings.cmrCloudStacRelativeRootUrl;
+  return generateAppUrlWithoutRelativeRoot(event, newPath, queryParams);
+}
+
 function generateSelfUrl (event) {
   return generateAppUrlWithoutRelativeRoot(event, event.path, event.queryStringParameters);
 }
@@ -149,6 +154,7 @@ module.exports = {
   createUrl,
   createSecureUrl,
   generateAppUrl,
+  generateCloudAppUrl,
   generateAppUrlWithoutRelativeRoot,
   generateSelfUrl,
   getStacBaseUrl,
