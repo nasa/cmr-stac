@@ -5,7 +5,9 @@ const {
   cmrSpatialToGeoJSONGeometry,
   cmrSpatialToStacBbox,
   cmrGranuleToStac,
-  cmrGranulesToStac
+  cmrGranuleToCloudStac,
+  cmrGranulesToStac,
+  cmrGranulesToCloudStac
 } = require('../../lib/convert');
 const exampleData = require('../example-data');
 const {
@@ -263,6 +265,36 @@ describe('granuleToItem', () => {
     });
   });
 
+  describe('cmrGranuleToCloudStac', async () => {
+    const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
+    const expectedStacGran = exampleData.examplesByName.lancemodisCloudGran;
+
+    const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
+
+    it('should return a FeatureGeoJSON from a cmrGran', async () => {
+      const stacItem = await cmrGranuleToCloudStac(event, cmrGran);
+      expect(stacItem).toEqual(expectedStacGran);
+    });
+
+    it('should return a valid FeatureGeoJSON against STAC Spec', async () => {
+      expect.extend({
+        toBeValid: (errors) => {
+          if (errors) {
+            return {
+              message: () => JSON.stringify(errors, null, 2),
+              pass: false
+            };
+          }
+          return { pass: true };
+        }
+      });
+
+      const errors = await schemaValidator.validateSchema(schemaValidator.schemas.item,
+        expectedStacGran);
+      expect(errors).toBeValid();
+    });
+  });
+
   describe('cmrGranulesToStac', async () => {
     beforeEach(() => {
       mockFunction(cmr, 'cmrCollectionIdToStacId', Promise.resolve('landsat.v1'));
@@ -360,6 +392,109 @@ describe('granuleToItem', () => {
           {
             rel: 'root',
             href: 'http://example.com/stac/'
+          }
+        ]
+      });
+    });
+  });
+
+  describe('cmrGranulesToCloudStac', async () => {
+    beforeEach(() => {
+      mockFunction(cmr, 'cmrCollectionIdToStacId', Promise.resolve('landsat.v1'));
+    });
+
+    afterEach(() => {
+      revertFunction(cmr, 'cmrCollectionIdToStacId');
+    });
+
+    const cmrGran = [{
+      id: 1,
+      collection_concept_id: 10,
+      dataset_id: 'datasetId',
+      short_name: 'landsat',
+      version_id: '1',
+      summary: 'summary',
+      time_start: '0',
+      time_end: '1',
+      links: [
+        {
+          href: 'http://example.com/cloudstac/collections/id',
+          rel: 'self',
+          title: 'Info about this collection',
+          type: 'application/json'
+        }
+      ],
+      data_center: 'USA',
+      points: ['77,139']
+    }];
+
+    const event = { headers: { Host: 'example.com' }, path: '/cloudstac', queryStringParameters: [] };
+
+    it('should return a CMR Granules search result to a FeatureCollection', async () => {
+      const items = await cmrGranulesToCloudStac(event, cmrGran, 1);
+      expect(items).toEqual({
+        type: 'FeatureCollection',
+        stac_version: settings.stac.version,
+        numberMatched: 1,
+        numberReturned: 1,
+        features: [{
+          id: 1,
+          stac_version: settings.stac.version,
+          stac_extensions: [],
+          collection: 'landsat.v1',
+          geometry: { type: 'Point', coordinates: [139, 77] },
+          bbox: [139, 77, 139, 77],
+          properties: {
+            datetime: '0',
+            start_datetime: '0',
+            end_datetime: '1'
+          },
+          type: 'Feature',
+          assets: {
+            metadata: {
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
+              type: 'application/xml'
+            }
+          },
+          links: [
+            {
+              rel: 'self',
+              href: 'http://example.com/cloudstac/USA/collections/landsat.v1/items/1'
+            },
+            {
+              rel: 'parent',
+              href: 'http://example.com/cloudstac/USA/collections/landsat.v1'
+            },
+            {
+              rel: 'collection',
+              href: 'http://example.com/cloudstac/USA/collections/landsat.v1'
+            },
+            {
+              rel: 'root',
+              href: 'http://example.com/cloudstac/'
+            },
+            {
+              rel: 'provider',
+              href: 'http://example.com/cloudstac/USA'
+            },
+            {
+              rel: 'via',
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.json'
+            },
+            {
+              rel: 'via',
+              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.umm_json'
+            }
+          ]
+        }],
+        links: [
+          {
+            rel: 'self',
+            href: 'http://example.com/cloudstac'
+          },
+          {
+            rel: 'root',
+            href: 'http://example.com/cloudstac/'
           }
         ]
       });

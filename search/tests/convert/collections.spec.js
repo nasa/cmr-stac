@@ -1,6 +1,7 @@
 const {
   cmrCollSpatialToExtents,
-  cmrCollToWFSColl
+  cmrCollToWFSColl,
+  cmrCloudCollToWFSColl
 } = require('../../lib/convert/collections');
 const axios = require('axios');
 const { WHOLE_WORLD_BBOX } = require('../../lib/convert');
@@ -215,6 +216,184 @@ describe('collections', () => {
             type: 'application/json'
           }, {
             href: 'http://example.com/stac/LPDAAC/collections/name.vversion/items',
+            rel: 'items',
+            title: 'Granules in this collection',
+            type: 'application/json'
+          }, {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
+            rel: 'about',
+            title: 'HTML metadata for collection',
+            type: 'text/html'
+          }, {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.json',
+            rel: 'via',
+            title: 'CMR JSON metadata for collection',
+            type: 'application/json'
+          }
+        ],
+        id: 'name.vversion',
+        title: 'datasetId',
+        stac_version: settings.stac.version,
+        license: 'not-provided'
+      });
+    });
+  });
+  
+  describe('cmrCloudCollToWFSCol', () => {
+    beforeEach(() => {
+      axios.get = jest.fn();
+      const resp = { data: { feed: { facets: { children: [{
+        title: 'Temporal',
+        children: [{
+          title: 'Year',
+          children: [
+            { title: '2001' },
+            { title: '2002' },
+            { title: '2003' },
+            { title: '2004' },
+            { title: '2005' }
+          ]
+        }]
+      }] } } } };
+      axios.get.mockResolvedValue(resp);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    const cmrColl = {
+      id: 'id',
+      short_name: 'name',
+      version_id: 'version',
+      license: 'Apache-2.0',
+      dataset_id: 'datasetId',
+      data_center: 'LPDAAC',
+      summary: 'summary',
+      time_start: '0',
+      time_end: '1'
+    };
+
+    const cmrCollTemporal = {
+      id: 'id',
+      short_name: 'name',
+      version_id: 'version',
+      dataset_id: 'datasetId',
+      data_center: 'LPDAAC',
+      summary: 'summary',
+      time_start: '2009-01-01T00:00:00Z'
+    };
+
+    const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
+
+    it('should return a WFS Collection from a CMR collection.', () => {
+      expect(cmrCloudCollToWFSColl(event, cmrColl)).toEqual({
+        description: 'summary',
+        extent: {
+          crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
+          spatial: {
+            bbox: [
+              [
+                -180,
+                -90,
+                180,
+                90
+              ]
+            ]
+          },
+          temporal: {
+            interval: [
+              [
+                '0',
+                '1'
+              ]
+            ]
+          },
+          trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+        },
+        links: [
+          {
+            href: 'http://example.com/cloudstac/LPDAAC/collections/name.vversion',
+            rel: 'self',
+            title: 'Info about this collection',
+            type: 'application/json'
+          }, {
+            rel: 'root',
+            href: 'http://example.com/cloudstac',
+            title: 'Root catalog',
+            type: 'application/json'
+          }, {
+            rel: 'parent',
+            href: 'http://example.com/cloudstac/LPDAAC',
+            title: 'Parent catalog',
+            type: 'application/json'
+          }, {
+            href: 'http://example.com/cloudstac/LPDAAC/collections/name.vversion/items',
+            rel: 'items',
+            title: 'Granules in this collection',
+            type: 'application/json'
+          }, {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
+            rel: 'about',
+            title: 'HTML metadata for collection',
+            type: 'text/html'
+          }, {
+            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.json',
+            rel: 'via',
+            title: 'CMR JSON metadata for collection',
+            type: 'application/json'
+          }
+        ],
+        id: 'name.vversion',
+        title: 'datasetId',
+        stac_version: settings.stac.version,
+        license: 'Apache-2.0'
+      });
+    });
+
+    it('should return null as the temporal extent end time', () => {
+      expect(cmrCloudCollToWFSColl(event, cmrCollTemporal)).toEqual({
+        description: 'summary',
+        extent: {
+          crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
+          spatial: {
+            bbox: [
+              [
+                -180,
+                -90,
+                180,
+                90
+              ]
+            ]
+          },
+          temporal: {
+            interval: [
+              [
+                '2009-01-01T00:00:00Z',
+                null
+              ]
+            ]
+          },
+          trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+        },
+        links: [
+          {
+            href: 'http://example.com/cloudstac/LPDAAC/collections/name.vversion',
+            rel: 'self',
+            title: 'Info about this collection',
+            type: 'application/json'
+          }, {
+            rel: 'root',
+            href: 'http://example.com/cloudstac',
+            title: 'Root catalog',
+            type: 'application/json'
+          }, {
+            rel: 'parent',
+            href: 'http://example.com/cloudstac/LPDAAC',
+            title: 'Parent catalog',
+            type: 'application/json'
+          }, {
+            href: 'http://example.com/cloudstac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
