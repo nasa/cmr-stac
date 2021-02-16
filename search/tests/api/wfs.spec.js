@@ -12,9 +12,10 @@ const {
   getCollection,
   getCloudCollection,
   getGranules,
-  getCloudGranules,
   getGranule,
-  getCatalog
+  getCloudGranule,
+  getCatalog,
+  getCloudCatalog
 } = require('../../lib/api/wfs');
 const { logger } = require('../../lib/util');
 
@@ -261,6 +262,13 @@ describe('wfs routes', () => {
     });
   });
 
+  describe('getCloudGranule', () => {
+    it('should generate an item response.', async () => {
+      await getCloudGranule(request, response);
+      response.expect(exampleData.cloudstacGrans[0]);
+    });
+  });
+
   describe('getCatalog', () => {
     beforeEach(() => {
       process.env.BROWSE_PATH = 'year/month/day';
@@ -297,6 +305,48 @@ describe('wfs routes', () => {
       // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
       request.apiGateway.event.path = '/2001/05/20';
       await getCatalog(request, response);
+      const cat = response.getData().json;
+      expect(cat.links.length).toEqual(4);
+      expect(cat.id).toEqual('1.v1-2001-05-20');
+    });
+  });
+
+  describe('getCloudCatalog', () => {
+    beforeEach(() => {
+      process.env.BROWSE_PATH = 'year/month/day';
+      request.apiGateway = { event: { headers: { Host: 'example.com' }, queryStringParameters: [] } };
+      mockFunction(cmr, 'convertParams', {});
+    });
+
+    afterEach(() => {
+      revertFunction(cmr, 'convertParams');
+    });
+
+    it('should return Months catalog given a year catalog', async () => {
+      request.params['0'] = '2001';
+      // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+      request.apiGateway.event.path = '/2001';
+      await getCloudCatalog(request, response);
+      const cat = response.getData().json;
+      expect(cat.links.length).toEqual(5);
+      expect(cat.id).toEqual('1.v1-2001');
+    });
+
+    it('should return Days catalog given a Month catalog', async () => {
+      request.params['0'] = '2001/05';
+      // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+      request.apiGateway.event.path = '/2001/05';
+      await getCloudCatalog(request, response);
+      const cat = response.getData().json;
+      expect(cat.links.length).toEqual(5);
+      expect(cat.id).toEqual('1.v1-2001-05');
+    });
+
+    it('should return Item catalog given a Day catalog', async () => {
+      request.params['0'] = '2001/05/20';
+      // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+      request.apiGateway.event.path = '/2001/05/20';
+      await getCloudCatalog(request, response);
       const cat = response.getData().json;
       expect(cat.links.length).toEqual(4);
       expect(cat.id).toEqual('1.v1-2001-05-20');
