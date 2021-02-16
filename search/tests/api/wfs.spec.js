@@ -10,7 +10,9 @@ const {
   getCollections,
   getCloudCollections,
   getCollection,
+  getCloudCollection,
   getGranules,
+  getCloudGranules,
   getGranule,
   getCatalog
 } = require('../../lib/api/wfs');
@@ -126,6 +128,31 @@ describe('wfs routes', () => {
         expect(response.getData()).toEqual({
           status: 404,
           json: 'Collection 1.v1 not found for provider LPDAAC'
+        });
+      });
+    });
+  });
+
+  describe('getCloudCollection', () => {
+    it('should generate a single collections metadata response.', async () => {
+      await getCloudCollection(request, response);
+      response.expect(exampleData.cloudstacColls[0]);
+    });
+
+    describe('when no collection is found', () => {
+      beforeEach(() => {
+        mockFunction(cmr, 'findCollections', Promise.resolve(null));
+      });
+
+      afterEach(() => {
+        revertFunction(cmr, 'findCollections');
+      });
+
+      it('should render a 404.', async () => {
+        await getCloudCollection(request, response);
+        expect(response.getData()).toEqual({
+          status: 404,
+          json: 'Cloud holding collection [1.v1] not found for provider [LPDAAC]'
         });
       });
     });
