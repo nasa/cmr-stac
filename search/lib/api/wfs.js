@@ -94,7 +94,6 @@ async function getCloudCollections (request, response) {
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
     const provider = request.params.providerId;
-    logger.info(`request.query.page: ${request.query.page}`);
     const params = Object.assign(
       { provider_short_name: provider },
       { tag_key: "gov.nasa.earthdatacloud.s3"},
@@ -103,7 +102,7 @@ async function getCloudCollections (request, response) {
       { page_num: request.query.page} 
     );
 
-    logger.info(`Checking the query: ${inspect(cmr.convertParams(provider, request.query))}`);
+    logger.info(`getCloudCollections params: ${inspect(params)}`);
     const collections = await cmr.findCollections(params);
     if (!collections.length) {
       return response.status(400).json(`Cloud holding Collections not found for provider [${provider}].`);

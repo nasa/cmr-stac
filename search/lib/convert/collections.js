@@ -53,7 +53,6 @@ function createExtent (cmrCollection) {
 }
 
 function createLinks (event, cmrCollection) {
-  logger.info(`In createLinks`);
   const collectionId = `${cmrCollection.short_name}.v${cmrCollection.version_id}`;
   const provider = cmrCollection.data_center;
 
@@ -75,7 +74,6 @@ function createLinks (event, cmrCollection) {
 }
 
 function createCloudLinks (event, cmrCollection) {
-  logger.info(`In createCloudLinks`);
   const collectionId = `${cmrCollection.short_name}.v${cmrCollection.version_id}`;
   const provider = cmrCollection.data_center;
 
@@ -97,7 +95,6 @@ function createCloudLinks (event, cmrCollection) {
 }
 
 function cmrCollToWFSColl (event, cmrCollection) {
-  logger.info(`In cmrCollToWFSColl`);
   if (!cmrCollection) return [];
   const collection = {
     id: `${cmrCollection.short_name}.v${cmrCollection.version_id}`,
@@ -112,7 +109,6 @@ function cmrCollToWFSColl (event, cmrCollection) {
 }
 
 function cmrCloudCollToWFSColl (event, cmrCollection) {
-  logger.info(`In cmrCloudCollToWFSColl`);
   if (!cmrCollection) return [];
   const collection = {
     id: `${cmrCollection.short_name}.v${cmrCollection.version_id}`,

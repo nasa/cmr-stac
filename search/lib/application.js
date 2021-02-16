@@ -41,17 +41,6 @@ const urlRewriteMiddleware = (req, res, next) => {
   next();
 };
 
-/**
- * Express middleware for rewriting URLs to allow for redirects in AWS.
- */
-const urlCloudRewriteMiddleware = (req, res, next) => {
-  const routeAliases = settings.cmrCloudStacRouteAliases
-    .split(',')
-    .map(s => s.trim());
-  req.url = rewritePathRoot(req.url, settings.cmrCloudStacRelativeRootUrl, routeAliases);
-  next();
-};
-
 async function initialize () {
   logger.debug('Initialize Application');
 
@@ -61,8 +50,6 @@ async function initialize () {
   application.use(cors());
   application.use(awsServerlessMiddleware.eventContext());
   application.use(urlRewriteMiddleware);
-  //I don't know how this is used and if it's necessary to add one.
-  application.use(urlCloudRewriteMiddleware);
   application.use(settings.cmrStacRelativeRootUrl, api.routes);
   application.use(settings.cmrCloudStacRelativeRootUrl, api.cloudroutes);
   application.use(errorHandler);
