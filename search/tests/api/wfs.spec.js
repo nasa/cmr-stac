@@ -8,6 +8,7 @@ const cmr = require('../../lib/cmr');
 const exampleData = require('../example-data');
 const {
   getCollections,
+  getCloudCollections,
   getCollection,
   getGranules,
   getGranule,
@@ -74,6 +75,33 @@ describe('wfs routes', () => {
         ],
         license: 'not-provided',
         collections: exampleData.stacColls
+      });
+    });
+  });
+
+  describe('getCloudCollections', () => {
+    it('should generate a collections response.', async () => {
+      await getCloudCollections(request, response);
+      response.expect({
+        id: 'LPDAAC',
+        stac_version: settings.stac.version,
+        description: 'All collections provided by LPDAAC',
+        links: [
+          {
+            href: 'http://example.com/cloudstac/LPDAAC/collections',
+            rel: 'self',
+            title: 'All collections provided by LPDAAC',
+            type: 'application/json'
+          },
+          {
+            href: 'http://example.com/cloudstac/',
+            rel: 'root',
+            title: 'CMR-CLOUDSTAC Root',
+            type: 'application/json'
+          }
+        ],
+        license: 'not-provided',
+        collections: exampleData.cloudstacColls
       });
     });
   });

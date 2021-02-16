@@ -14,6 +14,10 @@ const stacColls = fileToContents
   .filter(([name]) => name.endsWith('stac_coll'))
   .map(([, contents]) => contents);
 
+const cloudstacColls = fileToContents
+  .filter(([name]) => name.endsWith('cloud_coll'))
+  .map(([, contents]) => contents);
+
 const cmrGrans = fileToContents
   .filter(([name]) => name.endsWith('cmr_gran'))
   .map(([, contents]) => contents);
@@ -41,6 +45,7 @@ const examplesByName = fileToContents.reduce((m, [name, contents]) => {
 module.exports = {
   cmrColls,
   stacColls,
+  cloudstacColls,
   cmrGrans,
   stacGrans,
   cloudstacGrans,
