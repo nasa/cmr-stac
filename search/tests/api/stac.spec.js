@@ -1,6 +1,6 @@
 const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
-const { search } = require('../../lib/api/stac');
+const { search, cloudSearch } = require('../../lib/api/stac');
 const exampleData = require('../example-data');
 const axios = require('axios');
 
@@ -69,6 +69,59 @@ describe('STAC Search', () => {
   describe('search', () => {
     it('should return a set of items that match a simple query', async () => {
       await search(request, response);
+      response.expect(expectedResponse);
+    });
+  });
+});
+
+describe('CLOUDSTAC Search', () => {
+  let request, response;
+
+  beforeEach(() => {
+    request = createRequest({
+      params: { providerId: 'LPDAAC' }
+    });
+    response = createMockResponse();
+    mockFunction(cmr,
+      'findCloudGranules',
+      Promise.resolve({ granules: exampleData.cmrGrans, hits: 19 }));
+  });
+
+  afterEach(() => {
+    revertFunction(cmr, 'findCloudGranules');
+  });
+
+  const expectedResponse = {
+    type: 'FeatureCollection',
+    stac_version: settings.stac.version,
+    numberMatched: 19,
+    numberReturned: 2,
+    features: exampleData.cloudstacGrans,
+    context: {
+      limit: 1000000,
+      matched: 19,
+      returned: 2
+    },
+    links: [
+      {
+        rel: 'self',
+        href: 'http://example.com'
+      },
+      {
+        rel: 'root',
+        href: 'http://example.com/cloudstac/'
+      },
+      {
+        rel: 'next',
+        href: 'http://example.com?page=2',
+        method: 'GET'
+      }
+    ]
+  };
+
+  describe('cloudSearch', () => {
+    it('should return a set of items that match a simple query', async () => {
+      await cloudSearch(request, response);
       response.expect(expectedResponse);
     });
   });

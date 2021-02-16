@@ -2,7 +2,8 @@
  * @jest-environment node
  */
 
-const { getProvider, getProviders } = require('../../lib/api/provider');
+const { getProvider, getProviders, getCloudProvider, getCloudProviders } = require('../../lib/api/provider');
+const { inspect } = require('../../lib/util');
 const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
 const {
@@ -51,6 +52,27 @@ const expectedProviders = [
   }
 ];
 
+const expectedCloudProviders = [
+  {
+    title: 'provAShort',
+    rel: 'child',
+    type: 'application/json',
+    href: 'http://example.com/cloudstac/provA'
+  },
+  {
+    title: 'provBShort',
+    rel: 'child',
+    type: 'application/json',
+    href: 'http://example.com/cloudstac/provB'
+  },
+  {
+    title: 'provCShort',
+    rel: 'child',
+    type: 'application/json',
+    href: 'http://example.com/cloudstac/provC'
+  }
+];
+
 describe('getProviders', () => {
   beforeEach(() => {
     mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
@@ -71,6 +93,28 @@ describe('getProviders', () => {
     });
   });
 });
+
+describe('getCloudProviders', () => {
+  beforeEach(() => {
+    mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
+  });
+  afterEach(() => {
+    revertFunction(cmr, 'getProviderList');
+  });
+
+  it('should return an array', async () => {
+    const response = createMockResponse();
+    await getCloudProviders(createRequest(), response);
+    response.expect({
+      description: 'This is the landing page for CMR-CLOUDSTAC. Each provider link below contains a CLOUDSTAC endpoint.',
+      title: 'NASA CMR CLOUD STAC Proxy',
+      stac_version: settings.stac.version,
+      id: 'stac',
+      links: expectedCloudProviders
+    });
+  });
+});
+
 
 describe('getProvider', () => {
   it('should return a provider json object', async () => {

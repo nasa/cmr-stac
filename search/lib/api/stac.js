@@ -29,6 +29,7 @@ cloudroutes.post('/:providerId/search', makeAsyncHandler(cloudSearch));
 
 module.exports = {
   search,
+  cloudSearch,
   routes,
   cloudroutes
 };
