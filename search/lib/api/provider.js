@@ -69,8 +69,7 @@ async function getCloudProvider (request, response) {
       { provider_short_name: providerId },
       { tag_key: "gov.nasa.earthdatacloud.s3"},
       //Used for pagination.
-      //await cmr.convertParams(provider, request.query)
-      { page_num: request.query.page}
+      await cmr.convertParams(providerId, request.query)
     );
 
     const providerCloudHoldings = await cmr.findCollections(params);

@@ -41,8 +41,7 @@ async function getCollections (request, response) {
     const params = Object.assign(
       { provider_short_name: provider },
       //Used for pagination
-      //await cmr.convertParams(provider, request.query)
-      { page_num: request.query.page}
+      await cmr.convertParams(provider, request.query)
     );
     const collections = await cmr.findCollections(params);
     if (!collections.length) {
@@ -98,8 +97,7 @@ async function getCloudCollections (request, response) {
       { provider_short_name: provider },
       { tag_key: "gov.nasa.earthdatacloud.s3"},
       //Used for pagination.
-      //await cmr.convertParams(provider, request.query)
-      { page_num: request.query.page} 
+      await cmr.convertParams(provider, request.query)
     );
 
     logger.info(`getCloudCollections params: ${inspect(params)}`);
