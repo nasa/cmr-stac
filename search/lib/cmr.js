@@ -107,15 +107,28 @@ async function findGranules (params = {}) {
 function stacCollectionToCmrParams (providerId, collectionId) {
   const parts = collectionId.split('.v');
   if (parts.length < 2) {
-    throw new Error(`Collection ${collectionId} not found for provider ${providerId}`);
+    if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+      throw new Error(`Cloud holding collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
+    } else {
+      throw new Error(`Collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
+    }
   }
   const version = parts.pop();
   const shortName = parts.join('.');
-  return {
-    provider_id: providerId,
-    short_name: shortName,
-    version
-  };
+  if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+    return {
+      provider_id: providerId,
+      short_name: shortName,
+      tag_key: "gov.nasa.earthdatacloud.s3",
+      version
+    };
+  } else {
+    return {
+      provider_id: providerId,
+      short_name: shortName,
+      version
+    };
+  }
 }
 
 /**

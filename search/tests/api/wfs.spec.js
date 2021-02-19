@@ -115,29 +115,62 @@ describe('wfs routes', () => {
   });
 
   describe('getCollection', () => {
-    it('should generate a single collections metadata response.', async () => {
-      await getCollection(request, response);
-      response.expect(exampleData.stacColls[0]);
-    });
-
-    describe('when no collection is found', () => {
-      beforeEach(() => {
-        mockFunction(cmr, 'findCollections', Promise.resolve(null));
-      });
-
-      afterEach(() => {
-        revertFunction(cmr, 'findCollections');
-      });
-
-      it('should render a 404.', async () => {
+    describe('within /stac', () => {
+      it('should generate a single collections metadata response.', async () => {
         await getCollection(request, response);
-        expect(response.getData()).toEqual({
-          status: 404,
-          json: 'Collection 1.v1 not found for provider LPDAAC'
+        response.expect(exampleData.stacColls[0]);
+      });
+
+      describe('when no collection is found', () => {
+        beforeEach(() => {
+          mockFunction(cmr, 'findCollections', Promise.resolve(null));
+        });
+
+        afterEach(() => {
+          revertFunction(cmr, 'findCollections');
+        });
+
+        it('should render a 404.', async () => {
+          await getCollection(request, response);
+          expect(response.getData()).toEqual({
+            status: 404,
+            json: 'Collection [1.v1] not found for provider [LPDAAC]'
+          });
         });
       });
     });
-  });
+
+    describe('within /cloudstac', () => {
+      beforeEach(() => {
+        settings.cmrStacRelativeRootUrl = '/cloudstac';
+      });
+      afterEach(() => {
+        settings.cmrStacRelativeRootUrl = "/stac";
+      });
+      it('should generate a single collections metadata response.', async () => {
+        await getCollection(request, response);
+        response.expect(exampleData.cloudstacColls[0]);
+      });
+    
+      describe('when no collection is found', () => {
+        beforeEach(() => {
+          mockFunction(cmr, 'findCollections', Promise.resolve(null));
+        });
+      
+        afterEach(() => {
+          revertFunction(cmr, 'findCollections');
+        });
+      
+        it('should render a 404.', async () => {
+          await getCollection(request, response);
+          expect(response.getData()).toEqual({
+            status: 404,
+            json: 'Cloud holding collection [1.v1] not found for provider [LPDAAC]'
+          });
+        });
+      });
+    });
+  }); 
 
   describe('getGranules', () => {
     it('should generate a item collection response.', async () => {

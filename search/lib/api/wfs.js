@@ -122,6 +122,20 @@ async function getCollection (request, response) {
     // convert collection ID to CMR <short_name> and <version>
     const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
     const collections = await cmr.findCollections(cmrParams);
+
+    let errMsg;
+    if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+      errMsg = `Cloud holding collection [${collectionId}] not found for provider [${providerId}]`;
+    } else {
+      errMsg = `Collection [${collectionId}] not found for provider [${providerId}]`;
+    }
+
+    if ((!collections) || (collections.length === 0)) {
+      return response
+      .status(404)
+      .json(`${errMsg}`);
+    }
+
     // There will only be one collection returned
     const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
     // add browse links
@@ -132,7 +146,7 @@ async function getCollection (request, response) {
     await assertValid(schemas.collection, collectionResponse);
     response.json(collectionResponse);
   } catch (err) {
-    response.status(404).json(`Collection ${collectionId} not found for provider ${providerId}`);
+    response.status(404).json(`Error [${err}] occured when getting Collection ${collectionId} for provider ${providerId}`);
   }
 }
 
