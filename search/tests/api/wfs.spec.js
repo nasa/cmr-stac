@@ -52,28 +52,64 @@ describe('wfs routes', () => {
   });
 
   describe('getCollections', () => {
-    it('should generate a collections response.', async () => {
-      await getCollections(request, response);
-      response.expect({
-        id: 'LPDAAC',
-        stac_version: settings.stac.version,
-        description: 'All collections provided by LPDAAC',
-        links: [
-          {
-            href: 'http://example.com/stac/LPDAAC/collections',
-            rel: 'self',
-            title: 'All collections provided by LPDAAC',
-            type: 'application/json'
-          },
-          {
-            href: 'http://example.com/stac/',
-            rel: 'root',
-            title: 'CMR-STAC Root',
-            type: 'application/json'
-          }
-        ],
-        license: 'not-provided',
-        collections: exampleData.stacColls
+    describe('within /stac', () => {
+      it('should generate a collections response.', async () => {
+        await getCollections(request, response);
+        response.expect({
+          id: 'LPDAAC',
+          stac_version: settings.stac.version,
+          description: 'All collections provided by LPDAAC',
+          links: [
+            {
+              href: 'http://example.com/stac/LPDAAC/collections',
+              rel: 'self',
+              title: 'All collections provided by LPDAAC',
+              type: 'application/json'
+            },
+            {
+              href: 'http://example.com/stac/',
+              rel: 'root',
+              title: 'CMR-STAC Root',
+              type: 'application/json'
+            }
+          ],
+          license: 'not-provided',
+          collections: exampleData.stacColls
+        });
+      });
+    });
+
+    describe('within /cloudstac', () => {
+      beforeEach(() => {
+        settings.cmrStacRelativeRootUrl = '/cloudstac';
+      });
+      afterEach(() => {
+        settings.cmrStacRelativeRootUrl = "/stac";
+      });
+   
+      it('should generate a collections response.', async () => {
+        await getCollections(request, response);
+        response.expect({
+          id: 'LPDAAC',
+          stac_version: settings.stac.version,
+          description: 'All cloud holding collections provided by LPDAAC',
+          links: [
+            {
+              href: 'http://example.com/cloudstac/LPDAAC/collections',
+              rel: 'self',
+              title: 'All cloud holding collections provided by LPDAAC',
+              type: 'application/json'
+            },
+            {
+              href: 'http://example.com/cloudstac/',
+              rel: 'root',
+              title: 'CMR-CLOUDSTAC Root',
+              type: 'application/json'
+            }
+          ],
+          license: 'not-provided',
+          collections: exampleData.cloudstacColls
+        });
       });
     });
   });

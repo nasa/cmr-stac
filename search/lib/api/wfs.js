@@ -37,20 +37,41 @@ async function getCollections (request, response) {
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
     const provider = request.params.providerId;
-    const collections = await cmr.findCollections({ provider_short_name: provider });
+
+    let params, errMsg, rootName, description; 
+    if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+      params = Object.assign(
+        { tag_key: "gov.nasa.earthdatacloud.s3"},
+        //request.query is used for pagination
+        await cmr.convertParams(provider, request.query)
+      );
+      errMsg = "Cloud holding collections not found";
+      rootName = "CMR-CLOUDSTAC Root";
+      description = `All cloud holding collections provided by ${provider}`;
+    } else {
+      params = Object.assign(
+        //request.query is used for pagination
+        await cmr.convertParams(provider, request.query)
+      );
+      errMsg = "Collections not found";
+      rootName = "CMR-STAC Root";
+      description = `All collections provided by ${provider}`;
+    }
+
+    const collections = await cmr.findCollections(params);
     if (!collections.length) {
-      return response.status(400).json('Collections not found');
+      return response.status(400).json(`${errMsg}`);
     }
 
     const collectionsResponse = {
       id: provider,
       stac_version: settings.stac.version,
-      description: `All collections provided by ${provider}`,
+      description: `${description}`,
       license: 'not-provided',
       links: [
         wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
-          `All collections provided by ${provider}`),
-        wfs.createLink('root', generateAppUrl(event, '/'), 'CMR-STAC Root')
+          `${description}`),
+        wfs.createLink('root', generateAppUrl(event, '/'), `${rootName}`)
       ],
       collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
     };
@@ -177,10 +198,12 @@ async function getGranule (request, response) {
   logger.info(`GET /${providerId}/collections/${collectionId}/items/${conceptId}`);
   const event = request.apiGateway.event;
 
-  const cmrParams = {
-    provider_id: providerId,
-    concept_id: conceptId
-  };
+  //We need to make sure the granule belongs to the provider and the collection.
+  const cmrParams = Object.assign(
+    { concept_id: conceptId },
+    cmr.stacCollectionToCmrParams(providerId, collectionId)
+  );
+
   const granules = (await cmr.findGranules(cmrParams)).granules;
   const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
   await assertValid(schemas.item, granuleResponse);
