@@ -173,100 +173,206 @@ describe('wfs routes', () => {
   }); 
 
   describe('getGranules', () => {
-    it('should generate a item collection response.', async () => {
-      request.apiGateway.event.httpMethod = 'GET';
-      await getGranules(request, response);
-      response.expect({
-        type: 'FeatureCollection',
-        stac_version: settings.stac.version,
-        numberMatched: 2,
-        numberReturned: 2,
-        context: {
-          limit: 1000000,
-          matched: 2,
-          returned: 2
-        },
-        links: [
-          {
-            rel: 'self',
-            href: 'http://example.com'
-          },
-          {
-            rel: 'root',
-            href: 'http://example.com/stac/'
-          }
-        ],
-        features: exampleData.stacGrans
+    describe('within /stac', () => {
+      it('should generate a item collection response.', async () => {
+	request.apiGateway.event.httpMethod = 'GET';
+	await getGranules(request, response);
+	response.expect({
+	  type: 'FeatureCollection',
+	  stac_version: settings.stac.version,
+	  numberMatched: 2,
+	  numberReturned: 2,
+	  context: {
+	    limit: 1000000,
+	    matched: 2,
+	    returned: 2
+	  },
+	  links: [
+	    {
+	      rel: 'self',
+	      href: 'http://example.com'
+	    },
+	    {
+	      rel: 'root',
+	      href: 'http://example.com/stac/'
+	    }
+	  ],
+	  features: exampleData.stacGrans
+	});
+      });
+
+      it('should generate a item collection response with a next link.', async () => {
+	request.apiGateway.event.httpMethod = 'GET';
+	request.query.limit = 2;
+	mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
+	await getGranules(request, response);
+	response.expect({
+	  type: 'FeatureCollection',
+	  stac_version: settings.stac.version,
+	  numberMatched: 10,
+	  numberReturned: 2,
+	  context: {
+	    limit: 2,
+	    matched: 10,
+	    returned: 2
+	  },
+	  links: [
+	    {
+	      rel: 'self',
+	      href: 'http://example.com'
+	    },
+	    {
+	      rel: 'root',
+	      href: 'http://example.com/stac/'
+	    },
+	    {
+	      rel: 'next',
+	      href: 'http://example.com?limit=2&collections=1.v1&page=2',
+	      method: 'GET'
+	    }
+	  ],
+	  features: exampleData.stacGrans
+	});
+      });
+
+      it('should generate an item collection response with a prev link.', async () => {
+	request.apiGateway.event.queryStringParameters = { page: 2 };
+	request.query.page = 2;
+	await getGranules(request, response);
+	response.expect({
+	  type: 'FeatureCollection',
+	  stac_version: settings.stac.version,
+	  numberMatched: 2,
+	  numberReturned: 2,
+	  context: {
+	    limit: 1000000,
+	    matched: 2,
+	    returned: 2
+	  },
+	  links: [
+	    {
+	      rel: 'self',
+	      href: 'http://example.com?page=2'
+	    },
+	    {
+	      rel: 'root',
+	      href: 'http://example.com/stac/'
+	    },
+	    {
+	      rel: 'prev',
+	      method: 'GET',
+	      href: 'http://example.com?page=1&collections=1.v1'
+	    }
+	  ],
+	  features: exampleData.stacGrans
+	});
       });
     });
 
-    it('should generate a item collection response with a next link.', async () => {
-      request.apiGateway.event.httpMethod = 'GET';
-      request.query.limit = 2;
-      mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
-      await getGranules(request, response);
-      response.expect({
-        type: 'FeatureCollection',
-        stac_version: settings.stac.version,
-        numberMatched: 10,
-        numberReturned: 2,
-        context: {
-          limit: 2,
-          matched: 10,
-          returned: 2
-        },
-        links: [
-          {
-            rel: 'self',
-            href: 'http://example.com'
-          },
-          {
-            rel: 'root',
-            href: 'http://example.com/stac/'
-          },
-          {
-            rel: 'next',
-            href: 'http://example.com?limit=2&collections=1.v1&page=2',
-            method: 'GET'
-          }
-        ],
-        features: exampleData.stacGrans
+    describe('within /cloudstac', () => {
+      beforeEach(() => {
+        settings.cmrStacRelativeRootUrl = '/cloudstac';
       });
-    });
+      afterEach(() => {
+        settings.cmrStacRelativeRootUrl = "/stac";
+      });  
+      it('should generate a item collection response.', async () => {
+        request.apiGateway.event.httpMethod = 'GET';
+        await getGranules(request, response);
+        response.expect({
+          type: 'FeatureCollection',
+          stac_version: settings.stac.version,
+          numberMatched: 2,
+          numberReturned: 2,
+          context: {
+            limit: 1000000,
+            matched: 2,
+            returned: 2
+          },    
+          links: [
+            {     
+              rel: 'self',
+              href: 'http://example.com'
+            },    
+            {     
+              rel: 'root',
+              href: 'http://example.com/cloudstac/'
+            }     
+          ],    
+          features: exampleData.cloudstacGrans
+        });   
+      });   
 
-    it('should generate an item collection response with a prev link.', async () => {
-      request.apiGateway.event.queryStringParameters = { page: 2 };
-      request.query.page = 2;
-      await getGranules(request, response);
-      response.expect({
-        type: 'FeatureCollection',
-        stac_version: settings.stac.version,
-        numberMatched: 2,
-        numberReturned: 2,
-        context: {
-          limit: 1000000,
-          matched: 2,
-          returned: 2
-        },
-        links: [
-          {
-            rel: 'self',
-            href: 'http://example.com?page=2'
-          },
-          {
-            rel: 'root',
-            href: 'http://example.com/stac/'
-          },
-          {
-            rel: 'prev',
-            method: 'GET',
-            href: 'http://example.com?page=1&collections=1.v1'
-          }
-        ],
-        features: exampleData.stacGrans
-      });
+      it('should generate a item collection response with a next link.', async () => {
+        request.apiGateway.event.httpMethod = 'GET';
+        request.query.limit = 2;
+        mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
+        await getGranules(request, response);
+        response.expect({
+          type: 'FeatureCollection',
+          stac_version: settings.stac.version,
+          numberMatched: 10,
+          numberReturned: 2,
+          context: {
+            limit: 2,
+            matched: 10,
+            returned: 2
+          },    
+          links: [
+            {     
+              rel: 'self',
+              href: 'http://example.com'
+            },    
+            {     
+              rel: 'root',
+              href: 'http://example.com/cloudstac/'
+            },    
+            {     
+              rel: 'next',
+              href: 'http://example.com?limit=2&collections=1.v1&page=2',
+              method: 'GET'
+            }     
+          ],    
+          features: exampleData.cloudstacGrans
+        });   
+      });   
+
+      it('should generate an item collection response with a prev link.', async () => {
+        request.apiGateway.event.queryStringParameters = { page: 2 };
+        request.query.page = 2;
+        await getGranules(request, response);
+        response.expect({
+          type: 'FeatureCollection',
+          stac_version: settings.stac.version,
+          numberMatched: 2,
+          numberReturned: 2,
+          context: {
+            limit: 1000000,
+            matched: 2,
+            returned: 2
+          },    
+          links: [
+            {     
+              rel: 'self',
+              href: 'http://example.com?page=2'
+            },    
+            {     
+              rel: 'root',
+              href: 'http://example.com/cloudstac/'
+            },    
+            {     
+              rel: 'prev',
+              method: 'GET',
+              href: 'http://example.com?page=1&collections=1.v1'
+            }     
+          ],    
+          features: exampleData.cloudstacGrans
+        });   
+      });   
     });
   });
+
+    
 
   describe('getGranule', () => {
     it('should generate an item response.', async () => {

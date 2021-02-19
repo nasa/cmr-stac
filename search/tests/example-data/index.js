@@ -26,6 +26,10 @@ const stacGrans = fileToContents
   .filter(([name]) => name.endsWith('stac_gran'))
   .map(([, contents]) => contents);
 
+const cloudstacGrans = fileToContents
+  .filter(([name]) => name.endsWith('cloud_gran'))
+  .map(([, contents]) => contents);
+
 const nameToCamel = (str) => str.replace(
   /([-_][a-z])/g,
   (group) => group.toUpperCase()
@@ -44,5 +48,6 @@ module.exports = {
   cloudstacColls,
   cmrGrans,
   stacGrans,
+  cloudstacGrans,
   examplesByName
 };

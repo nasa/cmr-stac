@@ -151,6 +151,35 @@ async function getCollection (request, response) {
 }
 
 /**
+ * Fetch a list of cloud holding collections from CMR for the provider
+ */
+async function findCloudCollections(providerId, collection_concept_ids) {
+  const params = Object.assign(
+    { provider_short_name: providerId },
+    { tag_key: "gov.nasa.earthdatacloud.s3" },
+    { page_size: 2000 }
+  );
+
+  if (collection_concept_ids){
+      params.concept_id=collection_concept_ids;
+  }
+
+  const allCloudCollections = [];
+  for (i = 1; i < 10000; i ++) {
+    params.page_num = i;
+    const collections = await cmr.findCollections(params);
+    for (j = 0; j < collections.length; j++) {
+      allCloudCollections.push(collections[j].id);
+    }
+    if (collections.length < 2000){
+      break;
+    }
+  }
+  logger.info(`allCloudCollections: ${allCloudCollections.length}`);
+  return allCloudCollections;
+}
+
+/**
  * Fetch a list of granules from CMR.
  */
 async function getGranules (request, response) {
@@ -178,8 +207,38 @@ async function getGranules (request, response) {
     }
     // convert STAC params to CMR Params
     const cmrParams = await cmr.convertParams(providerId, params);
-    const granulesResult = await cmr.findGranules(cmrParams);
+  
+    let granulesResult; 
+    if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+      //Preserve collection_concept_id and concept_id in cmrParams before deleting.
+      //After checking collection_concept_ids being cloud holding collections, they
+      //will be added back one by one because of POST search request requirement.
+      const collection_concept_ids = cmrParams.collection_concept_id;
+      const concept_ids = cmrParams.collection_concept_id;
+      delete cmrParams.collection_concept_id; 
+      delete cmrParams.concept_id;
 
+      //Find all the cloud holding collections applicable
+      //i.e. if collection_concept_ids are present, we will get all the cloud holding collections within these ids.
+      //otherwise, we will get all the cloud holding collections for the provider.
+      const allCloudCollections = await findCloudCollections(providerId, collection_concept_ids);
+      const postSearchParams = new URLSearchParams(cmrParams);
+      if (allCloudCollections.length !== 0) {
+        for (i = 0; i < allCloudCollections.length; i++) {
+          postSearchParams.append("collection_concept_id", allCloudCollections[i]);
+        }
+      } else {
+        return response.status(400).json(`Cloud holding collections not found for provider [${providerId}].`);
+      }
+      if (concept_ids) {
+        for (i = 0; i < concept_ids.length; i++) {
+          postSearchParams.append("concept_id", concept_ids[i]);
+        }
+      }
+      granulesResult = await cmr.findGranules(postSearchParams); 
+    } else {
+      granulesResult = await cmr.findGranules(cmrParams);
+    }
     const featureCollection = await convert.cmrGranulesToStac(event,
       granulesResult.granules,
       parseInt(granulesResult.hits),
