@@ -321,6 +321,7 @@ module.exports = {
   findCollections,
   findGranules,
   stacCollectionToCmrParams,
+  stacIdToCmrCollectionId,
   cmrCollectionIdToStacId,
   getFacetParams,
   getGranuleTemporalFacets,

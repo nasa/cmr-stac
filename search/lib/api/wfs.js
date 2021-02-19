@@ -271,13 +271,30 @@ async function getGranule (request, response) {
   logger.info(`GET /${providerId}/collections/${collectionId}/items/${conceptId}`);
   const event = request.apiGateway.event;
 
+  if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+    //This is the case for http://localhost:3000/cloudstac/GHRC_DAAC/collections/lislip.v4/items/G1983919034-GHRC_DAAC
+    //We need to make sure collection listlip.v4 is a cloud holding collection.
+    const cmrCollParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+    const collections = await cmr.findCollections(cmrCollParams);
+
+    if ((!collections) || (collections.length === 0)) {
+      return response
+      .status(404)
+      .json(`Cloud holding collection [${collectionId}] not found for provider [${providerId}]`);
+    }
+  }
+
   //We need to make sure the granule belongs to the provider and the collection.
+  const cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, collectionId);
   const cmrParams = Object.assign(
     { concept_id: conceptId },
-    cmr.stacCollectionToCmrParams(providerId, collectionId)
+    { collection_concept_id: cmrCollectionId}
   );
 
-  const granules = (await cmr.findGranules(cmrParams)).granules;
+  //When getting cloud holding granules, we need to use URLSearchParams for the POST search.
+  //It'll work for GET too.
+  const postSearchParams = new URLSearchParams(cmrParams);
+  const granules = (await cmr.findGranules(postSearchParams)).granules;
   const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
   await assertValid(schemas.item, granuleResponse);
   response.json(granuleResponse);

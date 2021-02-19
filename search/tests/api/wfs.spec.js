@@ -41,6 +41,7 @@ describe('wfs routes', () => {
     mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: exampleData.cmrGrans.length }));
     mockFunction(cmr, 'getGranuleTemporalFacets',
       { years: ['2001', '2002'], months: ['05', '06'], days: ['20', '21'], itemids: ['test1'] });
+    mockFunction(cmr, 'stacIdToCmrCollectionId', Promise.resolve('C1234_LPDAAC'));
   });
 
   afterEach(() => {
@@ -49,6 +50,7 @@ describe('wfs routes', () => {
     revertFunction(cmr, 'findGranules');
     revertFunction(cmr, 'getCatalog');
     revertFunction(cmr, 'getGranuleTemporalFacets');
+    revertFunction(cmr, 'stacIdToCmrCollectionId');
   });
 
   describe('getCollections', () => {
@@ -375,9 +377,23 @@ describe('wfs routes', () => {
     
 
   describe('getGranule', () => {
-    it('should generate an item response.', async () => {
-      await getGranule(request, response);
-      response.expect(exampleData.stacGrans[0]);
+    describe('within /stac', () => {
+      it('should generate an item response.', async () => {
+        await getGranule(request, response);
+        response.expect(exampleData.stacGrans[0]);
+      });
+    });
+    describe('within /cloudstac', () => {
+      beforeEach(() => {
+        settings.cmrStacRelativeRootUrl = '/cloudstac';
+      });
+      afterEach(() => {
+        settings.cmrStacRelativeRootUrl = "/stac";
+      });
+      it('should generate an item response.', async () => {
+        await getGranule(request, response);
+        response.expect(exampleData.cloudstacGrans[0]);
+      });
     });
   });
 
