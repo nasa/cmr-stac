@@ -146,7 +146,7 @@ async function getCollection (request, response) {
     await assertValid(schemas.collection, collectionResponse);
     response.json(collectionResponse);
   } catch (err) {
-    response.status(404).json(`Error [${err}] occured when getting Collection ${collectionId} for provider ${providerId}`);
+    response.status(404).json(`Error [${err}] occurred when getting Collection ${collectionId} for provider ${providerId}`);
   }
 }
 
@@ -214,7 +214,7 @@ async function getGranules (request, response) {
       //After checking collection_concept_ids being cloud holding collections, they
       //will be added back one by one because of POST search request requirement.
       const collection_concept_ids = cmrParams.collection_concept_id;
-      const concept_ids = cmrParams.collection_concept_id;
+      const concept_ids = cmrParams.concept_id;
       delete cmrParams.collection_concept_id; 
       delete cmrParams.concept_id;
 
@@ -224,16 +224,16 @@ async function getGranules (request, response) {
       const allCloudCollections = await findCloudCollections(providerId, collection_concept_ids);
       const postSearchParams = new URLSearchParams(cmrParams);
       if (allCloudCollections.length !== 0) {
-        for (i = 0; i < allCloudCollections.length; i++) {
-          postSearchParams.append("collection_concept_id", allCloudCollections[i]);
-        }
+        allCloudCollections.forEach(id => {
+          postSearchParams.append("collection_concept_id", id);
+        });
       } else {
         return response.status(400).json(`Cloud holding collections not found for provider [${providerId}].`);
       }
       if (concept_ids) {
-        for (i = 0; i < concept_ids.length; i++) {
-          postSearchParams.append("concept_id", concept_ids[i]);
-        }
+        concept_ids.forEach(id => {
+          postSearchParams.append("concept_id", id);
+        });
       }
       granulesResult = await cmr.findGranules(postSearchParams); 
     } else {
