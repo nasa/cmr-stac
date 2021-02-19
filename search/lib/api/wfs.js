@@ -317,6 +317,27 @@ async function getCatalog (request, response) {
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
 
+  // get path from event
+  const event = request.apiGateway.event;
+
+  let path;
+  if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+    path = event.path.replace(/^(\/cloudstac)/, '');
+
+    //This is the case for http://localhost:3000/cloudstac/GHRC_DAAC/collections/lislip.v4/1998
+    //We need to make sure collection listlip.v4 is a cloud holding collection.
+    const cmrCollParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+    const collections = await cmr.findCollections(cmrCollParams);
+
+    if ((!collections) || (collections.length === 0)) {
+     return response
+     .status(404)
+     .json(`Cloud holding collection [${collectionId}] not found for provider [${providerId}]`);
+    }
+  } else {
+    path = event.path.replace(/^(\/stac)/, '');
+  }
+
   // create catalog
   const date = request.params['0'].replace(/\//g, '-');
   const cat = new Catalog();
@@ -324,10 +345,6 @@ async function getCatalog (request, response) {
   cat.id = `${collectionId}-${date}`;
   cat.title = `${collectionId} ${date}`;
   cat.description = `${providerId} sub-catalog for ${date}`;
-
-  // get path from event
-  const event = request.apiGateway.event;
-  const path = event.path.replace(/^(\/stac)/, '');
 
   // add links
   cat.createRoot(generateAppUrl(event, ''));
