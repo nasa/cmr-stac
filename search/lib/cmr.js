@@ -52,7 +52,7 @@ async function cmrSearchPost (path, params) {
   if (!path) throw new Error('Missing url');
   if (!params) throw new Error('Missing parameters');
   const url = makeCmrSearchUrl(path);
-  return axios.post(url, params, {headers: {'Content-Type': 'application/x-www-form-urlencoded'}});
+  return axios.post(url, params, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 }
 
 /**
@@ -91,7 +91,7 @@ async function findCollections (params = {}) {
  */
 async function findGranules (params = {}) {
   let response, responseUmm;
-  if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
     response = await cmrSearchPost('/granules.json', params);
   } else {
     response = await cmrSearch('/granules.json', params);
@@ -104,7 +104,7 @@ async function findGranules (params = {}) {
     {}
   );
   // get UMM version
-  if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
     responseUmm = await cmrSearchPost('/granules.umm_json', params);
   } else {
     responseUmm = await cmrSearch('/granules.umm_json', params);
@@ -129,7 +129,7 @@ async function findGranules (params = {}) {
 function stacCollectionToCmrParams (providerId, collectionId) {
   const parts = collectionId.split('.v');
   if (parts.length < 2) {
-    if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+    if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
       throw new Error(`Cloud holding collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
     } else {
       throw new Error(`Collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
@@ -137,11 +137,11 @@ function stacCollectionToCmrParams (providerId, collectionId) {
   }
   const version = parts.pop();
   const shortName = parts.join('.');
-  if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
     return {
       provider_id: providerId,
       short_name: shortName,
-      tag_key: "gov.nasa.earthdatacloud.s3",
+      tag_key: 'gov.nasa.earthdatacloud.s3',
       version
     };
   } else {

@@ -17,26 +17,26 @@ async function getProvider (request, response) {
     if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
 
     let providerHoldings, id, rootCatalogName;
-    //Need to page through all the cloud collections. One page at a time, 10 collections in each page.
+    // Need to page through all the cloud collections. One page at a time, 10 collections in each page.
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
-    if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
-      //Query params to get cloud holdings for the provider.
+    if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
+      // Query params to get cloud holdings for the provider.
       const params = Object.assign(
-        { tag_key: "gov.nasa.earthdatacloud.s3"},
-        //request.query is Used for pagination.
+        { tag_key: 'gov.nasa.earthdatacloud.s3' },
+        // request.query is Used for pagination.
         await cmr.convertParams(providerId, request.query)
       );
       providerHoldings = await cmr.findCollections(params);
-      id = "id";
-      rootCatalogName="CMR-CLOUDSTAC Root catalog";
+      id = 'id';
+      rootCatalogName = 'CMR-CLOUDSTAC Root catalog';
       if (!providerHoldings.length) {
         return response.status(400).json(`Cloud holding collections not found for provider [${providerId}].`);
       }
     } else {
       providerHoldings = await cmr.getProvider(providerId);
-      id = "concept-id";
-      rootCatalogName="CMR-STAC Root catalog";
+      id = 'concept-id';
+      rootCatalogName = 'CMR-STAC Root catalog';
       if (!providerHoldings.length) {
         return response.status(400).json(`Collections not found for provider [${providerId}].`);
       }
@@ -54,7 +54,7 @@ async function getProvider (request, response) {
     ];
 
     const childLinks = await Promise.map(providerHoldings, async (collection) => {
-      const  collectionId = await cmr.cmrCollectionIdToStacId(collection[`${id}`]);
+      const collectionId = await cmr.cmrCollectionIdToStacId(collection[`${id}`]);
       return wfs.createLink(
         'child',
         generateAppUrl(event, `/${providerId}/collections/${collectionId}`),
@@ -69,7 +69,7 @@ async function getProvider (request, response) {
       links: [...links, ...childLinks]
     };
 
-    if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
+    if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
       if (currPage > 1 && providerHoldings.length > 1) {
         provider.links.push({
           rel: 'prev',
@@ -84,7 +84,7 @@ async function getProvider (request, response) {
         });
       }
     }
-    
+
     await assertValid(schemas.catalog, provider);
     response.status(200).json(provider);
   } catch (e) {
@@ -107,13 +107,13 @@ async function getProviders (request, response) {
     };
   });
 
-  //Based on the route, set different id, title and description for providerCatalog.
+  // Based on the route, set different id, title and description for providerCatalog.
   let id;
 
-  if ( settings.cmrStacRelativeRootUrl === "/cloudstac") {
-    id = "cloudstac";
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
+    id = 'cloudstac';
   } else {
-    id = "stac";
+    id = 'stac';
   }
   const ID = id.toUpperCase();
 

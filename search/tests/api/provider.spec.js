@@ -100,7 +100,7 @@ describe('getProviders', () => {
       mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
     });
     afterEach(() => {
-      settings.cmrStacRelativeRootUrl = "/stac";
+      settings.cmrStacRelativeRootUrl = '/stac';
       revertFunction(cmr, 'getProviderList');
     });
 
@@ -166,13 +166,13 @@ describe('getProvider', () => {
       response.expect(expectedResponse);
     });
   });
- 
+
   describe('within /cloudstac', () => {
     beforeEach(() => {
       settings.cmrStacRelativeRootUrl = '/cloudstac';
     });
     afterEach(() => {
-      settings.cmrStacRelativeRootUrl = "/stac";
+      settings.cmrStacRelativeRootUrl = '/stac';
     });
     it('should return a provider json object', async () => {
       const expectedResponse = {

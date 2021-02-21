@@ -85,9 +85,9 @@ describe('wfs routes', () => {
         settings.cmrStacRelativeRootUrl = '/cloudstac';
       });
       afterEach(() => {
-        settings.cmrStacRelativeRootUrl = "/stac";
+        settings.cmrStacRelativeRootUrl = '/stac';
       });
-   
+
       it('should generate a collections response.', async () => {
         await getCollections(request, response);
         response.expect({
@@ -146,22 +146,22 @@ describe('wfs routes', () => {
         settings.cmrStacRelativeRootUrl = '/cloudstac';
       });
       afterEach(() => {
-        settings.cmrStacRelativeRootUrl = "/stac";
+        settings.cmrStacRelativeRootUrl = '/stac';
       });
       it('should generate a single collections metadata response.', async () => {
         await getCollection(request, response);
         response.expect(exampleData.cloudstacColls[0]);
       });
-    
+
       describe('when no collection is found', () => {
         beforeEach(() => {
           mockFunction(cmr, 'findCollections', Promise.resolve(null));
         });
-      
+
         afterEach(() => {
           revertFunction(cmr, 'findCollections');
         });
-      
+
         it('should render a 404.', async () => {
           await getCollection(request, response);
           expect(response.getData()).toEqual({
@@ -171,112 +171,10 @@ describe('wfs routes', () => {
         });
       });
     });
-  }); 
+  });
 
   describe('getGranules', () => {
     describe('within /stac', () => {
-      it('should generate a item collection response.', async () => {
-	request.apiGateway.event.httpMethod = 'GET';
-	await getGranules(request, response);
-	response.expect({
-	  type: 'FeatureCollection',
-	  stac_version: settings.stac.version,
-	  numberMatched: 2,
-	  numberReturned: 2,
-	  context: {
-	    limit: 1000000,
-	    matched: 2,
-	    returned: 2
-	  },
-	  links: [
-	    {
-	      rel: 'self',
-	      href: 'http://example.com'
-	    },
-	    {
-	      rel: 'root',
-	      href: 'http://example.com/stac/'
-	    }
-	  ],
-	  features: exampleData.stacGrans
-	});
-      });
-
-      it('should generate a item collection response with a next link.', async () => {
-	request.apiGateway.event.httpMethod = 'GET';
-	request.query.limit = 2;
-	mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
-	await getGranules(request, response);
-	response.expect({
-	  type: 'FeatureCollection',
-	  stac_version: settings.stac.version,
-	  numberMatched: 10,
-	  numberReturned: 2,
-	  context: {
-	    limit: 2,
-	    matched: 10,
-	    returned: 2
-	  },
-	  links: [
-	    {
-	      rel: 'self',
-	      href: 'http://example.com'
-	    },
-	    {
-	      rel: 'root',
-	      href: 'http://example.com/stac/'
-	    },
-	    {
-	      rel: 'next',
-	      href: 'http://example.com?limit=2&collections=1.v1&page=2',
-	      method: 'GET'
-	    }
-	  ],
-	  features: exampleData.stacGrans
-	});
-      });
-
-      it('should generate an item collection response with a prev link.', async () => {
-	request.apiGateway.event.queryStringParameters = { page: 2 };
-	request.query.page = 2;
-	await getGranules(request, response);
-	response.expect({
-	  type: 'FeatureCollection',
-	  stac_version: settings.stac.version,
-	  numberMatched: 2,
-	  numberReturned: 2,
-	  context: {
-	    limit: 1000000,
-	    matched: 2,
-	    returned: 2
-	  },
-	  links: [
-	    {
-	      rel: 'self',
-	      href: 'http://example.com?page=2'
-	    },
-	    {
-	      rel: 'root',
-	      href: 'http://example.com/stac/'
-	    },
-	    {
-	      rel: 'prev',
-	      method: 'GET',
-	      href: 'http://example.com?page=1&collections=1.v1'
-	    }
-	  ],
-	  features: exampleData.stacGrans
-	});
-      });
-    });
-
-    describe('within /cloudstac', () => {
-      beforeEach(() => {
-        settings.cmrStacRelativeRootUrl = '/cloudstac';
-      });
-      afterEach(() => {
-        settings.cmrStacRelativeRootUrl = "/stac";
-      });  
       it('should generate a item collection response.', async () => {
         request.apiGateway.event.httpMethod = 'GET';
         await getGranules(request, response);
@@ -289,20 +187,20 @@ describe('wfs routes', () => {
             limit: 1000000,
             matched: 2,
             returned: 2
-          },    
+          },
           links: [
-            {     
+            {
               rel: 'self',
               href: 'http://example.com'
-            },    
-            {     
+            },
+            {
               rel: 'root',
-              href: 'http://example.com/cloudstac/'
-            }     
-          ],    
-          features: exampleData.cloudstacGrans
-        });   
-      });   
+              href: 'http://example.com/stac/'
+            }
+          ],
+          features: exampleData.stacGrans
+        });
+      });
 
       it('should generate a item collection response with a next link.', async () => {
         request.apiGateway.event.httpMethod = 'GET';
@@ -318,25 +216,25 @@ describe('wfs routes', () => {
             limit: 2,
             matched: 10,
             returned: 2
-          },    
+          },
           links: [
-            {     
+            {
               rel: 'self',
               href: 'http://example.com'
-            },    
-            {     
+            },
+            {
               rel: 'root',
-              href: 'http://example.com/cloudstac/'
-            },    
-            {     
+              href: 'http://example.com/stac/'
+            },
+            {
               rel: 'next',
               href: 'http://example.com?limit=2&collections=1.v1&page=2',
               method: 'GET'
-            }     
-          ],    
-          features: exampleData.cloudstacGrans
-        });   
-      });   
+            }
+          ],
+          features: exampleData.stacGrans
+        });
+      });
 
       it('should generate an item collection response with a prev link.', async () => {
         request.apiGateway.event.queryStringParameters = { page: 2 };
@@ -351,29 +249,129 @@ describe('wfs routes', () => {
             limit: 1000000,
             matched: 2,
             returned: 2
-          },    
+          },
           links: [
-            {     
+            {
               rel: 'self',
               href: 'http://example.com?page=2'
-            },    
-            {     
+            },
+            {
               rel: 'root',
-              href: 'http://example.com/cloudstac/'
-            },    
-            {     
+              href: 'http://example.com/stac/'
+            },
+            {
               rel: 'prev',
               method: 'GET',
               href: 'http://example.com?page=1&collections=1.v1'
-            }     
-          ],    
+            }
+          ],
+          features: exampleData.stacGrans
+        });
+      });
+    });
+
+    describe('within /cloudstac', () => {
+      beforeEach(() => {
+        settings.cmrStacRelativeRootUrl = '/cloudstac';
+      });
+      afterEach(() => {
+        settings.cmrStacRelativeRootUrl = '/stac';
+      });
+      it('should generate a item collection response.', async () => {
+        request.apiGateway.event.httpMethod = 'GET';
+        await getGranules(request, response);
+        response.expect({
+          type: 'FeatureCollection',
+          stac_version: settings.stac.version,
+          numberMatched: 2,
+          numberReturned: 2,
+          context: {
+            limit: 1000000,
+            matched: 2,
+            returned: 2
+          },
+          links: [
+            {
+              rel: 'self',
+              href: 'http://example.com'
+            },
+            {
+              rel: 'root',
+              href: 'http://example.com/cloudstac/'
+            }
+          ],
           features: exampleData.cloudstacGrans
-        });   
-      });   
+        });
+      });
+
+      it('should generate a item collection response with a next link.', async () => {
+        request.apiGateway.event.httpMethod = 'GET';
+        request.query.limit = 2;
+        mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
+        await getGranules(request, response);
+        response.expect({
+          type: 'FeatureCollection',
+          stac_version: settings.stac.version,
+          numberMatched: 10,
+          numberReturned: 2,
+          context: {
+            limit: 2,
+            matched: 10,
+            returned: 2
+          },
+          links: [
+            {
+              rel: 'self',
+              href: 'http://example.com'
+            },
+            {
+              rel: 'root',
+              href: 'http://example.com/cloudstac/'
+            },
+            {
+              rel: 'next',
+              href: 'http://example.com?limit=2&collections=1.v1&page=2',
+              method: 'GET'
+            }
+          ],
+          features: exampleData.cloudstacGrans
+        });
+      });
+
+      it('should generate an item collection response with a prev link.', async () => {
+        request.apiGateway.event.queryStringParameters = { page: 2 };
+        request.query.page = 2;
+        await getGranules(request, response);
+        response.expect({
+          type: 'FeatureCollection',
+          stac_version: settings.stac.version,
+          numberMatched: 2,
+          numberReturned: 2,
+          context: {
+            limit: 1000000,
+            matched: 2,
+            returned: 2
+          },
+          links: [
+            {
+              rel: 'self',
+              href: 'http://example.com?page=2'
+            },
+            {
+              rel: 'root',
+              href: 'http://example.com/cloudstac/'
+            },
+            {
+              rel: 'prev',
+              method: 'GET',
+              href: 'http://example.com?page=1&collections=1.v1'
+            }
+          ],
+          features: exampleData.cloudstacGrans
+        });
+      });
     });
   });
-
-    
 
   describe('getGranule', () => {
     describe('within /stac', () => {
@@ -387,7 +385,7 @@ describe('wfs routes', () => {
         settings.cmrStacRelativeRootUrl = '/cloudstac';
       });
       afterEach(() => {
-        settings.cmrStacRelativeRootUrl = "/stac";
+        settings.cmrStacRelativeRootUrl = '/stac';
       });
       it('should generate an item response.', async () => {
         await getGranule(request, response);
@@ -409,33 +407,33 @@ describe('wfs routes', () => {
 
     describe('within /stac', () => {
       it('should return Months catalog given a year catalog', async () => {
-	request.params['0'] = '2001';
-	// request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
-	request.apiGateway.event.path = '/2001';
-	await getCatalog(request, response);
-	const cat = response.getData().json;
-	expect(cat.links.length).toEqual(5);
-	expect(cat.id).toEqual('1.v1-2001');
+        request.params['0'] = '2001';
+        // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+        request.apiGateway.event.path = '/2001';
+        await getCatalog(request, response);
+        const cat = response.getData().json;
+        expect(cat.links.length).toEqual(5);
+        expect(cat.id).toEqual('1.v1-2001');
       });
 
       it('should return Days catalog given a Month catalog', async () => {
-	request.params['0'] = '2001/05';
-	// request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
-	request.apiGateway.event.path = '/2001/05';
-	await getCatalog(request, response);
-	const cat = response.getData().json;
-	expect(cat.links.length).toEqual(5);
-	expect(cat.id).toEqual('1.v1-2001-05');
+        request.params['0'] = '2001/05';
+        // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+        request.apiGateway.event.path = '/2001/05';
+        await getCatalog(request, response);
+        const cat = response.getData().json;
+        expect(cat.links.length).toEqual(5);
+        expect(cat.id).toEqual('1.v1-2001-05');
       });
 
       it('should return Item catalog given a Day catalog', async () => {
-	request.params['0'] = '2001/05/20';
-	// request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
-	request.apiGateway.event.path = '/2001/05/20';
-	await getCatalog(request, response);
-	const cat = response.getData().json;
-	expect(cat.links.length).toEqual(4);
-	expect(cat.id).toEqual('1.v1-2001-05-20');
+        request.params['0'] = '2001/05/20';
+        // request.apiGateway = {event: { path: '/2001', headers: { Host: 'example.com' }, queryStringParameters: [] }}
+        request.apiGateway.event.path = '/2001/05/20';
+        await getCatalog(request, response);
+        const cat = response.getData().json;
+        expect(cat.links.length).toEqual(4);
+        expect(cat.id).toEqual('1.v1-2001-05-20');
       });
     });
 
@@ -444,7 +442,7 @@ describe('wfs routes', () => {
         settings.cmrStacRelativeRootUrl = '/cloudstac';
       });
       afterEach(() => {
-        settings.cmrStacRelativeRootUrl = "/stac";
+        settings.cmrStacRelativeRootUrl = '/stac';
       });
       it('should return Months catalog given a year catalog', async () => {
         request.params['0'] = '2001';
