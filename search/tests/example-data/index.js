@@ -14,12 +14,20 @@ const stacColls = fileToContents
   .filter(([name]) => name.endsWith('stac_coll'))
   .map(([, contents]) => contents);
 
+const cloudstacColls = fileToContents
+  .filter(([name]) => name.endsWith('cloud_coll'))
+  .map(([, contents]) => contents);
+
 const cmrGrans = fileToContents
   .filter(([name]) => name.endsWith('cmr_gran'))
   .map(([, contents]) => contents);
 
 const stacGrans = fileToContents
   .filter(([name]) => name.endsWith('stac_gran'))
+  .map(([, contents]) => contents);
+
+const cloudstacGrans = fileToContents
+  .filter(([name]) => name.endsWith('cloud_gran'))
   .map(([, contents]) => contents);
 
 const nameToCamel = (str) => str.replace(
@@ -37,7 +45,9 @@ const examplesByName = fileToContents.reduce((m, [name, contents]) => {
 module.exports = {
   cmrColls,
   stacColls,
+  cloudstacColls,
   cmrGrans,
   stacGrans,
+  cloudstacGrans,
   examplesByName
 };

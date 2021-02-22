@@ -43,6 +43,19 @@ async function cmrSearch (path, params) {
 }
 
 /**
+ * Query a CMR Search endpoint with optional parameters using POST
+ * @param {string} path CMR path to append to search URL (e.g., granules.json, collections.json)
+ * @param {object} params Set of CMR parameters
+ */
+async function cmrSearchPost (path, params) {
+  // should be search path (e.g., granules.json, collections, etc)
+  if (!path) throw new Error('Missing url');
+  if (!params) throw new Error('Missing parameters');
+  const url = makeCmrSearchUrl(path);
+  return axios.post(url, params, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+}
+
+/**
  * Get list of providers
  */
 async function getProviderList () {
@@ -77,7 +90,12 @@ async function findCollections (params = {}) {
  * @param {object} params Object of CMR Search parameters
  */
 async function findGranules (params = {}) {
-  const response = await cmrSearch('/granules.json', params);
+  let response, responseUmm;
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
+    response = await cmrSearchPost('/granules.json', params);
+  } else {
+    response = await cmrSearch('/granules.json', params);
+  }
   const granules = response.data.feed.entry.reduce(
     (obj, item) => ({
       ...obj,
@@ -86,7 +104,11 @@ async function findGranules (params = {}) {
     {}
   );
   // get UMM version
-  const responseUmm = await cmrSearch('/granules.umm_json', params);
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
+    responseUmm = await cmrSearchPost('/granules.umm_json', params);
+  } else {
+    responseUmm = await cmrSearch('/granules.umm_json', params);
+  }
   if (_.has(responseUmm.data, 'items')) {
     // associate and add UMM granule to standard granule
     responseUmm.data.items.forEach((g) => {
@@ -107,15 +129,28 @@ async function findGranules (params = {}) {
 function stacCollectionToCmrParams (providerId, collectionId) {
   const parts = collectionId.split('.v');
   if (parts.length < 2) {
-    throw new Error(`Collection ${collectionId} not found for provider ${providerId}`);
+    if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
+      throw new Error(`Cloud holding collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
+    } else {
+      throw new Error(`Collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
+    }
   }
   const version = parts.pop();
   const shortName = parts.join('.');
-  return {
-    provider_id: providerId,
-    short_name: shortName,
-    version
-  };
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
+    return {
+      provider_id: providerId,
+      short_name: shortName,
+      tag_key: 'gov.nasa.earthdatacloud.s3',
+      version
+    };
+  } else {
+    return {
+      provider_id: providerId,
+      short_name: shortName,
+      version
+    };
+  }
 }
 
 /**
@@ -286,6 +321,7 @@ module.exports = {
   findCollections,
   findGranules,
   stacCollectionToCmrParams,
+  stacIdToCmrCollectionId,
   cmrCollectionIdToStacId,
   getFacetParams,
   getGranuleTemporalFacets,
