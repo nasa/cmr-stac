@@ -37,9 +37,6 @@ async function getProvider (request, response) {
       providerHoldings = await cmr.getProvider(providerId);
       id = 'concept-id';
       rootCatalogName = 'CMR-STAC Root catalog';
-      if (!providerHoldings.length) {
-        return response.status(400).json(`Collections not found for provider [${providerId}].`);
-      }
     }
 
     const links = [

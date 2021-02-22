@@ -38,14 +38,13 @@ async function getCollections (request, response) {
 
     const provider = request.params.providerId;
 
-    let params, errMsg, rootName, description;
+    let params, rootName, description;
     if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
       params = Object.assign(
         { tag_key: 'gov.nasa.earthdatacloud.s3' },
         // request.query is used for pagination
         await cmr.convertParams(provider, request.query)
       );
-      errMsg = 'Cloud holding collections not found';
       rootName = 'CMR-CLOUDSTAC Root';
       description = `All cloud holding collections provided by ${provider}`;
     } else {
@@ -53,15 +52,11 @@ async function getCollections (request, response) {
         // request.query is used for pagination
         await cmr.convertParams(provider, request.query)
       );
-      errMsg = 'Collections not found';
       rootName = 'CMR-STAC Root';
       description = `All collections provided by ${provider}`;
     }
 
     const collections = await cmr.findCollections(params);
-    if (!collections.length) {
-      return response.status(400).json(`${errMsg}`);
-    }
 
     const collectionsResponse = {
       id: provider,
