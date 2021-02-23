@@ -137,9 +137,9 @@ function stacCollectionToCmrParams (providerId, collectionId) {
     provider_id: providerId,
     short_name: shortName,
     version
-  }
+  };
   if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-    cmrParams.tag_key = 'gov.nasa.earthdatacloud.s3'
+    cmrParams.tag_key = 'gov.nasa.earthdatacloud.s3';
   }
   return cmrParams;
 }
@@ -155,7 +155,7 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
     return collectionId;
   }
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
-  let collections = []
+  let collections = [];
   if (cmrParams) {
     collections = await findCollections(cmrParams);
   }
@@ -277,14 +277,18 @@ async function convertParam (providerId, key, value) {
   if (key === 'collections') {
     // async map to do collection ID conversions in parallel
     const collections = await Promise.reduce(value, async (result, v) => {
-      const collectionId = stacIdToCmrCollectionId(providerId, v);
+      const collectionId = await stacIdToCmrCollectionId(providerId, v);
       // if valid collection, return CMR ID for it
       if (collectionId) {
         result.push(collectionId);
       }
-      return result
+      return result;
     }, []);
-    return ['collection_concept_id', collections];
+    if (collections.length === 0) {
+      return [];
+    } else {
+      return ['collection_concept_id', collections];
+    }
   } else {
     const [newName, converter] = STAC_SEARCH_PARAMS_CONVERSION_MAP[key];
     return [newName, converter(value)];
@@ -300,11 +304,12 @@ async function convertParams (providerId, params = {}) {
   try {
     // async map to do all param conversions in parallel
     const converted = await Promise.reduce(Object.entries(params), async (result, [k, v]) => {
-      const param = convertParam(providerId, k, v);
+      const param = await convertParam(providerId, k, v);
+      console.log(`param = ${JSON.stringify(param)} ${k} ${v}`)
       if (param.length === 2) {
         result.push(param);
       }
-      return result
+      return result;
     }, []);
     logger.debug(`Params: ${JSON.stringify(params)}`);
     logger.debug(`Converted Params: ${JSON.stringify(converted)}`);
