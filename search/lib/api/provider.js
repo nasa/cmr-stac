@@ -16,25 +16,19 @@ async function getProvider (request, response) {
     const isProvider = providerList.filter(providerObj => providerObj['provider-id'] === providerId);
     if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
 
-    let providerHoldings, id, rootCatalogName;
+    let rootCatalogName = 'CMR-STAC Root catalog';
     // Need to page through all the cloud collections. One page at a time, 10 collections in each page.
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
+    // request.query is Used for pagination.
+    const cmrParams = await cmr.convertParams(providerId, request.query);
+
     if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
       // Query params to get cloud holdings for the provider.
-      const params = Object.assign(
-        { tag_key: 'gov.nasa.earthdatacloud.s3' },
-        // request.query is Used for pagination.
-        await cmr.convertParams(providerId, request.query)
-      );
-      providerHoldings = await cmr.findCollections(params);
-      id = 'id';
+      Object.assign(cmrParams, { tag_key: 'gov.nasa.earthdatacloud.s3' });
       rootCatalogName = 'CMR-CLOUDSTAC Root catalog';
-    } else {
-      providerHoldings = await cmr.getProvider(providerId);
-      id = 'concept-id';
-      rootCatalogName = 'CMR-STAC Root catalog';
     }
+    const providerHoldings = await cmr.findCollections(cmrParams);
 
     const links = [
       wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
@@ -48,7 +42,7 @@ async function getProvider (request, response) {
     ];
 
     const childLinks = await Promise.map(providerHoldings, async (collection) => {
-      const collectionId = await cmr.cmrCollectionIdToStacId(collection[`${id}`]);
+      const collectionId = await cmr.cmrCollectionIdToStacId(collection['id']);
       return wfs.createLink(
         'child',
         generateAppUrl(event, `/${providerId}/collections/${collectionId}`),
@@ -63,20 +57,18 @@ async function getProvider (request, response) {
       links: [...links, ...childLinks]
     };
 
-    if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-      if (currPage > 1 && providerHoldings.length > 1) {
-        provider.links.push({
-          rel: 'prev',
-          href: prevResultsLink
-        });
-      }
+    if (currPage > 1 && providerHoldings.length > 1) {
+      provider.links.push({
+        rel: 'prev',
+        href: prevResultsLink
+      });
+    }
 
-      if (providerHoldings.length === 10) {
-        provider.links.push({
-          rel: 'next',
-          href: nextResultsLink
-        });
-      }
+    if (providerHoldings.length === 10) {
+      provider.links.push({
+        rel: 'next',
+        href: nextResultsLink
+      });
     }
 
     await assertValid(schemas.catalog, provider);
