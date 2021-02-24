@@ -118,7 +118,6 @@ async function getCollection (request, response) {
     const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
     // add browse links
     if (process.env.BROWSE_PATH) {
-      delete cmrParams.tag_key;
       const facets = await cmr.getGranuleTemporalFacets(cmrParams);
       const path = `/${providerId}/collections/${collectionId}`;
       // create catalog link for each year

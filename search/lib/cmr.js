@@ -204,7 +204,7 @@ function getFacetParams (year, month, day) {
 }
 
 async function getGranuleTemporalFacets (params = {}, year, month, day) {
-  const cmrParams = Object.assign(params, getFacetParams(year, month, day));
+  const { tag_key, ...cmrParams } = Object.assign(params, getFacetParams(year, month, day));
 
   const facets = {
     years: [],
