@@ -1,4 +1,4 @@
-service: cmr-stac-api
+service: cmr-stac-api-fakestac
 
 provider:
   name: aws
@@ -12,8 +12,8 @@ provider:
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
 
 custom:
-  cmrStacName: ${opt:cmr-stac-name, 'stac'}
-  cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
+  cmrStacName: "fakestac"
+  cmrStacRelativeRootUrl: "/fakestac"
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
 
