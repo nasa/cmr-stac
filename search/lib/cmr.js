@@ -305,7 +305,6 @@ async function convertParams (providerId, params = {}) {
     // async map to do all param conversions in parallel
     const converted = await Promise.reduce(Object.entries(params), async (result, [k, v]) => {
       const param = await convertParam(providerId, k, v);
-      console.log(`param = ${JSON.stringify(param)} ${k} ${v}`)
       if (param.length === 2) {
         result.push(param);
       }

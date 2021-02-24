@@ -175,7 +175,6 @@ function extractParams (request) {
   if (method === 'GET') {
     const arrayParameters = ['collections', 'ids'];
     const multiParams = event.multiValueQueryStringParameters || {};
-    console.log(`multiParams = ${multiParams}`);
     const _params = Object.entries(multiParams).map(([k, v]) => {
       if (arrayParameters.includes(k)) {
         return [k, v];
