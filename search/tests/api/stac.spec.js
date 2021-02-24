@@ -96,7 +96,9 @@ describe('STAC Search Params', () => {
     it('should query with range when given a single datetime', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
-        query: { datetime: '2020-11-02T00:00:00Z' }
+        apiGateway: {
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['2020-11-02T00:00:00Z'] } }
+        }
       });
 
       await search(request, response);
@@ -115,7 +117,9 @@ describe('STAC Search Params', () => {
     it('query using a range when given a range datetime, comma delimited', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
-        query: { datetime: '2019-02-01T00:00:00Z,2019-05-05T00:30:00Z' }
+        apiGateway: {
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['2019-02-01T00:00:00Z,2019-05-05T00:30:00Z'] } }
+        }
       });
 
       await search(request, response);
@@ -134,7 +138,9 @@ describe('STAC Search Params', () => {
     it('query using a range when given a range datetime, slash delimited', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
-        query: { datetime: '2019-02-01T00:00:00Z/2019-05-05T00:30:00Z' }
+        apiGateway: {
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['2019-02-01T00:00:00Z/2019-05-05T00:30:00Z'] } }
+        }
       });
 
       await search(request, response);
@@ -153,7 +159,9 @@ describe('STAC Search Params', () => {
     it('should query with a time given a time', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
-        query: { datetime: '12:15:09pm' }
+        apiGateway: {
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['12:15:09pm'] } }
+        }
       });
 
       await search(request, response);
@@ -172,7 +180,9 @@ describe('STAC Search Params', () => {
     it('should query with range when given a single date', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
-        query: { datetime: '2020-10-01' }
+        apiGateway: {
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['2020-10-01'] } }
+        }
       });
 
       await search(request, response);
@@ -191,7 +201,9 @@ describe('STAC Search Params', () => {
     it('should query with range when given a date range, comma delimited', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
-        query: { datetime: '2020-09-03,2020-10-26' }
+        apiGateway: {
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['2020-09-03,2020-10-26'] } }
+        }
       });
 
       await search(request, response);
@@ -210,7 +222,9 @@ describe('STAC Search Params', () => {
     it('should query with range when given a date range, slash delimited', async () => {
       request = createRequest({
         params: { providerId: 'LPDAAC' },
-        query: { datetime: '2020-09-03/2020-10-26' }
+        apiGateway: {
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['2020-09-03/2020-10-26'] } }
+        }
       });
 
       await search(request, response);
