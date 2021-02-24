@@ -1,4 +1,4 @@
-service: "cmr-${opt:cmr-stac-name}-service"
+service: "cmr-stac-service"
 
 provider:
   name: aws
