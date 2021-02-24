@@ -4,7 +4,7 @@ provider:
   name: aws
   runtime: nodejs10.x
   region: us-east-1
-  role: cmrStacRole
+  role: cmrFakeStacRole
   deploymentBucket: ${cf:${opt:stage}.cmrStacDeploymentBucket}
   vpc:
     securityGroupIds:
