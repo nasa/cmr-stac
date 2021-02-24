@@ -30,9 +30,6 @@ async function getProvider (request, response) {
       providerHoldings = await cmr.findCollections(params);
       id = 'id';
       rootCatalogName = 'CMR-CLOUDSTAC Root catalog';
-      if (!providerHoldings.length) {
-        return response.status(400).json(`Cloud holding collections not found for provider [${providerId}].`);
-      }
     } else {
       providerHoldings = await cmr.getProvider(providerId);
       id = 'concept-id';
