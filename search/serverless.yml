@@ -12,13 +12,14 @@ provider:
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
 
 custom:
+  cmrStacName: ${opt:cmr-stac-name, 'stac'}
   cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
 
 functions:
   search-api:
-    name: cmr-stac-${opt:stage}
+    name: cmr-${self:custom.cmrStacName}-${opt:stage}
     handler: lib/application.handler
     timeout: 10
     events:
