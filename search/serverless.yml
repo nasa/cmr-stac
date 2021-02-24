@@ -1,7 +1,8 @@
-service: "cmr-stac-service"
+service: "cmr-${opt:cmr-stac-name}-api"
 
 provider:
   name: aws
+  stackName: ${self:service}-${opt:stage}
   runtime: nodejs10.x
   region: us-east-1
   role: cmrStacRole
