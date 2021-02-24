@@ -41,10 +41,10 @@ functions:
 
 resources:
   Resources:
-    cmrStacRole:
+    cmrFakeStacRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: cmrStacRole-${opt:stage}
+        RoleName: cmrFakeStacRole-${opt:stage}
         PermissionsBoundary: arn:aws:iam::#{AWS::AccountId}:policy/NGAPShRoleBoundary
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
