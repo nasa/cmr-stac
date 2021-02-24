@@ -43,7 +43,7 @@ resources:
     cmrStacRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: cmrStacRole-${opt:stage}
+        RoleName: cmrStacRole-${opt:cmr-stac-name}-${opt:stage}
         PermissionsBoundary: arn:aws:iam::#{AWS::AccountId}:policy/NGAPShRoleBoundary
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
