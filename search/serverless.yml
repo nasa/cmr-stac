@@ -20,7 +20,7 @@ functions:
   search-api:
     name: cmr-stac-${opt:stage}
     handler: lib/application.handler
-    timeout: 10
+    timeout: 6
     events:
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}

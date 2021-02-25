@@ -273,6 +273,9 @@ async function convertParam (providerId, key, value) {
   if (!Object.keys(STAC_SEARCH_PARAMS_CONVERSION_MAP).includes(key)) {
     throw new Error(`Unsupported parameter ${key}`);
   }
+  if (key === 'limit' && value > settings.maxLimit) {
+    throw new Error(`Maximum limit parameter of ${settings.maxLimit}`);
+  }
   // If collection parameter need to translate to CMR parameter
   if (key === 'collections') {
     // async map to do collection ID conversions in parallel
