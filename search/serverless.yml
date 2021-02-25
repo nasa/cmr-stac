@@ -2,7 +2,7 @@ service: "cmr-${self:custom.cmrStacName}-service"
 
 provider:
   name: aws
-  stackName: ${self:service}-${opt:stage}
+  stackName: ${self:service}
   runtime: nodejs10.x
   region: us-east-1
   role: cmrStacRole
