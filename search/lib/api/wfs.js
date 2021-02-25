@@ -35,31 +35,28 @@ Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
 async function getCollections (request, response) {
   try {
     logger.info(`GET ${request.params.providerId}/collections`);
+    const pageSize = request.query.limit || 10;
     const event = request.apiGateway.event;
 
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
     const provider = request.params.providerId;
 
-    let params, rootName, description;
+    let rootName, description;
+    // request.query is Used for pagination.
+    const cmrParams = await cmr.convertParams(provider, request.query);
+
     if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-      params = Object.assign(
-        { tag_key: 'gov.nasa.earthdatacloud.s3' },
-        // request.query is used for pagination
-        await cmr.convertParams(provider, request.query)
-      );
+      // Query params to get cloud holdings for the provider.
+      Object.assign(cmrParams, { tag_key: 'gov.nasa.earthdatacloud.s3' });
       rootName = 'CMR-CLOUDSTAC Root';
       description = `All cloud holding collections provided by ${provider}`;
     } else {
-      params = Object.assign(
-        // request.query is used for pagination
-        await cmr.convertParams(provider, request.query)
-      );
       rootName = 'CMR-STAC Root';
       description = `All collections provided by ${provider}`;
     }
 
-    const collections = await cmr.findCollections(params);
+    const collections = await cmr.findCollections(cmrParams);
 
     const collectionsResponse = {
       id: provider,
@@ -81,7 +78,7 @@ async function getCollections (request, response) {
       });
     }
 
-    if (collectionsResponse.collections.length === 10) {
+    if (collectionsResponse.collections.length === Number(pageSize)) {
       collectionsResponse.links.push({
         rel: 'next',
         href: nextResultsLink
