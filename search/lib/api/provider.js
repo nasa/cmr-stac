@@ -16,7 +16,6 @@ async function getProvider (request, response) {
     const isProvider = providerList.filter(providerObj => providerObj['provider-id'] === providerId);
     if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
 
-    let rootCatalogName = 'CMR-STAC Root catalog';
     // Need to page through all the cloud collections. One page at a time, 10 collections in each page.
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
@@ -26,7 +25,6 @@ async function getProvider (request, response) {
     if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
       // Query params to get cloud holdings for the provider.
       Object.assign(cmrParams, { tag_key: 'gov.nasa.earthdatacloud.s3' });
-      rootCatalogName = 'CMR-CLOUDSTAC Root catalog';
     }
     const providerHoldings = await cmr.findCollections(cmrParams);
 
@@ -34,7 +32,7 @@ async function getProvider (request, response) {
       wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
         'Provider catalog'),
       wfs.createLink('root', generateAppUrl(event, '/'),
-        `${rootCatalogName}`),
+        'Root catalog'),
       wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
         'Provider Collections'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
