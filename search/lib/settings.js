@@ -55,6 +55,8 @@ function getSettings () {
     settings.cmrSearchHost = process.env.CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov/search';
     settings.cmrProviderHost = process.env.CMR_PROVIDER_HOST || 'cmr.earthdata.nasa.gov/ingest/providers';
     settings.cmrSearchProtocol = process.env.CMR_SEARCH_PROTOCOL || 'https';
+    settings.cacheTtl = process.env.CMR_STAC_CACHE_TTL || 14400;
+    settings.maxLimit = process.env.CMR_STAC_MAX_LIMIT || 500;
 
     settings.throwCmrConvertParamErrors = process.env.THROW_CMR_CONVERT_PARAM_ERRORS === 'true';
 

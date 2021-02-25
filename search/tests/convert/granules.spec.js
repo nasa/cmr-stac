@@ -237,7 +237,7 @@ describe('granuleToItem', () => {
     const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
     const expectedStacGran = exampleData.examplesByName.lancemodisStacGran;
 
-    const event = { headers: { Host: 'example.com' }, queryStringParameters: [] };
+    const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
 
     it('should return a FeatureGeoJSON from a cmrGran', async () => {
       const stacItem = await cmrGranuleToStac(event, cmrGran);

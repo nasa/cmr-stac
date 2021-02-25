@@ -66,7 +66,7 @@ function generateAppUrl (event, path, queryParams = null) {
 }
 
 function generateSelfUrl (event) {
-  return generateAppUrlWithoutRelativeRoot(event, event.path, event.queryStringParameters);
+  return generateAppUrlWithoutRelativeRoot(event, event.path, event.multiValueQueryStringParameters);
 }
 
 function makeAsyncHandler (fn) {
@@ -100,12 +100,12 @@ const extractParam = (queryStringParams, param, defaultVal = null) => {
 };
 
 function generateNavLinks (event) {
-  const currPage = parseInt(extractParam(event.queryStringParameters, 'page', '1'), 10);
+  const currPage = parseInt(extractParam(event.multiValueQueryStringParameters, 'page', '1'), 10);
   const nextPage = currPage + 1;
   const prevPage = currPage - 1;
-  const newParams = { ...event.queryStringParameters } || {};
+  const newParams = { ...event.multiValueQueryStringParameters } || {};
   newParams.page = nextPage;
-  const newPrevParams = { ...event.queryStringParameters } || {};
+  const newPrevParams = { ...event.multiValueQueryStringParameters } || {};
   newPrevParams.page = prevPage;
   const prevResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newPrevParams);
   const nextResultsLink = generateAppUrlWithoutRelativeRoot(event, event.path, newParams);
