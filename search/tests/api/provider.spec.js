@@ -207,17 +207,36 @@ describe('getProvider', () => {
           }
         ]
       };
+
+      const expectedResponse2 = {
+        id: 'GHRC_DAAC',
+        title: 'GHRC_DAAC',
+        description: 'Root catalog for GHRC_DAAC',
+        stac_version: settings.stac.version,
+        links: [
+          {
+            "rel": "next",
+            "href": "http://example.com?page=2" 
+          }
+        ]
+      };
       const request = createRequest({
         params: {
           providerId: 'GHRC_DAAC'
+        },
+        query: {
+          limit: 1
         }
       });
       const response = createMockResponse();
       await getProvider(request, response);
       const dat = response.getData();
 
+      const savedLinks = dat.json.links;
       dat.json.links = dat.json.links.slice(0, 4);
       response.expect(expectedResponse);
+      dat.json.links = savedLinks.slice(5, 6);
+      response.expect(expectedResponse2);
     });
   });
 });
