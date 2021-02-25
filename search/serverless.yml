@@ -1,4 +1,4 @@
-service: cmr-stac-api
+service: "cmr-${self:custom.cmrStacName}-service"
 
 provider:
   name: aws
@@ -12,7 +12,7 @@ provider:
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
 
 custom:
-  cmrStacName: ${opt:cmr-stac-name, 'stac'}
+  cmrStacName: ${opt:cmr-stac-name}
   cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
@@ -25,7 +25,7 @@ functions:
     events:
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
-          priority: 84
+          priority: 83
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
     logSubscription: true
@@ -44,15 +44,14 @@ resources:
     cmrStacRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: cmrStacRole-${opt:stage}
+        RoleName: cmrStacRole-${self:custom.cmrStacName}-${opt:stage}
         PermissionsBoundary: arn:aws:iam::#{AWS::AccountId}:policy/NGAPShRoleBoundary
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
-            -
-              Effect: "Allow"
+            - Effect: "Allow"
               Principal:
                 Service:
                   - "lambda.amazonaws.com"
