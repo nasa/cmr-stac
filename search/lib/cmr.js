@@ -129,28 +129,19 @@ async function findGranules (params = {}) {
 function stacCollectionToCmrParams (providerId, collectionId) {
   const parts = collectionId.split('.v');
   if (parts.length < 2) {
-    if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-      throw new Error(`Cloud holding collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
-    } else {
-      throw new Error(`Collection ${collectionId} needs to be in the form of <shortname>.v<versionid>`);
-    }
+    return null;
   }
   const version = parts.pop();
   const shortName = parts.join('.');
+  const cmrParams = {
+    provider_id: providerId,
+    short_name: shortName,
+    version
+  };
   if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-    return {
-      provider_id: providerId,
-      short_name: shortName,
-      tag_key: 'gov.nasa.earthdatacloud.s3',
-      version
-    };
-  } else {
-    return {
-      provider_id: providerId,
-      short_name: shortName,
-      version
-    };
+    cmrParams.tag_key = 'gov.nasa.earthdatacloud.s3';
   }
+  return cmrParams;
 }
 
 /**
@@ -164,12 +155,15 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
     return collectionId;
   }
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
-  const collections = await findCollections(cmrParams);
+  let collections = [];
+  if (cmrParams) {
+    collections = await findCollections(cmrParams);
+  }
   if (collections.length === 0) {
-    throw new Error(`Collection ${stacId} not found for provider ${providerId}`);
+    return null;
   } else {
     collectionId = collections[0].id;
-    myCache.set(stacId, collectionId, 14400);
+    myCache.set(stacId, collectionId, settings.cacheTtl);
     return collectionId;
   }
 }
@@ -186,7 +180,7 @@ async function cmrCollectionIdToStacId (collectionId) {
   }
   const collections = await findCollections({ concept_id: collectionId });
   stacId = `${collections[0].short_name}.v${collections[0].version_id}`;
-  myCache.set(collectionId, stacId, 14400);
+  myCache.set(collectionId, stacId, settings.cacheTtl);
   return stacId;
 }
 
@@ -210,7 +204,7 @@ function getFacetParams (year, month, day) {
 }
 
 async function getGranuleTemporalFacets (params = {}, year, month, day) {
-  const cmrParams = Object.assign(params, getFacetParams(year, month, day));
+  const { tag_key, ...cmrParams } = Object.assign(params, getFacetParams(year, month, day));
 
   const facets = {
     years: [],
@@ -279,13 +273,25 @@ async function convertParam (providerId, key, value) {
   if (!Object.keys(STAC_SEARCH_PARAMS_CONVERSION_MAP).includes(key)) {
     throw new Error(`Unsupported parameter ${key}`);
   }
+  if (key === 'limit' && value > settings.maxLimit) {
+    throw new Error(`Maximum limit parameter of ${settings.maxLimit}`);
+  }
   // If collection parameter need to translate to CMR parameter
   if (key === 'collections') {
     // async map to do collection ID conversions in parallel
-    const collections = await Promise.map(value, async (v) => {
-      return stacIdToCmrCollectionId(providerId, v);
-    });
-    return ['collection_concept_id', collections];
+    const collections = await Promise.reduce(value, async (result, v) => {
+      const collectionId = await stacIdToCmrCollectionId(providerId, v);
+      // if valid collection, return CMR ID for it
+      if (collectionId) {
+        result.push(collectionId);
+      }
+      return result;
+    }, []);
+    if (collections.length === 0) {
+      return [];
+    } else {
+      return ['collection_concept_id', collections];
+    }
   } else {
     const [newName, converter] = STAC_SEARCH_PARAMS_CONVERSION_MAP[key];
     return [newName, converter(value)];
@@ -300,9 +306,13 @@ async function convertParam (providerId, key, value) {
 async function convertParams (providerId, params = {}) {
   try {
     // async map to do all param conversions in parallel
-    const converted = await Promise.map(Object.entries(params), async ([k, v]) => {
-      return convertParam(providerId, k, v);
-    });
+    const converted = await Promise.reduce(Object.entries(params), async (result, [k, v]) => {
+      const param = await convertParam(providerId, k, v);
+      if (param.length === 2) {
+        result.push(param);
+      }
+      return result;
+    }, []);
     logger.debug(`Params: ${JSON.stringify(params)}`);
     logger.debug(`Converted Params: ${JSON.stringify(converted)}`);
     return Object.assign({ provider: providerId }, fromEntries(converted));

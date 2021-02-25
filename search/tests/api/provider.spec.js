@@ -136,7 +136,7 @@ describe('getProvider', () => {
           {
             rel: 'root',
             href: 'http://example.com/stac/',
-            title: 'CMR-STAC Root catalog',
+            title: 'Root catalog',
             type: 'application/json'
           },
           {
@@ -190,7 +190,7 @@ describe('getProvider', () => {
           {
             rel: 'root',
             href: 'http://example.com/cloudstac/',
-            title: 'CMR-CLOUDSTAC Root catalog',
+            title: 'Root catalog',
             type: 'application/json'
           },
           {

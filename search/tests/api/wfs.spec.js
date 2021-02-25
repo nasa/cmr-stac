@@ -9,8 +9,8 @@ const exampleData = require('../example-data');
 const {
   getCollections,
   getCollection,
-  getGranules,
-  getGranule,
+  getItems,
+  getItem,
   getCatalog
 } = require('../../lib/api/wfs');
 const { logger } = require('../../lib/util');
@@ -37,7 +37,7 @@ describe('wfs routes', () => {
     });
     response = createMockResponse();
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
-    mockFunction(cmr, 'convertParams', {});
+    mockFunction(cmr, 'convertParams', Promise.resolve({ collection_concept_id: '111' }));
     mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: exampleData.cmrGrans.length }));
     mockFunction(cmr, 'getGranuleTemporalFacets',
       { years: ['2001', '2002'], months: ['05', '06'], days: ['20', '21'], itemids: ['test1'] });
@@ -124,7 +124,7 @@ describe('wfs routes', () => {
 
       describe('when no collection is found', () => {
         beforeEach(() => {
-          mockFunction(cmr, 'findCollections', Promise.resolve(null));
+          mockFunction(cmr, 'findCollections', Promise.resolve([]));
         });
 
         afterEach(() => {
@@ -155,7 +155,7 @@ describe('wfs routes', () => {
 
       describe('when no collection is found', () => {
         beforeEach(() => {
-          mockFunction(cmr, 'findCollections', Promise.resolve(null));
+          mockFunction(cmr, 'findCollections', Promise.resolve([]));
         });
 
         afterEach(() => {
@@ -166,18 +166,18 @@ describe('wfs routes', () => {
           await getCollection(request, response);
           expect(response.getData()).toEqual({
             status: 404,
-            json: 'Cloud holding collection [1.v1] not found for provider [LPDAAC]'
+            json: 'Collection [1.v1] not found for provider [LPDAAC]'
           });
         });
       });
     });
   });
 
-  describe('getGranules', () => {
+  describe('getItems', () => {
     describe('within /stac', () => {
       it('should generate a item collection response.', async () => {
         request.apiGateway.event.httpMethod = 'GET';
-        await getGranules(request, response);
+        await getItems(request, response);
         response.expect({
           type: 'FeatureCollection',
           stac_version: settings.stac.version,
@@ -203,10 +203,10 @@ describe('wfs routes', () => {
       });
 
       it('should generate a item collection response with a next link.', async () => {
+        request.apiGateway.event.multiValueQueryStringParameters = { limit: [2] };
         request.apiGateway.event.httpMethod = 'GET';
-        request.query.limit = 2;
         mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
-        await getGranules(request, response);
+        await getItems(request, response);
         response.expect({
           type: 'FeatureCollection',
           stac_version: settings.stac.version,
@@ -220,7 +220,7 @@ describe('wfs routes', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com'
+              href: 'http://example.com?limit=2'
             },
             {
               rel: 'root',
@@ -237,9 +237,8 @@ describe('wfs routes', () => {
       });
 
       it('should generate an item collection response with a prev link.', async () => {
-        request.apiGateway.event.queryStringParameters = { page: 2 };
-        request.query.page = 2;
-        await getGranules(request, response);
+        request.apiGateway.event.multiValueQueryStringParameters = { page: [2] };
+        await getItems(request, response);
         response.expect({
           type: 'FeatureCollection',
           stac_version: settings.stac.version,
@@ -279,7 +278,7 @@ describe('wfs routes', () => {
       });
       it('should generate a item collection response.', async () => {
         request.apiGateway.event.httpMethod = 'GET';
-        await getGranules(request, response);
+        await getItems(request, response);
         response.expect({
           type: 'FeatureCollection',
           stac_version: settings.stac.version,
@@ -305,10 +304,10 @@ describe('wfs routes', () => {
       });
 
       it('should generate a item collection response with a next link.', async () => {
+        request.apiGateway.event.multiValueQueryStringParameters = { limit: [2] };
         request.apiGateway.event.httpMethod = 'GET';
-        request.query.limit = 2;
         mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
-        await getGranules(request, response);
+        await getItems(request, response);
         response.expect({
           type: 'FeatureCollection',
           stac_version: settings.stac.version,
@@ -322,7 +321,7 @@ describe('wfs routes', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com'
+              href: 'http://example.com?limit=2'
             },
             {
               rel: 'root',
@@ -339,9 +338,8 @@ describe('wfs routes', () => {
       });
 
       it('should generate an item collection response with a prev link.', async () => {
-        request.apiGateway.event.queryStringParameters = { page: 2 };
-        request.query.page = 2;
-        await getGranules(request, response);
+        request.apiGateway.event.multiValueQueryStringParameters = { page: [2] };
+        await getItems(request, response);
         response.expect({
           type: 'FeatureCollection',
           stac_version: settings.stac.version,
@@ -373,10 +371,10 @@ describe('wfs routes', () => {
     });
   });
 
-  describe('getGranule', () => {
+  describe('getItem', () => {
     describe('within /stac', () => {
       it('should generate an item response.', async () => {
-        await getGranule(request, response);
+        await getItem(request, response);
         response.expect(exampleData.stacGrans[0]);
       });
     });
@@ -388,7 +386,7 @@ describe('wfs routes', () => {
         settings.cmrStacRelativeRootUrl = '/stac';
       });
       it('should generate an item response.', async () => {
-        await getGranule(request, response);
+        await getItem(request, response);
         response.expect(exampleData.cloudstacGrans[0]);
       });
     });
