@@ -1,4 +1,4 @@
-service: "cmr-${opt:cmr-stac-name}-api"
+service: "cmr-${self:custom.cmrStacName}-service"
 
 provider:
   name: aws
@@ -44,7 +44,7 @@ resources:
     cmrStacRole:
       Type: AWS::IAM::Role
       Properties:
-        RoleName: cmrStacRole-${opt:cmr-stac-name}-${opt:stage}
+        RoleName: cmrStacRole-${self:custom.cmrStacName}-${opt:stage}
         PermissionsBoundary: arn:aws:iam::#{AWS::AccountId}:policy/NGAPShRoleBoundary
         ManagedPolicyArns:
           - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
