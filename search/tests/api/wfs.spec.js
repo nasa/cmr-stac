@@ -228,7 +228,7 @@ describe('wfs routes', () => {
             },
             {
               rel: 'next',
-              href: 'http://example.com?limit=2&collections=1.v1&page=2',
+              href: 'http://example.com?limit=2&page=2',
               method: 'GET'
             }
           ],
@@ -261,7 +261,7 @@ describe('wfs routes', () => {
             {
               rel: 'prev',
               method: 'GET',
-              href: 'http://example.com?page=1&collections=1.v1'
+              href: 'http://example.com?page=1'
             }
           ],
           features: exampleData.stacGrans
@@ -329,7 +329,7 @@ describe('wfs routes', () => {
             },
             {
               rel: 'next',
-              href: 'http://example.com?limit=2&collections=1.v1&page=2',
+              href: 'http://example.com?limit=2&page=2',
               method: 'GET'
             }
           ],
@@ -362,7 +362,7 @@ describe('wfs routes', () => {
             {
               rel: 'prev',
               method: 'GET',
-              href: 'http://example.com?page=1&collections=1.v1'
+              href: 'http://example.com?page=1'
             }
           ],
           features: exampleData.cloudstacGrans

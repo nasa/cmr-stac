@@ -197,16 +197,22 @@ async function getItems (request, response) {
   const event = request.apiGateway.event;
 
   const { fields, ...params } = extractParams(request);
-
+  let cmrCollectionId;
   try {
     if (collectionId) {
-      const cmrCollectionId = cmr.stacIdToCmrCollectionId(providerId, collectionId);
+      cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, collectionId);
       if (!cmrCollectionId) {
         return response
           .status(404)
           .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
       } else {
-        params.collections = [collectionId];
+        //collections param not allowed.
+        //when the search is already on a specific collectionId.
+        if (params.collections) {
+          return response
+          .status(404)
+          .json(`Can not have collections param when there is collectionId [${collectionId}] specified.`);
+        }
       }
     }
 
@@ -216,16 +222,27 @@ async function getItems (request, response) {
     let granulesResult = { granules: [], hits: 0 };
     const collectionsRequested = _.has(params, 'collections');
     const validCollections = _.has(cmrParams, 'collection_concept_id');
+
+    let collectionConceptIds;
+
+    //We only call findGranules if the user specifies some valid collections,
+    //or doesn't specify any collections in the query.
     if ((collectionsRequested && validCollections) || (!collectionsRequested)) {
       // if collections param provided, check that not all were filtered out as invalid
       if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
         // Preserve collection_concept_id and concept_id in cmrParams before deleting.
         // After checking collection_concept_ids being cloud holding collections, they
         // will be added back one by one because of POST search request requirement.
-        const collectionConceptIds = cmrParams.collection_concept_id;
+        collectionConceptIds = cmrParams.collection_concept_id;
         const conceptIds = cmrParams.concept_id;
         delete cmrParams.collection_concept_id;
         delete cmrParams.concept_id;
+
+        //When this is to findGranules for a particular collection,
+        //this collection's cmrCollectionId is the only collectionId in collectionConceptIds.
+        if (cmrCollectionId) {
+          collectionConceptIds = [cmrCollectionId];
+        }
 
         // Find all the cloud holding collections applicable
         // i.e. if collection_concept_ids are present, we will get all the cloud holding collections within these ids.
@@ -244,6 +261,10 @@ async function getItems (request, response) {
         }
         granulesResult = await cmr.findGranules(postSearchParams);
       } else {
+        //When this is to findGranules for a particular collection.
+        if (cmrCollectionId) {
+          cmrParams.collection_concept_id = [cmrCollectionId];
+        }
         granulesResult = await cmr.findGranules(cmrParams);
       }
     }
@@ -322,7 +343,7 @@ async function getCatalog (request, response) {
   // validate collection
   // This is the case for http://localhost:3000/cloudstac/GHRC_DAAC/collections/lislip.v4/1998
   // We need to make sure collection listlip.v4 is a cloud holding collection.
-  const cmrCollectionId = cmr.stacIdToCmrCollectionId(providerId, collectionId);
+  const cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, collectionId);
   if (!cmrCollectionId) {
     return response
       .status(404)
