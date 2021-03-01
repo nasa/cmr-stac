@@ -35,31 +35,28 @@ Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
 async function getCollections (request, response) {
   try {
     logger.info(`GET ${request.params.providerId}/collections`);
+    const pageSize = Number(request.query.limit || 10);
     const event = request.apiGateway.event;
 
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
     const provider = request.params.providerId;
 
-    let params, rootName, description;
+    let rootName, description;
+    // request.query is Used for pagination.
+    const cmrParams = await cmr.convertParams(provider, request.query);
+
     if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-      params = Object.assign(
-        { tag_key: 'gov.nasa.earthdatacloud.s3' },
-        // request.query is used for pagination
-        await cmr.convertParams(provider, request.query)
-      );
+      // Query params to get cloud holdings for the provider.
+      Object.assign(cmrParams, { tag_key: 'gov.nasa.earthdatacloud.s3' });
       rootName = 'CMR-CLOUDSTAC Root';
       description = `All cloud holding collections provided by ${provider}`;
     } else {
-      params = Object.assign(
-        // request.query is used for pagination
-        await cmr.convertParams(provider, request.query)
-      );
       rootName = 'CMR-STAC Root';
       description = `All collections provided by ${provider}`;
     }
 
-    const collections = await cmr.findCollections(params);
+    const collections = await cmr.findCollections(cmrParams);
 
     const collectionsResponse = {
       id: provider,
@@ -81,7 +78,7 @@ async function getCollections (request, response) {
       });
     }
 
-    if (collectionsResponse.collections.length === 10) {
+    if (collectionsResponse.collections.length === pageSize) {
       collectionsResponse.links.push({
         rel: 'next',
         href: nextResultsLink
@@ -200,15 +197,21 @@ async function getItems (request, response) {
   const event = request.apiGateway.event;
 
   const { fields, ...params } = extractParams(request);
-
   try {
     if (collectionId) {
-      const cmrCollectionId = cmr.stacIdToCmrCollectionId(providerId, collectionId);
+      const cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, collectionId);
       if (!cmrCollectionId) {
         return response
           .status(404)
           .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
       } else {
+        //collections param not allowed.
+        //when the search is already on a specific collectionId.
+        if (params.collections) {
+          return response
+          .status(404)
+          .json(`Can not have collections param when there is collectionId [${collectionId}] specified.`);
+        }
         params.collections = [collectionId];
       }
     }
@@ -219,6 +222,7 @@ async function getItems (request, response) {
     let granulesResult = { granules: [], hits: 0 };
     const collectionsRequested = _.has(params, 'collections');
     const validCollections = _.has(cmrParams, 'collection_concept_id');
+
     if ((collectionsRequested && validCollections) || (!collectionsRequested)) {
       // if collections param provided, check that not all were filtered out as invalid
       if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
@@ -249,6 +253,11 @@ async function getItems (request, response) {
       } else {
         granulesResult = await cmr.findGranules(cmrParams);
       }
+    }
+
+    if (collectionId) {
+      //remove the params.collections added.
+      delete params.collections;
     }
 
     // convert CMR Granules to STAC Items
@@ -325,7 +334,7 @@ async function getCatalog (request, response) {
   // validate collection
   // This is the case for http://localhost:3000/cloudstac/GHRC_DAAC/collections/lislip.v4/1998
   // We need to make sure collection listlip.v4 is a cloud holding collection.
-  const cmrCollectionId = cmr.stacIdToCmrCollectionId(providerId, collectionId);
+  const cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, collectionId);
   if (!cmrCollectionId) {
     return response
       .status(404)

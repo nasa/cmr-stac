@@ -9,6 +9,7 @@ async function getProvider (request, response) {
   try {
     const providerId = request.params.providerId;
     logger.info(`GET /${providerId}`);
+    const pageSize = Number(request.query.limit || 10);
     const event = request.apiGateway.event;
 
     // validate that providerId is valid
@@ -62,7 +63,7 @@ async function getProvider (request, response) {
       });
     }
 
-    if (providerHoldings.length === 10) {
+    if (providerHoldings.length === pageSize) {
       provider.links.push({
         rel: 'next',
         href: nextResultsLink
