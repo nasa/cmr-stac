@@ -35,7 +35,7 @@ Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
 async function getCollections (request, response) {
   try {
     logger.info(`GET ${request.params.providerId}/collections`);
-    const pageSize = request.query.limit || 10;
+    const pageSize = Number(request.query.limit || 10);
     const event = request.apiGateway.event;
 
     const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
@@ -78,7 +78,7 @@ async function getCollections (request, response) {
       });
     }
 
-    if (collectionsResponse.collections.length === Number(pageSize)) {
+    if (collectionsResponse.collections.length === pageSize) {
       collectionsResponse.links.push({
         rel: 'next',
         href: nextResultsLink
@@ -197,10 +197,9 @@ async function getItems (request, response) {
   const event = request.apiGateway.event;
 
   const { fields, ...params } = extractParams(request);
-  let cmrCollectionId;
   try {
     if (collectionId) {
-      cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, collectionId);
+      const cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, collectionId);
       if (!cmrCollectionId) {
         return response
           .status(404)
@@ -213,6 +212,7 @@ async function getItems (request, response) {
           .status(404)
           .json(`Can not have collections param when there is collectionId [${collectionId}] specified.`);
         }
+        params.collections = [collectionId];
       }
     }
 
@@ -223,26 +223,16 @@ async function getItems (request, response) {
     const collectionsRequested = _.has(params, 'collections');
     const validCollections = _.has(cmrParams, 'collection_concept_id');
 
-    let collectionConceptIds;
-
-    //We only call findGranules if the user specifies some valid collections,
-    //or doesn't specify any collections in the query.
     if ((collectionsRequested && validCollections) || (!collectionsRequested)) {
       // if collections param provided, check that not all were filtered out as invalid
       if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
         // Preserve collection_concept_id and concept_id in cmrParams before deleting.
         // After checking collection_concept_ids being cloud holding collections, they
         // will be added back one by one because of POST search request requirement.
-        collectionConceptIds = cmrParams.collection_concept_id;
+        const collectionConceptIds = cmrParams.collection_concept_id;
         const conceptIds = cmrParams.concept_id;
         delete cmrParams.collection_concept_id;
         delete cmrParams.concept_id;
-
-        //When this is to findGranules for a particular collection,
-        //this collection's cmrCollectionId is the only collectionId in collectionConceptIds.
-        if (cmrCollectionId) {
-          collectionConceptIds = [cmrCollectionId];
-        }
 
         // Find all the cloud holding collections applicable
         // i.e. if collection_concept_ids are present, we will get all the cloud holding collections within these ids.
@@ -261,12 +251,13 @@ async function getItems (request, response) {
         }
         granulesResult = await cmr.findGranules(postSearchParams);
       } else {
-        //When this is to findGranules for a particular collection.
-        if (cmrCollectionId) {
-          cmrParams.collection_concept_id = [cmrCollectionId];
-        }
         granulesResult = await cmr.findGranules(cmrParams);
       }
+    }
+
+    if (collectionId) {
+      //remove the params.collections added.
+      delete params.collections;
     }
 
     // convert CMR Granules to STAC Items
