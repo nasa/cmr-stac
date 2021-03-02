@@ -215,8 +215,8 @@ describe('getProvider', () => {
         stac_version: settings.stac.version,
         links: [
           {
-            "rel": "next",
-            "href": "http://example.com?page=2" 
+            rel: 'next',
+            href: 'http://example.com?page=2'
           }
         ]
       };

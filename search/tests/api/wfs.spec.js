@@ -205,6 +205,8 @@ describe('wfs routes', () => {
       it('should generate a item collection response with a next link.', async () => {
         request.apiGateway.event.multiValueQueryStringParameters = { limit: [2] };
         request.apiGateway.event.httpMethod = 'GET';
+        request.apiGateway.event.queryStringParameters = { limit: 2 };
+        request.query.limit = 2;
         mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
         await getItems(request, response);
         response.expect({
@@ -237,6 +239,8 @@ describe('wfs routes', () => {
       });
 
       it('should generate an item collection response with a prev link.', async () => {
+        request.apiGateway.event.queryStringParameters = { page: 2 };
+        request.query.page = 2;
         request.apiGateway.event.multiValueQueryStringParameters = { page: [2] };
         await getItems(request, response);
         response.expect({
@@ -306,6 +310,8 @@ describe('wfs routes', () => {
       it('should generate a item collection response with a next link.', async () => {
         request.apiGateway.event.multiValueQueryStringParameters = { limit: [2] };
         request.apiGateway.event.httpMethod = 'GET';
+        request.apiGateway.event.queryStringParameters = { limit: 2 };
+        request.query.limit = 2;
         mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 10 }));
         await getItems(request, response);
         response.expect({
@@ -338,6 +344,8 @@ describe('wfs routes', () => {
       });
 
       it('should generate an item collection response with a prev link.', async () => {
+        request.apiGateway.event.queryStringParameters = { page: 2 };
+        request.query.page = 2;
         request.apiGateway.event.multiValueQueryStringParameters = { page: [2] };
         await getItems(request, response);
         response.expect({
