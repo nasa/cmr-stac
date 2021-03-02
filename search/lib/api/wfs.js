@@ -170,16 +170,7 @@ function extractParams (request) {
 
   let params;
   if (method === 'GET') {
-    const arrayParameters = ['collections', 'ids'];
-    const multiParams = event.multiValueQueryStringParameters || {};
-    const _params = Object.entries(multiParams).map(([k, v]) => {
-      if (arrayParameters.includes(k)) {
-        return [k, v];
-      } else {
-        return [k, v[0]];
-      }
-    });
-    params = stacExtension.prepare(Object.fromEntries(_params));
+    params = stacExtension.prepare(request.query);
   } else if (method === 'POST') {
     params = stacExtension.prepare(request.body);
   } else {
@@ -205,12 +196,12 @@ async function getItems (request, response) {
           .status(404)
           .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
       } else {
-        //collections param not allowed.
-        //when the search is already on a specific collectionId.
+        // collections param not allowed.
+        // when the search is already on a specific collectionId.
         if (params.collections) {
           return response
-          .status(404)
-          .json(`Can not have collections param when there is collectionId [${collectionId}] specified.`);
+            .status(404)
+            .json(`Can not have collections param when there is collectionId [${collectionId}] specified.`);
         }
         params.collections = [collectionId];
       }
@@ -256,7 +247,7 @@ async function getItems (request, response) {
     }
 
     if (collectionId) {
-      //remove the params.collections added.
+      // remove the params.collections added.
       delete params.collections;
     }
 
