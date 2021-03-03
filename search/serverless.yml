@@ -1,4 +1,4 @@
-service: "cmr-${self:custom.cmrStacName}-service"
+service: "cmr-${self:custom.cmrStacName}-api"
 
 provider:
   name: aws
