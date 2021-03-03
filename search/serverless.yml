@@ -25,7 +25,7 @@ functions:
     events:
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
-          priority: 83
+          priority: ${opt:cmr-lb-priority}
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
     logSubscription: true
