@@ -1,0 +1,3 @@
+pystac
+httpx
+asyncio
