@@ -16,6 +16,17 @@ custom:
   cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
+  docsBucket: cmr-stac-static-s3-bucket-${opt:stage} 
+  assets:
+    targets:
+      - bucket:
+          Ref: cmrStacDocsBucket
+        acl: public
+        empty: true
+        prefix: docs 
+        files:
+          - source: ./docs/
+            globs: '**/index.html'
 
 functions:
   search-api:
@@ -57,6 +68,13 @@ resources:
                   - "lambda.amazonaws.com"
               Action:
                 - "sts:AssumeRole"
+    cmrStacDocsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.docsBucket}
+        AccessControl: PublicRead
+
 plugins:
   - serverless-pseudo-parameters
   - serverless-plugin-log-subscription
+  - serverless-s3-deploy
