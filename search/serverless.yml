@@ -10,7 +10,12 @@ provider:
     securityGroupIds:
       - ${cf:${opt:stage}.servicesSecurityGroupId}
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
-
+  iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "s3:*"
+        Resource:
+          - { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "cmrStacDocsBucket" } ]]}
 custom:
   cmrStacName: ${opt:cmr-stac-name}
   cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
