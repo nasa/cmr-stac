@@ -71,7 +71,6 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.docsBucket}
-        AccessControl: PublicRead
 
 plugins:
   - serverless-pseudo-parameters
