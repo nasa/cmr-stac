@@ -25,7 +25,6 @@
     "jest": "^24.9.0",
     "jest-junit": "^12.0.0",
     "serverless": "^1.49.0",
-    "serverless-offline": "^5.8.0",
-    "serverless-s3-deploy": "^0.10.0"
+    "serverless-offline": "^5.8.0"
   }
 }
