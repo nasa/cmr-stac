@@ -71,19 +71,7 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.docsBucket}
-    cmrStacDocsBucketAllowPublicReadPolicy:
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket: !Ref cmrStacDocsBucket 
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement: 
-            - Effect: Allow
-              Action: 
-                - "s3:GetObject"
-              Resource: 
-                - !Join ['/', [!Ref cmrStacDocsBucket, 'public']]
-              Principal: "*"
+        AccessControl: PublicRead
 
 plugins:
   - serverless-pseudo-parameters
