@@ -80,7 +80,7 @@ resources:
           Statement: 
             - Effect: Allow
               Action: 
-                - "s3:*"
+                - "s3:GetObject"
               Resource: 
                 - !Join ['/', [!Ref cmrStacDocsBucket, 'public']]
               Principal: "*"
