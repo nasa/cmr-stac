@@ -36,8 +36,8 @@
   "scripts": {
     "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline --config serverless-offline.yml",
     "start": "IS_LOCAL=true sls offline --config serverless-offline.yml",
-    "deploy": "serverless deploy --config serverless.yml",
-    "deploy-docs": "serverless s3deploy --config serverless.yml",
+    "deploy": "sls deploy -v --config serverless.yml",
+    "deploy-docs": "sls s3deploy -v --config serverless.yml",
     "remove": "sls remove --config serverless.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
     "test": "jest --env=node",
