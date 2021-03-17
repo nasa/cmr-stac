@@ -71,9 +71,21 @@ resources:
     cmrStacDocsBucket:
       Type: AWS::S3::Bucket
       Properties:
-        PermissionsBoundary: arn:aws:iam::#{AWS::AccountId}:policy/NGAPShRoleBoundary
         BucketName: ${self:custom.docsBucket}
         AccessControl: PublicRead
+    cmrStacDocsBucketAllowPublicReadPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref cmrStacDocsBucket 
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement: 
+            - Effect: Allow
+              Action: 
+                - "s3:*"
+              Resource: 
+                - !Join ['/', [!Ref cmrStacDocsBucket, 'public']]
+              Principal: "*"
 
 plugins:
   - serverless-pseudo-parameters
