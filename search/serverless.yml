@@ -21,7 +21,8 @@ custom:
     targets:
       - bucket:
           Ref: cmrStacDocsBucket
-        empty: false 
+        empty: true
+        prefix: docs
         files:
           - source: ./docs/
             globs: '**/index.html'
