@@ -45,10 +45,10 @@ functions:
           priority: ${opt:cmr-lb-priority, 83}
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
-      - existingS3:
+      - s3:
           bucket: cmr-stac-static-bucket-${opt:stage}  
-          events:
-            - s3:ObjectCreated:*
+          event:  s3:ObjectCreated:*
+          existing: true
     logSubscription: true
     environment:
       CMR_SEARCH_HOST: ${opt:cmr-search-host, 'cmr.earthdata.nasa.gov/search'}
