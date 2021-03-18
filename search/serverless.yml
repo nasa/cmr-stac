@@ -10,6 +10,15 @@ provider:
     securityGroupIds:
       - ${cf:${opt:stage}.servicesSecurityGroupId}
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
+  iamRoleStatements:
+    ...
+    -  Effect: "Allow"
+       Action:
+         - "s3:PutBucketNotification"
+       Resource:
+         Fn::Join:
+           - ""
+           - - "*"
 
 custom:
   cmrStacName: ${opt:cmr-stac-name}
@@ -38,6 +47,10 @@ functions:
           priority: ${opt:cmr-lb-priority, 83}
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
+      - existingS3:
+          bucket: cmr-stac-static-bucket-${opt:stage}  
+          events:
+            - s3:ObjectCreated:*
     logSubscription: true
     environment:
       CMR_SEARCH_HOST: ${opt:cmr-search-host, 'cmr.earthdata.nasa.gov/search'}
@@ -76,3 +89,4 @@ plugins:
   - serverless-pseudo-parameters
   - serverless-plugin-log-subscription
   - serverless-s3-deploy
+  - serverless-plugin-existing-s3
