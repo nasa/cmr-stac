@@ -10,16 +10,6 @@ provider:
     securityGroupIds:
       - ${cf:${opt:stage}.servicesSecurityGroupId}
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
-  iamRoleStatements:
-    ...
-    -  Effect: "Allow"
-       Action:
-         - "s3:PutBucketNotification"
-       Resource:
-         Fn::Join:
-           - ""
-           - - "*"
-
 custom:
   cmrStacName: ${opt:cmr-stac-name}
   cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
@@ -40,6 +30,14 @@ functions:
   search-api:
     name: cmr-${self:custom.cmrStacName}-${opt:stage}
     handler: lib/application.handler
+    iamRoleStatements:
+    -  Effect: "Allow"
+       Action:
+         - "s3:PutBucketNotification"
+       Resource:
+         Fn::Join:
+           - ""
+           - - "arn:aws:s3:::cmr-stac-static-bucket-${opt:stage}"
     timeout: 6
     events:
       - alb:
@@ -90,3 +88,4 @@ plugins:
   - serverless-plugin-log-subscription
   - serverless-s3-deploy
   - serverless-plugin-existing-s3
+  - serverless-iam-roles-per-function
