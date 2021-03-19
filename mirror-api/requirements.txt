@@ -1,3 +1,5 @@
 pystac
 httpx
 asyncio
+boto3
+requests
