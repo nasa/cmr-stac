@@ -10,12 +10,21 @@ provider:
     securityGroupIds:
       - ${cf:${opt:stage}.servicesSecurityGroupId}
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
-
 custom:
   cmrStacName: ${opt:cmr-stac-name}
   cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
+  docsBucket: cmr-stac-static-bucket-${opt:stage}
+  assets:
+    targets:
+      - bucket:
+          Ref: cmrStacDocsBucket
+        empty: true
+        prefix: docs
+        files:
+          - source: ./docs/
+            globs: '**/index.html'
 
 functions:
   search-api:
@@ -57,6 +66,12 @@ resources:
                   - "lambda.amazonaws.com"
               Action:
                 - "sts:AssumeRole"
+    cmrStacDocsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.docsBucket}
+
 plugins:
   - serverless-pseudo-parameters
   - serverless-plugin-log-subscription
+  - serverless-s3-deploy
