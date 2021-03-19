@@ -17,6 +17,7 @@ from pdb import set_trace
 
 logger = logging.getLogger(__name__)
 
+
 def s3_read(uri):
     parsed = urlparse(uri)
     if parsed.scheme == 's3':
@@ -91,6 +92,11 @@ def hits(url, params):
 # make single page query and add resulting items to collection
 async def query_items_page(collection, url, client, semaphore, params={}, item_template="${year}/${month}/${day}"):
     page = params.get('page', 1)
+
+    strategy = layout.BestPracticesLayoutStrategy()
+    colpath = os.path.dirname(collection.get_self_href())
+    _root_path = os.path.dirname(collection.get_root().get_self_href())
+
     async with semaphore:
         logger.debug(f"{dt.datetime.now()}: Requesting page {page}")
         try:
@@ -100,21 +106,18 @@ async def query_items_page(collection, url, client, semaphore, params={}, item_t
         items = resp.json()['features']
         logger.debug(f"{dt.datetime.now()}: Retrieved page {page}")
         [collection.add_item(Item.from_dict(i)) for i in items]
-        # create/assign to subcatalogs as needed
-        collection.generate_subcatalogs(item_template)
         return len(items)
 
 
 # run all async queries
 async def query_items(collection, url, params, max_sync_queries=10, item_template="${year}/${month}/${day}"):
     found = hits(url, params)
-    logger.info(f"Found {found} items")
     limit = params['limit']
-
     semaphore = asyncio.Semaphore(max_sync_queries)
 
     total_pages = math.ceil(found / limit)
-    logger.info(f"{total_pages} total pages")
+    logger.info(f"Found {found} items ({total_pages} pages)")
+
     queries = []
     transport = httpx.AsyncHTTPTransport(retries=3)
     limits = httpx.Limits(max_keepalive_connections=None, max_connections=5000)
@@ -129,13 +132,21 @@ async def query_items(collection, url, params, max_sync_queries=10, item_templat
 
 
 # Copy items from API into collection
-async def mirror_items(collection, url, params, **kwargs):
+async def mirror_items(collection, url, params,  item_template="${year}/${month}/${day}", **kwargs):
     await query_items(collection, url, params, **kwargs)
 
-    path = os.path.dirname(collection.get_self_href())
-    col = collection.normalize_and_save(path, CatalogType.RELATIVE_PUBLISHED)
-    logger.info(f"{dt.datetime.now()}: Collection saved to {collection.get_self_href()}")
+    start = dt.datetime.now()
+    # create/assign to subcatalogs as needed
+    subcats = collection.generate_subcatalogs(item_template)
+    logger.info(f"{collection.id}: generated {len(subcats)} subcatalogs in {dt.datetime.now()-start}")
 
+    path = os.path.dirname(collection.get_self_href())
+    start = dt.datetime.now()
+    collection.normalize_hrefs(path)
+    logger.info(f"{collection.id}: normalized in {dt.datetime.now()-start}")
+    start = dt.datetime.now()
+    col = collection.normalize_and_save(path)
+    logger.info(f"{collection.id}: saved in {dt.datetime.now()-start}")
 
 def mirror_collections(url, path='', **kwargs):
     API_RELS = ['search', 'collections', 'next']
@@ -161,6 +172,7 @@ def mirror_collections(url, path='', **kwargs):
     [cat.remove_child(c.id) for c in empty_children]
 
     logger.info(f"{total_items} total Items found")
+    cat.catalog_type = CatalogType.RELATIVE_PUBLISHED
 
     return cat
 
@@ -203,9 +215,9 @@ async def cli():
     if cmd == 'create':
         # create initial catalog through to collections
         cat = mirror_collections(args['url'], args['path'])
-        cat.normalize_and_save(args['path'], CatalogType.RELATIVE_PUBLISHED)
+        cat.normalize_and_save(args['path'])
     elif cmd == 'update':
-        cat = Catalog.from_file(args['cat'])
+        cat = Catalog.from_file(args['cat'], )
         collection = cat.get_child(args['provider']).get_child(args['collection'])
         
         url = f"{args['url']}/{args['provider']}/collections/{args['collection']}/items"
