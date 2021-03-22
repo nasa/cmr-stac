@@ -9,7 +9,7 @@
   "dependencies": {
     "ajv": "6.12.3",
     "aws-serverless-express": "3.3.6",
-    "axios": "0.18.1",
+    "axios": "0.21.1",
     "bluebird": "^3.7.2",
     "cors": "^2.8.5",
     "express": "4.17.1",
