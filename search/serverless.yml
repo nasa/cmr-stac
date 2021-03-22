@@ -15,7 +15,7 @@ custom:
   cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
-  docsBucket: cmr-stac-static-bucket-${opt:stage}
+  docsBucket: cmr-stac-docs-bucket-${opt:stage}
   assets:
     targets:
       - bucket:
