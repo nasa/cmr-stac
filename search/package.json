@@ -9,7 +9,7 @@
   "dependencies": {
     "ajv": "6.12.3",
     "aws-serverless-express": "3.3.6",
-    "axios": "0.18.1",
+    "axios": "0.21.1",
     "bluebird": "^3.7.2",
     "cors": "^2.8.5",
     "express": "4.17.1",
@@ -27,8 +27,8 @@
     "jest-junit": "^10.0.0",
     "lint-staged": "^9.2.3",
     "redoc-cli": "^0.9.12",
-    "serverless": "^1.49.0",
-    "serverless-offline": "^5.8.0",
+    "serverless": "^2.31.0",
+    "serverless-offline": "^6.8.0",
     "serverless-plugin-log-subscription": "^1.2.0",
     "serverless-pseudo-parameters": "^2.5.0",
     "serverless-s3-deploy": "^0.10.0"

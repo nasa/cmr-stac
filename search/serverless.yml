@@ -2,7 +2,7 @@ service: "cmr-${self:custom.cmrStacName}-api"
 
 provider:
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs14.x
   region: us-east-1
   role: cmrStacRole
   deploymentBucket: ${cf:${opt:stage}.cmrStacDeploymentBucket}
