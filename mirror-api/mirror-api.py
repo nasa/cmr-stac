@@ -9,6 +9,7 @@ import requests
 import sys
 from urllib.parse import urlparse
 
+import aioboto3
 import asyncio
 import httpx
 from dateutil.parser import parse
@@ -30,16 +31,17 @@ def s3_read(uri):
         return STAC_IO.default_read_text_method(uri)
 
 
-def s3_write(uri, txt):
+async def s3_write(uri, txt):
     parsed = urlparse(uri)
     if parsed.scheme == 's3':
         bucket = parsed.netloc
         key = parsed.path[1:]
-        s3 = boto3.resource("s3")
-        s3.Object(bucket, key).put(Body=txt)
-        logger.debug(f"Wrote {key}")
+        async with aioboto3.resource("s3") as s3:
+            obj = await s3.Object(bucket, key)
+            await obj.put(Body=txt)
+        #ogger.debug(f"Wrote {key}")
     else:
-        STAC_IO.default_write_text_method(uri, txt)
+        await STAC_IO.default_write_text_method(uri, txt)
 
 STAC_IO.read_text_method = s3_read
 STAC_IO.write_text_method = s3_write
@@ -142,10 +144,8 @@ async def mirror_items(collection, url, params,  item_template="${year}/${month}
 
     path = os.path.dirname(collection.get_self_href())
     start = dt.datetime.now()
-    collection.normalize_hrefs(path)
-    logger.info(f"{collection.id}: normalized in {dt.datetime.now()-start}")
     start = dt.datetime.now()
-    col = collection.normalize_and_save(path)
+    col = await collection.save()
     logger.info(f"{collection.id}: saved in {dt.datetime.now()-start}")
 
 def mirror_collections(url, path='', **kwargs):
@@ -206,16 +206,15 @@ async def cli():
 
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG) #, format='%(asctime)-15s %(message)s')
     # quiet loggers
-    logging.getLogger('httpx').propagate = False
-    logging.getLogger('urllib3').propagate = False
-    logging.getLogger('botocore').propagate = False
-    logging.getLogger('boto3').propagate = False
+    for lg in ['httpx', 'urllib3', 'botocore', 'boto3', 'aioboto3', 'aiobotocore']:
+        logging.getLogger(lg).propagate = False
 
     cmd = args.pop('command')
     if cmd == 'create':
         # create initial catalog through to collections
         cat = mirror_collections(args['url'], args['path'])
-        cat.normalize_and_save(args['path'])
+        cat.normalize_hrefs(args['path'])
+        await cat.save()
     elif cmd == 'update':
         cat = Catalog.from_file(args['cat'], )
         collection = cat.get_child(args['provider']).get_child(args['collection'])
