@@ -1,5 +1,7 @@
-pystac
-httpx
 asyncio
+aioboto3
+aiofiles
 boto3
+httpx
+git+git:/github.com/stac-utils/pystac@mah/async
 requests
