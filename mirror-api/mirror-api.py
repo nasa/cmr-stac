@@ -7,7 +7,8 @@ import logging
 import os
 import requests
 import sys
-from urllib.parse import urlparse
+from copy import deepcopy
+from urllib.parse import urlparse, urlencode
 
 import aioboto3
 import asyncio
@@ -83,11 +84,10 @@ def split_dates(params, nbatches):
 
 
 def hits(url, params):
-    _params = {
-        'limit': 0
-    }
-    _params.update(params)
-    resp = requests.get(url, params=params, timeout=None).json()
+    _params = deepcopy(params)
+    _params['limit'] = 0
+    payload_str = urlencode(_params, safe='/')
+    resp = requests.get(url, params=payload_str, timeout=None).json()
     return resp['context']['matched']
 
 
@@ -99,12 +99,14 @@ async def query_items_page(collection, url, client, semaphore, params={}, item_t
     colpath = os.path.dirname(collection.get_self_href())
     _root_path = os.path.dirname(collection.get_root().get_self_href())
 
+    payload_str = urlencode(params, safe='/')
+
     async with semaphore:
         logger.debug(f"{dt.datetime.now()}: Requesting page {page}")
         try:
-            resp = await client.get(url, params=params)
+            resp = await client.get(url, params=payload_str)
         except:
-            resp = await client.get(url, params=params)
+            resp = await client.get(url, params=payload_str)
         items = resp.json()['features']
         logger.debug(f"{dt.datetime.now()}: Retrieved page {page}")
         [collection.add_item(Item.from_dict(i)) for i in items]
@@ -231,4 +233,4 @@ async def cli():
 
 
 if __name__ == "__main__":
-    asyncio.run(cli()) 
+    asyncio.run(cli())
