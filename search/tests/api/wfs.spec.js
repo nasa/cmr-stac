@@ -60,6 +60,7 @@ describe('wfs routes', () => {
           id: 'LPDAAC',
           stac_version: settings.stac.version,
           description: 'All collections provided by LPDAAC',
+          type: 'Catalog',
           links: [
             {
               href: 'http://example.com/stac/LPDAAC/collections',
@@ -93,6 +94,7 @@ describe('wfs routes', () => {
         response.expect({
           id: 'LPDAAC',
           stac_version: settings.stac.version,
+          type: 'Catalog',
           description: 'All cloud holding collections provided by LPDAAC',
           links: [
             {

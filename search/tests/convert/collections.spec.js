@@ -168,6 +168,7 @@ describe('collections', () => {
         id: 'name.vversion',
         title: 'datasetId',
         stac_version: settings.stac.version,
+        type: 'Collection',
         license: 'Apache-2.0'
       });
     });
@@ -233,6 +234,7 @@ describe('collections', () => {
         id: 'name.vversion',
         title: 'datasetId',
         stac_version: settings.stac.version,
+        type: 'Collection',
         license: 'not-provided'
       });
     });
