@@ -10,6 +10,7 @@ class Catalog {
     this.title = '';
     this.description = '';
     this.links = [];
+    this.type = 'Catalog';
   }
 
   createSelf (href) {

@@ -63,6 +63,7 @@ async function getCollections (request, response) {
       stac_version: settings.stac.version,
       description: `${description}`,
       license: 'not-provided',
+      type: 'Catalog',
       links: [
         wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
           `${description}`),
