@@ -149,14 +149,14 @@ describe('getProvider', () => {
             rel: 'search',
             href: 'http://example.com/stac/USGS_EROS/search',
             title: 'Provider Item Search',
-            type: 'application/json',
+            type: 'application/geo+json',
             method: 'GET'
           },
           {
             rel: 'search',
             href: 'http://example.com/stac/USGS_EROS/search',
             title: 'Provider Item Search',
-            type: 'application/json',
+            type: 'application/geo+json',
             method: 'POST'
           }
         ],
@@ -218,14 +218,14 @@ describe('getProvider', () => {
             rel: 'search',
             href: 'http://example.com/cloudstac/GHRC_DAAC/search',
             title: 'Provider Item Search',
-            type: 'application/json',
+            type: 'application/geo+json',
             method: 'GET'
           },
           {
             rel: 'search',
             href: 'http://example.com/cloudstac/GHRC_DAAC/search',
             title: 'Provider Item Search',
-            type: 'application/json',
+            type: 'application/geo+json',
             method: 'POST'
           }
         ],

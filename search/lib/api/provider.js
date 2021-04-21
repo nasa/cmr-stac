@@ -37,9 +37,9 @@ async function getProvider (request, response) {
       wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
         'Provider Collections'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
-        'Provider Item Search', 'application/json', 'GET'),
+        'Provider Item Search', 'application/geo+json', 'GET'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
-        'Provider Item Search', 'application/json', 'POST')
+        'Provider Item Search', 'application/geo+json', 'POST')
     ];
 
     const childLinks = await Promise.map(providerHoldings, async (collection) => {
