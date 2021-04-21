@@ -149,8 +149,23 @@ describe('getProvider', () => {
             rel: 'search',
             href: 'http://example.com/stac/USGS_EROS/search',
             title: 'Provider Item Search',
-            type: 'application/json'
+            type: 'application/json',
+            method: 'GET'
+          },
+          {
+            rel: 'search',
+            href: 'http://example.com/stac/USGS_EROS/search',
+            title: 'Provider Item Search',
+            type: 'application/json',
+            method: 'POST'
           }
+        ],
+        conformsTo: [
+          'https://api.stacspec.org/v1.0.0-beta.1/core',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
         ]
       };
       const request = createRequest({
@@ -162,7 +177,7 @@ describe('getProvider', () => {
       await getProvider(request, response);
       const dat = response.getData();
 
-      dat.json.links = dat.json.links.slice(0, 4);
+      dat.json.links = dat.json.links.slice(0, 5);
       response.expect(expectedResponse);
     });
   });
@@ -203,8 +218,23 @@ describe('getProvider', () => {
             rel: 'search',
             href: 'http://example.com/cloudstac/GHRC_DAAC/search',
             title: 'Provider Item Search',
-            type: 'application/json'
+            type: 'application/json',
+            method: 'GET'
+          },
+          {
+            rel: 'search',
+            href: 'http://example.com/cloudstac/GHRC_DAAC/search',
+            title: 'Provider Item Search',
+            type: 'application/json',
+            method: 'POST'
           }
+        ],
+        conformsTo: [
+          'https://api.stacspec.org/v1.0.0-beta.1/core',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
         ]
       };
 
@@ -218,6 +248,13 @@ describe('getProvider', () => {
             rel: 'next',
             href: 'http://example.com?page=2'
           }
+        ],
+        conformsTo: [
+          'https://api.stacspec.org/v1.0.0-beta.1/core',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
+          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
         ]
       };
       const request = createRequest({
@@ -233,9 +270,9 @@ describe('getProvider', () => {
       const dat = response.getData();
 
       const savedLinks = dat.json.links;
-      dat.json.links = dat.json.links.slice(0, 4);
+      dat.json.links = dat.json.links.slice(0, 5);
       response.expect(expectedResponse);
-      dat.json.links = savedLinks.slice(5, 6);
+      dat.json.links = savedLinks.slice(6, 7);
       response.expect(expectedResponse2);
     });
   });

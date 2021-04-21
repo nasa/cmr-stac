@@ -37,7 +37,9 @@ async function getProvider (request, response) {
       wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
         'Provider Collections'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
-        'Provider Item Search')
+        'Provider Item Search', 'application/json', 'GET'),
+      wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
+        'Provider Item Search', 'application/json', 'POST')
     ];
 
     const childLinks = await Promise.map(providerHoldings, async (collection) => {
@@ -53,7 +55,14 @@ async function getProvider (request, response) {
       title: providerId,
       description: `Root catalog for ${providerId}`,
       stac_version: settings.stac.version,
-      links: [...links, ...childLinks]
+      links: [...links, ...childLinks],
+      conformsTo: [
+        'https://api.stacspec.org/v1.0.0-beta.1/core',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
+      ]
     };
 
     if (currPage > 1 && providerHoldings.length > 1) {
