@@ -88,6 +88,7 @@ describe('getProviders', () => {
         description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
         title: 'NASA CMR STAC Proxy',
         stac_version: settings.stac.version,
+        type: 'Catalog',
         id: 'stac',
         links: expectedProviders
       });
@@ -111,6 +112,7 @@ describe('getProviders', () => {
         description: 'This is the landing page for CMR-CLOUDSTAC. Each provider link below contains a CLOUDSTAC endpoint.',
         title: 'NASA CMR CLOUDSTAC Proxy',
         stac_version: settings.stac.version,
+        type: 'Catalog',
         id: 'cloudstac',
         links: expectedCloudProviders
       });
@@ -126,6 +128,7 @@ describe('getProvider', () => {
         title: 'USGS_EROS',
         description: 'Root catalog for USGS_EROS',
         stac_version: settings.stac.version,
+        type: 'Catalog',
         links: [
           {
             rel: 'self',
@@ -180,6 +183,7 @@ describe('getProvider', () => {
         title: 'GHRC_DAAC',
         description: 'Root catalog for GHRC_DAAC',
         stac_version: settings.stac.version,
+        type: 'Catalog',
         links: [
           {
             rel: 'self',
@@ -213,6 +217,7 @@ describe('getProvider', () => {
         title: 'GHRC_DAAC',
         description: 'Root catalog for GHRC_DAAC',
         stac_version: settings.stac.version,
+        type: 'Catalog',
         links: [
           {
             rel: 'next',

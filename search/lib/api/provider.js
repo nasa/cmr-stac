@@ -52,6 +52,7 @@ async function getProvider (request, response) {
       id: providerId,
       title: providerId,
       description: `Root catalog for ${providerId}`,
+      type: 'Catalog',
       stac_version: settings.stac.version,
       links: [...links, ...childLinks]
     };
@@ -106,6 +107,7 @@ async function getProviders (request, response) {
     id: `${id}`,
     title: `NASA CMR ${ID} Proxy`,
     stac_version: settings.stac.version,
+    type: 'Catalog',
     description: `This is the landing page for CMR-${ID}. Each provider link below contains a ${ID} endpoint.`,
     links: providerLinks
   };

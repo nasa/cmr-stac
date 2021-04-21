@@ -80,6 +80,7 @@ function cmrCollToWFSColl (event, cmrCollection) {
     stac_version: settings.stac.version,
     license: cmrCollection.license || 'not-provided',
     title: cmrCollection.dataset_id,
+    type: 'Collection',
     description: cmrCollection.summary,
     links: createLinks(event, cmrCollection),
     extent: createExtent(cmrCollection)
