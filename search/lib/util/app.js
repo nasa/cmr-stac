@@ -19,14 +19,18 @@ function extractTypeFromHref (href) {
   return type;
 }
 
-const createLink = (rel, href = '', title, type = 'application/json') => {
+const createLink = (rel, href = '', title, type = 'application/json', method = null) => {
   type = extractTypeFromHref(href) || type;
 
   if (href.includes('.native')) {
     href = href.replace('.native', '.xml');
   }
 
-  return { rel: rel, href: href, title: title, type: type };
+  const link = { rel: rel, href: href, title: title, type: type };
+  if (method) {
+    link.method = method;
+  }
+  return link;
 };
 
 const createAssetLink = (href = '', title, type = 'application/json') => {
