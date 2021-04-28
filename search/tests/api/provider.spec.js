@@ -162,6 +162,12 @@ describe('getProvider', () => {
             title: 'Provider Item Search',
             type: 'application/geo+json',
             method: 'POST'
+          },
+          {
+            rel: 'conformance',
+            href: 'http://example.com/stac/USGS_EROS/conformance',
+            title: 'Conformance Classes',
+            type: 'application/geo+json'
           }
         ],
         conformsTo: [
@@ -185,7 +191,7 @@ describe('getProvider', () => {
       await getProvider(request, response);
       const dat = response.getData();
 
-      dat.json.links = dat.json.links.slice(0, 5);
+      dat.json.links = dat.json.links.slice(0, 6);
       response.expect(expectedResponse);
     });
   });
@@ -236,6 +242,12 @@ describe('getProvider', () => {
             title: 'Provider Item Search',
             type: 'application/geo+json',
             method: 'POST'
+          },
+          {
+            rel: 'conformance',
+            href: 'http://example.com/cloudstac/GHRC_DAAC/conformance',
+            title: 'Conformance Classes',
+            type: 'application/geo+json'
           }
         ],
         conformsTo: [
@@ -288,9 +300,9 @@ describe('getProvider', () => {
       const dat = response.getData();
 
       const savedLinks = dat.json.links;
-      dat.json.links = dat.json.links.slice(0, 5);
+      dat.json.links = dat.json.links.slice(0, 6);
       response.expect(expectedResponse);
-      dat.json.links = savedLinks.slice(6, 7);
+      dat.json.links = savedLinks.slice(7, 8);
       response.expect(expectedResponse2);
     });
   });
