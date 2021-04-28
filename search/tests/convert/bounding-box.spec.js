@@ -1,4 +1,8 @@
-const { addPointsToBbox, mergeBoxes, reorderBoxValues, crossesAntimeridian } = require('../../lib/convert/bounding-box');
+const {
+  addPointsToBbox,
+  mergeBoxes,
+  reorderBoxValues,
+  crossesAntimeridian } = require('../../lib/convert/bounding-box');
 
 describe('bbox', () => {
   const testBbox = [-10, -10, 10, 10];

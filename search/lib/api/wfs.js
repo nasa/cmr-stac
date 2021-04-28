@@ -127,7 +127,8 @@ async function getCollection (request, response) {
     await assertValid(schemas.collection, collectionResponse);
     response.json(collectionResponse);
   } catch (err) {
-    response.status(404).json(`Error [${err}] occurred when getting Collection ${collectionId} for provider ${providerId}`);
+    const msg = `Error [${err}] occurred when getting Collection ${collectionId} for provider ${providerId}`;
+    response.status(404).json(msg);
   }
 }
 

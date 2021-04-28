@@ -121,7 +121,7 @@ async function getProviders (request, response) {
     title: `NASA CMR ${ID} Proxy`,
     stac_version: settings.stac.version,
     type: 'Catalog',
-    description: `This is the landing page for CMR-${ID}. Each provider link below contains a ${ID} endpoint.`,
+    description: `This is the landing page for CMR-${ID}. Each provider link contains a ${ID} endpoint.`,
     links: providerLinks
   };
   response.status(200).json(providerCatalog);

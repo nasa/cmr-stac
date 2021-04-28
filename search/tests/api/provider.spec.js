@@ -85,7 +85,7 @@ describe('getProviders', () => {
       const response = createMockResponse();
       await getProviders(createRequest(), response);
       response.expect({
-        description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
+        description: 'This is the landing page for CMR-STAC. Each provider link contains a STAC endpoint.',
         title: 'NASA CMR STAC Proxy',
         stac_version: settings.stac.version,
         type: 'Catalog',
@@ -108,8 +108,9 @@ describe('getProviders', () => {
     it('should return an array', async () => {
       const response = createMockResponse();
       await getProviders(createRequest(), response);
+      const desc = 'This is the landing page for CMR-CLOUDSTAC. Each provider link contains a CLOUDSTAC endpoint.';
       response.expect({
-        description: 'This is the landing page for CMR-CLOUDSTAC. Each provider link below contains a CLOUDSTAC endpoint.',
+        description: desc,
         title: 'NASA CMR CLOUDSTAC Proxy',
         stac_version: settings.stac.version,
         type: 'Catalog',
