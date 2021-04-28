@@ -168,6 +168,18 @@ describe('getProvider', () => {
             href: 'http://example.com/stac/USGS_EROS/conformance',
             title: 'Conformance Classes',
             type: 'application/geo+json'
+          },
+          {
+            rel: 'service-desc',
+            href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+            title: 'OpenAPI Doc',
+            type: 'application/vnd.oai.openapi+json;version=3.0'
+          },
+          {
+            rel: 'service-doc',
+            href: 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+            title: 'HTML documentation',
+            type: 'text/html'
           }
         ],
         conformsTo: [
@@ -191,7 +203,7 @@ describe('getProvider', () => {
       await getProvider(request, response);
       const dat = response.getData();
 
-      dat.json.links = dat.json.links.slice(0, 6);
+      dat.json.links = dat.json.links.slice(0, 8);
       response.expect(expectedResponse);
     });
   });
@@ -248,6 +260,18 @@ describe('getProvider', () => {
             href: 'http://example.com/cloudstac/GHRC_DAAC/conformance',
             title: 'Conformance Classes',
             type: 'application/geo+json'
+          },
+          {
+            rel: 'service-desc',
+            href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+            title: 'OpenAPI Doc',
+            type: 'application/vnd.oai.openapi+json;version=3.0'
+          },
+          {
+            rel: 'service-doc',
+            href: 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+            title: 'HTML documentation',
+            type: 'text/html'
           }
         ],
         conformsTo: [
@@ -300,9 +324,9 @@ describe('getProvider', () => {
       const dat = response.getData();
 
       const savedLinks = dat.json.links;
-      dat.json.links = dat.json.links.slice(0, 6);
+      dat.json.links = dat.json.links.slice(0, 8);
       response.expect(expectedResponse);
-      dat.json.links = savedLinks.slice(7, 8);
+      dat.json.links = savedLinks.slice(9, 10);
       response.expect(expectedResponse2);
     });
   });

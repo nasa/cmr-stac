@@ -53,7 +53,11 @@ async function getProvider (request, response) {
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
         'Provider Item Search', 'application/geo+json', 'POST'),
       wfs.createLink('conformance', generateAppUrl(event, `/${providerId}/conformance`),
-        'Conformance Classes', 'application/geo+json')
+        'Conformance Classes', 'application/geo+json'),
+      wfs.createLink('service-desc', 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+        'OpenAPI Doc', 'application/vnd.oai.openapi+json;version=3.0'),
+      wfs.createLink('service-doc', 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+        'HTML documentation', 'text/html')
     ];
 
     const childLinks = await Promise.map(providerHoldings, async (collection) => {
