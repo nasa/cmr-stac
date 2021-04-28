@@ -74,12 +74,12 @@
   },
   "assets": {
     "data": {
-      "name": "This file may be downloaded directly from this link",
+      "title": "This file may be downloaded directly from this link",
       "href": "https://e4ftl01.cr.usgs.gov//MODV6_Dal_H/VIP/VIP01.004/1981.01.01/VIP01.A1981001.004.2016175124032.hdf",
       "type": "application/x-hdfeos"
     },
     "browse": {
-      "name": "This Browse file may be downloaded directly from this link (BROWSE)",
+      "title": "This Browse file may be downloaded directly from this link (BROWSE)",
       "href": "https://e4ftl01.cr.usgs.gov//WORKING/BRWS/Browse.001/2016.09.16/VIP01.A1981001.004.2016175124032.jpg",
       "type": "image/jpeg"
     },
