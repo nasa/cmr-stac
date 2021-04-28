@@ -5,6 +5,18 @@ const settings = require('../settings');
 const cmr = require('../cmr');
 const Promise = require('bluebird');
 
+const CONFORMS_TO = [
+  'https://api.stacspec.org/v1.0.0-beta.1/core',
+  'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+  'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
+  'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
+  'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
+  'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
+  'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+  'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
+  'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
+];
+
 async function getProvider (request, response) {
   try {
     const providerId = request.params.providerId;
@@ -39,7 +51,13 @@ async function getProvider (request, response) {
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
         'Provider Item Search', 'application/geo+json', 'GET'),
       wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
-        'Provider Item Search', 'application/geo+json', 'POST')
+        'Provider Item Search', 'application/geo+json', 'POST'),
+      wfs.createLink('conformance', generateAppUrl(event, `/${providerId}/conformance`),
+        'Conformance Classes', 'application/geo+json'),
+      wfs.createLink('service-desc', 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+        'OpenAPI Doc', 'application/vnd.oai.openapi+json;version=3.0'),
+      wfs.createLink('service-doc', 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+        'HTML documentation', 'text/html')
     ];
 
     const childLinks = await Promise.map(providerHoldings, async (collection) => {
@@ -57,13 +75,7 @@ async function getProvider (request, response) {
       type: 'Catalog',
       stac_version: settings.stac.version,
       links: [...links, ...childLinks],
-      conformsTo: [
-        'https://api.stacspec.org/v1.0.0-beta.1/core',
-        'https://api.stacspec.org/v1.0.0-beta.1/item-search',
-        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
-        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
-        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
-      ]
+      conformsTo: CONFORMS_TO
     };
 
     if (currPage > 1 && providerHoldings.length > 1) {
@@ -117,7 +129,7 @@ async function getProviders (request, response) {
     title: `NASA CMR ${ID} Proxy`,
     stac_version: settings.stac.version,
     type: 'Catalog',
-    description: `This is the landing page for CMR-${ID}. Each provider link below contains a ${ID} endpoint.`,
+    description: `This is the landing page for CMR-${ID}. Each provider link contains a ${ID} endpoint.`,
     links: providerLinks
   };
   response.status(200).json(providerCatalog);
@@ -126,6 +138,7 @@ async function getProviders (request, response) {
 const routes = express.Router();
 routes.get('/', makeAsyncHandler(getProviders));
 routes.get('/:providerId', makeAsyncHandler(getProvider));
+routes.get('/:providerId/conformance', (req, res) => res.json({ conformsTo: CONFORMS_TO }));
 
 module.exports = {
   getProviders,

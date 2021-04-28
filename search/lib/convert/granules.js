@@ -192,7 +192,7 @@ async function cmrGranuleToStac (event, granule) {
       };
     } else {
       return {
-        name: l.title,
+        title: l.title,
         href: l.href,
         type: l.type
       };

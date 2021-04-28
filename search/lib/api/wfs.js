@@ -15,17 +15,8 @@ const { inspect } = require('util');
 const { Catalog } = require('../stac/catalog');
 const stacExtension = require('../stac/extension');
 
-const CONFORMANCE_RESPONSE = {
-  conformsTo: [
-    'http://www.opengis.net/spec/wfs-1/3.0/req/core',
-    'http://www.opengis.net/spec/wfs-1/3.0/req/oas30',
-    'http://www.opengis.net/spec/wfs-1/3.0/req/geojson'
-  ]
-};
-
 const env = {};
 env.BROWSE_PATH = process.env.BROWSE_PATH;
-env.CONFORMANCE_RESPONSE = CONFORMANCE_RESPONSE;
 
 Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
 
@@ -127,7 +118,8 @@ async function getCollection (request, response) {
     await assertValid(schemas.collection, collectionResponse);
     response.json(collectionResponse);
   } catch (err) {
-    response.status(404).json(`Error [${err}] occurred when getting Collection ${collectionId} for provider ${providerId}`);
+    const msg = `Error [${err}] occurred when getting Collection ${collectionId} for provider ${providerId}`;
+    response.status(404).json(msg);
   }
 }
 
@@ -384,7 +376,6 @@ function createRoutes (cfg = {}) {
   if (cfg.BROWSE_PATH !== undefined) {
     routes.get('/:providerId/collections/:collectionId/*', makeAsyncHandler(getCatalog));
   }
-  routes.get('/conformance', (req, res) => res.json(cfg.CONFORMANCE_RESPONSE));
 
   return routes;
 }

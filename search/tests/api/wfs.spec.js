@@ -38,7 +38,10 @@ describe('wfs routes', () => {
     response = createMockResponse();
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
     mockFunction(cmr, 'convertParams', Promise.resolve({ collection_concept_id: '111' }));
-    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: exampleData.cmrGrans.length }));
+    mockFunction(cmr, 'findGranules', Promise.resolve({
+      granules: exampleData.cmrGrans,
+      hits: exampleData.cmrGrans.length
+    }));
     mockFunction(cmr, 'getGranuleTemporalFacets',
       { years: ['2001', '2002'], months: ['05', '06'], days: ['20', '21'], itemids: ['test1'] });
     mockFunction(cmr, 'stacIdToCmrCollectionId', Promise.resolve('C1234_LPDAAC'));

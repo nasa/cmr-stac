@@ -85,7 +85,7 @@ describe('getProviders', () => {
       const response = createMockResponse();
       await getProviders(createRequest(), response);
       response.expect({
-        description: 'This is the landing page for CMR-STAC. Each provider link below contains a STAC endpoint.',
+        description: 'This is the landing page for CMR-STAC. Each provider link contains a STAC endpoint.',
         title: 'NASA CMR STAC Proxy',
         stac_version: settings.stac.version,
         type: 'Catalog',
@@ -108,8 +108,9 @@ describe('getProviders', () => {
     it('should return an array', async () => {
       const response = createMockResponse();
       await getProviders(createRequest(), response);
+      const desc = 'This is the landing page for CMR-CLOUDSTAC. Each provider link contains a CLOUDSTAC endpoint.';
       response.expect({
-        description: 'This is the landing page for CMR-CLOUDSTAC. Each provider link below contains a CLOUDSTAC endpoint.',
+        description: desc,
         title: 'NASA CMR CLOUDSTAC Proxy',
         stac_version: settings.stac.version,
         type: 'Catalog',
@@ -161,11 +162,33 @@ describe('getProvider', () => {
             title: 'Provider Item Search',
             type: 'application/geo+json',
             method: 'POST'
+          },
+          {
+            rel: 'conformance',
+            href: 'http://example.com/stac/USGS_EROS/conformance',
+            title: 'Conformance Classes',
+            type: 'application/geo+json'
+          },
+          {
+            rel: 'service-desc',
+            href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+            title: 'OpenAPI Doc',
+            type: 'application/vnd.oai.openapi+json;version=3.0'
+          },
+          {
+            rel: 'service-doc',
+            href: 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+            title: 'HTML documentation',
+            type: 'text/html'
           }
         ],
         conformsTo: [
           'https://api.stacspec.org/v1.0.0-beta.1/core',
           'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
@@ -180,7 +203,7 @@ describe('getProvider', () => {
       await getProvider(request, response);
       const dat = response.getData();
 
-      dat.json.links = dat.json.links.slice(0, 5);
+      dat.json.links = dat.json.links.slice(0, 8);
       response.expect(expectedResponse);
     });
   });
@@ -231,11 +254,33 @@ describe('getProvider', () => {
             title: 'Provider Item Search',
             type: 'application/geo+json',
             method: 'POST'
+          },
+          {
+            rel: 'conformance',
+            href: 'http://example.com/cloudstac/GHRC_DAAC/conformance',
+            title: 'Conformance Classes',
+            type: 'application/geo+json'
+          },
+          {
+            rel: 'service-desc',
+            href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+            title: 'OpenAPI Doc',
+            type: 'application/vnd.oai.openapi+json;version=3.0'
+          },
+          {
+            rel: 'service-doc',
+            href: 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+            title: 'HTML documentation',
+            type: 'text/html'
           }
         ],
         conformsTo: [
           'https://api.stacspec.org/v1.0.0-beta.1/core',
           'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
@@ -257,6 +302,10 @@ describe('getProvider', () => {
         conformsTo: [
           'https://api.stacspec.org/v1.0.0-beta.1/core',
           'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
+          'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
           'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
@@ -275,9 +324,9 @@ describe('getProvider', () => {
       const dat = response.getData();
 
       const savedLinks = dat.json.links;
-      dat.json.links = dat.json.links.slice(0, 5);
+      dat.json.links = dat.json.links.slice(0, 8);
       response.expect(expectedResponse);
-      dat.json.links = savedLinks.slice(6, 7);
+      dat.json.links = savedLinks.slice(9, 10);
       response.expect(expectedResponse2);
     });
   });

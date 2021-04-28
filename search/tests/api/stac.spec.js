@@ -116,11 +116,12 @@ describe('STAC Search Params', () => {
     });
 
     it('query using a range when given a range datetime, comma delimited', async () => {
+      const dt = ['2019-02-01T00:00:00Z,2019-05-05T00:30:00Z'];
       request = createRequest({
         params: { providerId: 'LPDAAC' },
         query: { datetime: '2019-02-01T00:00:00Z,2019-05-05T00:30:00Z' },
         apiGateway: {
-          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['2019-02-01T00:00:00Z,2019-05-05T00:30:00Z'] } }
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: dt } }
         }
       });
 
@@ -138,11 +139,12 @@ describe('STAC Search Params', () => {
     });
 
     it('query using a range when given a range datetime, slash delimited', async () => {
+      const dt = ['2019-02-01T00:00:00Z/2019-05-05T00:30:00Z'];
       request = createRequest({
         params: { providerId: 'LPDAAC' },
         query: { datetime: '2019-02-01T00:00:00Z/2019-05-05T00:30:00Z' },
         apiGateway: {
-          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: ['2019-02-01T00:00:00Z/2019-05-05T00:30:00Z'] } }
+          event: { httpMethod: 'GET', multiValueQueryStringParameters: { datetime: dt } }
         }
       });
 
