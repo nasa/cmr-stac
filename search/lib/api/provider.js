@@ -1,5 +1,5 @@
 const express = require('express');
-const { wfs, generateNavLinks, generateAppUrl, logger, makeAsyncHandler } = require('../util');
+const { wfs, generateNavLinks, generateAppUrl, logger, logRequest, makeAsyncHandler } = require('../util');
 const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 const cmr = require('../cmr');
@@ -103,6 +103,7 @@ async function getProvider (request, response) {
  * Fetch a list of providers from CMR.
  */
 async function getProviders (request, response) {
+  logRequest(request);
   const event = request.apiGateway.event;
   const providers = await cmr.getProviderList();
   const providerLinks = await Promise.map(providers, async (provider) => {

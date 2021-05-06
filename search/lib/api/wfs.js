@@ -5,7 +5,8 @@ const {
   generateAppUrl,
   generateNavLinks,
   logger,
-  makeAsyncHandler
+  makeAsyncHandler,
+  logRequest
 } = require('../util');
 const convert = require('../convert');
 const cmr = require('../cmr');
@@ -176,6 +177,7 @@ function extractParams (request) {
  * Fetch a list of granules from CMR.
  */
 async function getItems (request, response) {
+  logRequest(request);
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
   const event = request.apiGateway.event;
