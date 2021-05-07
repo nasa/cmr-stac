@@ -8,6 +8,11 @@ const { createLogger } = require('./logger');
 
 const logger = createLogger(settings.logger);
 
+function logRequest (request) {
+  const { headers, baseUrl, params, query, body, apiGateway } = request;
+  logger.debug(JSON.stringify({ headers, baseUrl, params, query, body, apiGateway }));
+}
+
 function getKeyCaseInsensitive (object, key) {
   const i = Object.keys(object)
     .find(k => k.toLowerCase() === key.toLowerCase());
@@ -145,6 +150,7 @@ function createNavLink (event, params, rel) {
 
 module.exports = {
   ...app,
+  logRequest,
   createRedirectUrl,
   createUrl,
   createSecureUrl,
