@@ -1042,7 +1042,7 @@
       "stac_version": {
         "title": "STAC version",
         "type": "string",
-        "example": "1.0.0-beta.1"
+        "example": "1.0.0-rc.3"
       },
       "stac_extensions": {
         "title": "STAC extensions",
@@ -1415,7 +1415,7 @@
           }
         },
         "example": {
-          "stac_version": "1.0.0-beta.1",
+          "stac_version": "1.0.0-rc.3",
           "type": "Feature",
           "id": "CS3-20160503_132130_04",
           "bbox": [
