@@ -168,7 +168,7 @@ async function cmrGranuleToStac (event, granule) {
     const attributes = granule.umm.AdditionalAttributes;
     const eo = attributes.filter(attr => attr.Name === 'CLOUD_COVERAGE');
     if (eo.length) {
-      extensions.push('eo');
+      extensions.push('https://stac-extensions.github.io/eo/v1.0.0/schema.json');
       const eoValue = eo[0].Values[0];
       properties['eo:cloud_cover'] = parseInt(eoValue);
     }
