@@ -1,7 +1,7 @@
 {
   "type": "Feature",
   "id": "G1328420897-LPDAAC_ECS",
-  "stac_version": "1.0.0-rc.3",
+  "stac_version": "1.0.0-rc.4",
   "stac_extensions": [],
   "collection": "VIP01.v004",
   "geometry": {

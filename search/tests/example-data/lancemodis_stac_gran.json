@@ -1,7 +1,7 @@
 {
   "type": "Feature",
   "id": "G1848422111-LANCEMODIS",
-  "stac_version": "1.0.0-rc.3",
+  "stac_version": "1.0.0-rc.4",
   "stac_extensions": [],
   "collection": "MYD02HKM.v6.1NRT",
   "geometry": {
