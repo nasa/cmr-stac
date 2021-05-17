@@ -10,7 +10,6 @@ const {
 } = require('../util');
 const convert = require('../convert');
 const cmr = require('../cmr');
-const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 const { inspect } = require('util');
 const { Catalog } = require('../stac/catalog');
@@ -78,7 +77,6 @@ async function getCollections (request, response) {
       });
     }
 
-    await assertValid(schemas.collections, collectionsResponse);
     response.json(collectionsResponse);
   } catch (e) {
     response.status(400).json(e.message);
@@ -116,7 +114,6 @@ async function getCollection (request, response) {
       );
       collectionResponse.links = collectionResponse.links.concat(browseLinks);
     }
-    await assertValid(schemas.collection, collectionResponse);
     response.json(collectionResponse);
   } catch (err) {
     const msg = `Error [${err}] occurred when getting Collection ${collectionId} for provider ${providerId}`;
@@ -251,7 +248,6 @@ async function getItems (request, response) {
       granulesResult.granules,
       parseInt(granulesResult.hits),
       params);
-    await assertValid(schemas.items, featureCollection);
 
     // apply fields and context extensions
     const formatted = stacExtension.format(featureCollection,
@@ -297,7 +293,6 @@ async function getItem (request, response) {
   const postSearchParams = new URLSearchParams(cmrParams);
   const granules = (await cmr.findGranules(postSearchParams)).granules;
   const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
-  await assertValid(schemas.item, granuleResponse);
   response.json(granuleResponse);
 }
 

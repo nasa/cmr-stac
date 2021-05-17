@@ -1,14 +1,14 @@
 {
-  "name": "cmr-stac-api-proxy",
+  "name": "cmr-stac",
   "version": "1.0.0",
   "description": "An implementation of the STAC API on top of NASA's [Common Metadata Repository](https://cmr.earthdata.nasa.gov/search/).",
   "scripts": {
-    "postinstall": "node bin/install.js; bin/get_stac_spec_schemas.sh",
+    "postinstall": "node bin/install.js;",
     "test": "jest --detectOpenHandles --forceExit --env=node --coverage --reporters=jest-junit --reporters=default",
     "start": "cd search; npm start",
     "lint": "cd search; npm run lint"
   },
-  "repository": "https://github.com/Element84/cmr-stac-api-proxy",
+  "repository": "https://github.com/nasa/cmr-stac",
   "author": "Element 84",
   "license": "Apache-2.0",
   "devDependencies": {

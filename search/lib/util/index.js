@@ -61,6 +61,7 @@ function createSecureUrl (host, path, queryParams) {
 function generateAppUrlWithoutRelativeRoot (event, path, queryParams = null) {
   const host = getHostHeader(event);
   const protocol = getProtoHeader(event);
+
   let stagePath = '';
   if (event.requestContext) {
     const resourcePath = event.requestContext.resourcePath;
@@ -68,6 +69,7 @@ function generateAppUrlWithoutRelativeRoot (event, path, queryParams = null) {
       stagePath = resourcePath.substr(0, resourcePath.lastIndexOf('{proxy*}') - 1);
     }
   }
+
   const newPath = `${stagePath}${path || ''}`;
   return protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
 }

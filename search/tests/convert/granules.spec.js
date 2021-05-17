@@ -14,8 +14,6 @@ const {
 } = require('../util');
 const cmr = require('../../lib/cmr');
 
-const schemaValidator = require('../../lib/validator');
-
 describe('granuleToItem', () => {
   describe('cmrPolygonToGeoJsonPolygon', () => {
     it('should return an array of coordinates for a GeoJson Polygon given one ring', () => {
@@ -244,24 +242,6 @@ describe('granuleToItem', () => {
     it('should return a FeatureGeoJSON from a cmrGran', async () => {
       const stacItem = await cmrGranuleToStac(event, cmrGran);
       expect(stacItem).toEqual(expectedStacGran);
-    });
-
-    it('should return a valid FeatureGeoJSON against STAC Spec', async () => {
-      expect.extend({
-        toBeValid: (errors) => {
-          if (errors) {
-            return {
-              message: () => JSON.stringify(errors, null, 2),
-              pass: false
-            };
-          }
-          return { pass: true };
-        }
-      });
-
-      const errors = await schemaValidator.validateSchema(schemaValidator.schemas.item,
-        expectedStacGran);
-      expect(errors).toBeValid();
     });
   });
 

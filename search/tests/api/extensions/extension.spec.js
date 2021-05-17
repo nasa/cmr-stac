@@ -13,13 +13,13 @@ describe('STAC API Extensions', () => {
   let request;
   const result = {
     type: 'FeatureCollection',
-    stac_version: '1.0.0-beta.2',
+    stac_version: '1.0.0-rc.4',
     features: [
       {
         type: 'Feature',
         id: 'G1266176677-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -96,7 +96,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266180610-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -173,7 +173,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266180632-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -250,7 +250,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266180519-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -327,7 +327,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266176599-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -404,7 +404,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266176788-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -481,7 +481,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266180454-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -558,7 +558,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266176581-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -635,7 +635,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266180600-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',
@@ -712,7 +712,7 @@ describe('STAC API Extensions', () => {
         type: 'Feature',
         id: 'G1266176594-GES_DISC',
         short_name: undefined,
-        stac_version: '1.0.0-beta.2',
+        stac_version: '1.0.0-rc.4',
         collection: 'C1237113465-GES_DISC',
         geometry: {
           type: 'Polygon',

@@ -19,7 +19,7 @@ functions:
     environment:
       LOG_LEVEL: info
       LOG_DISABLED: false
-      STAC_VERSION: 1.0.0-beta.2
+      STAC_VERSION: 1.0.0-rc.4
       CMR_STAC_RELATIVE_ROOT_URL: /stac
       BROWSE_PATH: year/month/day
 
