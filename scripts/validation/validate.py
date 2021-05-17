@@ -74,7 +74,7 @@ def parse_args(args):
     parser0 = argparse.ArgumentParser(description=desc)
 
     parser0.add_argument('url', help='Root API URL to copy', default=os.getenv('STAC_URL', None))
-    #parser0.add_argument('--limit', help='Item limit per collection', type=int, default=1)
+    parser0.add_argument('--nitems', help='Items per collection to validate', type=int, default=1)
 
     return vars(parser0.parse_args(args))
 
