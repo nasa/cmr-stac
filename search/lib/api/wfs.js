@@ -293,7 +293,6 @@ async function getItem (request, response) {
   const postSearchParams = new URLSearchParams(cmrParams);
   const granules = (await cmr.findGranules(postSearchParams)).granules;
   const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
-  // await assertValid(schemas.item, granuleResponse);
   response.json(granuleResponse);
 }
 
