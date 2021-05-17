@@ -1,0 +1,1 @@
+stac-validator==2.1.0
