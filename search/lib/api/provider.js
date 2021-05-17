@@ -1,6 +1,5 @@
 const express = require('express');
 const { wfs, generateNavLinks, generateAppUrl, logger, logRequest, makeAsyncHandler } = require('../util');
-// const { assertValid, schemas } = require('../validator');
 const settings = require('../settings');
 const cmr = require('../cmr');
 const Promise = require('bluebird');
@@ -92,7 +91,6 @@ async function getProvider (request, response) {
       });
     }
 
-    // await assertValid(schemas.catalog, provider);
     response.status(200).json(provider);
   } catch (e) {
     response.status(400).json(e.message);
