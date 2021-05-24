@@ -233,7 +233,7 @@ describe('granuleToItem', () => {
     });
   });
 
-  describe('cmrGranuleToStac', async () => {
+  describe('cmrGranuleToStac', () => {
     const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
     const expectedStacGran = exampleData.examplesByName.lancemodisStacGran;
 
@@ -245,7 +245,7 @@ describe('granuleToItem', () => {
     });
   });
 
-  describe('cmrGranulesToStac', async () => {
+  describe('cmrGranulesToStac', () => {
     beforeEach(() => {
       mockFunction(cmr, 'cmrCollectionIdToStacId', Promise.resolve('landsat.v1'));
     });
