@@ -15,7 +15,7 @@ const myCache = new NodeCache();
 const Promise = require('bluebird');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
-  bbox: ['bounding_box', _.identity],
+  bbox: ['bounding_box', _.toString],
   datetime: ['temporal', convertDateTimeToCMR],
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', _.identity],
