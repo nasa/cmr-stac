@@ -185,7 +185,7 @@ describe('cmr', () => {
           bbox: [10, 10, 10, 10]
         };
         const result = await convertParams('provider', params);
-        expect(result).toEqual({ provider: 'provider', bounding_box: [10, 10, 10, 10] });
+        expect(result).toEqual({ provider: 'provider', bounding_box: '10,10,10,10' });
       });
 
       it('should convert time into temporal.', async () => {

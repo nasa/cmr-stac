@@ -256,6 +256,7 @@ async function getItems (request, response) {
         context: { searchResult: granulesResult, query: params }
       });
 
+    response.setHeader('Content-Type', 'application/geo+json');
     response.json(formatted);
   } catch (err) {
     if (err instanceof stacExtension.errors.InvalidSortPropertyError) {

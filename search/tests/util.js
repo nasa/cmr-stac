@@ -40,6 +40,10 @@ function createMockResponse (statusCode = 200, data = {}) {
       data.status = v;
       return mockResp;
     },
+    setHeader: (v) => {
+      data.headers = v;
+      return mockResp;
+    },
     json: (v) => {
       data.json = v;
       return mockResp;
