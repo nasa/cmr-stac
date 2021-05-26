@@ -12,7 +12,7 @@ function getLoggerSettings () {
 function getStacSettings () {
   const stacSettings = {};
 
-  stacSettings.version = process.env.STAC_VERSION || '1.0.0-rc.4';
+  stacSettings.version = process.env.STAC_VERSION || '1.0.0';
   stacSettings.stacRelativePath = process.env.STAC_RELATIVE_PATH || '/stac';
 
   return stacSettings;
