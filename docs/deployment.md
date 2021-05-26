@@ -24,7 +24,7 @@ There are some environment variables included in the `serverless.yml` file for t
 - LOG_LEVEL: info
 - LOG_DISABLED: false
 - STAC_BASE_URL: <http://localhost:3000>
-- STAC_VERSION: 1.0.0-rc.4
+- STAC_VERSION: 1.0.0
 - STAGE: `${self:provider.stage}`
 
 STAGE is the AWS API Gateway `stage` that the application is being deployed. That by default is a setting in the `serverless.yml` file that environment variable will reference.
