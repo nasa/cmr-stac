@@ -30,7 +30,25 @@ const mockProviderResponse = [
   'short-name': `${providerId}Short`
 }));
 
-const expectedProviders = [
+const expectedLinks = [
+  {
+    title: 'NASA CMR-STAC Root Catalog',
+    rel: 'self',
+    type: 'application/json',
+    href: 'http://example.com/stac/'
+  },
+  {
+    title: 'NASA CMR-STAC Root Catalog',
+    rel: 'root',
+    type: 'application/json',
+    href: 'http://example.com/stac/'
+  },
+  {
+    title: 'CMR-STAC Documentation',
+    rel: 'about',
+    type: 'application/json',
+    href: 'https://wiki.earthdata.nasa.gov/display/ED/SpatioTemporal+Asset+Catalog+%2528CMR-STAC%2529+Documentation'
+  },
   {
     title: 'provAShort',
     rel: 'child',
@@ -51,7 +69,25 @@ const expectedProviders = [
   }
 ];
 
-const expectedCloudProviders = [
+const expectedCloudLinks = [
+  {
+    title: 'NASA CMR-STAC Root Catalog',
+    rel: 'self',
+    type: 'application/json',
+    href: 'http://example.com/cloudstac/'
+  },
+  {
+    title: 'NASA CMR-STAC Root Catalog',
+    rel: 'root',
+    type: 'application/json',
+    href: 'http://example.com/cloudstac/'
+  },
+  {
+    title: 'CMR-STAC Documentation',
+    rel: 'about',
+    type: 'application/json',
+    href: 'https://wiki.earthdata.nasa.gov/display/ED/SpatioTemporal+Asset+Catalog+%2528CMR-STAC%2529+Documentation'
+  },
   {
     title: 'provAShort',
     rel: 'child',
@@ -90,7 +126,7 @@ describe('getProviders', () => {
         stac_version: settings.stac.version,
         type: 'Catalog',
         id: 'stac',
-        links: expectedProviders
+        links: expectedLinks
       });
     });
   });
@@ -115,7 +151,7 @@ describe('getProviders', () => {
         stac_version: settings.stac.version,
         type: 'Catalog',
         id: 'cloudstac',
-        links: expectedCloudProviders
+        links: expectedCloudLinks
       });
     });
   });
