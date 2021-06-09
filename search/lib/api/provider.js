@@ -112,6 +112,14 @@ async function getProviders (request, response) {
       href: generateAppUrl(event, `/${provider['provider-id']}`)
     };
   });
+  const links = [
+    wfs.createLink('self', generateAppUrl(event, `/`), 'NASA CMR-STAC Root Catalog'),
+    wfs.createLink('root', generateAppUrl(event, '/'), 'NASA CMR-STAC Root Catalog'),
+    wfs.createLink('about',
+      'https://wiki.earthdata.nasa.gov/display/ED/SpatioTemporal+Asset+Catalog+%2528CMR-STAC%2529+Documentation',
+      'CMR-STAC Documentation'),
+    ...providerLinks
+  ];
 
   // Based on the route, set different id, title and description for providerCatalog.
   let id;
@@ -129,7 +137,7 @@ async function getProviders (request, response) {
     stac_version: settings.stac.version,
     type: 'Catalog',
     description: `This is the landing page for CMR-${ID}. Each provider link contains a ${ID} endpoint.`,
-    links: providerLinks
+    links: links
   };
   response.status(200).json(providerCatalog);
 }
