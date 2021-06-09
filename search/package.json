@@ -34,7 +34,7 @@
     "serverless-s3-deploy": "^0.10.0"
   },
   "scripts": {
-    "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline --config serverless-offline.yml",
+    "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline --config serverless.yml",
     "start": "IS_LOCAL=true sls offline --config serverless.yml",
     "deploy": "sls deploy --config serverless.yml",
     "deploy-docs": "sls s3deploy -v  --config serverless-ngap.yml",
