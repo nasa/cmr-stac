@@ -272,7 +272,10 @@ describe('granuleToItem', () => {
         }
       ],
       data_center: 'USA',
-      points: ['77,139']
+      points: ['77,139'],
+      umm: {
+        GranuleUR: 1
+      }
     }];
 
     const event = { headers: { Host: 'example.com' }, path: '/stac', queryStringParameters: [] };
