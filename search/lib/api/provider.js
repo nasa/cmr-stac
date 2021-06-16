@@ -121,6 +121,8 @@ async function getProviders (request, response) {
     ...providerLinks
   ];
 
+  console.log(`PROTOCOL = ${generateAppUrl(event, '/')}`);
+
   // Based on the route, set different id, title and description for providerCatalog.
   let id;
 
