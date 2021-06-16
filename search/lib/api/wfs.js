@@ -209,13 +209,13 @@ async function getItems (request, response) {
     if ((collectionsRequested && validCollections) || (!collectionsRequested)) {
       // if collections param provided, check that not all were filtered out as invalid
       if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-        // Preserve collection_concept_id and concept_id in cmrParams before deleting.
+        // Preserve collection_concept_id and granule_ur in cmrParams before deleting.
         // After checking collection_concept_ids being cloud holding collections, they
         // will be added back one by one because of POST search request requirement.
         const collectionConceptIds = cmrParams.collection_concept_id;
-        const conceptIds = cmrParams.concept_id;
+        const granuleURs = cmrParams.granule_ur;
         delete cmrParams.collection_concept_id;
-        delete cmrParams.concept_id;
+        delete cmrParams.granule_ur;
 
         // Find all the cloud holding collections applicable
         // i.e. if collection_concept_ids are present, we will get all the cloud holding collections within these ids.
@@ -227,9 +227,9 @@ async function getItems (request, response) {
             postSearchParams.append('collection_concept_id', id);
           });
         }
-        if (conceptIds) {
-          conceptIds.forEach(id => {
-            postSearchParams.append('concept_id', id);
+        if (granuleURs) {
+          granuleURs.forEach(id => {
+            postSearchParams.append('granule_ur', id);
           });
         }
         granulesResult = await cmr.findGranules(postSearchParams);
@@ -273,8 +273,8 @@ async function getItems (request, response) {
 async function getItem (request, response) {
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
-  const conceptId = request.params.itemId;
-  logger.info(`GET /${providerId}/collections/${collectionId}/items/${conceptId}`);
+  const itemId = request.params.itemId;
+  logger.info(`GET /${providerId}/collections/${collectionId}/items/${itemId}`);
   const event = request.apiGateway.event;
 
   // We need to make sure the granule belongs to the provider and the collection.
@@ -285,7 +285,7 @@ async function getItem (request, response) {
       .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
   }
   const cmrParams = Object.assign(
-    { concept_id: conceptId },
+    { granule_ur: itemId },
     { collection_concept_id: cmrCollectionId }
   );
 

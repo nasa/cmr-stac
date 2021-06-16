@@ -239,9 +239,10 @@ async function cmrGranuleToStac (event, granule) {
 
   assets.metadata = wfs.createAssetLink(makeCmrSearchUrl(`/concepts/${granule.id}.native`));
   const collectionId = await cmr.cmrCollectionIdToStacId(granule.collection_concept_id);
+  const gid = granule.umm.GranuleUR;
   return {
     type: 'Feature',
-    id: granule.id,
+    id: gid,
     stac_version: settings.stac.version,
     stac_extensions: extensions,
     collection: collectionId,
@@ -251,7 +252,7 @@ async function cmrGranuleToStac (event, granule) {
       {
         rel: 'self',
         href: generateAppUrl(event,
-          `/${granule.data_center}/collections/${collectionId}/items/${granule.id}`)
+          `/${granule.data_center}/collections/${collectionId}/items/${gid}`)
       },
       {
         rel: 'parent',

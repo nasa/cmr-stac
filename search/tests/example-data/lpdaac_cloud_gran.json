@@ -1,6 +1,6 @@
 {
   "type": "Feature",
-  "id": "G1328420897-LPDAAC_ECS",
+  "id": "SC:VIP01.004:2242263776",
   "stac_version": "1.0.0",
   "stac_extensions": [],
   "collection": "VIP01.v004",
@@ -40,7 +40,7 @@
   "links": [
     {
       "rel": "self",
-      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/VIP01.v004/items/G1328420897-LPDAAC_ECS"
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/VIP01.v004/items/SC:VIP01.004:2242263776"
     },
     {
       "rel": "parent",

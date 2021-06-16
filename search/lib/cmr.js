@@ -21,7 +21,7 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   limit: ['page_size', _.identity],
   page: ['page_num', _.identity],
   collections: ['collection_concept_id', _.identity],
-  ids: ['concept_id', _.identity]
+  ids: ['granule_ur', _.identity]
 };
 
 const DEFAULT_HEADERS = {
