@@ -52,15 +52,15 @@ describe('STAC Search', () => {
     links: [
       {
         rel: 'self',
-        href: 'http://example.com'
+        href: 'https://example.com'
       },
       {
         rel: 'root',
-        href: 'http://example.com/stac/'
+        href: 'https://example.com/stac/'
       },
       {
         rel: 'next',
-        href: 'http://example.com?page=2',
+        href: 'https://example.com?page=2',
         method: 'GET'
       }
     ]

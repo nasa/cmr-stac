@@ -66,13 +66,13 @@ describe('wfs routes', () => {
           type: 'Catalog',
           links: [
             {
-              href: 'http://example.com/stac/LPDAAC/collections',
+              href: 'https://example.com/stac/LPDAAC/collections',
               rel: 'self',
               title: 'All collections provided by LPDAAC',
               type: 'application/json'
             },
             {
-              href: 'http://example.com/stac/',
+              href: 'https://example.com/stac/',
               rel: 'root',
               title: 'CMR-STAC Root',
               type: 'application/json'
@@ -101,13 +101,13 @@ describe('wfs routes', () => {
           description: 'All cloud holding collections provided by LPDAAC',
           links: [
             {
-              href: 'http://example.com/cloudstac/LPDAAC/collections',
+              href: 'https://example.com/cloudstac/LPDAAC/collections',
               rel: 'self',
               title: 'All cloud holding collections provided by LPDAAC',
               type: 'application/json'
             },
             {
-              href: 'http://example.com/cloudstac/',
+              href: 'https://example.com/cloudstac/',
               rel: 'root',
               title: 'CMR-CLOUDSTAC Root',
               type: 'application/json'
@@ -196,11 +196,11 @@ describe('wfs routes', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com'
+              href: 'https://example.com'
             },
             {
               rel: 'root',
-              href: 'http://example.com/stac/'
+              href: 'https://example.com/stac/'
             }
           ],
           features: exampleData.stacGrans
@@ -227,15 +227,15 @@ describe('wfs routes', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com?limit=2'
+              href: 'https://example.com?limit=2'
             },
             {
               rel: 'root',
-              href: 'http://example.com/stac/'
+              href: 'https://example.com/stac/'
             },
             {
               rel: 'next',
-              href: 'http://example.com?limit=2&page=2',
+              href: 'https://example.com?limit=2&page=2',
               method: 'GET'
             }
           ],
@@ -261,16 +261,16 @@ describe('wfs routes', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com?page=2'
+              href: 'https://example.com?page=2'
             },
             {
               rel: 'root',
-              href: 'http://example.com/stac/'
+              href: 'https://example.com/stac/'
             },
             {
               rel: 'prev',
               method: 'GET',
-              href: 'http://example.com?page=1'
+              href: 'https://example.com?page=1'
             }
           ],
           features: exampleData.stacGrans
@@ -301,11 +301,11 @@ describe('wfs routes', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com'
+              href: 'https://example.com'
             },
             {
               rel: 'root',
-              href: 'http://example.com/cloudstac/'
+              href: 'https://example.com/cloudstac/'
             }
           ],
           features: exampleData.cloudstacGrans
@@ -332,15 +332,15 @@ describe('wfs routes', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com?limit=2'
+              href: 'https://example.com?limit=2'
             },
             {
               rel: 'root',
-              href: 'http://example.com/cloudstac/'
+              href: 'https://example.com/cloudstac/'
             },
             {
               rel: 'next',
-              href: 'http://example.com?limit=2&page=2',
+              href: 'https://example.com?limit=2&page=2',
               method: 'GET'
             }
           ],
@@ -366,16 +366,16 @@ describe('wfs routes', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com?page=2'
+              href: 'https://example.com?page=2'
             },
             {
               rel: 'root',
-              href: 'http://example.com/cloudstac/'
+              href: 'https://example.com/cloudstac/'
             },
             {
               rel: 'prev',
               method: 'GET',
-              href: 'http://example.com?page=1'
+              href: 'https://example.com?page=1'
             }
           ],
           features: exampleData.cloudstacGrans

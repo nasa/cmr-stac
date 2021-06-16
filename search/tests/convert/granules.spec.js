@@ -306,23 +306,23 @@ describe('granuleToItem', () => {
           links: [
             {
               rel: 'self',
-              href: 'http://example.com/stac/USA/collections/landsat.v1/items/1'
+              href: 'https://example.com/stac/USA/collections/landsat.v1/items/1'
             },
             {
               rel: 'parent',
-              href: 'http://example.com/stac/USA/collections/landsat.v1'
+              href: 'https://example.com/stac/USA/collections/landsat.v1'
             },
             {
               rel: 'collection',
-              href: 'http://example.com/stac/USA/collections/landsat.v1'
+              href: 'https://example.com/stac/USA/collections/landsat.v1'
             },
             {
               rel: 'root',
-              href: 'http://example.com/stac/'
+              href: 'https://example.com/stac/'
             },
             {
               rel: 'provider',
-              href: 'http://example.com/stac/USA'
+              href: 'https://example.com/stac/USA'
             },
             {
               rel: 'via',
@@ -337,11 +337,11 @@ describe('granuleToItem', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://example.com/stac'
+            href: 'https://example.com/stac'
           },
           {
             rel: 'root',
-            href: 'http://example.com/stac/'
+            href: 'https://example.com/stac/'
           }
         ]
       });
