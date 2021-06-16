@@ -111,7 +111,6 @@ describe('collections', () => {
       expect(cmrCollToWFSColl(event, cmrColl)).toEqual({
         description: 'summary',
         extent: {
-          crs: 'https://www.opengis.net/def/crs/OGC/1.3/CRS84',
           spatial: {
             bbox: [
               [
@@ -129,8 +128,7 @@ describe('collections', () => {
                 '1'
               ]
             ]
-          },
-          trs: 'https://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+          }
         },
         links: [
           {
@@ -177,7 +175,6 @@ describe('collections', () => {
       expect(cmrCollToWFSColl(event, cmrCollTemporal)).toEqual({
         description: 'summary',
         extent: {
-          crs: 'https://www.opengis.net/def/crs/OGC/1.3/CRS84',
           spatial: {
             bbox: [
               [
@@ -195,8 +192,7 @@ describe('collections', () => {
                 null
               ]
             ]
-          },
-          trs: 'https://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+          }
         },
         links: [
           {
