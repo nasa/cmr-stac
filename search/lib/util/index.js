@@ -23,21 +23,14 @@ function getHostHeader (event) {
   return getKeyCaseInsensitive(event.headers, 'host');
 }
 
-function getProtoHeader (event) {
-  return getKeyCaseInsensitive(event.headers, 'CloudFront-Forwarded-Proto') ||
-    getKeyCaseInsensitive(event.headers, 'X-Forwarded-Proto') || 'http';
-}
-
 function createRedirectUrl (event, redirectPath) {
   const host = getHostHeader(event);
-  const protocol = getProtoHeader(event);
-  return `${protocol}://${host}${settings.cmrStacRelativeRootUrl}${redirectPath}`;
+  return `${settings.protocol}://${host}${settings.cmrStacRelativeRootUrl}${redirectPath}`;
 }
 
 function getStacBaseUrl (event) {
   const host = getHostHeader(event);
-  const protocol = getProtoHeader(event);
-  return `${protocol}://${host}${settings.cmrStacRelativeRootUrl}${settings.stac.stacRelativePath}`;
+  return `${settings.protocol}://${host}${settings.cmrStacRelativeRootUrl}${settings.stac.stacRelativePath}`;
 }
 
 function createUrl (host, path, queryParams) {
@@ -60,7 +53,6 @@ function createSecureUrl (host, path, queryParams) {
 
 function generateAppUrlWithoutRelativeRoot (event, path, queryParams = null) {
   const host = getHostHeader(event);
-  const protocol = getProtoHeader(event);
 
   let stagePath = '';
   if (event.requestContext) {
@@ -71,7 +63,11 @@ function generateAppUrlWithoutRelativeRoot (event, path, queryParams = null) {
   }
 
   const newPath = `${stagePath}${path || ''}`;
-  return protocol === 'https' ? createSecureUrl(host, newPath, queryParams) : createUrl(host, newPath, queryParams);
+  if (settings.protocol === 'https') {
+    return createSecureUrl(host, newPath, queryParams);
+  } else {
+    return createUrl(host, newPath, queryParams);
+  }
 }
 
 function generateAppUrl (event, path, queryParams = null) {
@@ -95,7 +91,7 @@ function makeAsyncHandler (fn) {
 
 const makeCmrSearchUrl = (path, queryParams = null) => {
   return UrlBuilder.create()
-    .withProtocol(settings.cmrSearchProtocol)
+    .withProtocol(settings.cmrProtocol)
     .withHost(settings.cmrSearchHost)
     .withPath(path)
     .withQuery(queryParams)

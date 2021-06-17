@@ -111,7 +111,6 @@ describe('collections', () => {
       expect(cmrCollToWFSColl(event, cmrColl)).toEqual({
         description: 'summary',
         extent: {
-          crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
           spatial: {
             bbox: [
               [
@@ -129,27 +128,26 @@ describe('collections', () => {
                 '1'
               ]
             ]
-          },
-          trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+          }
         },
         links: [
           {
-            href: 'http://example.com/stac/LPDAAC/collections/name.vversion',
+            href: 'https://example.com/stac/LPDAAC/collections/name.vversion',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
             rel: 'root',
-            href: 'http://example.com/stac',
+            href: 'https://example.com/stac',
             title: 'Root catalog',
             type: 'application/json'
           }, {
             rel: 'parent',
-            href: 'http://example.com/stac/LPDAAC',
+            href: 'https://example.com/stac/LPDAAC',
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'http://example.com/stac/LPDAAC/collections/name.vversion/items',
+            href: 'https://example.com/stac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -177,7 +175,6 @@ describe('collections', () => {
       expect(cmrCollToWFSColl(event, cmrCollTemporal)).toEqual({
         description: 'summary',
         extent: {
-          crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
           spatial: {
             bbox: [
               [
@@ -195,27 +192,26 @@ describe('collections', () => {
                 null
               ]
             ]
-          },
-          trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+          }
         },
         links: [
           {
-            href: 'http://example.com/stac/LPDAAC/collections/name.vversion',
+            href: 'https://example.com/stac/LPDAAC/collections/name.vversion',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
           }, {
             rel: 'root',
-            href: 'http://example.com/stac',
+            href: 'https://example.com/stac',
             title: 'Root catalog',
             type: 'application/json'
           }, {
             rel: 'parent',
-            href: 'http://example.com/stac/LPDAAC',
+            href: 'https://example.com/stac/LPDAAC',
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'http://example.com/stac/LPDAAC/collections/name.vversion/items',
+            href: 'https://example.com/stac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'

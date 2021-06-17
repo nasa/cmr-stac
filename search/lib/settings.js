@@ -54,7 +54,8 @@ function getSettings () {
     settings.cmrStacRelativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/stac';
     settings.cmrSearchHost = process.env.CMR_SEARCH_HOST || 'cmr.earthdata.nasa.gov/search';
     settings.cmrProviderHost = process.env.CMR_PROVIDER_HOST || 'cmr.earthdata.nasa.gov/ingest/providers';
-    settings.cmrSearchProtocol = process.env.CMR_SEARCH_PROTOCOL || 'https';
+    settings.cmrProtocol = process.env.CMR_PROTOCOL || 'https';
+    settings.protocol = process.env.CMR_STAC_PROTOCOL || 'https';
     settings.cacheTtl = process.env.CMR_STAC_CACHE_TTL || 14400;
     settings.maxLimit = process.env.CMR_STAC_MAX_LIMIT || 500;
 

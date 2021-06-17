@@ -20,6 +20,7 @@ functions:
       CMR_SEARCH_HOST: ${opt:cmr-search-host, 'cmr.earthdata.nasa.gov/search'}
       CMR_PROVIDER_HOST: ${opt:cmr-provider-host, 'cmr.earthdata.nasa.gov/ingest/providers'}
       CMR_STAC_RELATIVE_ROOT_URL: /stac
+      CMR_STAC_PROTOCOL: ${opt:protocol, 'https'}
       LOG_LEVEL: info
       LOG_DISABLED: false
       STAC_VERSION: 1.0.0

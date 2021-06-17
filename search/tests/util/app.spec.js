@@ -1,6 +1,7 @@
 const { firstIfArray } = require('../../lib/util');
 const { extractParam } = require('../../lib/util');
 const { generateAppUrl } = require('../../lib/util');
+const settings = require('../../lib/settings');
 
 describe('firstIfArray', () => {
   it('should return value if not an array.', () => {
@@ -41,17 +42,17 @@ describe('generateAppUrl', () => {
   });
 
   it('should create a URL based on event input.', () => {
-    expect(generateAppUrl(event, path)).toBe('http://example.com/stac/path/to/resource');
+    expect(generateAppUrl(event, path)).toBe('https://example.com/stac/path/to/resource');
   });
 
   it('should create a URL based on event input with proper query params.', () => {
     expect(generateAppUrl(event, path, params))
-      .toBe('http://example.com/stac/path/to/resource?param=test');
+      .toBe('https://example.com/stac/path/to/resource?param=test');
   });
 
-  it('should create a secure url if event has secure protocol.', () => {
-    event.headers['X-Forwarded-Proto'] = 'https';
+  it('should create a insecure url if http protocol in settings.', () => {
+    settings.protocol = 'http';
     expect(generateAppUrl(event, path))
-      .toBe('https://example.com/stac/path/to/resource');
+      .toBe('http://example.com/stac/path/to/resource');
   });
 });

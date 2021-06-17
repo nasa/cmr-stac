@@ -38,9 +38,7 @@ function cmrCollSpatialToExtents (cmrColl) {
 
 function createExtent (cmrCollection) {
   return {
-    crs: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
     spatial: { bbox: [cmrCollSpatialToExtents(cmrCollection)] },
-    trs: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian',
     temporal: {
       interval: [
         [

@@ -8,25 +8,25 @@
   "links": [
     {
       "rel": "self",
-      "href": "http://example.com/stac/LPDAAC_ECS/collections/AST14DEM.v003",
+      "href": "https://example.com/stac/LPDAAC_ECS/collections/AST14DEM.v003",
       "title": "Info about this collection",
       "type": "application/json"
     },
     {
       "rel": "root",
-      "href": "http://example.com/stac",
+      "href": "https://example.com/stac",
       "title": "Root catalog",
       "type": "application/json"
     },
     {
       "rel": "parent",
-      "href": "http://example.com/stac/LPDAAC_ECS",
+      "href": "https://example.com/stac/LPDAAC_ECS",
       "title": "Parent catalog",
       "type": "application/json"
     },
     {
       "rel": "items",
-      "href": "http://example.com/stac/LPDAAC_ECS/collections/AST14DEM.v003/items",
+      "href": "https://example.com/stac/LPDAAC_ECS/collections/AST14DEM.v003/items",
       "title": "Granules in this collection",
       "type": "application/json"
     },
@@ -44,7 +44,6 @@
     }
   ],
   "extent": {
-    "crs": "http://www.opengis.net/def/crs/OGC/1.3/CRS84",
     "spatial": {
       "bbox": [
         [
@@ -55,7 +54,6 @@
         ]
       ]
     },
-    "trs": "http://www.opengis.net/def/uom/ISO-8601/0/Gregorian",
     "temporal": {
       "interval": [
         [

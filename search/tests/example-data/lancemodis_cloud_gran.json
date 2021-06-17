@@ -40,23 +40,23 @@
   "links": [
     {
       "rel": "self",
-      "href": "http://example.com/cloudstac/LANCEMODIS/collections/MYD02HKM.v6.1NRT/items/G1848422111-LANCEMODIS"
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MYD02HKM.v6.1NRT/items/G1848422111-LANCEMODIS"
     },
     {
       "rel": "parent",
-      "href": "http://example.com/cloudstac/LANCEMODIS/collections/MYD02HKM.v6.1NRT"
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MYD02HKM.v6.1NRT"
     },
     {
       "rel": "collection",
-      "href": "http://example.com/cloudstac/LANCEMODIS/collections/MYD02HKM.v6.1NRT"
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MYD02HKM.v6.1NRT"
     },
     {
       "rel": "root",
-      "href": "http://example.com/cloudstac/"
+      "href": "https://example.com/cloudstac/"
     },
     {
       "rel": "provider",
-      "href": "http://example.com/cloudstac/LANCEMODIS"
+      "href": "https://example.com/cloudstac/LANCEMODIS"
     },
     {
       "rel": "via",

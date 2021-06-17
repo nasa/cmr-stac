@@ -35,13 +35,13 @@ const expectedLinks = [
     title: 'NASA CMR-STAC Root Catalog',
     rel: 'self',
     type: 'application/json',
-    href: 'http://example.com/stac/'
+    href: 'https://example.com/stac/'
   },
   {
     title: 'NASA CMR-STAC Root Catalog',
     rel: 'root',
     type: 'application/json',
-    href: 'http://example.com/stac/'
+    href: 'https://example.com/stac/'
   },
   {
     title: 'CMR-STAC Documentation',
@@ -53,19 +53,19 @@ const expectedLinks = [
     title: 'provAShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/stac/provA'
+    href: 'https://example.com/stac/provA'
   },
   {
     title: 'provBShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/stac/provB'
+    href: 'https://example.com/stac/provB'
   },
   {
     title: 'provCShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/stac/provC'
+    href: 'https://example.com/stac/provC'
   }
 ];
 
@@ -74,13 +74,13 @@ const expectedCloudLinks = [
     title: 'NASA CMR-STAC Root Catalog',
     rel: 'self',
     type: 'application/json',
-    href: 'http://example.com/cloudstac/'
+    href: 'https://example.com/cloudstac/'
   },
   {
     title: 'NASA CMR-STAC Root Catalog',
     rel: 'root',
     type: 'application/json',
-    href: 'http://example.com/cloudstac/'
+    href: 'https://example.com/cloudstac/'
   },
   {
     title: 'CMR-STAC Documentation',
@@ -92,19 +92,19 @@ const expectedCloudLinks = [
     title: 'provAShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/cloudstac/provA'
+    href: 'https://example.com/cloudstac/provA'
   },
   {
     title: 'provBShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/cloudstac/provB'
+    href: 'https://example.com/cloudstac/provB'
   },
   {
     title: 'provCShort',
     rel: 'child',
     type: 'application/json',
-    href: 'http://example.com/cloudstac/provC'
+    href: 'https://example.com/cloudstac/provC'
   }
 ];
 
@@ -169,39 +169,39 @@ describe('getProvider', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://example.com/stac/USGS_EROS',
+            href: 'https://example.com/stac/USGS_EROS',
             title: 'Provider catalog',
             type: 'application/json'
           },
           {
             rel: 'root',
-            href: 'http://example.com/stac/',
+            href: 'https://example.com/stac/',
             title: 'Root catalog',
             type: 'application/json'
           },
           {
             rel: 'collections',
-            href: 'http://example.com/stac/USGS_EROS/collections',
+            href: 'https://example.com/stac/USGS_EROS/collections',
             title: 'Provider Collections',
             type: 'application/json'
           },
           {
             rel: 'search',
-            href: 'http://example.com/stac/USGS_EROS/search',
+            href: 'https://example.com/stac/USGS_EROS/search',
             title: 'Provider Item Search',
             type: 'application/geo+json',
             method: 'GET'
           },
           {
             rel: 'search',
-            href: 'http://example.com/stac/USGS_EROS/search',
+            href: 'https://example.com/stac/USGS_EROS/search',
             title: 'Provider Item Search',
             type: 'application/geo+json',
             method: 'POST'
           },
           {
             rel: 'conformance',
-            href: 'http://example.com/stac/USGS_EROS/conformance',
+            href: 'https://example.com/stac/USGS_EROS/conformance',
             title: 'Conformance Classes',
             type: 'application/geo+json'
           },
@@ -261,39 +261,39 @@ describe('getProvider', () => {
         links: [
           {
             rel: 'self',
-            href: 'http://example.com/cloudstac/GHRC_DAAC',
+            href: 'https://example.com/cloudstac/GHRC_DAAC',
             title: 'Provider catalog',
             type: 'application/json'
           },
           {
             rel: 'root',
-            href: 'http://example.com/cloudstac/',
+            href: 'https://example.com/cloudstac/',
             title: 'Root catalog',
             type: 'application/json'
           },
           {
             rel: 'collections',
-            href: 'http://example.com/cloudstac/GHRC_DAAC/collections',
+            href: 'https://example.com/cloudstac/GHRC_DAAC/collections',
             title: 'Provider Collections',
             type: 'application/json'
           },
           {
             rel: 'search',
-            href: 'http://example.com/cloudstac/GHRC_DAAC/search',
+            href: 'https://example.com/cloudstac/GHRC_DAAC/search',
             title: 'Provider Item Search',
             type: 'application/geo+json',
             method: 'GET'
           },
           {
             rel: 'search',
-            href: 'http://example.com/cloudstac/GHRC_DAAC/search',
+            href: 'https://example.com/cloudstac/GHRC_DAAC/search',
             title: 'Provider Item Search',
             type: 'application/geo+json',
             method: 'POST'
           },
           {
             rel: 'conformance',
-            href: 'http://example.com/cloudstac/GHRC_DAAC/conformance',
+            href: 'https://example.com/cloudstac/GHRC_DAAC/conformance',
             title: 'Conformance Classes',
             type: 'application/geo+json'
           },
@@ -332,7 +332,7 @@ describe('getProvider', () => {
         links: [
           {
             rel: 'next',
-            href: 'http://example.com?page=2'
+            href: 'https://example.com?page=2'
           }
         ],
         conformsTo: [

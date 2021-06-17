@@ -40,23 +40,23 @@
   "links": [
     {
       "rel": "self",
-      "href": "http://example.com/stac/LANCEMODIS/collections/MYD02HKM.v6.1NRT/items/G1848422111-LANCEMODIS"
+      "href": "https://example.com/stac/LANCEMODIS/collections/MYD02HKM.v6.1NRT/items/G1848422111-LANCEMODIS"
     },
     {
       "rel": "parent",
-      "href": "http://example.com/stac/LANCEMODIS/collections/MYD02HKM.v6.1NRT"
+      "href": "https://example.com/stac/LANCEMODIS/collections/MYD02HKM.v6.1NRT"
     },
     {
       "rel": "collection",
-      "href": "http://example.com/stac/LANCEMODIS/collections/MYD02HKM.v6.1NRT"
+      "href": "https://example.com/stac/LANCEMODIS/collections/MYD02HKM.v6.1NRT"
     },
     {
       "rel": "root",
-      "href": "http://example.com/stac/"
+      "href": "https://example.com/stac/"
     },
     {
       "rel": "provider",
-      "href": "http://example.com/stac/LANCEMODIS"
+      "href": "https://example.com/stac/LANCEMODIS"
     },
     {
       "rel": "via",
