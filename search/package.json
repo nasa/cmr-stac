@@ -35,7 +35,7 @@
   },
   "scripts": {
     "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline --config serverless.yml",
-    "start": "IS_LOCAL=true sls offline --config serverless.yml --protocol https",
+    "start": "IS_LOCAL=true sls offline --config serverless.yml --protocol http",
     "deploy": "sls deploy --config serverless.yml",
     "deploy-docs": "sls s3deploy -v  --config serverless-ngap.yml",
     "ngap-deploy": "sls deploy --config serverless-ngap.yml",
