@@ -3,6 +3,7 @@ const _ = require('lodash');
 const settings = require('../settings');
 const app = require('./app');
 const { UrlBuilder } = require('./url-builder');
+const buildUrl = require('build-url');
 const { WfsLink } = require('./wfs-link');
 const { createLogger } = require('./logger');
 
@@ -90,12 +91,10 @@ function makeAsyncHandler (fn) {
 }
 
 const makeCmrSearchUrl = (path, queryParams = null) => {
-  return UrlBuilder.create()
-    .withProtocol(settings.cmrProtocol)
-    .withHost(settings.cmrSearchHost)
-    .withPath(path)
-    .withQuery(queryParams)
-    .build();
+  return buildUrl(settings.cmrUrl, {
+    path,
+    queryParams
+  });
 };
 
 function firstIfArray (value) {
