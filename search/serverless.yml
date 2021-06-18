@@ -17,8 +17,7 @@ functions:
           path: /{proxy+}
           method: any
     environment:
-      CMR_SEARCH_HOST: ${opt:cmr-search-host, 'cmr.earthdata.nasa.gov/search'}
-      CMR_PROVIDER_HOST: ${opt:cmr-provider-host, 'cmr.earthdata.nasa.gov/ingest/providers'}
+      CMR_URL: 'https://cmr.earthdata.nasa.gov'
       CMR_STAC_RELATIVE_ROOT_URL: /stac
       CMR_STAC_PROTOCOL: ${opt:protocol, 'https'}
       LOG_LEVEL: info
