@@ -24,16 +24,6 @@ function getHostHeader (event) {
   return getKeyCaseInsensitive(event.headers, 'host');
 }
 
-function createRedirectUrl (event, redirectPath) {
-  const host = getHostHeader(event);
-  return `${settings.protocol}://${host}${settings.cmrStacRelativeRootUrl}${redirectPath}`;
-}
-
-function getStacBaseUrl (event) {
-  const host = getHostHeader(event);
-  return `${settings.protocol}://${host}${settings.cmrStacRelativeRootUrl}${settings.stac.stacRelativePath}`;
-}
-
 function createUrl (host, path, queryParams) {
   return UrlBuilder.create()
     .withProtocol('http')
@@ -155,13 +145,11 @@ function createNavLink (event, params, rel) {
 module.exports = {
   ...app,
   logRequest,
-  createRedirectUrl,
   createUrl,
   createSecureUrl,
   generateAppUrl,
   generateAppUrlWithoutRelativeRoot,
   generateSelfUrl,
-  getStacBaseUrl,
   makeCmrSearchUrl,
   WfsLink,
   createLogger,
