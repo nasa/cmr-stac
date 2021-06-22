@@ -3,7 +3,6 @@ const _ = require('lodash');
 const settings = require('../settings');
 const app = require('./app');
 const buildUrl = require('build-url');
-const { WfsLink } = require('./wfs-link');
 const { createLogger } = require('./logger');
 
 const logger = createLogger(settings.logger);
@@ -139,7 +138,6 @@ module.exports = {
   generateAppUrlWithoutRelativeRoot,
   generateSelfUrl,
   makeCmrSearchUrl,
-  WfsLink,
   createLogger,
   logger,
   makeAsyncHandler,
