@@ -81,7 +81,7 @@ function makeAsyncHandler (fn) {
 }
 
 const makeCmrSearchUrl = (path, queryParams = null) => {
-  return buildUrl(settings.cmrUrl, {
+  return buildUrl(settings.cmrUrl + '/search', {
     path,
     queryParams
   });
