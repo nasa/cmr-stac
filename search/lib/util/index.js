@@ -2,7 +2,6 @@ const _ = require('lodash');
 
 const settings = require('../settings');
 const app = require('./app');
-const { UrlBuilder } = require('./url-builder');
 const buildUrl = require('build-url');
 const { WfsLink } = require('./wfs-link');
 const { createLogger } = require('./logger');
@@ -24,25 +23,7 @@ function getHostHeader (event) {
   return getKeyCaseInsensitive(event.headers, 'host');
 }
 
-function createUrl (host, path, queryParams) {
-  return UrlBuilder.create()
-    .withProtocol('http')
-    .withHost(host)
-    .withPath(path)
-    .withQuery(queryParams)
-    .build();
-}
-
-function createSecureUrl (host, path, queryParams) {
-  return UrlBuilder.create()
-    .withProtocol('https')
-    .withHost(host)
-    .withPath(path)
-    .withQuery(queryParams)
-    .build();
-}
-
-function generateAppUrlWithoutRelativeRoot (event, path, queryParams = null) {
+function generateAppUrlWithoutRelativeRoot (event, path, parameters) {
   const host = getHostHeader(event);
 
   let stagePath = '';
@@ -54,11 +35,20 @@ function generateAppUrlWithoutRelativeRoot (event, path, queryParams = null) {
   }
 
   const newPath = `${stagePath}${path || ''}`;
-  if (settings.protocol === 'https') {
-    return createSecureUrl(host, newPath, queryParams);
-  } else {
-    return createUrl(host, newPath, queryParams);
+
+  let queryParams = parameters;
+  if (parameters !== null && parameters instanceof Array) {
+    if (parameters.length === 0) {
+      queryParams = null;
+    }
   }
+
+  const url = buildUrl(`${settings.protocol}://${host}`, {
+    path: newPath,
+    queryParams
+  });
+
+  return url;
 }
 
 function generateAppUrl (event, path, queryParams = null) {
@@ -145,8 +135,6 @@ function createNavLink (event, params, rel) {
 module.exports = {
   ...app,
   logRequest,
-  createUrl,
-  createSecureUrl,
   generateAppUrl,
   generateAppUrlWithoutRelativeRoot,
   generateSelfUrl,
