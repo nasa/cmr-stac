@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const axios = require('axios');
-const { UrlBuilder } = require('./util/url-builder');
 const {
   logger,
   makeCmrSearchUrl
@@ -59,10 +58,7 @@ async function cmrSearchPost (path, params) {
  * Get list of providers
  */
 async function getProviderList () {
-  const providerUrl = UrlBuilder.create()
-    .withProtocol(settings.cmrSearchProtocol)
-    .withHost(settings.cmrProviderHost)
-    .build();
+  const providerUrl = `${settings.cmrUrl}/ingest/providers`;
   const rawProviders = await axios.get(providerUrl);
   return rawProviders.data;
 }
