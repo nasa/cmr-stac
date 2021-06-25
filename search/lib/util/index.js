@@ -12,6 +12,19 @@ function logRequest (request) {
   logger.debug(JSON.stringify({ headers, baseUrl, params, query, body, apiGateway }));
 }
 
+/**
+ *
+ * @param {string, array} value
+ */
+function toArray (value) {
+  console.log(`Value: ${value}`);
+  if (typeof value === 'string' || value instanceof String) {
+    return value.split(',');
+  } else {
+    return value;
+  }
+}
+
 function getKeyCaseInsensitive (object, key) {
   const i = Object.keys(object)
     .find(k => k.toLowerCase() === key.toLowerCase());
@@ -134,6 +147,7 @@ function createNavLink (event, params, rel) {
 module.exports = {
   ...app,
   logRequest,
+  toArray,
   generateAppUrl,
   generateAppUrlWithoutRelativeRoot,
   generateSelfUrl,
