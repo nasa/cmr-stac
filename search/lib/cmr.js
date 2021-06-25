@@ -2,7 +2,8 @@ const _ = require('lodash');
 const axios = require('axios');
 const {
   logger,
-  makeCmrSearchUrl
+  makeCmrSearchUrl,
+  toArray
 } = require('./util');
 const settings = require('./settings');
 
@@ -19,8 +20,8 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
   intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
   limit: ['page_size', _.identity],
   page: ['page_num', _.identity],
-  collections: ['collection_concept_id', _.identity],
-  ids: ['granule_ur', _.identity]
+  collections: ['collection_concept_id', toArray],
+  ids: ['granule_ur', toArray]
 };
 
 const DEFAULT_HEADERS = {
@@ -275,7 +276,7 @@ async function convertParam (providerId, key, value) {
   // If collection parameter need to translate to CMR parameter
   if (key === 'collections') {
     // async map to do collection ID conversions in parallel
-    const collections = await Promise.reduce(value, async (result, v) => {
+    const collections = await Promise.reduce(toArray(value), async (result, v) => {
       const collectionId = await stacIdToCmrCollectionId(providerId, v);
       // if valid collection, return CMR ID for it
       if (collectionId) {
