@@ -1,15 +1,23 @@
 # NASA CMR STAC
 
 NASA's [Common Metadata Repository (CMR)](https://cmr.earthdata.nasa.gov/search) is a metadata
-catalog of NASA Earth Science data. This repository, CMR-STAC, is a STAC API interface to CMR.
-[STAC, or SpatioTemporal Asset Catalog](https://stacspec.org/), is a 
+catalog of NASA Earth Science data. [STAC, or SpatioTemporal Asset Catalog](https://stacspec.org/), is a 
 [specification](https://github.com/radiantearth/stac-spec) for describing geospatial data with
 [JSON](https://www.json.org/) and [GeoJSON](http://geojson.io/). The related 
 [STAC-API specification](https://github.com/radiantearth/stac-api-spec) defines an API 
 for searching and browsing STAC catalogs.
 
-CMR-STAC is a proxy service that translates user queries to CMR queries, issues them to CMR, and translates
-the response to a STAC compliant objects. CMR-STAC does not store or use it's own database.
+CMR-STAC acts as a proxy between the CMR repository and STAC API queries.
+The goal is to expose CMR's vast collections of geosptial data as a STAC-compliant API.
+Even though the core metadata remains the same, a benefit of the CMR-STAC proxy is the ability
+to use the growing ecosystem of STAC software. Underneath, STAC API queries are translated into
+CMR queries which are sent to CMR and the responses are translated into STAC Collections and Items.
+This entire process happens dynamically at runtime, so responses will always be representative of
+whatever data is currently stored in CMR. If there are any deletions of data in CMR by data providers,
+those deletions are represented in CMR-STAC immediately.
+
+CMR-STAC follows the STAC API 1.0.0-beta.1 specification, see the
+[OpenAPI documentation](https://api.stacspec.org/v1.0.0-beta.1/index.html).
 
 ## Usage
 
