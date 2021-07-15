@@ -41,7 +41,7 @@ Navigating to a provider yields a STAC Catalog, but one that has some additional
 | collections | /{provider-id}/collections | response includes an array of all collections for this provider |
 | search | /{provider-id}/search | There are 2 search links, one indicating it accepts GET requests, the other POST requests |
 | conformance | /{provider-id}/conformance | returns a list of conformance classes, identical to the list of classes in the `conformsTo` field |
-| service-desc | [STAC API desc](https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml) | CMR-STAC currently doesn't provide it's own OpenAPI doc, it complies to the STAC API Spec published OpenAPI |
+| service-desc | [STAC API desc](https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml) | CMR-STAC currently doesn't provide its own OpenAPI doc, it complies to the STAC API Spec published OpenAPI |
 | service-docs | [STAC API doc](https://api.stacspec.org/v1.0.0-beta.1/openapi.html) | Same as `service-desc` except this is an html render of the OpenAPI doc |
 | child | /{providerId}/{collectionId} | A single STAC Collection | 
 | prev, next | /{providerId}?page=X | Pagination links if there are more than 10 collections within this provider |
@@ -88,7 +88,7 @@ Each Item returned from CMR-STAC includes a series of links as well:
 | via | The original CMR metadata used to generate the STAC metadata returned |
 
 ## Browsing
-The first thing to do when getting familiar with CMR-STAC is to browse through the catalog and get a sense for it's structure, and what types of data (Collections and Items) are available. 
+The first thing to do when getting familiar with CMR-STAC is to browse through the catalog and get a sense for its structure, and what types of data (Collections and Items) are available. 
 The easiest way to browse is to install a JSON extension for your browser of choice (e.g., [JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa/related) for Chrome).
 
 ![](https://s3.gifyu.com/images/cmr-stac-browse-opt.gif)
