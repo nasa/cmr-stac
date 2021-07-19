@@ -238,7 +238,8 @@ async function cmrGranuleToStac (event, granule) {
   }
 
   assets.metadata = wfs.createAssetLink(makeCmrSearchUrl(`/concepts/${granule.id}.native`));
-  const collectionId = await cmr.cmrCollectionIdToStacId(granule.collection_concept_id);
+  const { ShortName, Version } = granule.umm.CollectionReference;
+  const collectionId = cmr.cmrCollectionToStacId(ShortName, Version);
   const gid = granule.umm.GranuleUR;
   return {
     type: 'Feature',

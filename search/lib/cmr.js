@@ -170,15 +170,9 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
  * @param {string} providerId CMR Provider ID
  * @param {string} collectionId CMR Collection ID
  */
-async function cmrCollectionIdToStacId (collectionId) {
-  let stacId = myCache.get(collectionId);
-  if (stacId) {
-    return stacId;
-  }
-  const collections = await findCollections({ concept_id: collectionId });
-  stacId = `${collections[0].short_name}.v${collections[0].version_id}`;
-  myCache.set(collectionId, stacId, settings.cacheTtl);
-  return stacId;
+function cmrCollectionToStacId (shortName, version = null) {
+  const collectionId = `${shortName}.v${version}`;
+  return collectionId;
 }
 
 function getFacetParams (year, month, day) {
@@ -329,7 +323,7 @@ module.exports = {
   findGranules,
   stacCollectionToCmrParams,
   stacIdToCmrCollectionId,
-  cmrCollectionIdToStacId,
+  cmrCollectionToStacId,
   getFacetParams,
   getGranuleTemporalFacets,
   convertParams
