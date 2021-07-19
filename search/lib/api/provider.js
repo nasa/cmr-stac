@@ -59,8 +59,8 @@ async function getProvider (request, response) {
         'HTML documentation', 'text/html')
     ];
 
-    const childLinks = await Promise.map(providerHoldings, async (collection) => {
-      const collectionId = await cmr.cmrCollectionIdToStacId(collection['id']);
+    const childLinks = providerHoldings.map(collection => {
+      const collectionId = cmr.cmrCollectionToStacId(collection.short_name, collection.version_id);
       return wfs.createLink(
         'child',
         generateAppUrl(event, `/${providerId}/collections/${collectionId}`),
