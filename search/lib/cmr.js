@@ -124,17 +124,16 @@ async function findGranules (params = {}) {
  * @param {string} collectionId The STAC Collection ID
  */
 function stacCollectionToCmrParams (providerId, collectionId) {
-  const parts = collectionId.split('.v');
-  if (parts.length < 2) {
-    return null;
-  }
-  const version = parts.pop();
-  const shortName = parts.join('.');
   const cmrParams = {
-    provider_id: providerId,
-    short_name: shortName,
-    version
+    provider_id: providerId
   };
+  const parts = collectionId.split('.v');
+  if (parts.length == 1) {
+    cmrParams.short_name = collectionId;
+  } else {
+    cmrParams.version = parts.pop();
+    cmrParams.short_name = parts.join('.');
+  }
   if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
     cmrParams.tag_key = 'gov.nasa.earthdatacloud.s3';
   }
@@ -171,8 +170,11 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
  * @param {string} collectionId CMR Collection ID
  */
 function cmrCollectionToStacId (shortName, version = null) {
-  const collectionId = `${shortName}.v${version}`;
-  return collectionId;
+  const invalidVersions = ['Not provided', 'NA'];
+  if (version && !invalidVersions.includes(version)) {
+    return `${shortName}.v${version}`;
+  }
+  return shortName;
 }
 
 function getFacetParams (year, month, day) {
