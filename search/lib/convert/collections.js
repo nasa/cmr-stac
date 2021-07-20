@@ -1,3 +1,4 @@
+const cmr = require('../cmr');
 const settings = require('../settings');
 const { wfs, generateAppUrl, makeCmrSearchUrl } = require('../util');
 const {
@@ -51,17 +52,16 @@ function createExtent (cmrCollection) {
 }
 
 function createLinks (event, cmrCollection) {
-  const collectionId = `${cmrCollection.short_name}.v${cmrCollection.version_id}`;
   const provider = cmrCollection.data_center;
 
   const links = [
-    wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${collectionId}`),
+    wfs.createLink('self', generateAppUrl(event, `/${provider}/collections/${cmrCollection.stacId}`),
       'Info about this collection'),
     wfs.createLink('root', generateAppUrl(event, ''),
       'Root catalog'),
     wfs.createLink('parent', generateAppUrl(event, `/${provider}`),
       'Parent catalog'),
-    wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${collectionId}/items`),
+    wfs.createLink('items', generateAppUrl(event, `/${provider}/collections/${cmrCollection.stacId}/items`),
       'Granules in this collection'),
     wfs.createLink('about', makeCmrSearchUrl(`/concepts/${cmrCollection.id}.html`),
       'HTML metadata for collection'),
@@ -73,8 +73,10 @@ function createLinks (event, cmrCollection) {
 
 function cmrCollToWFSColl (event, cmrCollection) {
   if (!cmrCollection) return [];
+  const stacId = cmr.cmrCollectionToStacId(cmrCollection.short_name, cmrCollection.version_id);
+  cmrCollection.stacId = stacId;
   const collection = {
-    id: `${cmrCollection.short_name}.v${cmrCollection.version_id}`,
+    id: stacId,
     stac_version: settings.stac.version,
     license: cmrCollection.license || 'not-provided',
     title: cmrCollection.dataset_id,
