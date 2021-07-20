@@ -247,11 +247,11 @@ describe('granuleToItem', () => {
 
   describe('cmrGranulesToStac', () => {
     beforeEach(() => {
-      mockFunction(cmr, 'cmrCollectionIdToStacId', Promise.resolve('landsat.v1'));
+      mockFunction(cmr, 'cmrCollectionToStacId', 'landsat.v1');
     });
 
     afterEach(() => {
-      revertFunction(cmr, 'cmrCollectionIdToStacId');
+      revertFunction(cmr, 'cmrCollectionToStacId');
     });
 
     const cmrGran = [{
@@ -274,7 +274,11 @@ describe('granuleToItem', () => {
       data_center: 'USA',
       points: ['77,139'],
       umm: {
-        GranuleUR: 1
+        GranuleUR: 1,
+        CollectionReference: {
+          ShortName: 'landsat',
+          Version: '1'
+        }
       }
     }];
 

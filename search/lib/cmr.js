@@ -128,7 +128,7 @@ function stacCollectionToCmrParams (providerId, collectionId) {
     provider_id: providerId
   };
   const parts = collectionId.split('.v');
-  if (parts.length == 1) {
+  if (parts.length === 1) {
     cmrParams.short_name = collectionId;
   } else {
     cmrParams.version = parts.pop();
