@@ -124,17 +124,16 @@ async function findGranules (params = {}) {
  * @param {string} collectionId The STAC Collection ID
  */
 function stacCollectionToCmrParams (providerId, collectionId) {
-  const parts = collectionId.split('.v');
-  if (parts.length < 2) {
-    return null;
-  }
-  const version = parts.pop();
-  const shortName = parts.join('.');
   const cmrParams = {
-    provider_id: providerId,
-    short_name: shortName,
-    version
+    provider_id: providerId
   };
+  const parts = collectionId.split('.v');
+  if (parts.length === 1) {
+    cmrParams.short_name = collectionId;
+  } else {
+    cmrParams.version = parts.pop();
+    cmrParams.short_name = parts.join('.');
+  }
   if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
     cmrParams.tag_key = 'gov.nasa.earthdatacloud.s3';
   }
@@ -170,15 +169,12 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
  * @param {string} providerId CMR Provider ID
  * @param {string} collectionId CMR Collection ID
  */
-async function cmrCollectionIdToStacId (collectionId) {
-  let stacId = myCache.get(collectionId);
-  if (stacId) {
-    return stacId;
+function cmrCollectionToStacId (shortName, version = null) {
+  const invalidVersions = ['Not provided', 'NA'];
+  if (version && !invalidVersions.includes(version)) {
+    return `${shortName}.v${version}`;
   }
-  const collections = await findCollections({ concept_id: collectionId });
-  stacId = `${collections[0].short_name}.v${collections[0].version_id}`;
-  myCache.set(collectionId, stacId, settings.cacheTtl);
-  return stacId;
+  return shortName;
 }
 
 function getFacetParams (year, month, day) {
@@ -329,7 +325,7 @@ module.exports = {
   findGranules,
   stacCollectionToCmrParams,
   stacIdToCmrCollectionId,
-  cmrCollectionIdToStacId,
+  cmrCollectionToStacId,
   getFacetParams,
   getGranuleTemporalFacets,
   convertParams

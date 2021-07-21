@@ -90,7 +90,8 @@
       }
     ],
     "CollectionReference": {
-      "EntryTitle": "Vegetation Index and Phenology (VIP) Vegetation Indices Daily Global 0.05Deg CMG V004"
+      "ShortName": "VIP01",
+      "Version": "004"
     },
     "RelatedUrls": [
       {

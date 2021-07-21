@@ -238,7 +238,17 @@ async function cmrGranuleToStac (event, granule) {
   }
 
   assets.metadata = wfs.createAssetLink(makeCmrSearchUrl(`/concepts/${granule.id}.native`));
-  const collectionId = await cmr.cmrCollectionIdToStacId(granule.collection_concept_id);
+  let { ShortName, EntryTitle, Version } = granule.umm.CollectionReference;
+  if (EntryTitle) {
+    const collections = await cmr.findCollections({ entry_title: EntryTitle });
+    if (collections.length === 0) {
+      return null;
+    } else {
+      ShortName = collections[0].short_name;
+      Version = collections[0].version_id;
+    }
+  }
+  const collectionId = cmr.cmrCollectionToStacId(ShortName, Version);
   const gid = granule.umm.GranuleUR;
   return {
     type: 'Feature',
