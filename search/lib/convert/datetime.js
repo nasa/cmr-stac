@@ -1,6 +1,6 @@
 const ISO_8601_DATE_RX = new RegExp(
   '(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})[+-](\\d{2}):(\\d{2})');
-const DATE_TIME_RX = new RegExp('\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{2:4})?Z');
+const DATE_TIME_RX = new RegExp('\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{2,4})?Z');
 const DATE_RX = new RegExp('\\d{4}-\\d{2}-\\d{2}');
 const TIME_RX = new RegExp('\\d{2}:\\d{2}:\\d{2}([a|p]m)?', 'i');
 
