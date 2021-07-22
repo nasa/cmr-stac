@@ -209,7 +209,7 @@ describe('getProvider', () => {
             rel: 'service-desc',
             href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
             title: 'OpenAPI Doc',
-            type: 'application/vnd.oai.openapi+json;version=3.0'
+            type: 'application/vnd.oai.openapi;version=3.0'
           },
           {
             rel: 'service-doc',
@@ -301,7 +301,7 @@ describe('getProvider', () => {
             rel: 'service-desc',
             href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
             title: 'OpenAPI Doc',
-            type: 'application/vnd.oai.openapi+json;version=3.0'
+            type: 'application/vnd.oai.openapi;version=3.0'
           },
           {
             rel: 'service-doc',
