@@ -185,11 +185,11 @@ describe('granuleToItem', () => {
     it('should return a bounding box from given polygon', () => {
       cmrCollection = {
         polygons: [[
-          '-46.728858 -130.072843 -51.176483 -163.057516 -69.364972 -164.573697 -61.968957 -112.537606 -46.728858 -130.072843'
+          '-46.72885 -130.07284 -51.17648 -163.05751 -69.36497 -164.57369 -61.96895 -112.53760 -46.72885 -130.07284'
         ]]
       };
       expect(cmrSpatialToStacBbox(cmrCollection))
-        .toEqual([-164.573697, -69.492825, -112.537606, -46.728858]);
+        .toEqual([-164.57369, -69.492822, -112.5376, -46.72885]);
     });
 
     it('should return a bounding box from given points', () => {
