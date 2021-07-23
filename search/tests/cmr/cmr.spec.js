@@ -196,14 +196,95 @@ describe('cmr', () => {
         expect(result).toEqual({ provider: 'provider', temporal: '12:34:00pm' });
       });
 
-      it('should convert intersects into polygon.', async () => {
+      it('should convert GeoJSON Polygon', async () => {
         const params = {
           intersects: {
-            coordinates: [[10, 10], [10, 0], [0, 10]]
+            type: 'Polygon',
+            coordinates: [
+              [[10, 10], [10, 0], [0, 10], [10, 10]]
+            ]
           }
         };
         const result = await convertParams('provider', params);
-        expect(result).toEqual({ provider: 'provider', polygon: '10,10' });
+        expect(result).toEqual({ provider: 'provider', polygon: '10,10,10,0,0,10,10,10' });
+      });
+
+      it('should convert GeoJSON Point', async () => {
+        const params = {
+          intersects: {
+            type: 'Point',
+            coordinates: [10, 10]
+          }
+        };
+        const result = await convertParams('provider', params);
+        expect(result).toEqual({ provider: 'provider', point: '10,10' });
+      });
+
+      it('should convert GeoJSON LineString', async () => {
+        const params = {
+          intersects: {
+            type: 'LineString',
+            coordinates: [
+              [10, 10], [10, 0], [0, 10]
+            ]
+          }
+        };
+        const result = await convertParams('provider', params);
+        expect(result).toEqual({ provider: 'provider', line: '10,10,10,0,0,10' });
+      });
+
+      it('should convert GeoJSON MultiPolygon', async () => {
+        const params = {
+          intersects: {
+            type: 'MultiPolygon',
+            coordinates: [
+              [
+                [[10, 10], [10, 0], [0, 10], [10, 10]]
+              ],
+              [
+                [[20, 20], [20, 10], [10, 20], [20, 20]]
+              ]
+            ]
+          }
+        };
+        const result = await convertParams('provider', params);
+        expect(result).toEqual({
+          provider: 'provider',
+          polygon: ['10,10,10,0,0,10,10,10', '20,20,20,10,10,20,20,20'],
+          'options[polygon][or]': 'true'
+        });
+      });
+
+      it('should convert GeoJSON MultiPoint', async () => {
+        const params = {
+          intersects: {
+            type: 'MultiPoint',
+            coordinates: [
+              [10, 10],
+              [20, 20]
+            ]
+          }
+        };
+        const result = await convertParams('provider', params);
+        expect(result).toEqual({ provider: 'provider', point: ['10,10', '20,20'], 'options[point][or]': 'true' });
+      });
+
+      it('should convert GeoJSON MultiLineString', async () => {
+        const params = {
+          intersects: {
+            type: 'MultiLineString',
+            coordinates: [
+              [[10, 10], [10, 0], [0, 10]],
+              [[20, 20], [20, 10], [10, 20]]
+            ]
+          }
+        };
+        const result = await convertParams('provider', params);
+        expect(result).toEqual({
+          provider: 'provider',
+          line: ['10,10,10,0,0,10', '20,20,20,10,10,20'],
+          'options[line][or]': 'true'
+        });
       });
 
       it('should convert limit to page_size.', async () => {

@@ -10,18 +10,21 @@ const settings = require('./settings');
 const {
   convertDateTimeToCMR
 } = require('./convert/datetime');
+const {
+  convertGeometryToCMR
+} = require('./convert/coordinate');
 const NodeCache = require('node-cache');
 const myCache = new NodeCache();
 const Promise = require('bluebird');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
-  bbox: ['bounding_box', _.toString],
-  datetime: ['temporal', convertDateTimeToCMR],
-  intersects: ['polygon', (v) => _.flattenDeep(_.first(v.coordinates)).join(',')],
-  limit: ['page_size', _.identity],
-  page: ['page_num', _.identity],
-  collections: ['collection_concept_id', toArray],
-  ids: ['granule_ur', toArray]
+  bbox: (v) => [['bounding_box', _.toString(v)]],
+  datetime: (v) => [['temporal', convertDateTimeToCMR(v)]],
+  intersects: convertGeometryToCMR,
+  limit: (v) => [['page_size', _.identity(v)]],
+  page: (v) => [['page_num', _.identity(v)]],
+  collections: (v) => [['collection_concept_id', toArray(v)]],
+  ids: (v) => [['granule_ur', toArray(v)]]
 };
 
 const DEFAULT_HEADERS = {
@@ -197,7 +200,8 @@ function getFacetParams (year, month, day) {
 }
 
 async function getGranuleTemporalFacets (params = {}, year, month, day) {
-  const { tag_key, ...cmrParams } = Object.assign(params, getFacetParams(year, month, day));
+  const cmrParams = Object.assign(params, getFacetParams(year, month, day));
+  delete cmrParams.tag_key;
 
   const facets = {
     years: [],
@@ -281,13 +285,12 @@ async function convertParam (providerId, key, value) {
       return result;
     }, []);
     if (collections.length === 0) {
-      return [];
+      return [[]];
     } else {
-      return ['collection_concept_id', collections];
+      return [['collection_concept_id', collections]];
     }
   } else {
-    const [newName, converter] = STAC_SEARCH_PARAMS_CONVERSION_MAP[key];
-    return [newName, converter(value)];
+    return STAC_SEARCH_PARAMS_CONVERSION_MAP[key](value);
   }
 }
 
@@ -301,9 +304,11 @@ async function convertParams (providerId, params = {}) {
     // async map to do all param conversions in parallel
     const converted = await Promise.reduce(Object.entries(params), async (result, [k, v]) => {
       const param = await convertParam(providerId, k, v);
-      if (param.length === 2) {
-        result.push(param);
-      }
+      param.forEach((p) => {
+        if (p.length === 2) {
+          result.push(p);
+        }
+      });
       return result;
     }, []);
     logger.debug(`Params: ${JSON.stringify(params)}`);
