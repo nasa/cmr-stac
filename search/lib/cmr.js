@@ -236,7 +236,7 @@ async function getGranuleTemporalFacets (params = {}, year, month, day) {
       facets.days = days;
     }
     if (day) {
-      const itemids = response.data.feed.entry.map(i => i.id);
+      const itemids = response.data.feed.entry.map(i => i.title);
       facets.itemids = itemids;
     }
   }
