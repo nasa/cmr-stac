@@ -342,7 +342,24 @@ describe('cmr', () => {
     describe('getGranuleTemporalFacets', () => {
       beforeEach(() => {
         axios.get = jest.fn();
-        const resp = { data: { feed: { facets: { has_children: true,
+        const resp = { data: { feed: {
+          entry: [{
+            time_start: '2003-05-07T01:34:57.321Z',
+            updated: '2003-05-12T00:00:00.000Z',
+            dataset_id: 'Earth Observing-1 Advanced Land Imager V1',
+            data_center: 'USGS_EROS',
+            title: 'EO1A1090782003127110PZ_LGS_01',
+            coordinate_system: 'GEODETIC',
+            day_night_flag: 'UNSPECIFIED',
+            time_end: '2003-05-07T01:35:09.321Z',
+            id: 'G1380417046-USGS_EROS',
+            original_format: 'ECHO10',
+            browse_flag: true,
+            polygons: [ [Array] ],
+            collection_concept_id: 'C1379757686-USGS_EROS',
+            online_access_flag: true,
+          }],
+          facets: { has_children: true,
           children: [{
             title: 'Temporal',
             children: [{
@@ -357,7 +374,13 @@ describe('cmr', () => {
                         title: '05',
                         children: [{
                           title: 'Day',
-                          children: [{ title: '20' }, { title: '22' }, { title: '23' }]
+                          children: [
+                            {
+                              title: '20',
+                              children: [{title: 'item1'}]
+                            },
+                            { title: '22' },
+                            { title: '23' }]
                         }]
                       },
                       { title: '06' }
@@ -386,6 +409,10 @@ describe('cmr', () => {
       it('should return day facets', async () => {
         const facets = await getGranuleTemporalFacets(cmrParams, '2001', '05');
         expect(Object.keys(facets['days']).length).toEqual(3);
+      });
+      it('should return granule ur and not granule concept id', async () => {
+        const facets = await getGranuleTemporalFacets(cmrParams, '2001', '05', '20');
+        expect(facets.itemids).toEqual(expect.arrayContaining(['EO1A1090782003127110PZ_LGS_01']));
       });
     });
   });
