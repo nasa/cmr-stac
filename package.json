@@ -13,7 +13,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.1",
-    "axios": "0.21.1",
+    "axios": "0.21.2",
     "eslint": "^6.1.0",
     "eslint-config-semistandard": "^14.0.0",
     "eslint-config-standard": "^13.0.1",
