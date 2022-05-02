@@ -47,7 +47,7 @@ const expectedLinks = [
     title: 'CMR-STAC Documentation',
     rel: 'about',
     type: 'application/json',
-    href: 'https://wiki.earthdata.nasa.gov/display/ED/SpatioTemporal+Asset+Catalog+%2528CMR-STAC%2529+Documentation'
+    href: 'https://wiki.earthdata.nasa.gov/display/ED/CMR+SpatioTemporal+Asset+Catalog+%28CMR-STAC%29+Documentation'
   },
   {
     title: 'provAShort',
@@ -86,7 +86,7 @@ const expectedCloudLinks = [
     title: 'CMR-STAC Documentation',
     rel: 'about',
     type: 'application/json',
-    href: 'https://wiki.earthdata.nasa.gov/display/ED/SpatioTemporal+Asset+Catalog+%2528CMR-STAC%2529+Documentation'
+    href: 'https://wiki.earthdata.nasa.gov/display/ED/CMR+SpatioTemporal+Asset+Catalog+%28CMR-STAC%29+Documentation'
   },
   {
     title: 'provAShort',

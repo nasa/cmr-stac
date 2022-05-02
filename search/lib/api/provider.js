@@ -116,7 +116,7 @@ async function getProviders (request, response) {
     wfs.createLink('self', generateAppUrl(event, `/`), 'NASA CMR-STAC Root Catalog'),
     wfs.createLink('root', generateAppUrl(event, '/'), 'NASA CMR-STAC Root Catalog'),
     wfs.createLink('about',
-      'https://wiki.earthdata.nasa.gov/display/ED/SpatioTemporal+Asset+Catalog+%2528CMR-STAC%2529+Documentation',
+      'https://wiki.earthdata.nasa.gov/display/ED/CMR+SpatioTemporal+Asset+Catalog+%28CMR-STAC%29+Documentation',
       'CMR-STAC Documentation'),
     ...providerLinks
   ];
