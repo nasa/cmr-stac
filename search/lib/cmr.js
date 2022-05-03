@@ -62,7 +62,11 @@ async function cmrSearchPost (path, params) {
  * Get list of providers
  */
 async function getProviderList () {
-  const providerUrl = `${settings.cmrUrl}/ingest/providers`;
+  let ingestUrl = '/ingest';
+  if (settings.cmrUrl.includes('localhost')) {
+    ingestUrl = ':3002';
+  }
+  const providerUrl = `${settings.cmrUrl}${ingestUrl}/providers`;
   const rawProviders = await axios.get(providerUrl);
   return rawProviders.data;
 }
