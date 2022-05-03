@@ -30,7 +30,7 @@ functions:
   search-api:
     name: cmr-${self:custom.cmrStacName}-${opt:stage}
     handler: lib/application.handler
-    timeout: 6
+    timeout: 60
     events:
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
