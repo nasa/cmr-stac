@@ -52,7 +52,7 @@ function getSettings () {
     // comma separated list of URL aliases
     settings.cmrStacRouteAliases = process.env.CMR_STAC_ROOT_ALIASES || '/cmr-stac';
     settings.cmrStacRelativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/stac';
-    settings.cmrUrl = process.env.CMR_URL || 'https://cmr.earthdata.nasa.gov';
+    settings.cmrUrl = process.env.CMR_URL;
     settings.protocol = process.env.CMR_STAC_PROTOCOL || 'https';
     settings.cacheTtl = process.env.CMR_STAC_CACHE_TTL || 14400;
     settings.maxLimit = process.env.CMR_STAC_MAX_LIMIT || 250;
