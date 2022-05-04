@@ -159,80 +159,89 @@ describe('getProviders', () => {
 
 describe('getProvider', () => {
   describe('within /stac', () => {
+    const expectedResponse = {
+      id: 'provA',
+      title: 'provA',
+      description: 'Root catalog for provA',
+      stac_version: settings.stac.version,
+      type: 'Catalog',
+      links: [
+        {
+          rel: 'self',
+          href: 'https://example.com/stac/provA',
+          title: 'Provider catalog',
+          type: 'application/json'
+        },
+        {
+          rel: 'root',
+          href: 'https://example.com/stac/',
+          title: 'Root catalog',
+          type: 'application/json'
+        },
+        {
+          rel: 'collections',
+          href: 'https://example.com/stac/provA/collections',
+          title: 'Provider Collections',
+          type: 'application/json'
+        },
+        {
+          rel: 'search',
+          href: 'https://example.com/stac/provA/search',
+          title: 'Provider Item Search',
+          type: 'application/geo+json',
+          method: 'GET'
+        },
+        {
+          rel: 'search',
+          href: 'https://example.com/stac/provA/search',
+          title: 'Provider Item Search',
+          type: 'application/geo+json',
+          method: 'POST'
+        },
+        {
+          rel: 'conformance',
+          href: 'https://example.com/stac/provA/conformance',
+          title: 'Conformance Classes',
+          type: 'application/geo+json'
+        },
+        {
+          rel: 'service-desc',
+          href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+          title: 'OpenAPI Doc',
+          type: 'application/vnd.oai.openapi;version=3.0'
+        },
+        {
+          rel: 'service-doc',
+          href: 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+          title: 'HTML documentation',
+          type: 'text/html'
+        }
+      ],
+      conformsTo: [
+        'https://api.stacspec.org/v1.0.0-beta.1/core',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
+      ]
+    };
+
+    beforeEach(() => {
+      mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
+      mockFunction(cmr, 'findCollections', Promise.resolve([]));
+    });
+    afterEach(() => {
+      revertFunction(cmr, 'getProviderList');
+      revertFunction(cmr, 'findCollections');
+    });
     it('should return a provider json object', async () => {
-      const expectedResponse = {
-        id: 'USGS_EROS',
-        title: 'USGS_EROS',
-        description: 'Root catalog for USGS_EROS',
-        stac_version: settings.stac.version,
-        type: 'Catalog',
-        links: [
-          {
-            rel: 'self',
-            href: 'https://example.com/stac/USGS_EROS',
-            title: 'Provider catalog',
-            type: 'application/json'
-          },
-          {
-            rel: 'root',
-            href: 'https://example.com/stac/',
-            title: 'Root catalog',
-            type: 'application/json'
-          },
-          {
-            rel: 'collections',
-            href: 'https://example.com/stac/USGS_EROS/collections',
-            title: 'Provider Collections',
-            type: 'application/json'
-          },
-          {
-            rel: 'search',
-            href: 'https://example.com/stac/USGS_EROS/search',
-            title: 'Provider Item Search',
-            type: 'application/geo+json',
-            method: 'GET'
-          },
-          {
-            rel: 'search',
-            href: 'https://example.com/stac/USGS_EROS/search',
-            title: 'Provider Item Search',
-            type: 'application/geo+json',
-            method: 'POST'
-          },
-          {
-            rel: 'conformance',
-            href: 'https://example.com/stac/USGS_EROS/conformance',
-            title: 'Conformance Classes',
-            type: 'application/geo+json'
-          },
-          {
-            rel: 'service-desc',
-            href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
-            title: 'OpenAPI Doc',
-            type: 'application/vnd.oai.openapi;version=3.0'
-          },
-          {
-            rel: 'service-doc',
-            href: 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
-            title: 'HTML documentation',
-            type: 'text/html'
-          }
-        ],
-        conformsTo: [
-          'https://api.stacspec.org/v1.0.0-beta.1/core',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
-        ]
-      };
       const request = createRequest({
         params: {
-          providerId: 'USGS_EROS'
+          providerId: 'provA'
         }
       });
       const response = createMockResponse();
@@ -245,111 +254,117 @@ describe('getProvider', () => {
   });
 
   describe('within /cloudstac', () => {
+    const expectedResponse = {
+      id: 'provB',
+      title: 'provB',
+      description: 'Root catalog for provB',
+      stac_version: settings.stac.version,
+      type: 'Catalog',
+      links: [
+        {
+          rel: 'self',
+          href: 'https://example.com/cloudstac/provB',
+          title: 'Provider catalog',
+          type: 'application/json'
+        },
+        {
+          rel: 'root',
+          href: 'https://example.com/cloudstac/',
+          title: 'Root catalog',
+          type: 'application/json'
+        },
+        {
+          rel: 'collections',
+          href: 'https://example.com/cloudstac/provB/collections',
+          title: 'Provider Collections',
+          type: 'application/json'
+        },
+        {
+          rel: 'search',
+          href: 'https://example.com/cloudstac/provB/search',
+          title: 'Provider Item Search',
+          type: 'application/geo+json',
+          method: 'GET'
+        },
+        {
+          rel: 'search',
+          href: 'https://example.com/cloudstac/provB/search',
+          title: 'Provider Item Search',
+          type: 'application/geo+json',
+          method: 'POST'
+        },
+        {
+          rel: 'conformance',
+          href: 'https://example.com/cloudstac/provB/conformance',
+          title: 'Conformance Classes',
+          type: 'application/geo+json'
+        },
+        {
+          rel: 'service-desc',
+          href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+          title: 'OpenAPI Doc',
+          type: 'application/vnd.oai.openapi;version=3.0'
+        },
+        {
+          rel: 'service-doc',
+          href: 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+          title: 'HTML documentation',
+          type: 'text/html'
+        }
+      ],
+      conformsTo: [
+        'https://api.stacspec.org/v1.0.0-beta.1/core',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
+      ]
+    };
+
+    const expectedResponse2 = {
+      id: 'provB',
+      title: 'provB',
+      description: 'Root catalog for provB',
+      stac_version: settings.stac.version,
+      type: 'Catalog',
+      links: [
+        {
+          rel: 'next',
+          href: 'https://example.com?page=2'
+        }
+      ],
+      conformsTo: [
+        'https://api.stacspec.org/v1.0.0-beta.1/core',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
+        'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
+        'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
+      ]
+    };
+
     beforeEach(() => {
       settings.cmrStacRelativeRootUrl = '/cloudstac';
+      mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
+      mockFunction(cmr, 'findCollections', Promise.resolve([expectedResponse2]));
     });
     afterEach(() => {
       settings.cmrStacRelativeRootUrl = '/stac';
+      revertFunction(cmr, 'getProviderList');
+      revertFunction(cmr, 'findCollections');
     });
-    it('should return a provider json object', async () => {
-      const expectedResponse = {
-        id: 'GHRC_DAAC',
-        title: 'GHRC_DAAC',
-        description: 'Root catalog for GHRC_DAAC',
-        stac_version: settings.stac.version,
-        type: 'Catalog',
-        links: [
-          {
-            rel: 'self',
-            href: 'https://example.com/cloudstac/GHRC_DAAC',
-            title: 'Provider catalog',
-            type: 'application/json'
-          },
-          {
-            rel: 'root',
-            href: 'https://example.com/cloudstac/',
-            title: 'Root catalog',
-            type: 'application/json'
-          },
-          {
-            rel: 'collections',
-            href: 'https://example.com/cloudstac/GHRC_DAAC/collections',
-            title: 'Provider Collections',
-            type: 'application/json'
-          },
-          {
-            rel: 'search',
-            href: 'https://example.com/cloudstac/GHRC_DAAC/search',
-            title: 'Provider Item Search',
-            type: 'application/geo+json',
-            method: 'GET'
-          },
-          {
-            rel: 'search',
-            href: 'https://example.com/cloudstac/GHRC_DAAC/search',
-            title: 'Provider Item Search',
-            type: 'application/geo+json',
-            method: 'POST'
-          },
-          {
-            rel: 'conformance',
-            href: 'https://example.com/cloudstac/GHRC_DAAC/conformance',
-            title: 'Conformance Classes',
-            type: 'application/geo+json'
-          },
-          {
-            rel: 'service-desc',
-            href: 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
-            title: 'OpenAPI Doc',
-            type: 'application/vnd.oai.openapi;version=3.0'
-          },
-          {
-            rel: 'service-doc',
-            href: 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
-            title: 'HTML documentation',
-            type: 'text/html'
-          }
-        ],
-        conformsTo: [
-          'https://api.stacspec.org/v1.0.0-beta.1/core',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
-        ]
-      };
 
-      const expectedResponse2 = {
-        id: 'GHRC_DAAC',
-        title: 'GHRC_DAAC',
-        description: 'Root catalog for GHRC_DAAC',
-        stac_version: settings.stac.version,
-        type: 'Catalog',
-        links: [
-          {
-            rel: 'next',
-            href: 'https://example.com?page=2'
-          }
-        ],
-        conformsTo: [
-          'https://api.stacspec.org/v1.0.0-beta.1/core',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#fields',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#query',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#sort',
-          'https://api.stacspec.org/v1.0.0-beta.1/item-search#context',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30',
-          'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
-        ]
-      };
+    it('should return a provider json object', async () => {
       const request = createRequest({
         params: {
-          providerId: 'GHRC_DAAC'
+          providerId: 'provB'
         },
         query: {
           limit: 1

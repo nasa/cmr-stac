@@ -306,7 +306,7 @@ describe('granuleToItem', () => {
           type: 'Feature',
           assets: {
             metadata: {
-              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.xml',
+              href: 'http://localhost:3003/concepts/1.xml',
               type: 'application/xml'
             }
           },
@@ -333,11 +333,11 @@ describe('granuleToItem', () => {
             },
             {
               rel: 'via',
-              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.json'
+              href: 'http://localhost:3003/concepts/1.json'
             },
             {
               rel: 'via',
-              href: 'https://cmr.earthdata.nasa.gov/search/concepts/1.umm_json'
+              href: 'http://localhost:3003/concepts/1.umm_json'
             }
           ]
         }],

@@ -105,7 +105,7 @@ describe('STAC Search Params', () => {
       await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
-        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        'http://localhost:3003/granules.json',
         {
           params: {
             provider: 'LPDAAC',
@@ -128,7 +128,7 @@ describe('STAC Search Params', () => {
       await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
-        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        'http://localhost:3003/granules.json',
         {
           params: {
             provider: 'LPDAAC',
@@ -151,7 +151,7 @@ describe('STAC Search Params', () => {
       await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
-        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        'http://localhost:3003/granules.json',
         {
           params: {
             provider: 'LPDAAC',
@@ -173,7 +173,7 @@ describe('STAC Search Params', () => {
       await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
-        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        'http://localhost:3003/granules.json',
         {
           params: {
             provider: 'LPDAAC',
@@ -195,7 +195,7 @@ describe('STAC Search Params', () => {
       await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
-        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        'http://localhost:3003/granules.json',
         {
           params: {
             provider: 'LPDAAC',
@@ -217,7 +217,7 @@ describe('STAC Search Params', () => {
       await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
-        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        'http://localhost:3003/granules.json',
         {
           params: {
             provider: 'LPDAAC',
@@ -239,7 +239,7 @@ describe('STAC Search Params', () => {
       await search(request, response);
 
       expect(axios.get).toHaveBeenCalledWith(
-        'https://cmr.earthdata.nasa.gov/search/granules.json',
+        'http://localhost:3003/granules.json',
         {
           params: {
             provider: 'LPDAAC',
