@@ -17,7 +17,6 @@ function logRequest (request) {
  * @param {string, array} value
  */
 function toArray (value) {
-  console.log(`Value: ${value}`);
   if (typeof value === 'string' || value instanceof String) {
     return value.split(',');
   } else {

@@ -29,7 +29,7 @@ functions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
     logSubscription: true
     environment:
-      CMR_URL: ${cf:${opt:stage}.servicesDnsName}
+      CMR_URL: ${opt:cmr-url}
       CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
       BROWSE_PATH: year/month/day
       LOG_DISABLED: false
