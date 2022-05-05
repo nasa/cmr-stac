@@ -22,9 +22,9 @@ afterAll(() => {
 });
 
 const mockProviderResponse = [
-  'provA',
-  'provB',
-  'provC'
+  'PROVA',
+  'PROVB',
+  'PROVC'
 ].map((providerId) => ({
   'provider-id': providerId,
   'short-name': `${providerId}Short`
@@ -50,22 +50,22 @@ const expectedLinks = [
     href: 'https://wiki.earthdata.nasa.gov/display/ED/CMR+SpatioTemporal+Asset+Catalog+%28CMR-STAC%29+Documentation'
   },
   {
-    title: 'provAShort',
+    title: 'PROVAShort',
     rel: 'child',
     type: 'application/json',
-    href: 'https://example.com/stac/provA'
+    href: 'https://example.com/stac/PROVA'
   },
   {
-    title: 'provBShort',
+    title: 'PROVBShort',
     rel: 'child',
     type: 'application/json',
-    href: 'https://example.com/stac/provB'
+    href: 'https://example.com/stac/PROVB'
   },
   {
-    title: 'provCShort',
+    title: 'PROVCShort',
     rel: 'child',
     type: 'application/json',
-    href: 'https://example.com/stac/provC'
+    href: 'https://example.com/stac/PROVC'
   }
 ];
 
@@ -89,22 +89,22 @@ const expectedCloudLinks = [
     href: 'https://wiki.earthdata.nasa.gov/display/ED/CMR+SpatioTemporal+Asset+Catalog+%28CMR-STAC%29+Documentation'
   },
   {
-    title: 'provAShort',
+    title: 'PROVAShort',
     rel: 'child',
     type: 'application/json',
-    href: 'https://example.com/cloudstac/provA'
+    href: 'https://example.com/cloudstac/PROVA'
   },
   {
-    title: 'provBShort',
+    title: 'PROVBShort',
     rel: 'child',
     type: 'application/json',
-    href: 'https://example.com/cloudstac/provB'
+    href: 'https://example.com/cloudstac/PROVB'
   },
   {
-    title: 'provCShort',
+    title: 'PROVCShort',
     rel: 'child',
     type: 'application/json',
-    href: 'https://example.com/cloudstac/provC'
+    href: 'https://example.com/cloudstac/PROVC'
   }
 ];
 
@@ -160,15 +160,15 @@ describe('getProviders', () => {
 describe('getProvider', () => {
   describe('within /stac', () => {
     const expectedResponse = {
-      id: 'provA',
-      title: 'provA',
-      description: 'Root catalog for provA',
+      id: 'PROVA',
+      title: 'PROVA',
+      description: 'Root catalog for PROVA',
       stac_version: settings.stac.version,
       type: 'Catalog',
       links: [
         {
           rel: 'self',
-          href: 'https://example.com/stac/provA',
+          href: 'https://example.com/stac/PROVA',
           title: 'Provider catalog',
           type: 'application/json'
         },
@@ -180,27 +180,27 @@ describe('getProvider', () => {
         },
         {
           rel: 'collections',
-          href: 'https://example.com/stac/provA/collections',
+          href: 'https://example.com/stac/PROVA/collections',
           title: 'Provider Collections',
           type: 'application/json'
         },
         {
           rel: 'search',
-          href: 'https://example.com/stac/provA/search',
+          href: 'https://example.com/stac/PROVA/search',
           title: 'Provider Item Search',
           type: 'application/geo+json',
           method: 'GET'
         },
         {
           rel: 'search',
-          href: 'https://example.com/stac/provA/search',
+          href: 'https://example.com/stac/PROVA/search',
           title: 'Provider Item Search',
           type: 'application/geo+json',
           method: 'POST'
         },
         {
           rel: 'conformance',
-          href: 'https://example.com/stac/provA/conformance',
+          href: 'https://example.com/stac/PROVA/conformance',
           title: 'Conformance Classes',
           type: 'application/geo+json'
         },
@@ -241,7 +241,7 @@ describe('getProvider', () => {
     it('should return a provider json object', async () => {
       const request = createRequest({
         params: {
-          providerId: 'provA'
+          providerId: 'PROVA'
         }
       });
       const response = createMockResponse();
@@ -255,15 +255,15 @@ describe('getProvider', () => {
 
   describe('within /cloudstac', () => {
     const expectedResponse = {
-      id: 'provB',
-      title: 'provB',
-      description: 'Root catalog for provB',
+      id: 'PROVB',
+      title: 'PROVB',
+      description: 'Root catalog for PROVB',
       stac_version: settings.stac.version,
       type: 'Catalog',
       links: [
         {
           rel: 'self',
-          href: 'https://example.com/cloudstac/provB',
+          href: 'https://example.com/cloudstac/PROVB',
           title: 'Provider catalog',
           type: 'application/json'
         },
@@ -275,27 +275,27 @@ describe('getProvider', () => {
         },
         {
           rel: 'collections',
-          href: 'https://example.com/cloudstac/provB/collections',
+          href: 'https://example.com/cloudstac/PROVB/collections',
           title: 'Provider Collections',
           type: 'application/json'
         },
         {
           rel: 'search',
-          href: 'https://example.com/cloudstac/provB/search',
+          href: 'https://example.com/cloudstac/PROVB/search',
           title: 'Provider Item Search',
           type: 'application/geo+json',
           method: 'GET'
         },
         {
           rel: 'search',
-          href: 'https://example.com/cloudstac/provB/search',
+          href: 'https://example.com/cloudstac/PROVB/search',
           title: 'Provider Item Search',
           type: 'application/geo+json',
           method: 'POST'
         },
         {
           rel: 'conformance',
-          href: 'https://example.com/cloudstac/provB/conformance',
+          href: 'https://example.com/cloudstac/PROVB/conformance',
           title: 'Conformance Classes',
           type: 'application/geo+json'
         },
@@ -326,9 +326,9 @@ describe('getProvider', () => {
     };
 
     const expectedResponse2 = {
-      id: 'provB',
-      title: 'provB',
-      description: 'Root catalog for provB',
+      id: 'PROVB',
+      title: 'PROVB',
+      description: 'Root catalog for PROVB',
       stac_version: settings.stac.version,
       type: 'Catalog',
       links: [
@@ -364,7 +364,7 @@ describe('getProvider', () => {
     it('should return a provider json object', async () => {
       const request = createRequest({
         params: {
-          providerId: 'provB'
+          providerId: 'PROVB'
         },
         query: {
           limit: 1

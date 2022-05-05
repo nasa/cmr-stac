@@ -354,42 +354,42 @@ describe('cmr', () => {
             id: 'G1380417046-USGS_EROS',
             original_format: 'ECHO10',
             browse_flag: true,
-            polygons: [ [Array] ],
+            polygons: [[Array]],
             collection_concept_id: 'C1379757686-USGS_EROS',
-            online_access_flag: true,
+            online_access_flag: true
           }],
           facets: { has_children: true,
-          children: [{
-            title: 'Temporal',
             children: [{
-              title: 'Year',
-              children: [
-                {
-                  title: '2001',
-                  children: [{
-                    title: 'Month',
-                    children: [
-                      {
-                        title: '05',
-                        children: [{
-                          title: 'Day',
-                          children: [
-                            {
-                              title: '20',
-                              children: [{title: 'item1'}]
-                            },
-                            { title: '22' },
-                            { title: '23' }]
-                        }]
-                      },
-                      { title: '06' }
-                    ]
-                  }]
-                },
-                { title: '2002' }
-              ]
-            }]
-          }] } } } };
+              title: 'Temporal',
+              children: [{
+                title: 'Year',
+                children: [
+                  {
+                    title: '2001',
+                    children: [{
+                      title: 'Month',
+                      children: [
+                        {
+                          title: '05',
+                          children: [{
+                            title: 'Day',
+                            children: [
+                              {
+                                title: '20',
+                                children: [{ title: 'item1' }]
+                              },
+                              { title: '22' },
+                              { title: '23' }]
+                          }]
+                        },
+                        { title: '06' }
+                      ]
+                    }]
+                  },
+                  { title: '2002' }
+                ]
+              }]
+            }] } } } };
         axios.get.mockResolvedValue(resp);
       });
 
