@@ -17,7 +17,6 @@ function logRequest (request) {
  * @param {string, array} value
  */
 function toArray (value) {
-  console.log(`Value: ${value}`);
   if (typeof value === 'string' || value instanceof String) {
     return value.split(',');
   } else {
@@ -83,7 +82,11 @@ function makeAsyncHandler (fn) {
 }
 
 const makeCmrSearchUrl = (path, queryParams = null) => {
-  return buildUrl(settings.cmrUrl + '/search', {
+  let searchUrl = '/search';
+  if (settings.cmrUrl.includes('localhost')) {
+    searchUrl = ':3003';
+  }
+  return buildUrl(settings.cmrUrl + searchUrl, {
     path,
     queryParams
   });

@@ -17,9 +17,9 @@ functions:
           path: /{proxy+}
           method: any
     environment:
-      CMR_URL: 'https://cmr.earthdata.nasa.gov'
+      CMR_URL: 'http://localhost'
       CMR_STAC_RELATIVE_ROOT_URL: /stac
-      CMR_STAC_PROTOCOL: ${opt:protocol, 'https'}
+      CMR_STAC_PROTOCOL: ${opt:protocol, 'http'}
       LOG_LEVEL: info
       LOG_DISABLED: false
       STAC_VERSION: 1.0.0
@@ -27,7 +27,8 @@ functions:
 
 custom:
   serverless-offline:
-    port: 3000
+    httpPort: 2888
+    lambdaPort: 2889
 
 plugins:
   - serverless-offline

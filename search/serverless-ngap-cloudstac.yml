@@ -20,7 +20,7 @@ functions:
   search-api:
     name: cmr-${self:custom.cmrStacName}-${opt:stage}
     handler: lib/application.handler
-    timeout: 6
+    timeout: 60
     events:
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
@@ -29,7 +29,7 @@ functions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
     logSubscription: true
     environment:
-      CMR_URL: ${opt:cmr-url, 'https://cmr.earthdata.nasa.gov'}
+      CMR_URL: ${opt:cmr-url}
       CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
       BROWSE_PATH: year/month/day
       LOG_DISABLED: false

@@ -60,11 +60,11 @@
     },
     {
       "rel": "via",
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1328420897-LPDAAC_ECS.json"
+      "href": "http://localhost:3003/concepts/G1328420897-LPDAAC_ECS.json"
     },
     {
       "rel": "via",
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1328420897-LPDAAC_ECS.umm_json"
+      "href": "http://localhost:3003/concepts/G1328420897-LPDAAC_ECS.umm_json"
     }
   ],
   "properties": {
@@ -84,7 +84,7 @@
       "type": "image/jpeg"
     },
     "metadata": {
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1328420897-LPDAAC_ECS.xml",
+      "href": "http://localhost:3003/concepts/G1328420897-LPDAAC_ECS.xml",
       "type": "application/xml"
     }
   }

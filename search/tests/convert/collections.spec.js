@@ -152,12 +152,12 @@ describe('collections', () => {
             title: 'Granules in this collection',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
+            href: 'http://localhost:3003/concepts/id.html',
             rel: 'about',
             title: 'HTML metadata for collection',
             type: 'text/html'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.json',
+            href: 'http://localhost:3003/concepts/id.json',
             rel: 'via',
             title: 'CMR JSON metadata for collection',
             type: 'application/json'
@@ -216,12 +216,12 @@ describe('collections', () => {
             title: 'Granules in this collection',
             type: 'application/json'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.html',
+            href: 'http://localhost:3003/concepts/id.html',
             rel: 'about',
             title: 'HTML metadata for collection',
             type: 'text/html'
           }, {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/id.json',
+            href: 'http://localhost:3003/concepts/id.json',
             rel: 'via',
             title: 'CMR JSON metadata for collection',
             type: 'application/json'

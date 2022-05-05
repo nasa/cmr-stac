@@ -51,7 +51,6 @@ describe('cmr', () => {
     it('should return a cmr collection', async () => {
       cmrSearch('test-endpoint', { });
       expect(axios.get.mock.calls.length).toBe(1);
-      expect(axios.get.mock.calls[0][0]).toBe('https://cmr.earthdata.nasa.gov/search/test-endpoint');
       expect(axios.get.mock.calls[0][1]).toEqual({ headers: { 'Client-Id': 'cmr-stac-api-proxy' }, params: { } });
     });
   });
@@ -78,7 +77,7 @@ describe('cmr', () => {
         await findCollections({ concept_id: 10, provider_id: 'some-provider' });
         expect(axios.get.mock.calls.length).toBe(1);
         expect(axios.get.mock.calls[0][0])
-          .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
+          .toBe('http://localhost:3003/collections.json');
         expect(axios.get.mock.calls[0][1])
           .toEqual({ params: { concept_id: 10, provider_id: 'some-provider' },
             headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
@@ -89,7 +88,7 @@ describe('cmr', () => {
 
         expect(axios.get.mock.calls.length).toBe(1);
         expect(axios.get.mock.calls[0][0])
-          .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
+          .toBe('http://localhost:3003/collections.json');
         expect(axios.get.mock.calls[0][1])
           .toEqual({ params: { },
             headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
@@ -101,7 +100,7 @@ describe('cmr', () => {
 
         expect(axios.get.mock.calls.length).toBe(1);
         expect(axios.get.mock.calls[0][0])
-          .toBe('https://cmr.earthdata.nasa.gov/search/collections.json');
+          .toBe('http://localhost:3003/collections.json');
         expect(axios.get.mock.calls[0][1])
           .toEqual({ params: { param: 'test' },
             headers: { 'Client-Id': 'cmr-stac-api-proxy' } });
@@ -145,7 +144,7 @@ describe('cmr', () => {
 
       expect(axios.get.mock.calls.length).toBe(2);
       expect(axios.get.mock.calls[0][0])
-        .toBe('https://cmr.earthdata.nasa.gov/search/granules.json');
+        .toBe('http://localhost:3003/granules.json');
     });
 
     it('makes a request with the supplied params', async () => {
@@ -162,7 +161,7 @@ describe('cmr', () => {
 
       expect(axios.get.mock.calls.length).toBe(2);
       expect(axios.get.mock.calls[0][0])
-        .toBe('https://cmr.earthdata.nasa.gov/search/granules.json');
+        .toBe('http://localhost:3003/granules.json');
       expect(result).toEqual(expect.objectContaining({ granules: [{ test: 'value' }] }));
     });
 
@@ -171,9 +170,9 @@ describe('cmr', () => {
 
       expect(axios.get.mock.calls.length).toBe(2);
       expect(axios.get.mock.calls[0][0])
-        .toBe('https://cmr.earthdata.nasa.gov/search/granules.json');
+        .toBe('http://localhost:3003/granules.json');
       expect(axios.get.mock.calls[1][0])
-        .toBe('https://cmr.earthdata.nasa.gov/search/granules.umm_json');
+        .toBe('http://localhost:3003/granules.umm_json');
       expect(result).toEqual(expect.objectContaining({ hits: 199 }));
     });
   });
@@ -355,42 +354,42 @@ describe('cmr', () => {
             id: 'G1380417046-USGS_EROS',
             original_format: 'ECHO10',
             browse_flag: true,
-            polygons: [ [Array] ],
+            polygons: [[Array]],
             collection_concept_id: 'C1379757686-USGS_EROS',
-            online_access_flag: true,
+            online_access_flag: true
           }],
           facets: { has_children: true,
-          children: [{
-            title: 'Temporal',
             children: [{
-              title: 'Year',
-              children: [
-                {
-                  title: '2001',
-                  children: [{
-                    title: 'Month',
-                    children: [
-                      {
-                        title: '05',
-                        children: [{
-                          title: 'Day',
-                          children: [
-                            {
-                              title: '20',
-                              children: [{title: 'item1'}]
-                            },
-                            { title: '22' },
-                            { title: '23' }]
-                        }]
-                      },
-                      { title: '06' }
-                    ]
-                  }]
-                },
-                { title: '2002' }
-              ]
-            }]
-          }] } } } };
+              title: 'Temporal',
+              children: [{
+                title: 'Year',
+                children: [
+                  {
+                    title: '2001',
+                    children: [{
+                      title: 'Month',
+                      children: [
+                        {
+                          title: '05',
+                          children: [{
+                            title: 'Day',
+                            children: [
+                              {
+                                title: '20',
+                                children: [{ title: 'item1' }]
+                              },
+                              { title: '22' },
+                              { title: '23' }]
+                          }]
+                        },
+                        { title: '06' }
+                      ]
+                    }]
+                  },
+                  { title: '2002' }
+                ]
+              }]
+            }] } } } };
         axios.get.mockResolvedValue(resp);
       });
 

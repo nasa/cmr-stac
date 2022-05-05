@@ -60,11 +60,11 @@
     },
     {
       "rel": "via",
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1848422111-LANCEMODIS.json"
+      "href": "http://localhost:3003/concepts/G1848422111-LANCEMODIS.json"
     },
     {
       "rel": "via",
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1848422111-LANCEMODIS.umm_json"
+      "href": "http://localhost:3003/concepts/G1848422111-LANCEMODIS.umm_json"
     }
   ],
   "properties": {
@@ -78,7 +78,7 @@
       "type": "application/x-hdfeos"
     },
     "metadata": {
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/G1848422111-LANCEMODIS.xml",
+      "href": "http://localhost:3003/concepts/G1848422111-LANCEMODIS.xml",
       "type": "application/xml"
     }
   }

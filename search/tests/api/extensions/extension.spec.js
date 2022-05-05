@@ -87,7 +87,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266176677-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266176677-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -164,7 +164,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266180610-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266180610-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -241,7 +241,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266180632-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266180632-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -318,7 +318,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266180519-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266180519-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -395,7 +395,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266176599-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266176599-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -472,7 +472,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266176788-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266176788-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -549,7 +549,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266180454-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266180454-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -626,7 +626,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266176581-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266176581-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -703,7 +703,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266180600-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266180600-GES_DISC.xml',
             type: 'application/xml'
           }
         }
@@ -780,7 +780,7 @@ describe('STAC API Extensions', () => {
             type: undefined
           },
           metadata: {
-            href: 'https://cmr.earthdata.nasa.gov/search/concepts/G1266176594-GES_DISC.xml',
+            href: 'http://localhost:3003/concepts/G1266176594-GES_DISC.xml',
             type: 'application/xml'
           }
         }

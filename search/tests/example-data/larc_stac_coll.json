@@ -32,13 +32,13 @@
     },
     {
       "rel": "about",
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/C1288777589-LARC.html",
+      "href": "http://localhost:3003/concepts/C1288777589-LARC.html",
       "title": "HTML metadata for collection",
       "type": "text/html"
     },
     {
       "rel": "via",
-      "href": "https://cmr.earthdata.nasa.gov/search/concepts/C1288777589-LARC.json",
+      "href": "http://localhost:3003/concepts/C1288777589-LARC.json",
       "title": "CMR JSON metadata for collection",
       "type": "application/json"
     }

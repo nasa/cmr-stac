@@ -83,7 +83,7 @@ npm start
 This will run the process in the current terminal session, the local server will be available at:
 
 ```
-http://localhost:3000/dev/stac
+http://localhost:2888/dev/stac
 ```
 
 ### Deploying
