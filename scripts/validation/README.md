@@ -1,6 +1,6 @@
 # CMR-STAC Validator
 
-The script in this directory will crawl the provided CMR-STAC root catalog, validating all provider endpoints, all collections within a provier, and one Item from each Collection.
+The script in this directory will crawl the provided CMR-STAC root catalog, validating all provider endpoints, all collections within a provider, and one Item from each Collection.
 
 First, install the requirements:
 
