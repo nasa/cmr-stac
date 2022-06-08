@@ -2,7 +2,7 @@ const _ = require('lodash');
 const axios = require('axios');
 const {
   logger,
-  makeCmrSearchUrl,
+  makeCmrSearchLbUrl,
   toArray
 } = require('./util');
 const settings = require('./settings');
@@ -40,7 +40,7 @@ async function cmrSearch (path, params) {
   // should be search path (e.g., granules.json, collections, etc)
   if (!path) throw new Error('Missing url');
   if (!params) throw new Error('Missing parameters');
-  const url = makeCmrSearchUrl(path);
+  const url = makeCmrSearchLbUrl(path);
   logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
   return axios.get(url, { params, headers: DEFAULT_HEADERS });
 }
@@ -54,7 +54,7 @@ async function cmrSearchPost (path, params) {
   // should be search path (e.g., granules.json, collections, etc)
   if (!path) throw new Error('Missing url');
   if (!params) throw new Error('Missing parameters');
-  const url = makeCmrSearchUrl(path);
+  const url = makeCmrSearchLbUrl(path);
   return axios.post(url, params, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 }
 
@@ -63,10 +63,10 @@ async function cmrSearchPost (path, params) {
  */
 async function getProviderList () {
   let ingestUrl = '/ingest';
-  if (settings.cmrUrl.includes('localhost')) {
+  if (settings.cmrLbUrl.includes('localhost')) {
     ingestUrl = ':3002';
   }
-  const providerUrl = `${settings.cmrUrl}${ingestUrl}/providers`;
+  const providerUrl = `${settings.cmrLbUrl}${ingestUrl}/providers`;
   const rawProviders = await axios.get(providerUrl);
   return rawProviders.data;
 }

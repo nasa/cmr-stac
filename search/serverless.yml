@@ -18,6 +18,7 @@ functions:
           method: any
     environment:
       CMR_URL: 'http://localhost'
+      CMR_LB_URL: 'http://localhost'
       CMR_STAC_RELATIVE_ROOT_URL: /stac
       CMR_STAC_PROTOCOL: ${opt:protocol, 'http'}
       LOG_LEVEL: info

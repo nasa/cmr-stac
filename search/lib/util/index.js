@@ -81,15 +81,23 @@ function makeAsyncHandler (fn) {
   };
 }
 
-const makeCmrSearchUrl = (path, queryParams = null) => {
+const makeSearchUrl = (baseUrl, path, queryParams = null) => {
   let searchUrl = '/search';
-  if (settings.cmrUrl.includes('localhost')) {
+  if (baseUrl.includes('localhost')) {
     searchUrl = ':3003';
   }
-  return buildUrl(settings.cmrUrl + searchUrl, {
+  return buildUrl(baseUrl + searchUrl, {
     path,
     queryParams
   });
+};
+
+const makeCmrSearchUrl = (path, queryParams = null) => {
+  return makeSearchUrl(settings.cmrUrl, path, queryParams);
+};
+
+const makeCmrSearchLbUrl = (path, queryParams = null) => {
+  return makeSearchUrl(settings.cmrLbUrl, path, queryParams);
 };
 
 function firstIfArray (value) {
@@ -155,6 +163,7 @@ module.exports = {
   generateAppUrlWithoutRelativeRoot,
   generateSelfUrl,
   makeCmrSearchUrl,
+  makeCmrSearchLbUrl,
   createLogger,
   logger,
   makeAsyncHandler,
