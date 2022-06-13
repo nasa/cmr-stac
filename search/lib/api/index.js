@@ -1,7 +1,7 @@
 const axios = require('axios');
 const path = require('path');
 const express = require('express');
-const { makeCmrSearchUrl } = require('../util');
+const { makeCmrSearchLbUrl } = require('../util');
 
 const provider = require('./provider');
 const stac = require('./stac');
@@ -9,7 +9,7 @@ const wfs = require('./wfs');
 
 async function getHealth (res) {
   try {
-    await axios.get(makeCmrSearchUrl('/health'));
+    await axios.get(makeCmrSearchLbUrl('/health'));
     res.status(200).json({
       search: {
         'ok?': true

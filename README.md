@@ -1,10 +1,10 @@
 # NASA CMR STAC
 
 NASA's [Common Metadata Repository (CMR)](https://cmr.earthdata.nasa.gov/search) is a metadata
-catalog of NASA Earth Science data. [STAC, or SpatioTemporal Asset Catalog](https://stacspec.org/), is a 
+catalog of NASA Earth Science data. [STAC, or SpatioTemporal Asset Catalog](https://stacspec.org/), is a
 [specification](https://github.com/radiantearth/stac-spec) for describing geospatial data with
-[JSON](https://www.json.org/) and [GeoJSON](http://geojson.io/). The related 
-[STAC-API specification](https://github.com/radiantearth/stac-api-spec) defines an API 
+[JSON](https://www.json.org/) and [GeoJSON](http://geojson.io/). The related
+[STAC-API specification](https://github.com/radiantearth/stac-api-spec) defines an API
 for searching and browsing STAC catalogs.
 
 CMR-STAC acts as a proxy between the CMR repository and STAC API queries.
@@ -61,7 +61,7 @@ This includes logic to dynamically create or display catalogs during a search.
 
 ### Setup
 
-Set the correct NodeJS version (specified in [.nvmrc](./.nvmrc) required 
+Set the correct NodeJS version (specified in [.nvmrc](./.nvmrc) required
 by CMR-STAC with [`nvm`](https://github.com/nvm-sh/nvm) (recommended for managing NodeJS versions):
 
 ```bash
@@ -122,10 +122,10 @@ This will use the default AWS credentials on the system to deploy. If using prof
 npm run deploy -- --aws-profile <profile-name>
 ```
 
-To override the environment variables, they can be specified on the command line. 
+To override the environment variables, they can be specified on the command line.
 
 ```bash
-npm run deploy -- --stage <sit|uat|prod> --cmr-search-host <cmr-search-host> --cmr-search-protocol <http|https>
+npm run deploy -- --stage <sit|uat|prod> --cmr-url <cmr-base-url>
 ```
 
 ## License
