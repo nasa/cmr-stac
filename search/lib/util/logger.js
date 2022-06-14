@@ -1,12 +1,20 @@
 const winston = require('winston');
 
 function createFormat () {
-  return winston.format.combine(
-    winston.format.colorize(),
+  let fmt = winston.format.combine(
     winston.format.timestamp(),
-    winston.format.align(),
     winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
   );
+
+  if (process.env.IS_LOCAL === 'true') {
+    fmt = winston.format.combine(
+      winston.format.colorize(),
+      winston.format.timestamp(),
+      winston.format.align(),
+      winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+    );
+  }
+  return fmt;
 }
 
 function createTransports () {

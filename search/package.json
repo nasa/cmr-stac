@@ -18,7 +18,7 @@
     "lodash": "4.17.21",
     "mime-types": "2.1.19",
     "node-cache": "^5.1.2",
-    "winston": "3.2.1"
+    "winston": "^3.7.2"
   },
   "devDependencies": {
     "core-js": "^3.1.4",
