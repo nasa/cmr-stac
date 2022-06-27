@@ -81,7 +81,8 @@ describe('STAC Search Params', () => {
     response = createMockResponse(200, { feed: { entry: [] } });
     axios.get = jest.fn(async () => {
       return Promise.resolve({
-        headers: { 'cmr-hits': 0 },
+        headers: { 'cmr-hits': 0,
+          'cmr-search-after': ['a', 'b', 'c'] },
         data: { feed: { entry: [] } },
         json: (v) => JSON.stringify(v, null, 2)
       });

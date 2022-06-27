@@ -13,8 +13,12 @@ const {
 const {
   convertGeometryToCMR
 } = require('./convert/coordinate');
+
 const NodeCache = require('node-cache');
-const myCache = new NodeCache();
+
+const conceptCache = new NodeCache();
+const searchAfterCache = new NodeCache();
+
 const Promise = require('bluebird');
 
 const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
@@ -31,6 +35,14 @@ const DEFAULT_HEADERS = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
+/*
+ * Insecure hashing
+ */
+function quickHash (str) {
+  return Array.from(str)
+    .reduce((s, c) => Math.imul(31, s) + c.charCodeAt(0) | 0, 0);
+}
+
 /**
  * Query a CMR Search endpoint with optional parameters
  * @param {string} path CMR path to append to search URL (e.g., granules.json, collections.json)
@@ -41,8 +53,40 @@ async function cmrSearch (path, params) {
   if (!path) throw new Error('Missing url');
   if (!params) throw new Error('Missing parameters');
   const url = makeCmrSearchLbUrl(path);
-  logger.debug(`CMR Search: ${url} with params: ${JSON.stringify(params)}`);
-  return axios.get(url, { params, headers: DEFAULT_HEADERS });
+
+  const saParams = Object.assign({}, params);
+  delete saParams['page_num'];
+
+  const saParamString = JSON.stringify(saParams);
+  logger.debug(`CMR Search: ${url} with params: ${saParamString}`);
+
+  const headers = DEFAULT_HEADERS;
+
+  // STAC paging starts at 1
+  const pageNum = Number.isNaN(Number(params['page_num'], 10))
+    ? 1 : Number(params['page_num'], 10);
+
+  // Check if a search-after is available from the prior search
+  const searchAfter = searchAfterCache.get(quickHash(`${saParamString}--${pageNum - 1}`));
+
+  // If avaialable use search-after and remove page_num
+  if (searchAfter) {
+    headers['cmr-search-after'] = searchAfter;
+    console.info(params);
+    delete params['page_num'];
+    console.info(params);
+  }
+
+  const response = await axios.get(url, { params, headers });
+  if (response && response.headers) {
+    // Store the search-after for the current page/query combination
+    const saResponse = response.headers['cmr-search-after'];
+
+    searchAfterCache.set(quickHash(`${saParamString}--${pageNum}`),
+      saResponse,
+      settings.cacheTtl);
+  }
+  return response;
 }
 
 /**
@@ -50,7 +94,7 @@ async function cmrSearch (path, params) {
  * @param {string} path CMR path to append to search URL (e.g., granules.json, collections.json)
  * @param {object} params Set of CMR parameters
  */
-async function cmrSearchPost (path, params) {
+function cmrSearchPost (path, params) {
   // should be search path (e.g., granules.json, collections, etc)
   if (!path) throw new Error('Missing url');
   if (!params) throw new Error('Missing parameters');
@@ -153,7 +197,7 @@ function stacCollectionToCmrParams (providerId, collectionId) {
  * @param {string} stacId A STAC COllection ID
  */
 async function stacIdToCmrCollectionId (providerId, stacId) {
-  let collectionId = myCache.get(stacId);
+  let collectionId = conceptCache.get(stacId);
   if (collectionId) {
     return collectionId;
   }
@@ -166,7 +210,7 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
     return null;
   } else {
     collectionId = collections[0].id;
-    myCache.set(stacId, collectionId, settings.cacheTtl);
+    conceptCache.set(stacId, collectionId, settings.cacheTtl);
     return collectionId;
   }
 }
@@ -326,6 +370,14 @@ async function convertParams (providerId, params = {}) {
   }
 }
 
+/**
+ * Utility to clear caches.
+ */
+function clearCaches () {
+  searchAfterCache.flushAll();
+  conceptCache.flushAll();
+}
+
 module.exports = {
   cmrSearch,
   getProvider,
@@ -337,5 +389,6 @@ module.exports = {
   cmrCollectionToStacId,
   getFacetParams,
   getGranuleTemporalFacets,
-  convertParams
+  convertParams,
+  clearCaches
 };

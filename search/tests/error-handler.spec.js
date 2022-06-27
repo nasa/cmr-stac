@@ -15,7 +15,7 @@ describe('errorHandler', () => {
   });
 
   it('should call the next callback.', () => {
-    errorHandler({}, request, response, next);
+    errorHandler({ message: 'a test error' }, request, response, next);
 
     expect(response.status).toHaveBeenCalledWith(500);
     expect(response.send).toHaveBeenCalledWith('Internal server error');
@@ -23,7 +23,8 @@ describe('errorHandler', () => {
   });
 
   it('should return a 400 error with the CMR errors attached.', () => {
-    const error = { response: { data: { errors: ['an error'] } } };
+    const error = { message: 'some other test error',
+      response: { data: { errors: ['an error'] } } };
     errorHandler(error, request, response, next);
 
     expect(response.status).toHaveBeenCalledWith(400);

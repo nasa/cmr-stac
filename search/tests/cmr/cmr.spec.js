@@ -1,5 +1,6 @@
 const axios = require('axios');
 const {
+  clearCaches,
   cmrSearch,
   findCollections,
   findGranules,
@@ -28,6 +29,10 @@ describe('cmr', () => {
   describe('cmrSearch', () => {
     beforeEach(() => {
       axios.get = jest.fn();
+      const cmrResponse = { headers: { 'cmr-hits': 0,
+        'cmr-search-after': ['c', 'm', 'r'] },
+      data: { feed: { entry: [] } } };
+      axios.get.mockResolvedValue(cmrResponse);
     });
 
     afterEach(() => {
@@ -49,7 +54,7 @@ describe('cmr', () => {
     });
 
     it('should return a cmr collection', async () => {
-      cmrSearch('test-endpoint', { });
+      await cmrSearch('test-endpoint', { });
       expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][1]).toEqual({ headers: { 'Client-Id': 'cmr-stac-api-proxy' }, params: { } });
     });
@@ -59,7 +64,9 @@ describe('cmr', () => {
     describe('when there are results', () => {
       beforeEach(() => {
         axios.get = jest.fn();
-        const cmrResponse = { data: { feed: { entry: [{ concept_id: 10, test: 'value' }] } } };
+        const cmrResponse = { headers: { 'cmr-hits': 1,
+          'cmr-search-after': ['d', 'e', 'f'] },
+        data: { feed: { entry: [{ concept_id: 10, test: 'value' }] } } };
         axios.get.mockResolvedValue(cmrResponse);
       });
 
@@ -111,7 +118,9 @@ describe('cmr', () => {
     describe('when there are NO results', () => {
       beforeEach(() => {
         axios.get = jest.fn();
-        const cmrResponse = { data: { feed: { entry: [] } } };
+        const cmrResponse = { headers: { 'cmr-hits': 0,
+          'cmr-search-after': ['h', 'i', 'j'] },
+        data: { feed: { entry: [] } } };
         axios.get.mockResolvedValue(cmrResponse);
       });
 
@@ -130,8 +139,9 @@ describe('cmr', () => {
   describe('findGranules', () => {
     beforeEach(() => {
       axios.get = jest.fn();
-      const cmrResponse = { headers: { 'cmr-hits': 199 },
-        data: { feed: { entry: [{ test: 'value' }] } } };
+      const cmrResponse = { headers: { 'cmr-hits': 199,
+        'cmr-search-after': ['x', 'y', 'z'] },
+      data: { feed: { entry: [{ test: 'value' }] } } };
       axios.get.mockResolvedValue(cmrResponse);
     });
 
@@ -296,7 +306,9 @@ describe('cmr', () => {
 
       it('should convert collections into collection_concept_id', async () => {
         axios.get = jest.fn();
-        const cmrResponse = { data: { feed: { entry: [{ id: 1 }] } } };
+        const cmrResponse = { headers: { 'cmr-hits': 0,
+          'cmr-search-after': ['t', 'u', 'v'] },
+        data: { feed: { entry: [{ id: 1 }] } } };
         axios.get.mockResolvedValue(cmrResponse);
 
         const params = {
@@ -341,55 +353,58 @@ describe('cmr', () => {
     describe('getGranuleTemporalFacets', () => {
       beforeEach(() => {
         axios.get = jest.fn();
-        const resp = { data: { feed: {
-          entry: [{
-            time_start: '2003-05-07T01:34:57.321Z',
-            updated: '2003-05-12T00:00:00.000Z',
-            dataset_id: 'Earth Observing-1 Advanced Land Imager V1',
-            data_center: 'USGS_EROS',
-            title: 'EO1A1090782003127110PZ_LGS_01',
-            coordinate_system: 'GEODETIC',
-            day_night_flag: 'UNSPECIFIED',
-            time_end: '2003-05-07T01:35:09.321Z',
-            id: 'G1380417046-USGS_EROS',
-            original_format: 'ECHO10',
-            browse_flag: true,
-            polygons: [[Array]],
-            collection_concept_id: 'C1379757686-USGS_EROS',
-            online_access_flag: true
-          }],
-          facets: { has_children: true,
-            children: [{
-              title: 'Temporal',
+        const resp = {
+          headers: { 'cmr-hits': 0,
+            'cmr-search-after': ['j', 'k', 'l'] },
+          data: { feed: {
+            entry: [{
+              time_start: '2003-05-07T01:34:57.321Z',
+              updated: '2003-05-12T00:00:00.000Z',
+              dataset_id: 'Earth Observing-1 Advanced Land Imager V1',
+              data_center: 'USGS_EROS',
+              title: 'EO1A1090782003127110PZ_LGS_01',
+              coordinate_system: 'GEODETIC',
+              day_night_flag: 'UNSPECIFIED',
+              time_end: '2003-05-07T01:35:09.321Z',
+              id: 'G1380417046-USGS_EROS',
+              original_format: 'ECHO10',
+              browse_flag: true,
+              polygons: [[Array]],
+              collection_concept_id: 'C1379757686-USGS_EROS',
+              online_access_flag: true
+            }],
+            facets: { has_children: true,
               children: [{
-                title: 'Year',
-                children: [
-                  {
-                    title: '2001',
-                    children: [{
-                      title: 'Month',
-                      children: [
-                        {
-                          title: '05',
-                          children: [{
-                            title: 'Day',
-                            children: [
-                              {
-                                title: '20',
-                                children: [{ title: 'item1' }]
-                              },
-                              { title: '22' },
-                              { title: '23' }]
-                          }]
-                        },
-                        { title: '06' }
-                      ]
-                    }]
-                  },
-                  { title: '2002' }
-                ]
-              }]
-            }] } } } };
+                title: 'Temporal',
+                children: [{
+                  title: 'Year',
+                  children: [
+                    {
+                      title: '2001',
+                      children: [{
+                        title: 'Month',
+                        children: [
+                          {
+                            title: '05',
+                            children: [{
+                              title: 'Day',
+                              children: [
+                                {
+                                  title: '20',
+                                  children: [{ title: 'item1' }]
+                                },
+                                { title: '22' },
+                                { title: '23' }]
+                            }]
+                          },
+                          { title: '06' }
+                        ]
+                      }]
+                    },
+                    { title: '2002' }
+                  ]
+                }]
+              }] } } } };
         axios.get.mockResolvedValue(resp);
       });
 
@@ -414,5 +429,61 @@ describe('cmr', () => {
         expect(facets.itemids).toEqual(expect.arrayContaining(['EO1A1090782003127110PZ_LGS_01']));
       });
     });
+  });
+});
+
+describe('STAC to CMR uses search-after', () => {
+  beforeAll(() => {
+    clearCaches();
+    axios.get = jest.fn();
+    const cmrResponses = [{ headers: { 'cmr-hits': 0,
+      'cmr-search-after': ['c', 'm', 'r'] },
+    data: { feed: { entry: [] } } },
+    { headers: { 'cmr-hits': 0,
+      'cmr-search-after': ['m', 'r', 'c'] },
+    data: { feed: { entry: [] } } },
+    { headers: { 'cmr-hits': 0,
+      'cmr-search-after': ['r', 'c', 'm'] },
+    data: { feed: { entry: [] } } }];
+    axios.get
+      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[0]))
+      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[1]))
+      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[2]))
+      .mockImplementation((_url, _req) => Promise.resolve(cmrResponses[2]));
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should behave normally on the first call', async () => {
+    await cmrSearch('paging-endpoint', { page_num: 1, provider_id: 'CMR_PAGING' });
+    expect(axios.get.mock.calls[0][1]).toEqual({ headers: { 'Client-Id': 'cmr-stac-api-proxy' },
+      params: { page_num: 1,
+        provider_id: 'CMR_PAGING' } });
+  });
+
+  it('should use search-after for subsequent calls', async () => {
+    await cmrSearch('paging-endpoint', { page_num: 2, provider_id: 'CMR_PAGING' });
+    expect(axios.get.mock.calls[1][1]).toEqual({ headers: { 'cmr-search-after': ['c', 'm', 'r'],
+      'Client-Id': 'cmr-stac-api-proxy' },
+    params: { provider_id: 'CMR_PAGING' } });
+
+    await cmrSearch('paging-endpoint', { page_num: 3, provider_id: 'CMR_PAGING' });
+    expect(axios.get.mock.calls[2][1]).toEqual({ headers: { 'cmr-search-after': ['m', 'r', 'c'],
+      'Client-Id': 'cmr-stac-api-proxy' },
+    params: { provider_id: 'CMR_PAGING' } });
+  });
+
+  it('should use the same cached value for multiple calls to the same page', async () => {
+    await cmrSearch('paging-endpoint', { page_num: 2, provider_id: 'CMR_PAGING' });
+    expect(axios.get.mock.calls[3][1]).toEqual({ headers: { 'cmr-search-after': ['c', 'm', 'r'],
+      'Client-Id': 'cmr-stac-api-proxy' },
+    params: { provider_id: 'CMR_PAGING' } });
+
+    await cmrSearch('paging-endpoint', { page_num: 2, provider_id: 'CMR_PAGING' });
+    expect(axios.get.mock.calls[4][1]).toEqual({ headers: { 'cmr-search-after': ['c', 'm', 'r'],
+      'Client-Id': 'cmr-stac-api-proxy' },
+    params: { provider_id: 'CMR_PAGING' } });
   });
 });
