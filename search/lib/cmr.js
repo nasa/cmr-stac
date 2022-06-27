@@ -64,27 +64,25 @@ async function cmrSearch (path, params) {
 
   // STAC paging starts at 1
   const pageNum = Number.isNaN(Number(params['page_num'], 10))
-    ? 1 : Number(params['page_num'], 10);
+        ? 1 : Number(params['page_num'], 10);
 
   // Check if a search-after is available from the prior search
   const searchAfter = searchAfterCache.get(quickHash(`${saParamString}--${pageNum - 1}`));
 
-  // If avaialable use search-after and remove page_num
+  // If available use search-after header and remove page_num from params
   if (searchAfter) {
     headers['cmr-search-after'] = searchAfter;
-    console.info(params);
     delete params['page_num'];
-    console.info(params);
   }
 
   const response = await axios.get(url, { params, headers });
   if (response && response.headers) {
-    // Store the search-after for the current page/query combination
+    // Cache the search-after for the current page/query combination
     const saResponse = response.headers['cmr-search-after'];
 
     searchAfterCache.set(quickHash(`${saParamString}--${pageNum}`),
-      saResponse,
-      settings.cacheTtl);
+                         saResponse,
+                         settings.cacheTtl);
   }
   return response;
 }
@@ -271,16 +269,16 @@ async function getGranuleTemporalFacets (params = {}, year, month, day) {
   if (year) {
     // if year provided, get months
     const monthFacet = yearFacet
-      .children.find(y => y.title === year)
-      .children.find(y => y.title === 'Month');
+          .children.find(y => y.title === year)
+          .children.find(y => y.title === 'Month');
     const months = monthFacet.children.map(y => y.title);
     facets.months = months;
     if (month) {
       // if month also provided, get days
       const days = monthFacet
-        .children.find(y => y.title === month)
-        .children.find(y => y.title === 'Day')
-        .children.map(y => y.title);
+            .children.find(y => y.title === month)
+            .children.find(y => y.title === 'Day')
+            .children.map(y => y.title);
       facets.days = days;
     }
     if (day) {
