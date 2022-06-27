@@ -1,5 +1,12 @@
 const express = require('express');
-const { wfs, generateNavLinks, generateAppUrl, logger, logRequest, makeAsyncHandler } = require('../util');
+const {
+  wfs,
+  generateNavLinks,
+  generateAppUrl,
+  logger,
+  logRequest,
+  makeAsyncHandler
+} = require('../util');
 const settings = require('../settings');
 const cmr = require('../cmr');
 const Promise = require('bluebird');
@@ -25,11 +32,17 @@ async function getProvider (request, response) {
 
     // validate that providerId is valid
     const providerList = await cmr.getProviderList();
-    const isProvider = providerList.filter(providerObj => providerObj['provider-id'] === providerId);
-    if (isProvider.length === 0) throw new Error(`Provider [${providerId}] not found`);
+    const isProvider = providerList.filter((providerObj) =>
+      providerObj['provider-id'] === providerId
+    );
+    if (isProvider.length === 0) {
+      throw new Error(`Provider [${providerId}] not found`);
+    }
 
     // Need to page through all the cloud collections. One page at a time, 10 collections in each page.
-    const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
+    const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(
+      event
+    );
 
     // request.query is Used for pagination.
     const cmrParams = await cmr.convertParams(providerId, request.query);
@@ -41,30 +54,61 @@ async function getProvider (request, response) {
     const providerHoldings = await cmr.findCollections(cmrParams);
 
     const links = [
-      wfs.createLink('self', generateAppUrl(event, `/${providerId}`),
-        'Provider catalog'),
-      wfs.createLink('root', generateAppUrl(event, '/'),
-        'Root catalog'),
-      wfs.createLink('collections', generateAppUrl(event, `/${providerId}/collections`),
-        'Provider Collections'),
-      wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
-        'Provider Item Search', 'application/geo+json', 'GET'),
-      wfs.createLink('search', generateAppUrl(event, `/${providerId}/search`),
-        'Provider Item Search', 'application/geo+json', 'POST'),
-      wfs.createLink('conformance', generateAppUrl(event, `/${providerId}/conformance`),
-        'Conformance Classes', 'application/geo+json'),
-      wfs.createLink('service-desc', 'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
-        'OpenAPI Doc', 'application/vnd.oai.openapi;version=3.0'),
-      wfs.createLink('service-doc', 'https://api.stacspec.org/v1.0.0-beta.1/index.html',
-        'HTML documentation', 'text/html')
+      wfs.createLink(
+        'self',
+        generateAppUrl(event, `/${providerId}`),
+        'Provider catalog'
+      ),
+      wfs.createLink('root', generateAppUrl(event, '/'), 'Root catalog'),
+      wfs.createLink(
+        'collections',
+        generateAppUrl(event, `/${providerId}/collections`),
+        'Provider Collections'
+      ),
+      wfs.createLink(
+        'search',
+        generateAppUrl(event, `/${providerId}/search`),
+        'Provider Item Search',
+        'application/geo+json',
+        'GET'
+      ),
+      wfs.createLink(
+        'search',
+        generateAppUrl(event, `/${providerId}/search`),
+        'Provider Item Search',
+        'application/geo+json',
+        'POST'
+      ),
+      wfs.createLink(
+        'conformance',
+        generateAppUrl(event, `/${providerId}/conformance`),
+        'Conformance Classes',
+        'application/geo+json'
+      ),
+      wfs.createLink(
+        'service-desc',
+        'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+        'OpenAPI Doc',
+        'application/vnd.oai.openapi;version=3.0'
+      ),
+      wfs.createLink(
+        'service-doc',
+        'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+        'HTML documentation',
+        'text/html'
+      )
     ];
 
-    const childLinks = providerHoldings.map(collection => {
-      const collectionId = cmr.cmrCollectionToStacId(collection.short_name, collection.version_id);
+    const childLinks = providerHoldings.map((collection) => {
+      const collectionId = cmr.cmrCollectionToStacId(
+        collection.short_name,
+        collection.version_id
+      );
       return wfs.createLink(
         'child',
         generateAppUrl(event, `/${providerId}/collections/${collectionId}`),
-        collection['entry-title']);
+        collection['entry-title']
+      );
     });
 
     const provider = {
@@ -113,11 +157,21 @@ async function getProviders (request, response) {
     };
   });
   const links = [
-    wfs.createLink('self', generateAppUrl(event, `/`), 'NASA CMR-STAC Root Catalog'),
-    wfs.createLink('root', generateAppUrl(event, '/'), 'NASA CMR-STAC Root Catalog'),
-    wfs.createLink('about',
+    wfs.createLink(
+      'self',
+      generateAppUrl(event, `/`),
+      'NASA CMR-STAC Root Catalog'
+    ),
+    wfs.createLink(
+      'root',
+      generateAppUrl(event, '/'),
+      'NASA CMR-STAC Root Catalog'
+    ),
+    wfs.createLink(
+      'about',
       'https://wiki.earthdata.nasa.gov/display/ED/CMR+SpatioTemporal+Asset+Catalog+%28CMR-STAC%29+Documentation',
-      'CMR-STAC Documentation'),
+      'CMR-STAC Documentation'
+    ),
     ...providerLinks
   ];
 
@@ -136,7 +190,8 @@ async function getProviders (request, response) {
     title: `NASA CMR ${ID} Proxy`,
     stac_version: settings.stac.version,
     type: 'Catalog',
-    description: `This is the landing page for CMR-${ID}. Each provider link contains a ${ID} endpoint.`,
+    description:
+      `This is the landing page for CMR-${ID}. Each provider link contains a ${ID} endpoint.`,
     links: links
   };
   response.status(200).json(providerCatalog);
@@ -145,7 +200,10 @@ async function getProviders (request, response) {
 const routes = express.Router();
 routes.get('/', makeAsyncHandler(getProviders));
 routes.get('/:providerId', makeAsyncHandler(getProvider));
-routes.get('/:providerId/conformance', (req, res) => res.json({ conformsTo: CONFORMS_TO }));
+routes.get(
+  '/:providerId/conformance',
+  (req, res) => res.json({ conformsTo: CONFORMS_TO })
+);
 
 module.exports = {
   getProviders,
