@@ -9,7 +9,7 @@ const logger = createLogger(settings.logger);
 
 function logRequest (request) {
   const { headers, baseUrl, params, query, body, apiGateway } = request;
-  logger.debug(JSON.stringify({ headers, baseUrl, params, query, body, apiGateway }));
+  logger.info(JSON.stringify({ headers, baseUrl, params, query, body, apiGateway }));
 }
 
 /**
