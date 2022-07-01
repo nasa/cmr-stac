@@ -35,8 +35,9 @@ const DEFAULT_HEADERS = {
   'Client-Id': 'cmr-stac-api-proxy'
 };
 
-/*
- * Insecure hashing
+/**
+ * Insecurely hash a string.
+ * This is used to make cache keys smaller.
  */
 function quickHash (str) {
   return Array.from(str)
@@ -54,37 +55,86 @@ async function cmrSearch (path, params) {
   if (!params) throw new Error('Missing parameters');
   const url = makeCmrSearchLbUrl(path);
 
+  const [saParams, saHeaders] = getSearchAfterParams(path, params);
+  const response = await axios.get(url, {
+    params: saParams,
+    headers: saHeaders
+  });
+  cacheSearchAfter(path, params, response);
+  return response;
+}
+
+/**
+ * Returns the page_num value as a number.
+ */
+function getPageNumFromParams (params) {
+  return Number.isNaN(Number(params['page_num']))
+    ? 1
+    : Number(params['page_num'], 10);
+}
+
+/**
+ * Get cached header search-after for a page based on a query.
+ */
+function getSearchAfterParams (path, params = {}, headers = DEFAULT_HEADERS) {
+  const pageNum = getPageNumFromParams(params);
+
   const saParams = Object.assign({}, params);
+  const saHeaders = Object.assign({}, headers);
+
   delete saParams['page_num'];
 
   const saParamString = JSON.stringify(saParams);
-  logger.debug(`CMR Search: ${url} with params: ${saParamString}`);
+  logger.info(`${saParamString}`);
 
-  const headers = DEFAULT_HEADERS;
-
-  // STAC paging starts at 1
-  const pageNum = Number.isNaN(Number(params['page_num'], 10))
-    ? 1 : Number(params['page_num'], 10);
-
-  // Check if a search-after is available from the prior search
-  const searchAfter = searchAfterCache.get(quickHash(`${saParamString}--${pageNum - 1}`));
+  // Check if a search-after is available from a prior page
+  const searchAfter = searchAfterCache.get(
+    quickHash(`${path}--${saParamString}--${pageNum - 1}`)
+  );
 
   // If available use search-after header and remove page_num from params
   if (searchAfter) {
-    headers['cmr-search-after'] = searchAfter;
-    delete params['page_num'];
+    logger.debug(
+      `cmr-search-after [${path}][${
+        JSON.stringify(saParams)
+      }] page [${pageNum}] => [${searchAfter}]`
+    );
+    saHeaders['cmr-search-after'] = searchAfter;
+    return [saParams, saHeaders];
   }
 
-  const response = await axios.get(url, { params, headers });
-  if (response && response.headers) {
-    // Cache the search-after for the current page/query combination
-    const saResponse = response.headers['cmr-search-after'];
+  logger.debug('No search-after applied');
+  return [params, headers];
+}
 
-    searchAfterCache.set(quickHash(`${saParamString}--${pageNum}`),
-      saResponse,
-      settings.cacheTtl);
+/**
+ * Cache a `cmr-search-after` header value from a response.
+ */
+function cacheSearchAfter (path, params, response) {
+  if (!(response && response.headers)) {
+    logger.info('No headers returned from response from CMR.');
+    return;
   }
-  return response;
+
+  const saResponse = response.headers['cmr-search-after'];
+  if (!saResponse || saResponse.length === 0) {
+    logger.info(
+      'No cmr-search-after header value was returned in the response from CMR.'
+    );
+    return;
+  }
+
+  const pageNum = getPageNumFromParams(params);
+  const saParams = Object.assign({}, params);
+  delete saParams['page_num'];
+  const saParamString = JSON.stringify(saParams);
+
+  // Cache the search-after for the current page/query combination
+  searchAfterCache.set(
+    quickHash(`${path}--${saParamString}--${pageNum}`),
+    saResponse,
+    settings.cacheTtl
+  );
 }
 
 /**
@@ -92,12 +142,21 @@ async function cmrSearch (path, params) {
  * @param {string} path CMR path to append to search URL (e.g., granules.json, collections.json)
  * @param {object} params Set of CMR parameters
  */
-function cmrSearchPost (path, params) {
+async function cmrSearchPost (path, params) {
   // should be search path (e.g., granules.json, collections, etc)
   if (!path) throw new Error('Missing url');
   if (!params) throw new Error('Missing parameters');
+
   const url = makeCmrSearchLbUrl(path);
-  return axios.post(url, params, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+  const headers = Object.assign({}, DEFAULT_HEADERS, {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  });
+
+  const [saParams, saHeaders] = getSearchAfterParams(path,params, headers);
+
+  const response = await axios.post(url, saParams, { headers: saHeaders });
+  cacheSearchAfter(path, params, response);
+  return response;
 }
 
 /**
@@ -142,6 +201,7 @@ async function findGranules (params = {}) {
   } else {
     response = await cmrSearch('/granules.json', params);
   }
+
   const granules = response.data.feed.entry.reduce(
     (obj, item) => ({
       ...obj,
@@ -206,11 +266,10 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
   }
   if (collections.length === 0) {
     return null;
-  } else {
-    collectionId = collections[0].id;
-    conceptCache.set(stacId, collectionId, settings.cacheTtl);
-    return collectionId;
   }
+  collectionId = collections[0].id;
+  conceptCache.set(stacId, collectionId, settings.cacheTtl);
+  return collectionId;
 }
 
 /**
@@ -261,28 +320,28 @@ async function getGranuleTemporalFacets (params = {}, year, month, day) {
     return facets;
   }
 
-  const temporalFacets = cmrFacets.children.find(f => f.title === 'Temporal');
+  const temporalFacets = cmrFacets.children.find((f) => f.title === 'Temporal');
   // always a year facet
-  const yearFacet = temporalFacets.children.find(f => f.title === 'Year');
-  const years = yearFacet.children.map(y => y.title);
+  const yearFacet = temporalFacets.children.find((f) => f.title === 'Year');
+  const years = yearFacet.children.map((y) => y.title);
   facets.years = years;
   if (year) {
     // if year provided, get months
     const monthFacet = yearFacet
-      .children.find(y => y.title === year)
-      .children.find(y => y.title === 'Month');
-    const months = monthFacet.children.map(y => y.title);
+      .children.find((y) => y.title === year)
+      .children.find((y) => y.title === 'Month');
+    const months = monthFacet.children.map((y) => y.title);
     facets.months = months;
     if (month) {
       // if month also provided, get days
       const days = monthFacet
-        .children.find(y => y.title === month)
-        .children.find(y => y.title === 'Day')
-        .children.map(y => y.title);
+        .children.find((y) => y.title === month)
+        .children.find((y) => y.title === 'Day')
+        .children.map((y) => y.title);
       facets.days = days;
     }
     if (day) {
-      const itemids = response.data.feed.entry.map(i => i.title);
+      const itemids = response.data.feed.entry.map((i) => i.title);
       facets.itemids = itemids;
     }
   }
@@ -322,22 +381,24 @@ async function convertParam (providerId, key, value) {
   // If collection parameter need to translate to CMR parameter
   if (key === 'collections') {
     // async map to do collection ID conversions in parallel
-    const collections = await Promise.reduce(toArray(value), async (result, v) => {
-      const collectionId = await stacIdToCmrCollectionId(providerId, v);
-      // if valid collection, return CMR ID for it
-      if (collectionId) {
-        result.push(collectionId);
-      }
-      return result;
-    }, []);
+    const collections = await Promise.reduce(
+      toArray(value),
+      async (result, v) => {
+        const collectionId = await stacIdToCmrCollectionId(providerId, v);
+        // if valid collection, return CMR ID for it
+        if (collectionId) {
+          result.push(collectionId);
+        }
+        return result;
+      },
+      []
+    );
     if (collections.length === 0) {
       return [[]];
-    } else {
-      return [['collection_concept_id', collections]];
     }
-  } else {
-    return STAC_SEARCH_PARAMS_CONVERSION_MAP[key](value);
+    return [['collection_concept_id', collections]];
   }
+  return STAC_SEARCH_PARAMS_CONVERSION_MAP[key](value);
 }
 
 /**
@@ -348,15 +409,19 @@ async function convertParam (providerId, key, value) {
 async function convertParams (providerId, params = {}) {
   try {
     // async map to do all param conversions in parallel
-    const converted = await Promise.reduce(Object.entries(params), async (result, [k, v]) => {
-      const param = await convertParam(providerId, k, v);
-      param.forEach((p) => {
-        if (p.length === 2) {
-          result.push(p);
-        }
-      });
-      return result;
-    }, []);
+    const converted = await Promise.reduce(
+      Object.entries(params),
+      async (result, [k, v]) => {
+        const param = await convertParam(providerId, k, v);
+        param.forEach((p) => {
+          if (p.length === 2) {
+            result.push(p);
+          }
+        });
+        return result;
+      },
+      []
+    );
     logger.debug(`Params: ${JSON.stringify(params)}`);
     logger.debug(`Converted Params: ${JSON.stringify(converted)}`);
     return Object.assign({ provider: providerId }, fromEntries(converted));

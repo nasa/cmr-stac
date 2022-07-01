@@ -19,9 +19,8 @@ function logRequest (request) {
 function toArray (value) {
   if (typeof value === 'string' || value instanceof String) {
     return value.split(',');
-  } else {
-    return value;
   }
+  return value;
 }
 
 function getKeyCaseInsensitive (object, key) {

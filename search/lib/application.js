@@ -33,7 +33,7 @@ const rewritePathRoot = (path, alt, allowedAliases) => {
 /**
  * Express middleware for rewriting URLs to allow for redirects in AWS.
  */
-const urlRewriteMiddleware = (req, res, next) => {
+const urlRewriteMiddleware = (req, _res, next) => {
   const routeAliases = settings.cmrStacRouteAliases
     .split(',')
     .map(s => s.trim());
@@ -41,7 +41,7 @@ const urlRewriteMiddleware = (req, res, next) => {
   next();
 };
 
-async function initialize () {
+function initialize () {
   logger.debug('Initialize Application');
 
   const application = express();
