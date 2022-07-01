@@ -573,16 +573,16 @@ describe('STAC to CMR uses search-after for GET queries', () => {
   });
 });
 
-describe.only('When using POST to query for granules', () => {
+describe('When using POST to query for granules', () => {
   const cmrResponses = [
     { headers: { 'cmr-hits': 3, 'cmr-search-after': ['c', 'm', 'r'] },
-      data: { feed: { entry: [{ id: 'G-0001_PROV_A' }]}}},
+      data: { feed: { entry: [{ id: 'G-0001_PROV_A' }] } } },
     { headers: { 'cmr-hits': 3, 'cmr-search-after': ['m', 'r', 'c'] },
-      data: { feed: { entry: [{ id: 'G-0002_PROV_A' }]}}},
+      data: { feed: { entry: [{ id: 'G-0002_PROV_A' }] } } },
     { headers: { 'cmr-hits': 3, 'cmr-search-after': ['r', 'c', 'm'] },
-      data: { feed: { entry: [{ id: 'G-0003_PROV_A' }]}}},
+      data: { feed: { entry: [{ id: 'G-0003_PROV_A' }] } } },
     { headers: { 'cmr-hits': 3, 'cmr-search-after': ['z', 'z', 'z'] },
-      data: { feed: { entry: []}}}];
+      data: { feed: { entry: [] } } }];
 
   beforeAll((ready) => {
     settings.cmrStacRelativeRootUrl = '/cloudstac';
@@ -610,17 +610,17 @@ describe.only('When using POST to query for granules', () => {
 
   it('should use page_num for initial searches for granules', async () => {
     await findGranules({ providerId: 'PROV_A', page_num: 1 });
-    expect(axios.post.mock.calls[0][1]).toStrictEqual({providerId: "PROV_A", page_num: 1});
+    expect(axios.post.mock.calls[0][1]).toStrictEqual({ providerId: 'PROV_A', page_num: 1 });
   });
 
   it('should use search-after for subsequent searches for granules', async () => {
     await findGranules({ providerId: 'PROV_A', page_num: 2 });
-    expect(axios.post.mock.calls[2][1]).toStrictEqual({providerId: "PROV_A"});
+    expect(axios.post.mock.calls[2][1]).toStrictEqual({ providerId: 'PROV_A' });
     expect(axios.post.mock.calls[2][2]).toStrictEqual({
-      'headers': {
-        "Client-Id": 'cmr-stac-api-proxy',
-        "Content-Type": 'application/x-www-form-urlencoded',
-        'cmr-search-after': ['c', 'm', 'r']}
+      headers: {
+        'Client-Id': 'cmr-stac-api-proxy',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'cmr-search-after': ['c', 'm', 'r'] }
     });
   });
 });

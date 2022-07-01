@@ -152,7 +152,7 @@ async function cmrSearchPost (path, params) {
     'Content-Type': 'application/x-www-form-urlencoded'
   });
 
-  const [saParams, saHeaders] = getSearchAfterParams(path,params, headers);
+  const [saParams, saHeaders] = getSearchAfterParams(path, params, headers);
 
   const response = await axios.post(url, saParams, { headers: saHeaders });
   cacheSearchAfter(path, params, response);
