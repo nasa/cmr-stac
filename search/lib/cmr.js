@@ -139,7 +139,7 @@ function cacheSearchAfter (path, params, response) {
         S: ''
       },
       expdate: {
-        N: ttlInHours(4)
+        N: `${ttlInHours(4)}`
       }
     }
   };
@@ -170,7 +170,7 @@ async function cmrSearchPost (path, params) {
     'Content-Type': 'application/x-www-form-urlencoded'
   });
 
-  const [saParams, saHeaders] = getSearchAfterParams(path, params, headers);
+  const [saParams, saHeaders] = await getSearchAfterParams(path, params, headers);
 
   const response = await axios.post(url, saParams, { headers: saHeaders });
   cacheSearchAfter(path, params, response);
@@ -209,40 +209,58 @@ async function findCollections (params = {}) {
 }
 
 /**
- * Search CMR for granules matching CMR query parameters
- * @param {object} params Object of CMR Search parameters
+ * Search CMR for granules in UMM_JSON format
  */
-async function findGranules (params = {}) {
-  let response, responseUmm;
-  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-    response = await cmrSearchPost('/granules.json', params);
-  } else {
-    response = await cmrSearch('/granules.json', params);
+async function getGranulesUmm(params = {}, opts = settings) {
+  if (opts.cmrStacRelativeRootUrl === '/cloudstac') {
+    return await cmrSearchPost('/granules.umm_json', params);
   }
+  return await cmrSearch('/granules.umm_json', params);
+}
 
-  const granules = response.data.feed.entry.reduce(
+/**
+ * Search CMR for granules in JSON format.
+ */
+async function getGranulesJson(params = {}, opts = settings) {
+  if (opts.cmrStacRelativeRootUrl === '/cloudstac') {
+    return await cmrSearchPost('/granules.json', params);
+  }
+  return await cmrSearch('/granules.json', params);
+}
+
+/**
+ * Merge a list of umm and json formatted granules into a list of STAC granules.
+ */
+function buildStacGranules(jsonGranules = [], ummGranules = []) {
+  const granules = jsonGranules.reduce(
     (obj, item) => ({
       ...obj,
       [item.id]: item
     }),
     {}
   );
-  // get UMM version
-  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-    responseUmm = await cmrSearchPost('/granules.umm_json', params);
-  } else {
-    responseUmm = await cmrSearch('/granules.umm_json', params);
-  }
-  if (_.has(responseUmm.data, 'items')) {
-    // associate and add UMM granule to standard granule
-    responseUmm.data.items.forEach((g) => {
-      granules[g.meta['concept-id']].meta = g.meta;
-      granules[g.meta['concept-id']].umm = g.umm;
-    });
-  }
+  ummGranules.forEach((g) => {
+    granules[g.meta['concept-id']].meta = g.meta;
+    granules[g.meta['concept-id']].umm = g.umm;
+  });
+
+  return granules;
+}
+/**
+ * Search CMR for granules matching CMR query parameters
+ * @param {object} params Object of CMR Search parameters
+ */
+async function findGranules (params = {}) {
+  // TODO swap these for single request for STAC format
+  const jsonResponse = await getGranulesJson(params);
+  const ummResponse = await getGranulesUmm(params);
+
+  const granules = buildStacGranules(jsonResponse.data.feed.entry,
+                                     ummResponse.data.items);
+
   // get total number of hits for this query from the returned header
-  const hits = _.get(response, 'headers.cmr-hits', granules.length);
-  return { granules: Object.values(granules), hits: hits };
+  const hits = _.get(jsonResponse, 'headers.cmr-hits', granules.length);
+  return { granules: Object.values(granules), hits };
 }
 
 /**
@@ -286,7 +304,7 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
   if (collections.length === 0) {
     return null;
   }
-  collectionId = collections[0].id;
+  const collectionId = collections[0].id;
   // TODO replace with dynamodb
   // conceptCache.set(stacId, collectionId, settings.cacheTtl);
   return collectionId;
@@ -461,15 +479,17 @@ function ttlInHours(n) {
 }
 
 module.exports = {
+  cmrCollectionToStacId,
   cmrSearch,
-  getProvider,
-  getProviderList,
+  convertParams,
   findCollections,
   findGranules,
-  stacCollectionToCmrParams,
-  stacIdToCmrCollectionId,
-  cmrCollectionToStacId,
   getFacetParams,
   getGranuleTemporalFacets,
-  convertParams
+  getGranulesJson,
+  getGranulesUmm,
+  getProvider,
+  getProviderList,
+  stacCollectionToCmrParams,
+  stacIdToCmrCollectionId,
 };
