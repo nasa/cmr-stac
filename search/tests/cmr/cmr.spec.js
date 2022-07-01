@@ -482,7 +482,7 @@ describe('cmr', () => {
 });
 
 describe('STAC to CMR uses search-after for GET queries', () => {
-  beforeAll(() => {
+  beforeAll((ready) => {
     clearCaches();
     axios.get = jest.fn();
     const cmrResponses = [{
@@ -500,10 +500,13 @@ describe('STAC to CMR uses search-after for GET queries', () => {
       .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[1]))
       .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[2]))
       .mockImplementation((_url, _req) => Promise.resolve(cmrResponses[2]));
+    ready();
   });
 
-  afterAll(() => {
+  afterAll((done) => {
     jest.restoreAllMocks();
+    clearCaches();
+    done();
   });
 
   it('should behave normally on the first call', async () => {
@@ -572,54 +575,37 @@ describe('STAC to CMR uses search-after for GET queries', () => {
 
 describe.only('When using POST to query for granules', () => {
   const cmrResponses = [
-    // json resp
     { headers: { 'cmr-hits': 3, 'cmr-search-after': ['c', 'm', 'r'] },
       data: { feed: { entry: [{ id: 'G-0001_PROV_A' }]}}},
-
-    // umm resp
-    { headers: { 'cmr-hits': 3, 'cmr-search-after': ['c', 'm', 'r'] },
-      data: { feed: { entry: [{ id: 'G-0001_PROV_A' }]}}},
-    // json resp
     { headers: { 'cmr-hits': 3, 'cmr-search-after': ['m', 'r', 'c'] },
       data: { feed: { entry: [{ id: 'G-0002_PROV_A' }]}}},
-    // umm resp
-    { headers: { 'cmr-hits': 3, 'cmr-search-after': ['m', 'r', 'c'] },
-      data: { feed: { entry: [{ id: 'G-0002_PROV_A' }]}}},
-
-    // json resp
     { headers: { 'cmr-hits': 3, 'cmr-search-after': ['r', 'c', 'm'] },
       data: { feed: { entry: [{ id: 'G-0003_PROV_A' }]}}},
-
-    // umm resp
-    { headers: { 'cmr-hits': 3, 'cmr-search-after': ['r', 'c', 'm'] },
-      data: { feed: { entry: [{ id: 'G-0003_PROV_A' }]}}},
-
-    // all other
     { headers: { 'cmr-hits': 3, 'cmr-search-after': ['z', 'z', 'z'] },
       data: { feed: { entry: []}}}];
 
-  beforeAll(() => {
+  beforeAll((ready) => {
     settings.cmrStacRelativeRootUrl = '/cloudstac';
 
     clearCaches();
 
     axios.post = jest.fn();
     axios.post
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[0])) // json response
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[0])) // umm response
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[1])) // json response
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[1])) // umm response
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[2])) // json response
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[2])) // umm response
+      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[0]))
+      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[0]))
+      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[1]))
+      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[1]))
+      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[2]))
+      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[2]))
       .mockImplementation((_url, _body, _headers) => Promise.resolve(cmrResponses[3]));
-
+    ready();
   });
 
-  afterAll(() => {
+  afterAll((done) => {
+    clearCaches();
     jest.restoreAllMocks();
     settings.cmrStacRelativeRootUrl = '/stac';
-    clearCaches();
-
+    done();
   });
 
   it('should use page_num for initial searches for granules', async () => {
