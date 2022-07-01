@@ -69,6 +69,26 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.docsBucket}
+    searchAfterCache:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: SearchAfterCache
+        AttributeDefinitions:
+          - AttributeName: key
+            AttributeType: S
+          - AttributeName: value
+            AttributeType: S
+          - AttributeName: expdate
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        TimeToLiveSpecification:
+          - AttributeName: expdate
+            Enabled: true
+        ProvisionedThroughput:
+          ReadCapacityUnits: 100
+          WriteCapacityUnits: 100
 
 plugins:
   - serverless-pseudo-parameters

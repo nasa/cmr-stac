@@ -1,3 +1,7 @@
+const AWS = require('aws-sdk');
+// TODO get region from settings
+AWS.config.update({ region: "us-east-1" });
+
 const _ = require('lodash');
 const axios = require('axios');
 const {
@@ -13,11 +17,6 @@ const {
 const {
   convertGeometryToCMR
 } = require('./convert/coordinate');
-
-const NodeCache = require('node-cache');
-
-const conceptCache = new NodeCache();
-const searchAfterCache = new NodeCache();
 
 const Promise = require('bluebird');
 
@@ -36,15 +35,6 @@ const DEFAULT_HEADERS = {
 };
 
 /**
- * Insecurely hash a string.
- * This is used to make cache keys smaller.
- */
-function quickHash (str) {
-  return Array.from(str)
-    .reduce((s, c) => Math.imul(31, s) + c.charCodeAt(0) | 0, 0);
-}
-
-/**
  * Query a CMR Search endpoint with optional parameters
  * @param {string} path CMR path to append to search URL (e.g., granules.json, collections.json)
  * @param {object} params Set of CMR parameters
@@ -55,12 +45,12 @@ async function cmrSearch (path, params) {
   if (!params) throw new Error('Missing parameters');
   const url = makeCmrSearchLbUrl(path);
 
-  const [saParams, saHeaders] = getSearchAfterParams(path, params);
+  const [saParams, saHeaders] = await getSearchAfterParams(path, params);
   const response = await axios.get(url, {
     params: saParams,
     headers: saHeaders
   });
-  cacheSearchAfter(path, params, response);
+  await cacheSearchAfter(path, params, response);
   return response;
 }
 
@@ -85,26 +75,34 @@ function getSearchAfterParams (path, params = {}, headers = DEFAULT_HEADERS) {
   delete saParams['page_num'];
 
   const saParamString = JSON.stringify(saParams);
-  logger.info(`${saParamString}`);
 
-  // Check if a search-after is available from a prior page
-  const searchAfter = searchAfterCache.get(
-    quickHash(`${path}--${saParamString}--${pageNum - 1}`)
-  );
+  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
+  const ddbParams = {
+    TableName: "SearchAfterCache",
+    Key: {
+      key: {
+        S: `${path}--${saParamString}--${pageNum - 1}`
+      }
+    }
+  };
 
-  // If available use search-after header and remove page_num from params
-  if (searchAfter) {
-    logger.debug(
-      `cmr-search-after [${path}][${
-        JSON.stringify(saParams)
-      }] page [${pageNum}] => [${searchAfter}]`
-    );
-    saHeaders['cmr-search-after'] = searchAfter;
-    return [saParams, saHeaders];
-  }
+  return new Promise((resolve) => {
+    ddb.getItem(ddbParams, (err, data) => {
+      if (err) {
+        logger.error(err, err.stack);
 
-  logger.debug('No search-after applied');
-  return [params, headers];
+        logger.debug('No Search After Found');
+        resolve([params, headers]);
+      }
+
+      if (data && data.Item.length) {
+        const searchAfter = data.Item.value.S;
+        logger.debug(`cmr-search-after [${JSON.stringify(saParams)}] => ${searchAfter}`);
+        saHeaders['cmr-search-after'] = searchAfter;
+        resolve([saParams, saHeaders]);
+      }
+    });
+  });
 }
 
 /**
@@ -113,7 +111,7 @@ function getSearchAfterParams (path, params = {}, headers = DEFAULT_HEADERS) {
 function cacheSearchAfter (path, params, response) {
   if (!(response && response.headers)) {
     logger.info('No headers returned from response from CMR.');
-    return;
+    return Promise.resolve();
   }
 
   const saResponse = response.headers['cmr-search-after'];
@@ -121,7 +119,7 @@ function cacheSearchAfter (path, params, response) {
     logger.info(
       'No cmr-search-after header value was returned in the response from CMR.'
     );
-    return;
+    return Promise.resolve();
   }
 
   const pageNum = getPageNumFromParams(params);
@@ -129,12 +127,32 @@ function cacheSearchAfter (path, params, response) {
   delete saParams['page_num'];
   const saParamString = JSON.stringify(saParams);
 
-  // Cache the search-after for the current page/query combination
-  searchAfterCache.set(
-    quickHash(`${path}--${saParamString}--${pageNum}`),
-    saResponse,
-    settings.cacheTtl
-  );
+  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
+
+  const ddbParams = {
+    TableName: "SearchAfterCache",
+    Item: {
+      key: {
+        S: `${path}--${saParamString}--${pageNum}`
+      },
+      value: {
+        S: ''
+      },
+      expdate: {
+        N: ttlInHours(4)
+      }
+    }
+  };
+
+  return new Promise((resolve) => {
+    ddb.putItem(ddbParams, (err, data) => {
+      if (err) {
+        logger.error(err, err.stack);
+      }
+      logger.debug(data);
+      resolve(data);
+    });
+  });
 }
 
 /**
@@ -255,10 +273,11 @@ function stacCollectionToCmrParams (providerId, collectionId) {
  * @param {string} stacId A STAC COllection ID
  */
 async function stacIdToCmrCollectionId (providerId, stacId) {
-  let collectionId = conceptCache.get(stacId);
-  if (collectionId) {
-    return collectionId;
-  }
+  // TODO replace cache code with dynamo db calls
+  // let collectionId = conceptCache.get(stacId);
+  // if (collectionId) {
+  //   return collectionId;
+  // }
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
   let collections = [];
   if (cmrParams) {
@@ -268,7 +287,8 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
     return null;
   }
   collectionId = collections[0].id;
-  conceptCache.set(stacId, collectionId, settings.cacheTtl);
+  // TODO replace with dynamodb
+  // conceptCache.set(stacId, collectionId, settings.cacheTtl);
   return collectionId;
 }
 
@@ -434,11 +454,10 @@ async function convertParams (providerId, params = {}) {
 }
 
 /**
- * Utility to clear caches.
+ * Returns a unix timestamp N hours from NOW.
  */
-function clearCaches () {
-  searchAfterCache.flushAll();
-  conceptCache.flushAll();
+function ttlInHours(n) {
+  return Math.floor(((new Date()).getTime() + (n * 3600000)) / 1000);
 }
 
 module.exports = {
@@ -452,6 +471,5 @@ module.exports = {
   cmrCollectionToStacId,
   getFacetParams,
   getGranuleTemporalFacets,
-  convertParams,
-  clearCaches
+  convertParams
 };

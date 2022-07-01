@@ -21,7 +21,6 @@
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-standard": "^4.0.0",
-    "husky": "^4.3.8",
     "jest": "^24.9.0",
     "jest-junit": "^12.3.0",
     "serverless": "^2.46.0",

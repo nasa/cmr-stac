@@ -55,6 +55,19 @@ resources:
                   - "lambda.amazonaws.com"
               Action:
                 - "sts:AssumeRole"
+    searchAfterCache:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: SearchAfterCache-CLOUDSTAC-${self:provider.stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 100
+          WriteCapacityUnits: 100
 plugins:
   - serverless-pseudo-parameters
   - serverless-plugin-log-subscription

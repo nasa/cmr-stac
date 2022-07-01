@@ -55,7 +55,6 @@ function getSettings () {
     settings.cmrUrl = process.env.CMR_URL || 'http://localhost';
     settings.cmrLbUrl = process.env.CMR_LB_URL || 'http://localhost';
     settings.protocol = process.env.CMR_STAC_PROTOCOL || 'https';
-    settings.cacheTtl = process.env.CMR_STAC_CACHE_TTL || 14400;
     settings.maxLimit = process.env.CMR_STAC_MAX_LIMIT || 250;
 
     settings.throwCmrConvertParamErrors = process.env.THROW_CMR_CONVERT_PARAM_ERRORS === 'true';
