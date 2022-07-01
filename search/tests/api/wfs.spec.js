@@ -57,7 +57,7 @@ describe('wfs routes', () => {
 
   describe('getCollections', () => {
     describe('within /stac', () => {
-      it.only('should generate a collections response.', async () => {
+      it('should generate a collections response.', async () => {
         await getCollections(request, response);
         response.expect({
           id: 'LPDAAC',
