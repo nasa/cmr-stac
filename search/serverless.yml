@@ -38,7 +38,7 @@ custom:
       inMemory: true
       migrate: true
       convertEmptyValues: true
-      noStart: ${env:DOCKER_DDB, false}
+      noStart: ${env:DDB_DOCKER, false}
 
 resources:
   Resources:
