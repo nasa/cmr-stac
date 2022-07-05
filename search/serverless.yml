@@ -35,9 +35,10 @@ custom:
       - dev
     start:
       port: 8000
-      docker: true
+      inMemory: true
       migrate: true
       convertEmptyValues: true
+      noStart: ${env:DOCKER_DDB, false}
 
 resources:
   Resources:
