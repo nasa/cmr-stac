@@ -33,7 +33,7 @@ const testSettings = {
   },
   ddb: {
     awsRegion: 'localhost',
-    endpoint: 'http://localhost:8000'
+    endpoint: process.env.DDB_ENDPOINT || 'http://localhost:8000'
   }
 };
 
