@@ -1,15 +1,17 @@
-const AWS = require('aws-sdk');
-// TODO get region from settings
-AWS.config.update({ region: "us-east-1" });
-
 const _ = require('lodash');
 const axios = require('axios');
+const settings = require('./settings');
 const {
   logger,
   makeCmrSearchLbUrl,
-  toArray
+  toArray,
+  ddbClient
 } = require('./util');
-const settings = require('./settings');
+
+const {
+  GetItemCommand,
+  PutItemCommand
+} = require("@aws-sdk/client-dynamodb");
 
 const {
   convertDateTimeToCMR
@@ -45,12 +47,12 @@ async function cmrSearch (path, params) {
   if (!params) throw new Error('Missing parameters');
   const url = makeCmrSearchLbUrl(path);
 
-  const [saParams, saHeaders] = await getSearchAfterParams(path, params);
+  const [saParams, saHeaders] = await getSearchAfterParams(params);
   const response = await axios.get(url, {
     params: saParams,
     headers: saHeaders
   });
-  await cacheSearchAfter(path, params, response);
+  await cacheSearchAfter(params, response);
   return response;
 }
 
@@ -65,8 +67,9 @@ function getPageNumFromParams (params) {
 
 /**
  * Get cached header search-after for a page based on a query.
+ * @returns tuple of params and header objects
  */
-function getSearchAfterParams (path, params = {}, headers = DEFAULT_HEADERS) {
+async function getSearchAfterParams (params = {}, headers = DEFAULT_HEADERS) {
   const pageNum = getPageNumFromParams(params);
 
   const saParams = Object.assign({}, params);
@@ -76,39 +79,37 @@ function getSearchAfterParams (path, params = {}, headers = DEFAULT_HEADERS) {
 
   const saParamString = JSON.stringify(saParams);
 
-  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
-  const ddbParams = {
-    TableName: "SearchAfterCache",
+  const ddbGetCommand = new GetItemCommand({
+    TableName: "searchAfterTable",
     Key: {
-      key: {
-        S: `${path}--${saParamString}--${pageNum - 1}`
-      }
-    }
-  };
-
-  return new Promise((resolve) => {
-    ddb.getItem(ddbParams, (err, data) => {
-      if (err) {
-        logger.error(err, err.stack);
-
-        logger.debug('No Search After Found');
-        resolve([params, headers]);
-      }
-
-      if (data && data.Item.length) {
-        const searchAfter = data.Item.value.S;
-        logger.debug(`cmr-search-after [${JSON.stringify(saParams)}] => ${searchAfter}`);
-        saHeaders['cmr-search-after'] = searchAfter;
-        resolve([saParams, saHeaders]);
-      }
-    });
+      query: {S: `${saParamString}`},
+      page: {N: `${pageNum}`}
+    },
+    ProjectionExpression: 'searchAfter'
   });
+
+  try {
+    const { Item } = await ddbClient.send(ddbGetCommand);
+
+    if (Item) {
+      const searchAfter = Item.searchAfter.S;
+      if (searchAfter) {
+        logger.debug(`Using cached cmr-search-after [${saParamString}][${pageNum}] => ${searchAfter}`);
+        saHeaders['cmr-search-after'] = searchAfter;
+      }
+      return [saParams, saHeaders];
+    }
+  } catch (err) {
+    logger.error("An error occurred reading search-after cache", err);
+  }
+
+  return [params, headers];
 }
 
 /**
  * Cache a `cmr-search-after` header value from a response.
  */
-function cacheSearchAfter (path, params, response) {
+async function cacheSearchAfter (params, response) {
   if (!(response && response.headers)) {
     logger.info('No headers returned from response from CMR.');
     return Promise.resolve();
@@ -123,36 +124,23 @@ function cacheSearchAfter (path, params, response) {
   }
 
   const pageNum = getPageNumFromParams(params);
+  const nextPage = pageNum + 1;
   const saParams = Object.assign({}, params);
   delete saParams['page_num'];
   const saParamString = JSON.stringify(saParams);
 
-  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
-
-  const ddbParams = {
-    TableName: "SearchAfterCache",
+  logger.debug(`Caching cmr-search-after response [${saParamString}][${nextPage}] => [${saResponse}]`);
+  const ddbPutCommand = new PutItemCommand({
+    TableName: "searchAfterTable",
     Item: {
-      key: {
-        S: `${path}--${saParamString}--${pageNum}`
-      },
-      value: {
-        S: ''
-      },
-      expdate: {
-        N: `${ttlInHours(4)}`
-      }
+      query: { S:`${saParamString}` },
+      page: { N:`${nextPage}` },
+      searchAfter: { S:`${saResponse}` },
+      expdate: { N:`${ttlInHours(4)}` }
     }
-  };
-
-  return new Promise((resolve) => {
-    ddb.putItem(ddbParams, (err, data) => {
-      if (err) {
-        logger.error(err, err.stack);
-      }
-      logger.debug(data);
-      resolve(data);
-    });
   });
+
+  return await ddbClient.send(ddbPutCommand);
 }
 
 /**
@@ -170,10 +158,10 @@ async function cmrSearchPost (path, params) {
     'Content-Type': 'application/x-www-form-urlencoded'
   });
 
-  const [saParams, saHeaders] = await getSearchAfterParams(path, params, headers);
+  const [saParams, saHeaders] = await getSearchAfterParams(params, headers);
 
   const response = await axios.post(url, saParams, { headers: saHeaders });
-  cacheSearchAfter(path, params, response);
+  cacheSearchAfter(params, response);
   return response;
 }
 
@@ -211,7 +199,7 @@ async function findCollections (params = {}) {
 /**
  * Search CMR for granules in UMM_JSON format
  */
-async function getGranulesUmm(params = {}, opts = settings) {
+async function getGranulesUmmResponse(params = {}, opts = settings) {
   if (opts.cmrStacRelativeRootUrl === '/cloudstac') {
     return await cmrSearchPost('/granules.umm_json', params);
   }
@@ -221,7 +209,7 @@ async function getGranulesUmm(params = {}, opts = settings) {
 /**
  * Search CMR for granules in JSON format.
  */
-async function getGranulesJson(params = {}, opts = settings) {
+async function getGranulesJsonResponse(params = {}, opts = settings) {
   if (opts.cmrStacRelativeRootUrl === '/cloudstac') {
     return await cmrSearchPost('/granules.json', params);
   }
@@ -252,8 +240,8 @@ function buildStacGranules(jsonGranules = [], ummGranules = []) {
  */
 async function findGranules (params = {}) {
   // TODO swap these for single request for STAC format
-  const jsonResponse = await getGranulesJson(params);
-  const ummResponse = await getGranulesUmm(params);
+  const jsonResponse = await getGranulesJsonResponse(params);
+  const ummResponse = await getGranulesUmmResponse(params);
 
   const granules = buildStacGranules(jsonResponse.data.feed.entry,
                                      ummResponse.data.items);
@@ -366,16 +354,16 @@ async function getGranuleTemporalFacets (params = {}, year, month, day) {
   if (year) {
     // if year provided, get months
     const monthFacet = yearFacet
-      .children.find((y) => y.title === year)
-      .children.find((y) => y.title === 'Month');
+          .children.find((y) => y.title === year)
+          .children.find((y) => y.title === 'Month');
     const months = monthFacet.children.map((y) => y.title);
     facets.months = months;
     if (month) {
       // if month also provided, get days
       const days = monthFacet
-        .children.find((y) => y.title === month)
-        .children.find((y) => y.title === 'Day')
-        .children.map((y) => y.title);
+            .children.find((y) => y.title === month)
+            .children.find((y) => y.title === 'Day')
+            .children.map((y) => y.title);
       facets.days = days;
     }
     if (day) {
@@ -431,7 +419,7 @@ async function convertParam (providerId, key, value) {
       },
       []
     );
-    if (collections.length === 0) {
+    if (!collections.length) {
       return [[]];
     }
     return [['collection_concept_id', collections]];
@@ -472,7 +460,7 @@ async function convertParams (providerId, params = {}) {
 }
 
 /**
- * Returns a unix timestamp N hours from NOW.
+ * Return a unix timestamp N hours from NOW.
  */
 function ttlInHours(n) {
   return Math.floor(((new Date()).getTime() + (n * 3600000)) / 1000);
@@ -486,8 +474,6 @@ module.exports = {
   findGranules,
   getFacetParams,
   getGranuleTemporalFacets,
-  getGranulesJson,
-  getGranulesUmm,
   getProvider,
   getProviderList,
   stacCollectionToCmrParams,

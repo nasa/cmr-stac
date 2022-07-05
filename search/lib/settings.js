@@ -1,5 +1,3 @@
-let settings;
-
 function getLoggerSettings () {
   const loggerSettings = {};
 
@@ -7,6 +5,14 @@ function getLoggerSettings () {
   loggerSettings.quiet = process.env.LOG_DISABLED === 'true';
 
   return loggerSettings;
+}
+
+function getDynamoDbSettings () {
+  const ddbSettings = {};
+
+  ddbSettings.region = process.env.AWS_REGION || 'us-east-1';
+
+  return ddbSettings;
 }
 
 function getStacSettings () {
@@ -24,44 +30,51 @@ const testSettings = {
   logger: {
     logLevel: 'debug',
     quiet: false
+  },
+  ddb: {
+    awsRegion: 'localhost',
+    endpoint: 'http://localhost:8000'
   }
 };
 
 // These are currently the same as test
 const localRunSettings = testSettings;
 
-function addEnvSpecificSettings (settings) {
+function addEnvSpecificSettings (origSettings) {
+  let settings = Object.assign({}, origSettings);
+
   if ('JEST_WORKER_ID' in process.env) {
-    Object.assign(settings, testSettings);
+    settings = Object.assign({}, settings, testSettings);
   }
+
   if (process.env.IS_LOCAL === 'true') {
-    Object.assign(settings, localRunSettings);
+    settings = Object.assign({}, settings, localRunSettings);
   }
+
   return settings;
 }
 
 function getSettings () {
-  if (!settings) {
-    settings = {};
-    settings.logger = getLoggerSettings();
-    settings.stac = getStacSettings();
+  const settings = {};
 
-    // If we want a invalid STAC response to result in an Internal Server Error
-    settings.invalidResponseIsError = process.env.INVALID_RESPONSE_IS_ERROR === 'true';
+  settings.logger = getLoggerSettings();
+  settings.stac = getStacSettings();
+  settings.ddb = getDynamoDbSettings();
 
-    // comma separated list of URL aliases
-    settings.cmrStacRouteAliases = process.env.CMR_STAC_ROOT_ALIASES || '/cmr-stac';
-    settings.cmrStacRelativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/stac';
-    settings.cmrUrl = process.env.CMR_URL || 'http://localhost';
-    settings.cmrLbUrl = process.env.CMR_LB_URL || 'http://localhost';
-    settings.protocol = process.env.CMR_STAC_PROTOCOL || 'https';
-    settings.maxLimit = process.env.CMR_STAC_MAX_LIMIT || 250;
+  // If we want a invalid STAC response to result in an Internal Server Error
+  settings.invalidResponseIsError = process.env.INVALID_RESPONSE_IS_ERROR === 'true';
 
-    settings.throwCmrConvertParamErrors = process.env.THROW_CMR_CONVERT_PARAM_ERRORS === 'true';
+  // comma separated list of URL aliases
+  settings.cmrStacRouteAliases = process.env.CMR_STAC_ROOT_ALIASES || '/cmr-stac';
+  settings.cmrStacRelativeRootUrl = process.env.CMR_STAC_RELATIVE_ROOT_URL || '/stac';
+  settings.cmrUrl = process.env.CMR_URL || 'http://localhost';
+  settings.cmrLbUrl = process.env.CMR_LB_URL || 'http://localhost';
+  settings.protocol = process.env.CMR_STAC_PROTOCOL || 'https';
+  settings.maxLimit = process.env.CMR_STAC_MAX_LIMIT || 250;
 
-    addEnvSpecificSettings(settings);
-  }
-  return settings;
+  settings.throwCmrConvertParamErrors = process.env.THROW_CMR_CONVERT_PARAM_ERRORS === 'true';
+
+  return addEnvSpecificSettings(settings);
 }
 
 module.exports = getSettings();

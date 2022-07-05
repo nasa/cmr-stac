@@ -30,6 +30,55 @@ custom:
   serverless-offline:
     httpPort: 2888
     lambdaPort: 2889
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      seed: true
+      migrate: true
+      convertEmptyValues: true
+
+resources:
+  Resources:
+    searchAfterCache:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: searchAfterTable
+        AttributeDefinitions:
+          - AttributeName: query
+            AttributeType: S
+          - AttributeName: page
+            AttributeType: N
+        KeySchema:
+          - AttributeName: query
+            KeyType: HASH
+          - AttributeName: page
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          - AttributeName: expdate
+            Enabled: true
+        ProvisionedThroughput:
+          ReadCapacityUnits: 100
+          WriteCapacityUnits: 100
+    conceptCache:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: conceptTable
+        AttributeDefinitions:
+          - AttributeName: conceptId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: conceptId
+            KeyType: HASH
+        TimeToLiveSpecification:
+          - AttributeName: expdate
+            Enabled: true
+        ProvisionedThroughput:
+          ReadCapacityUnits: 100
+          WriteCapacityUnits: 100
 
 plugins:
+  - serverless-dynamodb-local
   - serverless-offline

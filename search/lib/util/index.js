@@ -4,7 +4,9 @@ const settings = require('../settings');
 const app = require('./app');
 const buildUrl = require('build-url');
 const { createLogger } = require('./logger');
+const { createDdbClient } = require('./ddbClient');
 
+const ddbClient = createDdbClient(settings.ddb)
 const logger = createLogger(settings.logger);
 
 function logRequest (request) {
@@ -156,18 +158,19 @@ function createNavLink (event, params, rel) {
 
 module.exports = {
   ...app,
-  logRequest,
-  toArray,
+    createLogger,
+  createNavLink,
+  ddbClient,
+  extractParam,
+  firstIfArray,
   generateAppUrl,
   generateAppUrlWithoutRelativeRoot,
+  generateNavLinks,
   generateSelfUrl,
-  makeCmrSearchUrl,
-  makeCmrSearchLbUrl,
-  createLogger,
   logger,
   makeAsyncHandler,
-  generateNavLinks,
-  createNavLink,
-  firstIfArray,
-  extractParam
+  makeCmrSearchLbUrl,
+  makeCmrSearchUrl,
+  toArray,
+  logRequest,
 };

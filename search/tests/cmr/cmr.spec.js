@@ -20,7 +20,7 @@ describe('cmr', () => {
     beforeEach(() => {
       axios.get = jest.fn();
       const cmrResponse = {
-        headers: { 'cmr-hits': 0, 'cmr-search-after': ['c', 'm', 'r'] },
+        headers: { 'cmr-hits': 0, 'cmr-search-after': '["c", "m", "r"]' },
         data: { feed: { entry: [] } }
       };
       axios.get.mockResolvedValue(cmrResponse);
@@ -59,7 +59,7 @@ describe('cmr', () => {
       beforeEach(() => {
         axios.get = jest.fn();
         const cmrResponse = {
-          headers: { 'cmr-hits': 1, 'cmr-search-after': ['d', 'e', 'f'] },
+          headers: { 'cmr-hits': 1, 'cmr-search-after': '["d", "e", "f"]' },
           data: { feed: { entry: [{ concept_id: 10, test: 'value' }] } }
         };
         axios.get.mockResolvedValue(cmrResponse);
@@ -123,7 +123,7 @@ describe('cmr', () => {
       beforeEach(() => {
         axios.get = jest.fn();
         const cmrResponse = {
-          headers: { 'cmr-hits': 0, 'cmr-search-after': ['h', 'i', 'j'] },
+          headers: { 'cmr-hits': 0, 'cmr-search-after': '["h", "i", "j"]' },
           data: { feed: { entry: [] } }
         };
         axios.get.mockResolvedValue(cmrResponse);
@@ -147,8 +147,7 @@ describe('cmr', () => {
   describe('findGranules', () => {
     beforeEach(() => {
       axios.get = jest.fn();
-      const cmrResponse = {
-        headers: { 'cmr-hits': 199, 'cmr-search-after': ['x', 'y', 'z'] },
+      const cmrResponse = {headers: { 'cmr-hits': 199, 'cmr-search-after': ''["x", "y", "z"] },
         data: { feed: { entry: [{ test: 'value' }] } }
       };
       axios.get.mockResolvedValue(cmrResponse);
@@ -338,7 +337,7 @@ describe('cmr', () => {
       it('should convert collections into collection_concept_id', async () => {
         axios.get = jest.fn();
         const cmrResponse = {
-          headers: { 'cmr-hits': 0, 'cmr-search-after': ['t', 'u', 'v'] },
+          headers: { 'cmr-hits': 0, 'cmr-search-after': '["t", "u", "v"]' },
           data: { feed: { entry: [{ id: 1 }] } }
         };
         axios.get.mockResolvedValue(cmrResponse);
@@ -389,7 +388,7 @@ describe('cmr', () => {
       beforeEach(() => {
         axios.get = jest.fn();
         const resp = {
-          headers: { 'cmr-hits': 0, 'cmr-search-after': ['j', 'k', 'l'] },
+          headers: { 'cmr-hits': 0, 'cmr-search-after': '["j", "k", "l"]' },
           data: {
             feed: {
               entry: [{
@@ -480,17 +479,17 @@ describe('cmr', () => {
   });
 });
 
-describe.skip('STAC to CMR uses search-after for GET queries', () => {
-  beforeAll((ready) => {
+describe('STAC to CMR uses search-after for GET queries', () => {
+  beforeAll(() => {
     axios.get = jest.fn();
     const cmrResponses = [{
-      headers: { 'cmr-hits': 0, 'cmr-search-after': ['c', 'm', 'r'] },
+      headers: { 'cmr-hits': 0, 'cmr-search-after': '["c", "m", "r"]' },
       data: { feed: { entry: [] } }
     }, {
-      headers: { 'cmr-hits': 0, 'cmr-search-after': ['m', 'r', 'c'] },
+      headers: { 'cmr-hits': 0, 'cmr-search-after': '["m", "r", "c"]' },
       data: { feed: { entry: [] } }
     }, {
-      headers: { 'cmr-hits': 0, 'cmr-search-after': ['r', 'c', 'm'] },
+      headers: { 'cmr-hits': 0, 'cmr-search-after': '["r", "c", "m"]' },
       data: { feed: { entry: [] } }
     }];
     axios.get
@@ -498,12 +497,10 @@ describe.skip('STAC to CMR uses search-after for GET queries', () => {
       .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[1]))
       .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[2]))
       .mockImplementation((_url, _req) => Promise.resolve(cmrResponses[2]));
-    ready();
   });
 
-  afterAll((done) => {
+  afterAll(() => {
     jest.restoreAllMocks();
-    done();
   });
 
   it('should behave normally on the first call', async () => {
@@ -524,7 +521,7 @@ describe.skip('STAC to CMR uses search-after for GET queries', () => {
     });
     expect(axios.get.mock.calls[1][1]).toEqual({
       headers: {
-        'cmr-search-after': ['c', 'm', 'r'],
+        'cmr-search-after': '["c", "m", "r"]',
         'Client-Id': 'cmr-stac-api-proxy'
       },
       params: { provider_id: 'CMR_PAGING' }
@@ -536,7 +533,7 @@ describe.skip('STAC to CMR uses search-after for GET queries', () => {
     });
     expect(axios.get.mock.calls[2][1]).toEqual({
       headers: {
-        'cmr-search-after': ['m', 'r', 'c'],
+        'cmr-search-after': '["m", "r", "c"]',
         'Client-Id': 'cmr-stac-api-proxy'
       },
       params: { provider_id: 'CMR_PAGING' }
@@ -550,7 +547,7 @@ describe.skip('STAC to CMR uses search-after for GET queries', () => {
     });
     expect(axios.get.mock.calls[3][1]).toEqual({
       headers: {
-        'cmr-search-after': ['c', 'm', 'r'],
+        'cmr-search-after': '["c", "m", "r"]',
         'Client-Id': 'cmr-stac-api-proxy'
       },
       params: { provider_id: 'CMR_PAGING' }
@@ -562,7 +559,7 @@ describe.skip('STAC to CMR uses search-after for GET queries', () => {
     });
     expect(axios.get.mock.calls[4][1]).toEqual({
       headers: {
-        'cmr-search-after': ['c', 'm', 'r'],
+        'cmr-search-after': '["c", "m", "r"]',
         'Client-Id': 'cmr-stac-api-proxy'
       },
       params: { provider_id: 'CMR_PAGING' }
@@ -570,19 +567,20 @@ describe.skip('STAC to CMR uses search-after for GET queries', () => {
   });
 });
 
-describe.skip('When using POST to query for granules', () => {
+describe('When using POST to query for granules', () => {
   const cmrResponses = [
-    { headers: { 'cmr-hits': 3, 'cmr-search-after': ['c', 'm', 'r'] },
+    { headers: { 'cmr-hits': 3, 'cmr-search-after': '["c", "m", "r"]' },
       data: { feed: { entry: [{ id: 'G-0001_PROV_A' }] } } },
-    { headers: { 'cmr-hits': 3, 'cmr-search-after': ['m', 'r', 'c'] },
+    { headers: { 'cmr-hits': 3, 'cmr-search-after': '["m", "r", "c"]' },
       data: { feed: { entry: [{ id: 'G-0002_PROV_A' }] } } },
-    { headers: { 'cmr-hits': 3, 'cmr-search-after': ['r', 'c', 'm'] },
+    { headers: { 'cmr-hits': 3, 'cmr-search-after': '["r", "c", "m"]' },
       data: { feed: { entry: [{ id: 'G-0003_PROV_A' }] } } },
-    { headers: { 'cmr-hits': 3, 'cmr-search-after': ['z', 'z', 'z'] },
+    { headers: { 'cmr-hits': 3, 'cmr-search-after': '["z", "z", "z"]' },
       data: { feed: { entry: [] } } }];
 
-  beforeAll((ready) => {
+  beforeAll(() => {
     settings.cmrStacRelativeRootUrl = '/cloudstac';
+    console.log(settings);
 
     axios.post = jest.fn();
     axios.post
@@ -593,13 +591,11 @@ describe.skip('When using POST to query for granules', () => {
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[2]))
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[2]))
       .mockImplementation((_url, _body, _headers) => Promise.resolve(cmrResponses[3]));
-    ready();
   });
 
-  afterAll((done) => {
+  afterAll(() => {
     jest.restoreAllMocks();
     settings.cmrStacRelativeRootUrl = '/stac';
-    done();
   });
 
   it('should use page_num for initial searches for granules', async () => {
@@ -614,7 +610,7 @@ describe.skip('When using POST to query for granules', () => {
       headers: {
         'Client-Id': 'cmr-stac-api-proxy',
         'Content-Type': 'application/x-www-form-urlencoded',
-        'cmr-search-after': ['c', 'm', 'r'] }
+        'cmr-search-after': '["c", "m", "r"]' }
     });
   });
 });
