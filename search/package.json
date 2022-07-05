@@ -44,7 +44,7 @@
     "remove": "sls dynamodb remove && sls remove --config serverless.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
     "pretest": "nohup npm run start &",
-    "test": "sleep 3 && AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true jest --env=node",
+    "test": "sleep 3 && AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true jest --env=node --coverage --reporters=jest-junit --reporters=default",
     "posttest": "ps aux | grep \"sls offline\" | grep -v grep | awk '{print $2}'| xargs kill",
     "ci": "npm run lint && npm run test"
   }
