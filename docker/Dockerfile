@@ -6,14 +6,14 @@ WORKDIR /data
 RUN apt update && \
     apt install -y \
     apt-utils \
-    awk \
     curl \
+    gawk \
     gcc \
     grep \
     g++ \
     make \
     openjdk-11-jre \
-    ps \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # install Node LTS
