@@ -65,23 +65,50 @@ resources:
                   - "lambda.amazonaws.com"
               Action:
                 - "sts:AssumeRole"
+            - Effect: "Allow"
+              Action:
+                - dynamodb:DescribeTable
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+              Resource:
+                - "Fn::GetAtt": [searchAfterTable, Arn]
+                - "Fn::GetAtt": [conceptTable, Arn]
     cmrStacDocsBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.docsBucket}
-    searchAfterCache:
+    searchAfterTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: SearchAfterCache
+        TableName: searchAfterTable
         AttributeDefinitions:
-          - AttributeName: key
+          - AttributeName: query
             AttributeType: S
-          - AttributeName: value
-            AttributeType: S
-          - AttributeName: expdate
+          - AttributeName: page
             AttributeType: N
         KeySchema:
-          - AttributeName: id
+          - AttributeName: query
+            KeyType: HASH
+          - AttributeName: page
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          - AttributeName: expdate
+            Enabled: true
+        ProvisionedThroughput:
+          ReadCapacityUnits: 100
+          WriteCapacityUnits: 100
+    conceptIdTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: conceptIdTable
+        AttributeDefinitions:
+          - AttributeName: stacId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: stacId
             KeyType: HASH
         TimeToLiveSpecification:
           - AttributeName: expdate
@@ -91,6 +118,5 @@ resources:
           WriteCapacityUnits: 100
 
 plugins:
-  - serverless-pseudo-parameters
   - serverless-plugin-log-subscription
   - serverless-s3-deploy

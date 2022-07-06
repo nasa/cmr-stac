@@ -10,6 +10,21 @@ provider:
     securityGroupIds:
       - ${cf:${opt:stage}.servicesSecurityGroupId}
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+          Resource:
+            - "Fn::GetAtt": [searchAfterTable, Arn]
+            - "Fn::GetAtt": [conceptTable, Arn]
+
 custom:
   cmrStacName: ${opt:cmr-stac-name}
   cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
@@ -55,19 +70,54 @@ resources:
                   - "lambda.amazonaws.com"
               Action:
                 - "sts:AssumeRole"
-    searchAfterCache:
+            - Effect: "Allow"
+              Action:
+                - dynamodb:DescribeTable
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+              Resource:
+                - "Fn::GetAtt": [searchAfterTable, Arn]
+                - "Fn::GetAtt": [conceptTable, Arn]
+    searchAfterTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: SearchAfterCache-CLOUDSTAC-${self:provider.stage}
+        TableName: searchAfterTable
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: query
             AttributeType: S
+          - AttributeName: page
+            AttributeType: N
         KeySchema:
-          - AttributeName: id
+          - AttributeName: query
             KeyType: HASH
+          - AttributeName: page
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          - AttributeName: expdate
+            Enabled: true
         ProvisionedThroughput:
           ReadCapacityUnits: 100
           WriteCapacityUnits: 100
+    conceptIdTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: conceptIdTable
+        AttributeDefinitions:
+          - AttributeName: stacId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: stacId
+            KeyType: HASH
+        TimeToLiveSpecification:
+          - AttributeName: expdate
+            Enabled: true
+        ProvisionedThroughput:
+          ReadCapacityUnits: 100
+          WriteCapacityUnits: 100
+
 plugins:
   - serverless-pseudo-parameters
   - serverless-plugin-log-subscription
