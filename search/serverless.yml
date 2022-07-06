@@ -5,6 +5,18 @@ provider:
   runtime: nodejs14.x
   stage: dev
   region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource:
+        - "Fn::GetAtt": [searchAfterTable, Arn]
+        - "Fn::GetAtt": [conceptTable, Arn]
 
 functions:
   search-api:
@@ -34,15 +46,13 @@ custom:
     stages:
       - dev
     start:
-      port: 8000
       inMemory: true
       migrate: true
       convertEmptyValues: true
-      noStart: ${env:DDB_DOCKER, false}
 
 resources:
   Resources:
-    searchAfterCache:
+    searchAfterTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: searchAfterTable
@@ -62,7 +72,7 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 100
           WriteCapacityUnits: 100
-    conceptCache:
+    conceptCacheTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: conceptTable
