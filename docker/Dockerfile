@@ -3,8 +3,8 @@ FROM debian:buster-slim
 WORKDIR /data
 
 # install java and npm build dependencies
-RUN apt update && \
-    apt install -y \
+RUN apt-get update && \
+    apt-get install -y \
     apt-utils \
     curl \
     gawk \
@@ -18,8 +18,4 @@ RUN apt update && \
 
 # install Node LTS
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-    apt -y install nodejs
-
-USER builder
-
-RUN npm i -g serverless
+    apt-get install -y nodejs
