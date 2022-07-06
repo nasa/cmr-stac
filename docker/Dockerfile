@@ -2,8 +2,7 @@ FROM alpine:latest
 
 WORKDIR /data
 
-RUN apk add --update \
+RUN apk add --update --no-cache \
     nodejs \
     npm \
-    openjdk8-jre \
-    && rm -rf /var/lib/apt/lists/*
+    openjdk8-jre

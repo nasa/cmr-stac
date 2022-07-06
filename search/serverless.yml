@@ -46,8 +46,11 @@ custom:
     stages:
       - dev
     start:
+      docker: true
+      port: 8000
       inMemory: true
       migrate: true
+      seed: true
       convertEmptyValues: true
 
 resources:
