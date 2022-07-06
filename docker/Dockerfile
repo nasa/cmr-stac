@@ -1,7 +1,5 @@
 FROM debian:buster-slim
 
-WORKDIR /data
-
 # install java and npm build dependencies
 RUN apt-get update && \
     apt-get install -y \
@@ -19,3 +17,7 @@ RUN apt-get update && \
 # install Node LTS
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get install -y nodejs
+
+RUN useradd -ms /bin/bash builder
+
+WORKDIR /home/builder
