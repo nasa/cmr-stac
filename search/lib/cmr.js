@@ -48,6 +48,7 @@ async function cmrSearch (path, params) {
   const url = makeCmrSearchLbUrl(path);
 
   const [saParams, saHeaders] = await getSearchAfterParams(params);
+  logger.info(`GET CMR [${path}][${JSON.stringify(saParams)}][${JSON.stringify(saHeaders)}]`);
   const response = await axios.get(url, {
     params: saParams,
     headers: saHeaders
@@ -144,9 +145,14 @@ async function cacheSearchAfter (params, response) {
 }
 
 /**
- * Cache a concept.
+ * Cache a conceptId.
  */
 async function cacheConceptId (stacId, conceptId) {
+  if (!(stacId && conceptId)) {
+    return Promise.resolve();
+  }
+
+  logger.debug(`Caching stacId to conceptId ${stacId} => ${conceptId}`);
   const ddbPutCommand = new PutItemCommand({
     TableName: "conceptIdTable",
     Item: {
@@ -159,9 +165,12 @@ async function cacheConceptId (stacId, conceptId) {
   return await ddbClient.send(ddbPutCommand);
 }
 
+/**
+ * Retrieve a conceptId from the cache.
+ */
 async function getCachedConceptId (stacId) {
   if (!stacId) {
-    return null;
+    return Promise.resolve();
   }
 
   logger.debug(`Checking conceptCache for stacId ${stacId}`);
@@ -175,12 +184,14 @@ async function getCachedConceptId (stacId) {
   try {
     const { Item }  = await ddbClient.send(ddbGetCommand);
     if (Item) {
-      return Item.conceptId.S;
+      const conceptId = Item.conceptId.S;
+      logger.debug(`Using cached stacId ${stacId} => ${conceptId}`);
+      return conceptId;
     }
   } catch (err) {
-    logger.error('A problem reading from the cache', err);
+    logger.error('A problem occurred reading from the concept cache', err);
   }
-  return null;
+  return Promise.resolve();
 }
 
 /**
@@ -200,6 +211,7 @@ async function cmrSearchPost (path, params) {
 
   const [saParams, saHeaders] = await getSearchAfterParams(params, headers);
 
+  logger.info(`POST CMR [${path}][${JSON.stringify(saParams)}][${JSON.stringify(saHeaders)}]`);
   const response = await axios.post(url, saParams, { headers: saHeaders });
   cacheSearchAfter(params, response);
   return response;
@@ -331,7 +343,7 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
     collections = await findCollections(cmrParams);
   }
 
-  if (collections.length === 0) {
+  if (!collections.length) {
     return null;
   }
 
@@ -490,11 +502,10 @@ async function convertParams (providerId, params = {}) {
       },
       []
     );
-    logger.debug(`Params: ${JSON.stringify(params)}`);
-    logger.debug(`Converted Params: ${JSON.stringify(converted)}`);
+    logger.debug(`Converting Params: ${JSON.stringify(params)} => ${JSON.stringify(converted)}`);
     return Object.assign({ provider: providerId }, fromEntries(converted));
   } catch (error) {
-    logger.error(error.message);
+    logger.info('A problem occurred converting parameters', error.message);
     if (settings.throwCmrConvertParamErrors) {
       throw error;
     }
