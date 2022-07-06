@@ -82,8 +82,8 @@ async function getSearchAfterParams (params = {}, headers = DEFAULT_HEADERS) {
   const ddbGetCommand = new GetItemCommand({
     TableName: "searchAfterTable",
     Key: {
-      query: {S: `${saParamString}`},
-      page: {N: `${pageNum}`}
+      query: { S: `${saParamString}` },
+      page: { N: `${pageNum}` }
     },
     ProjectionExpression: 'searchAfter'
   });
@@ -141,6 +141,46 @@ async function cacheSearchAfter (params, response) {
   });
 
   return await ddbClient.send(ddbPutCommand);
+}
+
+/**
+ * Cache a concept.
+ */
+async function cacheConceptId (stacId, conceptId) {
+  const ddbPutCommand = new PutItemCommand({
+    TableName: "conceptIdTable",
+    Item: {
+      stacId: { S:`${stacId}` },
+      conceptId: { S:`${conceptId}` },
+      expdate: { N:`${ttlInHours(4)}` }
+    }
+  });
+
+  return await ddbClient.send(ddbPutCommand);
+}
+
+async function getCachedConceptId (stacId) {
+  if (!stacId) {
+    return null;
+  }
+
+  logger.debug(`Checking conceptCache for stacId ${stacId}`);
+  const ddbGetCommand = new GetItemCommand({
+    TableName: "conceptIdTable",
+    Key: {
+      stacId: { S:`${stacId}` }
+    }
+  });
+
+  try {
+    const { Item }  = await ddbClient.send(ddbGetCommand);
+    if (Item) {
+      return Item.conceptId.S;
+    }
+  } catch (err) {
+    logger.error('A problem reading from the cache', err);
+  }
+  return null;
 }
 
 /**
@@ -279,22 +319,24 @@ function stacCollectionToCmrParams (providerId, collectionId) {
  * @param {string} stacId A STAC COllection ID
  */
 async function stacIdToCmrCollectionId (providerId, stacId) {
-  // TODO replace cache code with dynamo db calls
-  // let collectionId = conceptCache.get(stacId);
-  // if (collectionId) {
-  //   return collectionId;
-  // }
+  let collectionId = await getCachedConceptId(stacId);
+
+  if (collectionId) {
+    return collectionId;
+  }
+
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
   let collections = [];
   if (cmrParams) {
     collections = await findCollections(cmrParams);
   }
+
   if (collections.length === 0) {
     return null;
   }
-  const collectionId = collections[0].id;
-  // TODO replace with dynamodb
-  // conceptCache.set(stacId, collectionId, settings.cacheTtl);
+
+  collectionId = collections[0].id;
+  cacheConceptId(stacId, collectionId);
   return collectionId;
 }
 

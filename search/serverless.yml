@@ -77,15 +77,15 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 100
           WriteCapacityUnits: 100
-    conceptCacheTable:
+    conceptIdTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: conceptTable
+        TableName: conceptIdTable
         AttributeDefinitions:
-          - AttributeName: conceptId
+          - AttributeName: stacId
             AttributeType: S
         KeySchema:
-          - AttributeName: conceptId
+          - AttributeName: stacId
             KeyType: HASH
         TimeToLiveSpecification:
           - AttributeName: expdate
