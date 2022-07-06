@@ -34,7 +34,7 @@
     "serverless-s3-deploy": "^0.10.1"
   },
   "scripts": {
-    "postinstall": "sls dynamodb install",
+    "postinstall": "npm run dynamodb:install",
     "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
     "start": "IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
     "deploy": "sls deploy --config serverless.yml",
@@ -43,6 +43,7 @@
     "ngap-deploy-cloudstac": "sls deploy --config serverless-ngap-cloudstac.yml",
     "remove": "sls dynamodb remove && sls remove --config serverless.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
+    "dynamodb:install": "sls dynamodb install",
     "dynamodb:up": "sls dynamodb start --migrate 2>&1 &",
     "pretest": "npm run dynamodb:up && sleep 15",
     "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true jest --env=node --coverage --reporters=jest-junit --reporters=default",
