@@ -15,7 +15,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # install Node LTS
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs
 
 RUN useradd -ms /bin/bash builder
