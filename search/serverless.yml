@@ -5,18 +5,20 @@ provider:
   runtime: nodejs14.x
   stage: dev
   region: us-east-1
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:DescribeTable
-        - dynamodb:Query
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-      Resource:
-        - "Fn::GetAtt": [searchAfterTable, Arn]
-        - "Fn::GetAtt": [conceptTable, Arn]
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+          Resource:
+            - "Fn::GetAtt": [searchAfterTable, Arn]
+            - "Fn::GetAtt": [conceptTable, Arn]
 
 functions:
   search-api:
