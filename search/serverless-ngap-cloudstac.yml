@@ -53,70 +53,12 @@ functions:
       STAC_VERSION: 1.0.0
 
 resources:
-  Resources:
-    cmrStacRole:
-      Type: AWS::IAM::Role
-      Properties:
-        RoleName: cmrStacRole-${self:custom.cmrStacName}-${opt:stage}
-        PermissionsBoundary: arn:aws:iam::#{AWS::AccountId}:policy/NGAPShRoleBoundary
-        ManagedPolicyArns:
-          - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
-        AssumeRolePolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal:
-                Service:
-                  - "lambda.amazonaws.com"
-              Action:
-                - "sts:AssumeRole"
-            - Effect: "Allow"
-              Action:
-                - dynamodb:DescribeTable
-                - dynamodb:Query
-                - dynamodb:Scan
-                - dynamodb:GetItem
-                - dynamodb:PutItem
-                - dynamodb:UpdateItem
-              Resource:
-                - "Fn::GetAtt": [searchAfterTable, Arn]
-                - "Fn::GetAtt": [conceptTable, Arn]
-    searchAfterTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: searchAfterTable
-        AttributeDefinitions:
-          - AttributeName: query
-            AttributeType: S
-          - AttributeName: page
-            AttributeType: N
-        KeySchema:
-          - AttributeName: query
-            KeyType: HASH
-          - AttributeName: page
-            KeyType: RANGE
-        TimeToLiveSpecification:
-          - AttributeName: expdate
-            Enabled: true
-        ProvisionedThroughput:
-          ReadCapacityUnits: 100
-          WriteCapacityUnits: 100
-    conceptIdTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: conceptIdTable
-        AttributeDefinitions:
-          - AttributeName: stacId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: stacId
-            KeyType: HASH
-        TimeToLiveSpecification:
-          - AttributeName: expdate
-            Enabled: true
-        ProvisionedThroughput:
-          ReadCapacityUnits: 100
-          WriteCapacityUnits: 100
+  # IAM
+  - ${file(resources/iam-cmrStacRole.yml)}
+  # DynamoDB
+  - ${file(resources/dynamodb-searchAfterCache.yml)}
+  - ${file(resources/dynamodb-conceptIdCache.yml)}
+
 
 plugins:
   - serverless-pseudo-parameters

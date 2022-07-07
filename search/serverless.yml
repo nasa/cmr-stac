@@ -56,43 +56,9 @@ custom:
       convertEmptyValues: true
 
 resources:
-  Resources:
-    searchAfterTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: searchAfterTable
-        AttributeDefinitions:
-          - AttributeName: query
-            AttributeType: S
-          - AttributeName: page
-            AttributeType: N
-        KeySchema:
-          - AttributeName: query
-            KeyType: HASH
-          - AttributeName: page
-            KeyType: RANGE
-        TimeToLiveSpecification:
-          - AttributeName: expdate
-            Enabled: true
-        ProvisionedThroughput:
-          ReadCapacityUnits: 100
-          WriteCapacityUnits: 100
-    conceptIdTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: conceptIdTable
-        AttributeDefinitions:
-          - AttributeName: stacId
-            AttributeType: S
-        KeySchema:
-          - AttributeName: stacId
-            KeyType: HASH
-        TimeToLiveSpecification:
-          - AttributeName: expdate
-            Enabled: true
-        ProvisionedThroughput:
-          ReadCapacityUnits: 100
-          WriteCapacityUnits: 100
+  # DynamoDB
+  - ${file(resources/dynamodb-searchAfterCache.yml)}
+  - ${file(resources/dynamodb-conceptIdCache.yml)}
 
 plugins:
   - serverless-dynamodb-local
