@@ -81,7 +81,7 @@ async function getSearchAfterParams (params = {}, headers = DEFAULT_HEADERS) {
   const saParamString = JSON.stringify(saParams);
 
   const ddbGetCommand = new GetItemCommand({
-    TableName: "searchAfterTable",
+    TableName: "stac-searchAfterTable",
     Key: {
       query: { S: `${saParamString}` },
       page: { N: `${pageNum}` }
@@ -132,7 +132,7 @@ async function cacheSearchAfter (params, response) {
 
   logger.debug(`Caching cmr-search-after response [${saParamString}][${nextPage}] => [${saResponse}]`);
   const ddbPutCommand = new PutItemCommand({
-    TableName: "searchAfterTable",
+    TableName: "stac-searchAfterTable",
     Item: {
       query: { S:`${saParamString}` },
       page: { N:`${nextPage}` },
@@ -154,7 +154,7 @@ async function cacheConceptId (stacId, conceptId) {
 
   logger.debug(`Caching stacId to conceptId ${stacId} => ${conceptId}`);
   const ddbPutCommand = new PutItemCommand({
-    TableName: "conceptIdTable",
+    TableName: "stac-conceptIdTable",
     Item: {
       stacId: { S:`${stacId}` },
       conceptId: { S:`${conceptId}` },
@@ -175,7 +175,7 @@ async function getCachedConceptId (stacId) {
 
   logger.debug(`Checking conceptCache for stacId ${stacId}`);
   const ddbGetCommand = new GetItemCommand({
-    TableName: "conceptIdTable",
+    TableName: "stac-conceptIdTable",
     Key: {
       stacId: { S:`${stacId}` }
     }
