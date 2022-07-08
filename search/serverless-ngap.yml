@@ -4,7 +4,8 @@ provider:
   name: aws
   runtime: nodejs14.x
   region: us-east-1
-  role: cmrStacRole
+  iam:
+    role: cmrStacRole
   deploymentBucket:
     name: ${cf:${opt:stage}.cmrStacDeploymentBucket}
   vpc:
@@ -16,6 +17,7 @@ custom:
   cmrStacName: ${param:cmr-stac-name}
   cmrStacRelativeRootUrl: ${param:cmr-stac-relative-root-url, '/stac'}
   logSubscription:
+    enabled: true
     destinationArn: ${cf:${opt:stage}.logForwardingArn}
   docsBucket: cmr-stac-static-bucket-${opt:stage}
   assets:
@@ -33,7 +35,7 @@ package:
     - lib/**
 
 functions:
-  search-api:
+  stac-api:
     name: cmr-${self:custom.cmrStacName}-${opt:stage}
     handler: lib/application.handler
     timeout: 60
@@ -43,7 +45,6 @@ functions:
           priority: ${param:cmr-lb-priority, 83}
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
-    logSubscription: true
     environment:
       CMR_URL: ${param:cmr-url}
       CMR_LB_URL: ${param:cmr-lb-url, 'http://${cf:${opt:stage}.servicesDnsName}'}
