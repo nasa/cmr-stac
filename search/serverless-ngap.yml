@@ -61,4 +61,5 @@ resources:
   - ${file(resources/dynamodb-conceptIdCache.yml)}
 
 plugins:
+  - serverless-s3-deploy
   - serverless-plugin-log-subscription

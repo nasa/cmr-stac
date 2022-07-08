@@ -38,7 +38,7 @@
     "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
     "start": "IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
     "deploy": "sls deploy --config serverless.yml",
-    "deploy-docs": "sls s3deploy -v  --config serverless-ngap.yml",
+    "deploy-docs": "sls s3deploy -v --config serverless-ngap.yml",
     "ngap-deploy": "sls deploy --config serverless-ngap.yml",
     "ngap-deploy-cloudstac": "sls deploy --config serverless-ngap-cloudstac.yml",
     "remove": "sls dynamodb remove && sls remove --config serverless.yml",
