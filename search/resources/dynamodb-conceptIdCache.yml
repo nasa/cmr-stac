@@ -10,6 +10,6 @@ Resources:
         - AttributeName: stacId
           KeyType: HASH
       TimeToLiveSpecification:
-        - AttributeName: expdate
-          Enabled: true
+        AttributeName: expdate
+        Enabled: true
       BillingMode: PAY_PER_REQUEST

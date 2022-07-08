@@ -34,7 +34,7 @@ functions:
       CMR_URL: 'http://localhost'
       CMR_LB_URL: 'http://localhost'
       CMR_STAC_RELATIVE_ROOT_URL: /stac
-      CMR_STAC_PROTOCOL: ${opt:protocol, 'http'}
+      CMR_STAC_PROTOCOL: ${param:protocol, 'http'}
       LOG_LEVEL: info
       LOG_DISABLED: false
       STAC_VERSION: 1.0.0
@@ -48,7 +48,6 @@ custom:
     stages:
       - dev
     start:
-      docker: true
       port: 8000
       inMemory: true
       migrate: true

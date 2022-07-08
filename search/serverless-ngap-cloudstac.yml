@@ -1,4 +1,4 @@
-service: "cmr-${self:custom.cmrStacName}-api"
+service: cmr-cloudstac-api
 
 provider:
   name: aws
@@ -26,8 +26,8 @@ provider:
             - "Fn::GetAtt": [conceptTable, Arn]
 
 custom:
-  cmrStacName: ${opt:cmr-stac-name}
-  cmrStacRelativeRootUrl: ${opt:cmr-stac-relative-root-url, '/stac'}
+  cmrStacName: ${param:cmr-stac-name}
+  cmrStacRelativeRootUrl: ${param:cmr-stac-relative-root-url, '/stac'}
   logSubscription:
       destinationArn: ${cf:${opt:stage}.logForwardingArn}
 
@@ -39,13 +39,13 @@ functions:
     events:
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
-          priority: ${opt:cmr-lb-priority, 83}
+          priority: ${param:cmr-lb-priority, 83}
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
     logSubscription: true
     environment:
-      CMR_URL: ${opt:cmr-url}
-      CMR_LB_URL: ${opt:cmr-lb-url, 'http://${cf:${opt:stage}.servicesDnsName}'}
+      CMR_URL: ${param:cmr-url}
+      CMR_LB_URL: ${param:cmr-lb-url, 'http://${cf:${opt:stage}.servicesDnsName}'}
       CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
       BROWSE_PATH: year/month/day
       LOG_DISABLED: false
