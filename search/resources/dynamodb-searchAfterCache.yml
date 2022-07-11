@@ -2,7 +2,7 @@ Resources:
   SearchAfterCache:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: stac-searchAfterTable
+      TableName: ${self:custom.cmrStacName}-searchAfterTable
       AttributeDefinitions:
         - AttributeName: query
           AttributeType: S

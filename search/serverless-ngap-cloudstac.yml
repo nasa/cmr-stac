@@ -32,7 +32,7 @@ functions:
     events:
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
-          priority: ${param:cmr-lb-priority, 83}
+          priority: ${param:cmr-lb-priority, 84}
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
     environment:

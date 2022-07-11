@@ -18,6 +18,7 @@ function getDynamoDbSettings () {
 function getStacSettings () {
   const stacSettings = {};
 
+  stacSettings.name = process.env.STAC_NAME || 'stac';
   stacSettings.version = process.env.STAC_VERSION || '1.0.0';
   stacSettings.stacRelativePath = process.env.STAC_RELATIVE_PATH || '/stac';
 

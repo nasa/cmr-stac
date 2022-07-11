@@ -2,7 +2,7 @@ Resources:
   ConceptIdCache:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: stac-conceptIdTable
+      TableName: ${self:custom.cmrStacName}-conceptIdTable
       AttributeDefinitions:
         - AttributeName: stacId
           AttributeType: S

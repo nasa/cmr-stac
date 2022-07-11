@@ -44,9 +44,9 @@
     "remove": "sls dynamodb remove && sls remove --config serverless.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
     "dynamodb:install": "sls dynamodb install",
-    "dynamodb:up": "sls dynamodb start --migrate 2>&1 &",
+    "dynamodb:up": "sls dynamodb start --migrate --param=\"cmr-stac-name=test-stac\" 2>&1 &",
     "pretest": "npm run dynamodb:up && sleep 15",
-    "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true jest --env=node --coverage --reporters=jest-junit --reporters=default",
+    "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --coverage --reporters=jest-junit --reporters=default",
     "posttest": "ps aux | grep \"dynamodb\" | grep -v grep | awk '{print $2}'| xargs kill",
     "ci": "npm run lint && npm run test"
   }
