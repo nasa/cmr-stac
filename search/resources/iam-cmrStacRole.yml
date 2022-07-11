@@ -16,7 +16,7 @@ Resources:
             Action:
               - sts:AssumeRole
       Policies:
-        - PolicyName: cmrStac-dynamodbAccessRole
+        - PolicyName: cmr-${self:custom.cmrStacName}-dynamodbAccessRole
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
