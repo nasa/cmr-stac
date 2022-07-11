@@ -4,35 +4,27 @@ provider:
   name: aws
   runtime: nodejs14.x
   region: us-east-1
-  role: cmrStacRole
+  iam:
+    role: cmrStacRole
   deploymentBucket: ${cf:${opt:stage}.cmrStacDeploymentBucket}
   vpc:
     securityGroupIds:
       - ${cf:${opt:stage}.servicesSecurityGroupId}
     subnetIds: !Split [ ",", "${cf:${opt:stage}.subnetIds}" ]
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - dynamodb:DescribeTable
-            - dynamodb:Query
-            - dynamodb:Scan
-            - dynamodb:GetItem
-            - dynamodb:PutItem
-            - dynamodb:UpdateItem
-          Resource:
-            - "Fn::GetAtt": [searchAfterTable, Arn]
-            - "Fn::GetAtt": [conceptTable, Arn]
 
 custom:
   cmrStacName: ${param:cmr-stac-name}
-  cmrStacRelativeRootUrl: ${param:cmr-stac-relative-root-url, '/stac'}
+  cmrStacRelativeRootUrl: ${param:cmr-stac-relative-root-url, '/cloudstac'}
   logSubscription:
-      destinationArn: ${cf:${opt:stage}.logForwardingArn}
+    enabled: true
+    destinationArn: ${cf:${opt:stage}.logForwardingArn}
+
+package:
+  patterns:
+    - lib/**
 
 functions:
-  search-api:
+  stac-api:
     name: cmr-${self:custom.cmrStacName}-${opt:stage}
     handler: lib/application.handler
     timeout: 60
@@ -42,7 +34,6 @@ functions:
           priority: ${param:cmr-lb-priority, 83}
           conditions:
             path: ${self:custom.cmrStacRelativeRootUrl}*
-    logSubscription: true
     environment:
       CMR_URL: ${param:cmr-url}
       CMR_LB_URL: ${param:cmr-lb-url, 'http://${cf:${opt:stage}.servicesDnsName}'}
@@ -59,7 +50,5 @@ resources:
   - ${file(resources/dynamodb-searchAfterCache.yml)}
   - ${file(resources/dynamodb-conceptIdCache.yml)}
 
-
 plugins:
-  - serverless-pseudo-parameters
   - serverless-plugin-log-subscription
