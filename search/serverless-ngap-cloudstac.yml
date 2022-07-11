@@ -6,7 +6,8 @@ provider:
   region: us-east-1
   iam:
     role: cmrStacRole
-  deploymentBucket: ${cf:${opt:stage}.cmrStacDeploymentBucket}
+  deploymentBucket:
+    name: ${cf:${opt:stage}.cmrStacDeploymentBucket}
   vpc:
     securityGroupIds:
       - ${cf:${opt:stage}.servicesSecurityGroupId}
