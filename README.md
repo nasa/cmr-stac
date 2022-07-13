@@ -8,7 +8,7 @@ catalog of NASA Earth Science data. [STAC, or SpatioTemporal Asset Catalog](http
 for searching and browsing STAC catalogs.
 
 CMR-STAC acts as a proxy between the CMR repository and STAC API queries.
-The goal is to expose CMR's vast collections of geosptial data as a STAC-compliant API.
+The goal is to expose CMR's vast collections of geospatial data as a STAC-compliant API.
 Even though the core metadata remains the same, a benefit of the CMR-STAC proxy is the ability
 to use the growing ecosystem of STAC software. Underneath, STAC API queries are translated into
 CMR queries which are sent to CMR and the responses are translated into STAC Collections and Items.
@@ -96,7 +96,7 @@ This account requires the following permissions:
 
 - manage cloud formation
 - manage S3 buckets
-- manage labmda function
+- manage lambda function
 - manage api gateway
 
 There are some environment variables included in the `serverless.yml` file for the search function that gets deployed. Those variables have default values, but when deploying they should be evaluated based on the environment they are being deployed into. e.g. SIT, UAT, PROD

@@ -4,12 +4,14 @@ const settings = require('../settings');
 const app = require('./app');
 const buildUrl = require('build-url');
 const { createLogger } = require('./logger');
+const { createDdbClient } = require('./ddbClient');
 
+const ddbClient = createDdbClient(settings.ddb)
 const logger = createLogger(settings.logger);
 
 function logRequest (request) {
   const { headers, baseUrl, params, query, body, apiGateway } = request;
-  logger.debug(JSON.stringify({ headers, baseUrl, params, query, body, apiGateway }));
+  logger.info(JSON.stringify({ headers, baseUrl, params, query, body, apiGateway }));
 }
 
 /**
@@ -19,9 +21,8 @@ function logRequest (request) {
 function toArray (value) {
   if (typeof value === 'string' || value instanceof String) {
     return value.split(',');
-  } else {
-    return value;
   }
+  return value;
 }
 
 function getKeyCaseInsensitive (object, key) {
@@ -157,18 +158,19 @@ function createNavLink (event, params, rel) {
 
 module.exports = {
   ...app,
-  logRequest,
-  toArray,
+    createLogger,
+  createNavLink,
+  ddbClient,
+  extractParam,
+  firstIfArray,
   generateAppUrl,
   generateAppUrlWithoutRelativeRoot,
+  generateNavLinks,
   generateSelfUrl,
-  makeCmrSearchUrl,
-  makeCmrSearchLbUrl,
-  createLogger,
   logger,
   makeAsyncHandler,
-  generateNavLinks,
-  createNavLink,
-  firstIfArray,
-  extractParam
+  makeCmrSearchLbUrl,
+  makeCmrSearchUrl,
+  toArray,
+  logRequest,
 };
