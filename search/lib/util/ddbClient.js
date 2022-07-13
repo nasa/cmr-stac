@@ -5,7 +5,7 @@ const defaultParams = {
 };
 
 /**
- * Return a DynanmoDB client.
+ * Return a DynamoDB client.
  */
 const createDdbClient = ((params) => {
   return new DynamoDBClient(Object.assign({}, defaultParams, params));

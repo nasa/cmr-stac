@@ -60,7 +60,7 @@ describe('cmr', () => {
         axios.get = jest.fn();
         const cmrResponse = {
           headers: { 'cmr-hits': 1, 'cmr-search-after': '["d", "e", "f"]' },
-          data: { feed: { entry: [{ concept_id: 10, test: 'value' }] } }
+          data: { feed: { entry: [{ concept_id: "C000000001-STAC_PROV", test: 'value' }] } }
         };
         axios.get.mockResolvedValue(cmrResponse);
       });
@@ -71,21 +71,21 @@ describe('cmr', () => {
 
       it('should return a collection', async () => {
         const result = await findCollections({
-          concept_id: 10,
-          provider_id: 'some-provider'
+          concept_id: "C000000001-STAC_PROV",
+          provider_id: 'STAC_PROV'
         });
         expect(axios.get.mock.calls.length).toBe(1);
-        expect(result[0]).toEqual({ concept_id: 10, test: 'value' });
+        expect(result[0]).toEqual({ concept_id: "C000000001-STAC_PROV", test: 'value' });
       });
 
       it('should include the concept_id and provider_id in the query', async () => {
-        await findCollections({ concept_id: 10, provider_id: 'some-provider' });
+        await findCollections({ concept_id: "C000000001-STAC_PROV", provider_id: 'STAC_PROV' });
         expect(axios.get.mock.calls.length).toBe(1);
         expect(axios.get.mock.calls[0][0])
           .toBe('http://localhost:3003/collections.json');
         expect(axios.get.mock.calls[0][1])
           .toEqual({
-            params: { concept_id: 10, provider_id: 'some-provider' },
+            params: { concept_id: "C000000001-STAC_PROV", provider_id: 'STAC_PROV' },
             headers: { 'Client-Id': 'cmr-stac-api-proxy' }
           });
       });
@@ -101,7 +101,7 @@ describe('cmr', () => {
             params: {},
             headers: { 'Client-Id': 'cmr-stac-api-proxy' }
           });
-        expect(result[0]).toEqual({ concept_id: 10, test: 'value' });
+        expect(result[0]).toEqual({ concept_id: "C000000001-STAC_PROV", test: 'value' });
       });
 
       it('should return a url with granues and downloadable as true as well as params', async () => {
@@ -115,7 +115,7 @@ describe('cmr', () => {
             params: { param: 'test' },
             headers: { 'Client-Id': 'cmr-stac-api-proxy' }
           });
-        expect(result[0]).toEqual({ concept_id: 10, test: 'value' });
+        expect(result[0]).toEqual({ concept_id: "C000000001-STAC_PROV", test: 'value' });
       });
     });
 
@@ -135,8 +135,8 @@ describe('cmr', () => {
 
       it('should return empty features', async () => {
         const result = await findCollections({
-          concept_id: 10,
-          provider_id: 'some-provider'
+          concept_id: "C000000001-STAC_PROV",
+          provider_id: 'STAC_PROV'
         });
         expect(axios.get.mock.calls.length).toBe(1);
         expect(result).toEqual([]);
@@ -338,7 +338,7 @@ describe('cmr', () => {
         axios.get = jest.fn();
         const cmrResponse = {
           headers: { 'cmr-hits': 0, 'cmr-search-after': '["t", "u", "v"]' },
-          data: { feed: { entry: [{ id: 1 }] } }
+          data: { feed: { entry: [{ id: "C00000000001-STAC_PROV" }] } }
         };
         axios.get.mockResolvedValue(cmrResponse);
 
@@ -348,7 +348,7 @@ describe('cmr', () => {
         const result = await convertParams('provider', params);
         expect(result).toEqual({
           provider: 'provider',
-          collection_concept_id: [1]
+          collection_concept_id: ["C00000000001-STAC_PROV"]
         });
       });
     });
