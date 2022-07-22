@@ -245,6 +245,18 @@ describe('granuleToItem', () => {
     });
   });
 
+  describe('cmrGranuleToStac', () => {
+    const cmrGran = exampleData.examplesByName.lancemodisCmrCcGran;
+    const expectedStacGran = exampleData.examplesByName.lancemodisStacCcGran;
+
+    const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
+
+    it('should return a FeatureGeoJSON from a cmrGran containing a eo:cloud_cover field', async () => {
+      const stacItem = await cmrGranuleToStac(event, cmrGran);
+      expect(stacItem).toEqual(expectedStacGran);
+    });
+  });
+
   describe('cmrGranulesToStac', () => {
     beforeEach(() => {
       mockFunction(cmr, 'cmrCollectionToStacId', 'landsat.v1');

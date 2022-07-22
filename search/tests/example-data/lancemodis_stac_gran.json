@@ -2,7 +2,7 @@
   "type": "Feature",
   "id": "G1848422111-LANCEMODIS",
   "stac_version": "1.0.0",
-  "stac_extensions": ["https://stac-extensions.github.io/eo/v1.0.0/schema.json"],
+  "stac_extensions": [],
   "collection": "MYD02HKM.v6.1NRT",
   "geometry": {
     "type": "Polygon",
@@ -70,8 +70,7 @@
   "properties": {
     "datetime": "2020-06-10T23:55:00.000Z",
     "start_datetime": "2020-06-10T23:55:00.000Z",
-    "end_datetime": "2020-06-11T00:00:00.000Z",
-    "eo:cloud_cover": 4
+    "end_datetime": "2020-06-11T00:00:00.000Z"
   },
   "assets": {
     "data": {
