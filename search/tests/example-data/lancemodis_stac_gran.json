@@ -70,7 +70,8 @@
   "properties": {
     "datetime": "2020-06-10T23:55:00.000Z",
     "start_datetime": "2020-06-10T23:55:00.000Z",
-    "end_datetime": "2020-06-11T00:00:00.000Z"
+    "end_datetime": "2020-06-11T00:00:00.000Z",
+    "eo:cloud_cover": 4
   },
   "assets": {
     "data": {
