@@ -17,7 +17,7 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",
-    "serverless": "^3.19.0",
+    "serverless": "^3.21.0",
     "winston": "^3.8.1"
   },
   "devDependencies": {
@@ -36,7 +36,7 @@
   "scripts": {
     "postinstall": "npm run dynamodb:install",
     "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
-    "start": "IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
+    "start": "IS_LOCAL=true sls offline start --config serverless.yml --stage dev --param=\"cmr-stac-name=test-stac\"",
     "deploy": "sls deploy --config serverless.yml",
     "deploy-docs": "sls s3deploy -v --config serverless-ngap.yml",
     "ngap-deploy": "sls deploy --config serverless-ngap.yml",
