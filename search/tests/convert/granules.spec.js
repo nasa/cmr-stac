@@ -284,7 +284,6 @@ describe('granuleToItem', () => {
 
     it('opendap url should be taken from the the service relatedUrls', async () => {
       const stacItem = await cmrGranuleToStac(event, cmrGran);
-      console.log(stacItem);
       expect(stacItem.assets.opendap).toEqual({
         title: 'OPeNDAP request URL',
         href: 'https://opendap.earthdata.nasa.gov/collections/C1940473819-POCLOUD/granules/20220726101001-JPL-L2P_GHRSST-SSTskin-MODIS_A-D-v02.0-fv01.0',
