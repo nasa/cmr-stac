@@ -22,13 +22,13 @@ custom:
   docsBucket: cmr-stac-static-bucket-${opt:stage}
   assets:
     targets:
-      - bucket:
-          Ref: cmrStacDocsBucket
-        empty: true
-        prefix: docs
-        files:
-          - source: ./docs/
-            globs: '**/index.html'
+    - bucket:
+        Ref: cmrStacDocsBucket
+      empty: true
+      prefix: docs
+      files:
+      - source: ./docs/
+        globs: '**/index.html'
 
 package:
   patterns:
@@ -61,6 +61,8 @@ resources:
   # DynamoDB
   - ${file(resources/dynamodb-searchAfterCache.yml)}
   - ${file(resources/dynamodb-conceptIdCache.yml)}
+  # S3
+  - ${file(resources/s3-docsBucket.yml)}
 
 plugins:
   - serverless-s3-deploy

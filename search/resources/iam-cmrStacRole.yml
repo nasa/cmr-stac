@@ -1,3 +1,4 @@
+---
 Resources:
   cmrStacRole:
     Type: AWS::IAM::Role
