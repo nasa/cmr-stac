@@ -1,3 +1,4 @@
+---
 Resources:
   ConceptIdCache:
     Type: AWS::DynamoDB::Table

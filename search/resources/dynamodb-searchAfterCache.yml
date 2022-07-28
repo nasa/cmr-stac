@@ -1,3 +1,4 @@
+---
 Resources:
   SearchAfterCache:
     Type: AWS::DynamoDB::Table

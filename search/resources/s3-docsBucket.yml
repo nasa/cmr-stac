@@ -1,0 +1,6 @@
+---
+Resources:
+  cmrStacDocsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: ${self:custom.docsBucket}
