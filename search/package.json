@@ -7,56 +7,52 @@
   "author": "Element 84",
   "license": "Apache-2.0",
   "dependencies": {
-    "ajv": "6.12.3",
-    "aws-serverless-express": "3.3.6",
-    "axios": "0.21.3",
+    "@aws-sdk/client-dynamodb": "^3.121.0",
+    "aws-serverless-express": "^3.4.0",
+    "axios": "^0.27.2",
     "bluebird": "^3.7.2",
     "build-url": "^6.0.1",
     "cors": "^2.8.5",
-    "express": "4.17.1",
-    "js-yaml": "3.13.1",
-    "lodash": "4.17.21",
-    "mime-types": "2.1.19",
-    "node-cache": "^5.1.2",
-    "winston": "^3.7.2"
+    "express": "^4.18.1",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "mime-types": "^2.1.35",
+    "serverless": "^3.19.0",
+    "winston": "^3.8.1"
   },
   "devDependencies": {
-    "core-js": "^3.1.4",
-    "eslint": "^6.1.0",
-    "husky": "^3.0.4",
-    "jest": "^26.6.3",
-    "jest-junit": "^10.0.0",
-    "lint-staged": "^9.2.3",
-    "redoc-cli": "^0.9.12",
-    "serverless": "^2.31.0",
-    "serverless-offline": "^7.0.0",
-    "serverless-plugin-log-subscription": "^1.2.0",
-    "serverless-pseudo-parameters": "^2.5.0",
-    "serverless-s3-deploy": "^0.10.0"
+    "@types/aws-lambda": "^8.10.101",
+    "@types/jest": "^28.1.4",
+    "@types/node": "^18.0.0",
+    "eslint": "^8.18.0",
+    "jest": "^28.1.2",
+    "jest-junit": "^14.0.0",
+    "redoc-cli": "^0.13.16",
+    "serverless-dynamodb-local": "^0.2.40",
+    "serverless-offline": "^8.8.0",
+    "serverless-plugin-log-subscription": "^2.1.2",
+    "serverless-s3-deploy": "^0.10.1"
   },
   "scripts": {
-    "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline --config serverless.yml",
-    "start": "IS_LOCAL=true sls offline --config serverless.yml --protocol http",
+    "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
+    "postinstall": "npm run dynamodb:install",
+    "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
+    "start": "IS_LOCAL=true sls offline start --config serverless.yml --stage dev --param=\"cmr-stac-name=test-stac\"",
     "deploy": "sls deploy --config serverless.yml",
-    "deploy-docs": "sls s3deploy -v  --config serverless-ngap.yml",
+    "deploy-docs": "sls s3deploy -v --config serverless-ngap.yml",
     "ngap-deploy": "sls deploy --config serverless-ngap.yml",
     "ngap-deploy-cloudstac": "sls deploy --config serverless-ngap-cloudstac.yml",
-    "remove": "sls remove --config serverless.yml",
+    "remove": "sls dynamodb remove && sls remove --config serverless.yml",
     "lint": "eslint ./lib/** ./tests/** --fix",
-    "test": "jest --env=node",
+    "dynamodb:install": "sls dynamodb install --param=\"cmr-stac-name=test-stac\"",
+    "dynamodb:up": "nohup sls dynamodb start --migrate --param=\"cmr-stac-name=test-stac\" > dynamodb.log 2>&1 &",
+    "dynamodb:down": "ps aux | grep \"dynamodb\" | grep -v grep | awk '{print $2}'| xargs kill",
+    "pretest": "rm -f dynamodb.log && npm run dynamodb:up && node tests/wait_for_ddb.js",
+    "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --coverage --reporters=jest-junit --reporters=default",
+    "posttest": "npm run dynamodb:down",
     "ci": "npm run lint && npm run test"
   },
-  "lint-staged": {
-    "./lib/**": [
-      "npm run --silent lint"
-    ],
-    "./tests/**": [
-      "npm run --silent ci"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+  "resolutions": {
+    "file-type": "16.5.4"
   }
 }

@@ -164,14 +164,10 @@ async function cmrGranuleToStac (event, granule) {
   let opendapLink;
 
   const extensions = [];
-  if (_.has(granule, 'umm.AdditionalAttributes')) {
-    const attributes = granule.umm.AdditionalAttributes;
-    const eo = attributes.filter(attr => attr.Name === 'CLOUD_COVERAGE');
-    if (eo.length) {
-      extensions.push('https://stac-extensions.github.io/eo/v1.0.0/schema.json');
-      const eoValue = eo[0].Values[0];
-      properties['eo:cloud_cover'] = parseInt(eoValue);
-    }
+  if (_.has(granule, 'umm.CloudCover')) {
+    const eo = granule.umm.CloudCover;
+    extensions.push('https://stac-extensions.github.io/eo/v1.0.0/schema.json');
+    properties['eo:cloud_cover'] = eo;
   }
 
   if (granule.links) {

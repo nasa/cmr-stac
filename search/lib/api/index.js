@@ -1,7 +1,7 @@
 const axios = require('axios');
 const path = require('path');
 const express = require('express');
-const { makeCmrSearchLbUrl } = require('../util');
+const { logger, makeCmrSearchLbUrl } = require('../util');
 
 const provider = require('./provider');
 const stac = require('./stac');
@@ -16,6 +16,7 @@ async function getHealth (res) {
       }
     });
   } catch (error) {
+    logger.error(`An error occurred during a healthcheck [${error.messge}]`);
     res.status(503).json({
       search: {
         'ok?': false
@@ -26,8 +27,11 @@ async function getHealth (res) {
 
 const routes = express.Router();
 
-routes.use('/docs', express.static(path.join(__dirname, '../../docs/index.html')));
-routes.use('/health', (req, res) => getHealth(res));
+routes.use(
+  '/docs',
+  express.static(path.join(__dirname, '../../docs/index.html'))
+);
+routes.use('/health', (_, res) => getHealth(res));
 routes.use(provider.routes);
 routes.use(stac.routes);
 routes.use(wfs.routes);
