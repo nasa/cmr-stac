@@ -49,7 +49,7 @@ async function getProvider (request, response) {
 
     if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
       // Query params to get cloud holdings for the provider.
-      Object.assign(cmrParams, { tag_key: 'gov.nasa.earthdatacloud.s3' });
+      Object.assign(cmrParams, { cloud_hosted: 'true' });
     }
     const providerHoldings = await cmr.findCollections(cmrParams);
 
