@@ -20,7 +20,7 @@ const Promise = require('bluebird');
 
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
-const SERVICE_REL =  'http://esipfed.org/ns/fedsearch/1.1/service#';
+const SERVICE_REL = 'http://esipfed.org/ns/fedsearch/1.1/service#';
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
   const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
