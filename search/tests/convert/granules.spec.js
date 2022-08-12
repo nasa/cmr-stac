@@ -366,4 +366,50 @@ describe('granuleToItem', () => {
       });
     });
   });
+  describe('cmrGranuleToStac', () => {
+    const cmrGran = {
+      id: 1,
+      collection_concept_id: 10,
+      dataset_id: 'datasetId',
+      short_name: 'landsat',
+      version_id: '1',
+      summary: 'summary',
+      time_start: '0',
+      time_end: '1',
+      links: [
+        {
+          rel: "http://esipfed.org/ns/fedsearch/1.1/service#",
+          title: "OPeNDAP request URL",
+          hreflang: "en-US",
+          href: "https://opendap.earthdata.nasa.gov/collections/C1940473819-POCLOUD/granules/20220726101001-JPL-L2P_GHRSST-SSTskin-MODIS_A-D-v02.0-fv01.0"
+        }
+      ],
+      data_center: 'USA',
+      points: ['77,139'],
+      umm: {
+        GranuleUR: 1,
+        CollectionReference: {
+          ShortName: 'landsat',
+          Version: '1'
+        },
+        relatedUrls: [{
+          "url": "https://opendap.earthdata.nasa.gov/collections/C1940473819-POCLOUD/granules/20220726101001-JPL-L2P_GHRSST-SSTskin-MODIS_A-D-v02.0-fv01.0",
+          "type": "USE SERVICE API",
+          "subtype": "OPENDAP DATA",
+          "description": "OPeNDAP request URL"
+        }]
+      }
+    };
+
+    const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
+
+    it('opendap url should be taken from the the service relatedUrls', async () => {
+      const stacItem = await cmrGranuleToStac(event, cmrGran);
+      expect(stacItem.assets.opendap).toEqual({
+        title: 'OPeNDAP request URL',
+        href: 'https://opendap.earthdata.nasa.gov/collections/C1940473819-POCLOUD/granules/20220726101001-JPL-L2P_GHRSST-SSTskin-MODIS_A-D-v02.0-fv01.0',
+        type: undefined
+      });
+    });
+  });
 });

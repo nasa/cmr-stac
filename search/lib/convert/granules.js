@@ -20,7 +20,7 @@ const Promise = require('bluebird');
 
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
-const DOC_REL = 'http://esipfed.org/ns/fedsearch/1.1/documentation#';
+const SERVICE_REL = 'http://esipfed.org/ns/fedsearch/1.1/service#';
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
   const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
@@ -176,7 +176,7 @@ async function cmrGranuleToStac (event, granule) {
       granule.links.filter(l => l.rel === BROWSE_REL)
     );
     opendapLink = _.first(
-      granule.links.filter(l => l.rel === DOC_REL && !l.inherited && l.href.includes('opendap'))
+      granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited)
     );
   }
 
