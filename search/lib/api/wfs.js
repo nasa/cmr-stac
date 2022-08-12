@@ -39,7 +39,7 @@ async function getCollections (request, response) {
 
     if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
       // Query params to get cloud holdings for the provider.
-      Object.assign(cmrParams, { tag_key: 'gov.nasa.earthdatacloud.s3' });
+      Object.assign(cmrParams, { cloud_hosted: 'true' });
       rootName = 'CMR-CLOUDSTAC Root';
       description = `All cloud holding collections provided by ${provider}`;
     } else {
@@ -127,7 +127,7 @@ async function getCollection (request, response) {
 async function findCloudCollections (providerId, collectionConceptIds) {
   const params = Object.assign(
     { provider_short_name: providerId },
-    { tag_key: 'gov.nasa.earthdatacloud.s3' },
+    { cloud_hosted: 'true' },
     { page_size: 2000 }
   );
 

@@ -320,7 +320,7 @@ function stacCollectionToCmrParams (providerId, collectionId) {
     cmrParams.short_name = parts.join('.');
   }
   if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-    cmrParams.tag_key = 'gov.nasa.earthdatacloud.s3';
+    cmrParams.cloud_hosted = 'true';
   }
   return cmrParams;
 }
@@ -386,7 +386,7 @@ function getFacetParams (year, month, day) {
 
 async function getGranuleTemporalFacets (params = {}, year, month, day) {
   const cmrParams = Object.assign(params, getFacetParams(year, month, day));
-  delete cmrParams.tag_key;
+  delete cmrParams.cloud_hosted;
 
   const facets = {
     years: [],
