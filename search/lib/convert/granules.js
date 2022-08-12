@@ -180,7 +180,7 @@ async function cmrGranuleToStac (event, granule) {
       granule.links.filter(l => l.rel === BROWSE_REL)
     );
     opendapLink = _.first(
-      granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited && l.href.includes('opendap'))
+      granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited)
     );
   }
 
