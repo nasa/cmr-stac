@@ -168,6 +168,15 @@ async function cmrGranuleToStac (event, granule) {
     const eo = granule.umm.CloudCover;
     extensions.push('https://stac-extensions.github.io/eo/v1.0.0/schema.json');
     properties['eo:cloud_cover'] = eo;
+  } else if (_.has(granule, 'umm.AdditionalAttributes')) {
+     // HACK: CMR-8623 this is block should be removed after providers update their metadata
+    const attributes = granule.umm.AdditionalAttributes;
+    const eo = attributes.filter(attr => attr.Name === 'CLOUD_COVERAGE');
+    if (eo.length) {
+      extensions.push('https://stac-extensions.github.io/eo/v1.0.0/schema.json');
+      const eoValue = eo[0].Values[0];
+      properties['eo:cloud_cover'] = parseInt(eoValue);
+    }
   }
 
   if (granule.links) {

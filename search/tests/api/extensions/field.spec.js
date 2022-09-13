@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-describe('STAC API Extensions', () => {
+describe.skip('STAC API Extensions', () => {
   describe('convertStacFieldsQueryToObject', () => {
     it('WIP: it should convert a URL query object into an array of included and excluded fields', async () => {
       expect(true).toBeTruthy();
