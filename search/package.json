@@ -49,6 +49,7 @@
     "dynamodb:down": "ps aux | grep \"dynamodb\" | grep -v grep | awk '{print $2}'| xargs kill",
     "pretest": "rm -f dynamodb.log && npm run dynamodb:up && node tests/wait_for_ddb.js",
     "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --coverage --reporters=jest-junit --reporters=default",
+    "test:watch": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --coverage --reporters=jest-junit --reporters=default --watch",
     "posttest": "npm run dynamodb:down",
     "ci": "npm run lint && npm run test"
   },
