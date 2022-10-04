@@ -118,9 +118,7 @@ async function cacheSearchAfter (params, response) {
 
   const saResponse = response.headers['cmr-search-after'];
   if (!saResponse || saResponse.length === 0) {
-    logger.info(
-      'No cmr-search-after header value was returned in the response from CMR.'
-    );
+    logger.debug('No cmr-search-after header value was returned in the response from CMR.');
     return Promise.resolve();
   }
 
