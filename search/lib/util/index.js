@@ -6,12 +6,12 @@ const buildUrl = require('build-url');
 const { createLogger } = require('./logger');
 const { createDdbClient } = require('./ddbClient');
 
-const ddbClient = createDdbClient(settings.ddb)
+const ddbClient = createDdbClient(settings.ddb);
 const logger = createLogger(settings.logger);
 
 function logRequest (request) {
-  const { headers, baseUrl, params, query, body, apiGateway } = request;
-  logger.info(JSON.stringify({ headers, baseUrl, params, query, body, apiGateway }));
+  const { headers, baseUrl, params, query, body } = request;
+  logger.info(JSON.stringify({ headers, baseUrl, params, query, body }));
 }
 
 /**

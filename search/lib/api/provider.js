@@ -23,131 +23,129 @@ const CONFORMS_TO = [
   'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson'
 ];
 
-async function getProvider (request, response) {
-  try {
-    const providerId = request.params.providerId;
-    logger.info(`GET /${providerId}`);
-    const pageSize = Number(request.query.limit || 10);
-    const event = request.apiGateway.event;
+async function getProvider(request, response) {
+  const providerId = request.params.providerId;
+  logger.info(`GET /${providerId}`);
+  const pageSize = Number(request.query.limit || 10);
+  const event = request.apiGateway.event;
 
-    // validate that providerId is valid
-    const providerList = await cmr.getProviderList();
-    const isProvider = providerList.filter((providerObj) =>
-      providerObj['provider-id'] === providerId
-    );
-    if (isProvider.length === 0) {
-      throw new Error(`Provider [${providerId}] not found`);
-    }
+  // validate that providerId is valid
+  const providerList = await cmr.getProviderList();
+  const isProvider = providerList.filter((providerObj) => providerObj['provider-id'] === providerId);
 
-    // Need to page through all the cloud collections. One page at a time, 10 collections in each page.
-    const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(
-      event
-    );
-
-    // request.query is Used for pagination.
-    const cmrParams = await cmr.convertParams(providerId, request.query);
-
-    if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-      // Query params to get cloud holdings for the provider.
-      Object.assign(cmrParams, { cloud_hosted: 'true' });
-    }
-    const providerHoldings = await cmr.findCollections(cmrParams);
-
-    const links = [
-      wfs.createLink(
-        'self',
-        generateAppUrl(event, `/${providerId}`),
-        'Provider catalog'
-      ),
-      wfs.createLink('root', generateAppUrl(event, '/'), 'Root catalog'),
-      wfs.createLink(
-        'collections',
-        generateAppUrl(event, `/${providerId}/collections`),
-        'Provider Collections'
-      ),
-      wfs.createLink(
-        'search',
-        generateAppUrl(event, `/${providerId}/search`),
-        'Provider Item Search',
-        'application/geo+json',
-        'GET'
-      ),
-      wfs.createLink(
-        'search',
-        generateAppUrl(event, `/${providerId}/search`),
-        'Provider Item Search',
-        'application/geo+json',
-        'POST'
-      ),
-      wfs.createLink(
-        'conformance',
-        generateAppUrl(event, `/${providerId}/conformance`),
-        'Conformance Classes',
-        'application/geo+json'
-      ),
-      wfs.createLink(
-        'service-desc',
-        'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
-        'OpenAPI Doc',
-        'application/vnd.oai.openapi;version=3.0'
-      ),
-      wfs.createLink(
-        'service-doc',
-        'https://api.stacspec.org/v1.0.0-beta.1/index.html',
-        'HTML documentation',
-        'text/html'
-      )
-    ];
-
-    const childLinks = providerHoldings.map((collection) => {
-      const collectionId = cmr.cmrCollectionToStacId(
-        collection.short_name,
-        collection.version_id
-      );
-      return wfs.createLink(
-        'child',
-        generateAppUrl(event, `/${providerId}/collections/${collectionId}`),
-        collection['entry-title']
-      );
-    });
-
-    const provider = {
-      id: providerId,
-      title: providerId,
-      description: `Root catalog for ${providerId}`,
-      type: 'Catalog',
-      stac_version: settings.stac.version,
-      links: [...links, ...childLinks],
-      conformsTo: CONFORMS_TO
-    };
-
-    if (currPage > 1 && providerHoldings.length > 1) {
-      provider.links.push({
-        rel: 'prev',
-        href: prevResultsLink
-      });
-    }
-
-    if (providerHoldings.length === pageSize) {
-      provider.links.push({
-        rel: 'next',
-        href: nextResultsLink
-      });
-    }
-
-    response.status(200).json(provider);
-  } catch (e) {
-    response.status(400).json(e.message);
+  if (!isProvider.length) {
+    response
+      .status(404)
+      .json({errors: [`Provider [${providerId}] not found`]});
   }
+
+  // Need to page through all the cloud collections. One page at a time, 10 collections in each page.
+  const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
+
+  // request.query is Used for pagination.
+  const cmrParams = await cmr.convertParams(providerId, request.query);
+
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
+    // Query params to get cloud holdings for the provider.
+    Object.assign(cmrParams, { cloud_hosted: 'true' });
+  }
+  const providerHoldings = await cmr.findCollections(cmrParams);
+
+  const links = [
+    wfs.createLink(
+      'self',
+      generateAppUrl(event, `/${providerId}`),
+      'Provider catalog'
+    ),
+    wfs.createLink('root', generateAppUrl(event, '/'), 'Root catalog'),
+    wfs.createLink(
+      'collections',
+      generateAppUrl(event, `/${providerId}/collections`),
+      'Provider Collections'
+    ),
+    wfs.createLink(
+      'search',
+      generateAppUrl(event, `/${providerId}/search`),
+      'Provider Item Search',
+      'application/geo+json',
+      'GET'
+    ),
+    wfs.createLink(
+      'search',
+      generateAppUrl(event, `/${providerId}/search`),
+      'Provider Item Search',
+      'application/geo+json',
+      'POST'
+    ),
+    wfs.createLink(
+      'conformance',
+      generateAppUrl(event, `/${providerId}/conformance`),
+      'Conformance Classes',
+      'application/geo+json'
+    ),
+    wfs.createLink(
+      'service-desc',
+      'https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml',
+      'OpenAPI Doc',
+      'application/vnd.oai.openapi;version=3.0'
+    ),
+    wfs.createLink(
+      'service-doc',
+      'https://api.stacspec.org/v1.0.0-beta.1/index.html',
+      'HTML documentation',
+      'text/html'
+    )
+  ];
+
+  const childLinks = providerHoldings.map((collection) => {
+    const collectionId = cmr.cmrCollectionToStacId(
+      collection.short_name,
+      collection.version_id
+    );
+    return wfs.createLink(
+      'child',
+      generateAppUrl(event, `/${providerId}/collections/${collectionId}`),
+      collection['entry-title']
+    );
+  });
+
+  const provider = {
+    id: providerId,
+    title: providerId,
+    description: `Root catalog for ${providerId}`,
+    type: 'Catalog',
+    stac_version: settings.stac.version,
+    links: [...links, ...childLinks],
+    conformsTo: CONFORMS_TO
+  };
+
+  if (currPage > 1 && providerHoldings.length > 1) {
+    provider.links.push({
+      rel: 'prev',
+      href: prevResultsLink
+    });
+  }
+
+  if (providerHoldings.length === pageSize) {
+    provider.links.push({
+      rel: 'next',
+      href: nextResultsLink
+    });
+  }
+
+  response
+    .status(200)
+    .json(provider);
 }
 
 /**
  * Fetch a list of providers from CMR.
  */
-async function getProviders (request, response) {
+async function getProviders(request, response) {
   logRequest(request);
   const event = request.apiGateway.event;
   const providers = await cmr.getProviderList();
+
   const providerLinks = await Promise.map(providers, async (provider) => {
     return {
       title: provider['short-name'],
@@ -176,25 +174,22 @@ async function getProviders (request, response) {
   ];
 
   // Based on the route, set different id, title and description for providerCatalog.
-  let id;
-
-  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-    id = 'cloudstac';
-  } else {
-    id = 'stac';
-  }
-  const ID = id.toUpperCase();
+  const id = settings.cmrStacRelativeRootUrl === '/cloudstac' ? 'cloudstac' : 'stac';
+  const id_upper = id.toUpperCase();
 
   const providerCatalog = {
-    id: `${id}`,
-    title: `NASA CMR ${ID} Proxy`,
+    id,
+    title: `NASA CMR ${id_upper} Proxy`,
     stac_version: settings.stac.version,
     type: 'Catalog',
     description:
-      `This is the landing page for CMR-${ID}. Each provider link contains a ${ID} endpoint.`,
-    links: links
+      `This is the landing page for CMR-${id_upper}. Each provider link contains a ${id_upper} endpoint.`,
+    links
   };
-  response.status(200).json(providerCatalog);
+
+  response
+    .status(200)
+    .json(providerCatalog);
 }
 
 const routes = express.Router();
@@ -202,7 +197,7 @@ routes.get('/', makeAsyncHandler(getProviders));
 routes.get('/:providerId', makeAsyncHandler(getProvider));
 routes.get(
   '/:providerId/conformance',
-  (req, res) => res.json({ conformsTo: CONFORMS_TO })
+  (_req, res) => res.json({ conformsTo: CONFORMS_TO })
 );
 
 module.exports = {

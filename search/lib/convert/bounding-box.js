@@ -47,9 +47,16 @@ function addPointsToBbox (bbox, points) {
  * @returns number[] - A single combined bounding-box in the `[W, S, E, N]` format
  */
 function mergeBoxes (box1, box2) {
-  if (box1 === null) {
+  if (!box1 && !box2) {
+    return null;
+  }
+  if (!box1) {
     return box2;
   }
+  if (!box2) {
+    return box1;
+  }
+
   let w;
   let e;
   if (crossesAntimeridian(box1) && crossesAntimeridian(box2)) {

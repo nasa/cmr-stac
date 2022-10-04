@@ -13,16 +13,6 @@ const {
   getItem,
   getCatalog
 } = require('../../lib/api/wfs');
-const { logger } = require('../../lib/util');
-
-const origLogLevel = logger.level;
-beforeAll(() => {
-  logger.level = 'error';
-});
-
-afterAll(() => {
-  logger.level = origLogLevel;
-});
 
 describe('wfs routes', () => {
   let request, response;
@@ -38,6 +28,7 @@ describe('wfs routes', () => {
     response = createMockResponse();
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
     mockFunction(cmr, 'convertParams', Promise.resolve({ collection_concept_id: '111' }));
+    mockFunction(cmr, 'fetchConcept', Promise.resolve(exampleData.cmrColls[0]));
     mockFunction(cmr, 'findGranules', Promise.resolve({
       granules: exampleData.cmrGrans,
       hits: exampleData.cmrGrans.length
@@ -51,6 +42,7 @@ describe('wfs routes', () => {
     revertFunction(cmr, 'findCollections');
     revertFunction(cmr, 'convertParams');
     revertFunction(cmr, 'findGranules');
+    revertFunction(cmr, 'fetchConcept');
     revertFunction(cmr, 'getGranuleTemporalFacets');
     revertFunction(cmr, 'stacIdToCmrCollectionId');
   });
@@ -136,11 +128,13 @@ describe('wfs routes', () => {
           revertFunction(cmr, 'findCollections');
         });
 
-        it('should render a 404.', async () => {
+        it('should return a 404.', async () => {
           await getCollection(request, response);
           expect(response.getData()).toEqual({
             status: 404,
-            json: 'Collection [1.v1] not found for provider [LPDAAC]'
+            json: {
+              errors: ['Collection [1.v1] not found for provider [LPDAAC]']
+            }
           });
         });
       });
@@ -167,11 +161,13 @@ describe('wfs routes', () => {
           revertFunction(cmr, 'findCollections');
         });
 
-        it('should render a 404.', async () => {
+        it('should return a 404.', async () => {
           await getCollection(request, response);
           expect(response.getData()).toEqual({
             status: 404,
-            json: 'Collection [1.v1] not found for provider [LPDAAC]'
+            json: {
+              errors: ['Collection [1.v1] not found for provider [LPDAAC]']
+            }
           });
         });
       });

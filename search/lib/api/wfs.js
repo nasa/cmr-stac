@@ -23,108 +23,98 @@ Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
 /**
  * Fetch a list of collections from CMR for a provider.
  */
-async function getCollections (request, response) {
-  try {
-    logger.info(`GET ${request.params.providerId}/collections`);
-    const pageSize = Number(request.query.limit || 10);
-    const event = request.apiGateway.event;
+async function getCollections(request, response) {
+  logger.info(`GET ${request.params.providerId}/collections`);
+  const pageSize = Number(request.query.limit || 10);
+  const event = request.apiGateway.event;
 
-    const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
+  const { currPage, prevResultsLink, nextResultsLink } = generateNavLinks(event);
 
-    const provider = request.params.providerId;
+  const provider = request.params.providerId;
 
-    let rootName, description;
-    // request.query is Used for pagination.
-    const cmrParams = await cmr.convertParams(provider, request.query);
+  let rootName, description;
+  // request.query is Used for pagination.
+  const cmrParams = await cmr.convertParams(provider, request.query);
 
-    if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
-      // Query params to get cloud holdings for the provider.
-      Object.assign(cmrParams, { cloud_hosted: 'true' });
-      rootName = 'CMR-CLOUDSTAC Root';
-      description = `All cloud holding collections provided by ${provider}`;
-    } else {
-      rootName = 'CMR-STAC Root';
-      description = `All collections provided by ${provider}`;
-    }
-
-    const collections = await cmr.findCollections(cmrParams);
-
-    const collectionsResponse = {
-      id: provider,
-      stac_version: settings.stac.version,
-      description: `${description}`,
-      license: 'not-provided',
-      type: 'Catalog',
-      links: [
-        wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
-          `${description}`),
-        wfs.createLink('root', generateAppUrl(event, '/'), `${rootName}`)
-      ],
-      collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
-    };
-
-    if (currPage > 1 && collectionsResponse.links.length > 1) {
-      collectionsResponse.links.push({
-        rel: 'prev',
-        href: prevResultsLink
-      });
-    }
-
-    if (collectionsResponse.collections.length === pageSize) {
-      collectionsResponse.links.push({
-        rel: 'next',
-        href: nextResultsLink
-      });
-    }
-
-    response.json(collectionsResponse);
-  } catch (e) {
-    response.status(400).json(e.message);
+  if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
+    // Query params to get cloud holdings for the provider.
+    Object.assign(cmrParams, { cloud_hosted: 'true' });
+    rootName = 'CMR-CLOUDSTAC Root';
+    description = `All cloud holding collections provided by ${provider}`;
+  } else {
+    rootName = 'CMR-STAC Root';
+    description = `All collections provided by ${provider}`;
   }
+
+  const collections = await cmr.findCollections(cmrParams);
+
+  const collectionsResponse = {
+    id: provider,
+    stac_version: settings.stac.version,
+    description: `${description}`,
+    license: 'not-provided',
+    type: 'Catalog',
+    links: [
+      wfs.createLink('self', generateAppUrl(event, `/${provider}/collections`),
+        `${description}`),
+      wfs.createLink('root', generateAppUrl(event, '/'), `${rootName}`)
+    ],
+    collections: collections.map(coll => convert.cmrCollToWFSColl(event, coll))
+  };
+
+  if (currPage > 1 && collectionsResponse.links.length > 1) {
+    collectionsResponse.links.push({
+      rel: 'prev',
+      href: prevResultsLink
+    });
+  }
+
+  if (collectionsResponse.collections.length === pageSize) {
+    collectionsResponse.links.push({
+      rel: 'next',
+      href: nextResultsLink
+    });
+  }
+
+  return response.json(collectionsResponse);
 }
 
 /**
  * Fetch a collection from CMR.
  */
-async function getCollection (request, response) {
+async function getCollection(request, response) {
   logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}`);
   const event = request.apiGateway.event;
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
 
-  try {
-    // convert collection ID to CMR <short_name> and <version>
-    const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
-    const collections = await cmr.findCollections(cmrParams);
-    if (collections.length === 0) {
-      return response
-        .status(404)
-        .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
-    }
 
-    // There will only be one collection returned
-    const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
-    // add browse links
-    if (process.env.BROWSE_PATH) {
-      const facets = await cmr.getGranuleTemporalFacets(cmrParams);
-      const path = `/${providerId}/collections/${collectionId}`;
-      // create catalog link for each year
-      const browseLinks = facets.years.map(y =>
-        wfs.createLink('child', generateAppUrl(event, `${path}/${y}`), `${y} catalog`)
-      );
-      collectionResponse.links = collectionResponse.links.concat(browseLinks);
-    }
-    response.json(collectionResponse);
-  } catch (err) {
-    const msg = `Error [${err}] occurred when getting Collection ${collectionId} for provider ${providerId}`;
-    response.status(404).json(msg);
+  // convert collection ID to CMR <short_name> and <version>
+  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
+  const collections = await cmr.findCollections(cmrParams);
+  if (!collections.length) {
+    return response
+      .status(404)
+      .json({ errors: [`Collection [${collectionId}] not found for provider [${providerId}]`] });
   }
+
+  // There will only be one collection returned
+  const collectionResponse = convert.cmrCollToWFSColl(event, collections[0]);
+  // add browse links
+  if (process.env.BROWSE_PATH) {
+    const facets = await cmr.getGranuleTemporalFacets(cmrParams);
+    const path = `/${providerId}/collections/${collectionId}`;
+    // create catalog link for each year
+    const browseLinks = facets.years.map(y => wfs.createLink('child', generateAppUrl(event, `${path}/${y}`), `${y} catalog`));
+    collectionResponse.links = collectionResponse.links.concat(browseLinks);
+  }
+  return response.json(collectionResponse);
 }
 
 /**
  * Fetch a list of cloud holding collections from CMR for the provider
  */
-async function findCloudCollections (providerId, collectionConceptIds) {
+async function findCloudCollections(providerId, collectionConceptIds) {
   const params = Object.assign(
     { provider_short_name: providerId },
     { cloud_hosted: 'true' },
@@ -154,10 +144,9 @@ async function findCloudCollections (providerId, collectionConceptIds) {
  * Extract parameters from requst object
  * @param {Object} request - Request object
  */
-function extractParams (request) {
+function extractParams(request) {
   const event = request.apiGateway.event;
   const method = event.httpMethod;
-  logger.info(`${method} ${event.path}`);
 
   let params;
   if (method === 'GET') {
@@ -173,7 +162,7 @@ function extractParams (request) {
 /**
  * Fetch a list of granules from CMR.
  */
-async function getItems (request, response) {
+async function getItems(request, response) {
   logRequest(request);
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
@@ -186,14 +175,14 @@ async function getItems (request, response) {
       if (!cmrCollectionId) {
         return response
           .status(404)
-          .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
+          .json({errors: [`Collection [${collectionId}] not found for provider [${providerId}]`]});
       } else {
         // collections param not allowed.
         // when the search is already on a specific collectionId.
         if (params.collections) {
           return response
-            .status(404)
-            .json(`Can not have collections param when there is collectionId [${collectionId}] specified.`);
+            .status(400)
+            .json({errors: [`Can not have collections param when there is collectionId [${collectionId}] specified.`]});
         }
         params.collections = [collectionId];
       }
@@ -222,15 +211,13 @@ async function getItems (request, response) {
         // otherwise, we will get all the cloud holding collections for the provider.
         const allCloudCollections = await findCloudCollections(providerId, collectionConceptIds);
         const postSearchParams = new URLSearchParams(cmrParams);
+
         if (allCloudCollections.length !== 0) {
-          allCloudCollections.forEach(id => {
-            postSearchParams.append('collection_concept_id', id);
-          });
+          allCloudCollections.forEach(id => postSearchParams.append('collection_concept_id', id));
         }
+
         if (granuleURs) {
-          granuleURs.forEach(id => {
-            postSearchParams.append('granule_ur', id);
-          });
+          granuleURs.forEach(id => postSearchParams.append('granule_ur', id));
         }
         granulesResult = await cmr.findGranules(postSearchParams);
       } else {
@@ -243,12 +230,17 @@ async function getItems (request, response) {
       delete params.collections;
     }
 
+    const parentCollection = await cmr.fetchConcept(cmrParams['collection_concept_id']);
+    if (!parentCollection) {
+      throw new Error(`Collection with ID [${cmrParams['collection_concept_id']}] could not be located`);
+    }
+
     // convert CMR Granules to STAC Items
     const featureCollection = await convert.cmrGranulesToStac(event,
+      parentCollection,
       granulesResult.granules,
       parseInt(granulesResult.hits),
       params);
-
     // apply fields and context extensions
     const formatted = stacExtension.format(featureCollection,
       {
@@ -257,20 +249,24 @@ async function getItems (request, response) {
       });
 
     response.setHeader('Content-Type', 'application/geo+json');
-    response.json(formatted);
+    return response.json(formatted);
   } catch (err) {
     if (err instanceof stacExtension.errors.InvalidSortPropertyError) {
-      response.status(422).json(err.message);
-    } else {
-      response.status(400).json(err.message);
+      return response
+        .status(422)
+        .json(err.message);
     }
+
+    return response
+      .status(500)
+      .json({ errors: [err.message] });
   }
 }
 
 /**
  * Fetch a granule from CMR.
  */
-async function getItem (request, response) {
+async function getItem(request, response) {
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
   const itemId = request.params.itemId;
@@ -282,7 +278,7 @@ async function getItem (request, response) {
   if (!cmrCollectionId) {
     return response
       .status(404)
-      .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
+      .json({ errors: [`Collection [${collectionId}] not found for provider [${providerId}]`] });
   }
   const cmrParams = Object.assign(
     { granule_ur: itemId },
@@ -293,14 +289,30 @@ async function getItem (request, response) {
   // It'll work for GET too.
   const postSearchParams = new URLSearchParams(cmrParams);
   const granules = (await cmr.findGranules(postSearchParams)).granules;
-  const granuleResponse = await convert.cmrGranuleToStac(event, granules[0]);
-  response.json(granuleResponse);
-}
+
+  if (!granules.length) {
+    return response
+      .status(404)
+      .json({ errors: [`Granule [${itemId}] could not be found`] });
+  }
+
+  const granule = granules[0];
+
+  const parentCollection = await cmr.fetchConcept(granule.collection_concept_id);
+  if (!parentCollection) {
+    return response
+      .status(404)
+      .json({ errors: [`Parent collection with ID [${granule.collection_concept_id}] could not be located for granule with id [${granule.id}]`]});
+  }
+
+  const granuleResponse = await convert.cmrGranuleToStac(event, parentCollection, granule);
+  return response.json(granuleResponse);
+};
 
 /**
  * Create parameter dictionary from browse_path_template and provided values
  */
-async function getCatalog (request, response) {
+async function getCatalog(request, response) {
   // browse parameters
   const browseTemplate = process.env.BROWSE_PATH.split('/');
   const params = request.params['0'].split('/');
@@ -320,7 +332,7 @@ async function getCatalog (request, response) {
   if (!cmrCollectionId) {
     return response
       .status(404)
-      .json(`Collection [${collectionId}] not found for provider [${providerId}]`);
+      .json({ errors: [`Collection [${collectionId}] not found for provider [${providerId}]`] });
   }
 
   // get path from event
@@ -347,7 +359,7 @@ async function getCatalog (request, response) {
   cat.createParent(selfUrl.slice(0, selfUrl.lastIndexOf('/')));
 
   // add browse links
-  const cmrParams = await cmr.stacCollectionToCmrParams(providerId, collectionId);
+  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
   const facets = await cmr.getGranuleTemporalFacets(cmrParams, year, month, day);
   if (day) {
     facets.itemids.forEach(id => cat.addItem(id, providerId, collectionId, id));
@@ -357,14 +369,14 @@ async function getCatalog (request, response) {
     facets.months.forEach(m => cat.addChild(`${year}-${m} catalog`, `/${m}`));
   }
 
-  response.json(cat);
+  return response.json(cat);
 }
 
 /**
  * Returns a router.
  * @param cfg map of options.
  */
-function createRoutes (cfg = {}) {
+function createRoutes(cfg = {}) {
   const routes = express.Router();
   routes.get('/:providerId/collections', makeAsyncHandler(getCollections));
   routes.get('/:providerId/collections/:collectionId', makeAsyncHandler(getCollection));

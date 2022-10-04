@@ -1,9 +1,11 @@
 const axios = require('axios');
+const exampleData = require('../example-data');
 const settings = require('../../lib/settings.js');
 const {
   cmrSearch,
   findCollections,
   findGranules,
+  fetchConcept,
   convertParams,
   getFacetParams,
   getGranuleTemporalFacets
@@ -160,7 +162,7 @@ describe('cmr', () => {
     it('makes a request to /granules.json', async () => {
       await findGranules();
 
-      expect(axios.get.mock.calls.length).toBe(2);
+      expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0])
         .toBe('http://localhost:3003/granules.json');
     });
@@ -168,7 +170,7 @@ describe('cmr', () => {
     it('makes a request with the supplied params', async () => {
       await findGranules(params);
 
-      expect(axios.get.mock.calls.length).toBe(2);
+      expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][1])
         .toEqual({
           params: { param: 'test' },
@@ -179,7 +181,7 @@ describe('cmr', () => {
     it('returns an object with the returned granules', async () => {
       const result = await findGranules();
 
-      expect(axios.get.mock.calls.length).toBe(2);
+      expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0])
         .toBe('http://localhost:3003/granules.json');
       expect(result).toEqual(
@@ -190,11 +192,9 @@ describe('cmr', () => {
     it('returns hits from the CMR response header "cmr-hits"', async () => {
       const result = await findGranules(params);
 
-      expect(axios.get.mock.calls.length).toBe(2);
+      expect(axios.get.mock.calls.length).toBe(1);
       expect(axios.get.mock.calls[0][0])
         .toBe('http://localhost:3003/granules.json');
-      expect(axios.get.mock.calls[1][0])
-        .toBe('http://localhost:3003/granules.umm_json');
       expect(result).toEqual(expect.objectContaining({ hits: 199 }));
     });
   });
@@ -580,15 +580,11 @@ describe('When using POST to query for granules', () => {
 
   beforeAll(() => {
     settings.cmrStacRelativeRootUrl = '/cloudstac';
-    console.log(settings);
 
     axios.post = jest.fn();
     axios.post
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[0]))
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[0]))
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[1]))
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[1]))
-      .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[2]))
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[2]))
       .mockImplementation((_url, _body, _headers) => Promise.resolve(cmrResponses[3]));
   });
@@ -605,12 +601,32 @@ describe('When using POST to query for granules', () => {
 
   it('should use search-after for subsequent searches for granules', async () => {
     await findGranules({ providerId: 'PROV_A', page_num: 2 });
-    expect(axios.post.mock.calls[2][1]).toStrictEqual({ providerId: 'PROV_A' });
-    expect(axios.post.mock.calls[2][2]).toStrictEqual({
+    expect(axios.post.mock.calls[1][1]).toStrictEqual({ providerId: 'PROV_A' });
+    expect(axios.post.mock.calls[1][2]).toStrictEqual({
       headers: {
         'Client-Id': 'cmr-stac-api-proxy',
         'Content-Type': 'application/x-www-form-urlencoded',
         'cmr-search-after': '["c", "m", "r"]' }
     });
+  });
+});
+
+describe('fetchConcept', () => {
+  beforeAll(() => {
+    axios.get = jest.fn();
+    axios.get.mockImplementationOnce((_url, _body, _headers) => Promise.resolve({
+      status: 200,
+      headers: {"content-type" : "application/json"},
+      data: exampleData.cmrColls[0]
+    }));
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('fetches values from CMR', async ()=> {
+    const concept = await fetchConcept('C1280859287-GES_DISC');
+    expect(concept).toEqual(exampleData.cmrColls[0]);
   });
 });
