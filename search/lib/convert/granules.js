@@ -154,16 +154,12 @@ function cmrSpatialToStacBbox (cmrGran) {
 
 async function cmrGranuleToStac (event, granule) {
   const properties = {};
+  const extensions = [];
 
   properties.datetime = granule.time_start;
   properties.start_datetime = granule.time_start;
   properties.end_datetime = granule.time_end ? granule.time_end : granule.time_start;
 
-  let dataLink;
-  let browseLink;
-  let opendapLink;
-
-  const extensions = [];
   if (_.has(granule, 'umm.CloudCover')) {
     const eo = granule.umm.CloudCover;
     extensions.push('https://stac-extensions.github.io/eo/v1.0.0/schema.json');
@@ -179,43 +175,28 @@ async function cmrGranuleToStac (event, granule) {
     }
   }
 
-  if (granule.links) {
-    dataLink = granule.links.filter(l => l.rel === DATA_REL && !l.inherited);
-    browseLink = _.first(
-      granule.links.filter(l => l.rel === BROWSE_REL)
-    );
-    opendapLink = _.first(
-      granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited)
-    );
-  }
+  const dataLinks = granule.links.filter(l => l.rel === DATA_REL && !l.inherited);
+
+  let browseLink = _.first(granule.links.filter(l => l.rel === BROWSE_REL));
+  let opendapLink = _.first(granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited));
 
   const linkToAsset = (l) => {
-    if (l.title === undefined) {
-      return {
-        href: l.href,
-        type: l.type
-      };
-    } else {
-      return {
-        title: l.title,
-        href: l.href,
-        type: l.type
-      };
-    }
+    const {href, type, title} = l;
+    return {href, type, title};
   };
 
   const assets = {};
-  if (dataLink && dataLink.length) {
-    if (dataLink.length > 1) {
-      dataLink.forEach(l => {
-        const splitLink = l.href.split('.');
-        const fileType = splitLink[splitLink.length - 2];
-        assets[fileType] = linkToAsset(l);
-      });
-    } else {
-      assets.data = linkToAsset(dataLink[0]);
-    }
+
+  if (dataLinks.length > 1) {
+    dataLinks.forEach(l => {
+      const splitLink = l.href.split('.');
+      const fileType = splitLink[splitLink.length - 2];
+      assets[fileType] = linkToAsset(l);
+    });
+  } else if (dataLinks.length === 1) {
+    assets.data = linkToAsset(dataLinks[0]);
   }
+
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
 
