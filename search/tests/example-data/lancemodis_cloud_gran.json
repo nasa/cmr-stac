@@ -3,7 +3,7 @@
   "id": "LANCEMODIS:1028235774",
   "stac_version": "1.0.0",
   "stac_extensions": [],
-  "collection": "MOP02N.7",
+  "collection": "MOP02N.v7",
   "geometry": {
     "type": "Polygon",
     "coordinates": [
@@ -40,15 +40,15 @@
   "links": [
     {
       "rel": "self",
-      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MOP02N.7/items/LANCEMODIS:1028235774"
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MOP02N.v7/items/LANCEMODIS:1028235774"
     },
     {
       "rel": "parent",
-      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MOP02N.7"
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MOP02N.v7"
     },
     {
       "rel": "collection",
-      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MOP02N.7"
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/MOP02N.v7"
     },
     {
       "rel": "root",

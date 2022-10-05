@@ -132,7 +132,7 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'https://example.com/stac/LPDAAC/collections/name.version',
+            href: 'https://example.com/stac/LPDAAC/collections/name.vversion',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
@@ -147,7 +147,7 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'https://example.com/stac/LPDAAC/collections/name.version/items',
+            href: 'https://example.com/stac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -163,7 +163,7 @@ describe('collections', () => {
             type: 'application/json'
           }
         ],
-        id: 'name.version',
+        id: 'name.vversion',
         title: 'datasetId',
         stac_version: settings.stac.version,
         type: 'Collection',
@@ -196,7 +196,7 @@ describe('collections', () => {
         },
         links: [
           {
-            href: 'https://example.com/stac/LPDAAC/collections/name.version',
+            href: 'https://example.com/stac/LPDAAC/collections/name.vversion',
             rel: 'self',
             title: 'Info about this collection',
             type: 'application/json'
@@ -211,7 +211,7 @@ describe('collections', () => {
             title: 'Parent catalog',
             type: 'application/json'
           }, {
-            href: 'https://example.com/stac/LPDAAC/collections/name.version/items',
+            href: 'https://example.com/stac/LPDAAC/collections/name.vversion/items',
             rel: 'items',
             title: 'Granules in this collection',
             type: 'application/json'
@@ -227,7 +227,7 @@ describe('collections', () => {
             type: 'application/json'
           }
         ],
-        id: 'name.version',
+        id: 'name.vversion',
         title: 'datasetId',
         stac_version: settings.stac.version,
         type: 'Collection',

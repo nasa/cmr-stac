@@ -1,5 +1,5 @@
 {
-  "id": "AST14DEM.003",
+  "id": "AST14DEM.v003",
   "stac_version": "1.0.0",
   "type": "Collection",
   "license": "not-provided",
@@ -8,7 +8,7 @@
   "links": [
     {
       "rel": "self",
-      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.003",
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.v003",
       "title": "Info about this collection",
       "type": "application/json"
     },
@@ -26,7 +26,7 @@
     },
     {
       "rel": "items",
-      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.003/items",
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.v003/items",
       "title": "Granules in this collection",
       "type": "application/json"
     },

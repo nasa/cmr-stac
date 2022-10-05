@@ -258,7 +258,7 @@ async function stacIdToCmrCollectionId (providerId, stacId) {
 function cmrCollectionToStacId (shortName, version = null) {
   const invalidVersions = ['Not provided', 'NA'];
   if (version && !invalidVersions.includes(version)) {
-    return `${shortName}.${version}`;
+    return `${shortName}.v${version}`;
   }
   return shortName;
 }
