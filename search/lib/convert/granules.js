@@ -8,6 +8,7 @@ const {
   reorderBoxValues
 } = require('./bounding-box');
 const {
+  logger,
   generateAppUrl,
   wfs,
   generateSelfUrl,
@@ -127,6 +128,7 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
 function cmrSpatialToStacBbox (cmrGran) {
   let bbox = null;
   if (cmrGran.polygons) {
+    logger.debug(`gran polygons => bbox ${JSON.stringify(cmrGran.polygons)}`);
     let points = cmrGran.polygons
       .map((rings) => rings[0])
       .map(pointStringToPoints);
@@ -134,14 +136,17 @@ function cmrSpatialToStacBbox (cmrGran) {
     const inflectedPoints = inflectBox(points).map(point => parseFloat(point.toFixed(6)));
     bbox = reorderBoxValues(inflectedPoints);
   } else if (cmrGran.points) {
+    logger.debug(`gran points => bbox ${JSON.stringify(cmrGran.points)}`);
     const points = cmrGran.points.map(parseOrdinateString);
     const orderedPoints = points.map(([lat, lon]) => [lon, lat]);
     bbox = addPointsToBbox(bbox, orderedPoints);
   } else if (cmrGran.lines) {
+    logger.debug(`gran lines => bbox ${JSON.stringify(cmrGran.lines)}`);
     const linePoints = cmrGran.lines.map(parseOrdinateString);
     const orderedLines = linePoints.map(reorderBoxValues);
     bbox = orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   } else if (cmrGran.boxes) {
+    logger.debug(`gran boxes => bbox ${JSON.stringify(cmrGran.boxes)}`);
     bbox = cmrGran.boxes
       .reduce((box, boxStr) => mergeBoxes(
         box,
@@ -182,7 +187,12 @@ async function cmrGranuleToStac (event, granule) {
 
   const linkToAsset = (l) => {
     const {href, type, title} = l;
-    return {href, type, title};
+
+    const asset = {href, type};
+    if (title) {
+      asset.title = title;
+    }
+    return asset;
   };
 
   const assets = {};
@@ -224,18 +234,14 @@ async function cmrGranuleToStac (event, granule) {
   }
 
   assets.metadata = wfs.createAssetLink(makeCmrSearchUrl(`/concepts/${granule.id}.native`));
-  let { ShortName, EntryTitle, Version } = granule.umm.CollectionReference;
-  if (EntryTitle) {
-    const collections = await cmr.findCollections({ entry_title: EntryTitle });
-    if (collections.length === 0) {
-      return null;
-    } else {
-      ShortName = collections[0].short_name;
-      Version = collections[0].version_id;
-    }
+  const parentCollection = await cmr.fetchConcept(granule.collection_concept_id);
+  if (!parentCollection) {
+    throw new Error(`Parent collection with ID [${granule.collection_concept_id}] could not be located for granule with id [${granule.id}]`);
   }
-  const collectionId = cmr.cmrCollectionToStacId(ShortName, Version);
-  const gid = granule.umm.GranuleUR;
+
+  const collectionId = cmr.cmrCollectionToStacId(parentCollection.short_name, parentCollection.version_id);
+  const gid = granule.title;
+
   return {
     type: 'Feature',
     id: gid,
@@ -284,9 +290,7 @@ async function cmrGranulesToStac (event, granules, hits = 0, params = {}) {
   const numberMatched = hits;
   const numberReturned = granules.length;
 
-  const items = await Promise.map(granules, async (granule) => {
-    return cmrGranuleToStac(event, granule);
-  });
+  const items = await Promise.map(granules, async (granule) => cmrGranuleToStac(event, granule));
 
   const granulesResponse = {
     type: 'FeatureCollection',

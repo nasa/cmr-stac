@@ -4,6 +4,7 @@ const {
   cmrSearch,
   findCollections,
   findGranules,
+  fetchConcept,
   convertParams,
   getFacetParams,
   getGranuleTemporalFacets
@@ -612,5 +613,113 @@ describe('When using POST to query for granules', () => {
         'Content-Type': 'application/x-www-form-urlencoded',
         'cmr-search-after': '["c", "m", "r"]' }
     });
+  });
+});
+
+describe('fetchConcept', () => {
+  const cmrResponses = [
+    {
+      headers: {},
+      status: 200,
+      data:
+      {
+        "processing_level_id": "3",
+        "cloud_hosted": false,
+        "boxes": [
+          "-90 -180 90 180"
+        ],
+        "time_start": "1920-01-01T00:00:00.000Z",
+        "version_id": "1",
+        "updated": "1970-01-01T00:00:00.000Z",
+        "dataset_id": "Legates Surface and Ship Observations of Precipitation Climatology 0.5 x 0.5 degree V1 (RAIN_LEGATES) at GES DISC",
+        "has_spatial_subsetting": false,
+        "has_transforms": false,
+        "has_variables": false,
+        "data_center": "GES_DISC",
+        "short_name": "RAIN_LEGATES",
+        "organizations": [
+          "NASA/GSFC/SED/ESD/GCDC/GESDISC"
+        ],
+        "title": "Legates Surface and Ship Observations of Precipitation Climatology 0.5 x 0.5 degree V1 (RAIN_LEGATES) at GES DISC",
+        "coordinate_system": "CARTESIAN",
+        "summary": "The Legates Surface and Shipboard Rain Gauge Observations data set consists of a global climatology of monthly mean precipitation values. A global climatology of mean monthly precipitation was developed using traditional land-based gauge measurements as well as extrapolations of oceanic precipitation from coastal and island observations. Data were obtained from a variety of source archives. These data were screened for coding errors, merged, and redundant stations were removed. The resulting data base contains 24,635 independent terrestrial station records and 2223 oceanic gridpoint estimates.\n      \n      Precipitation gauge catches, however, are known to underestimate actual precipitation. Errors in the gauge catch result from wind-field deformation above the orifice of the gauge, wetting losses, and evaporation from the gauge and amount globally to nearly 8, 2, and 1 percent of the catch, respectively. A procedure was developed to estimate these errors and was used to obtain better estimates of global precipitation. Spatial variations in gauge type, air temperature, wind speed, and natural vegetation have been interpolated to the nodes of a 0.5 degrees of latitude by 0.5 degrees of longitude lattice using a spherically-based interpolation algorithm.\n      \n      The data set is used to validate general circulation model simulations of the present-day precipitation climate, for ground-based comparison with satellite-derived precipitation estimates, and as a basis for global water balance studies.",
+        "time_end": "1980-12-31T23:59:59.999Z",
+        "service_features": {
+          "opendap": {
+            "has_formats": false,
+            "has_variables": false,
+            "has_transforms": false,
+            "has_spatial_subsetting": false,
+            "has_temporal_subsetting": false
+          },
+          "esi": {
+            "has_formats": false,
+            "has_variables": false,
+            "has_transforms": false,
+            "has_spatial_subsetting": false,
+            "has_temporal_subsetting": false
+          },
+          "harmony": {
+            "has_formats": false,
+            "has_variables": false,
+            "has_transforms": false,
+            "has_spatial_subsetting": false,
+            "has_temporal_subsetting": false
+          }
+        },
+        "orbit_parameters": {},
+        "id": "C1280859287-GES_DISC",
+        "has_formats": false,
+        "consortiums": [
+          "GEOSS",
+          "EOSDIS"
+        ],
+        "original_format": "UMM_JSON",
+        "archive_center": "NASA/GSFC/SED/ESD/GCDC/GESDISC",
+        "has_temporal_subsetting": false,
+        "browse_flag": true,
+        "platforms": [
+          "METEOROLOGICAL STATIONS",
+          "Ships"
+        ],
+        "online_access_flag": true,
+        "links": [
+          {
+            "rel": "http://esipfed.org/ns/fedsearch/1.1/browse#",
+            "hreflang": "en-US",
+            "href": "https://docserver.gesdisc.eosdis.nasa.gov/public/project/GPM/browse/RAIN_LEGATES_1.png"
+          },
+          {
+            "rel": "http://esipfed.org/ns/fedsearch/1.1/metadata#",
+            "hreflang": "en-US",
+            "href": "https://disc.gsfc.nasa.gov/datacollection/RAIN_LEGATES_1.html"
+          },
+          {
+            "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
+            "hreflang": "en-US",
+            "href": "https://disc2.gesdisc.eosdis.nasa.gov/data/LEGACY/RAIN_LEGATES.1/1920/legates.cor.Z"
+          },
+          {
+            "rel": "http://esipfed.org/ns/fedsearch/1.1/documentation#",
+            "hreflang": "en-US",
+            "href": "https://disc2.gesdisc.eosdis.nasa.gov/data/LEGACY/RAIN_LEGATES.1/doc/README.LEGATES.pdf"
+          }
+        ]
+      }
+    }
+  ];
+
+  beforeAll(() => {
+    axios.get = jest.fn();
+    axios.get.mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrResponses[0]));
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('fetches values from CMR', async ()=> {
+    const concept = await fetchConcept('C1280859287-GES_DISC');
+    expect(concept).toEqual(cmrResponses[0].data);
   });
 });

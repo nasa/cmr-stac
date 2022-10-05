@@ -4,14 +4,17 @@ const settings = require('./settings');
 const {
   logger,
   makeCmrSearchLbUrl,
-  toArray,
-  ddbClient
+  toArray
 } = require('./util');
 
 const {
-  GetItemCommand,
-  PutItemCommand
-} = require("@aws-sdk/client-dynamodb");
+  cacheConcept,
+  cacheConceptId,
+  cacheSearchAfter,
+  getCachedConcept,
+  getCachedConceptId,
+  getSearchAfterParams
+} = require('./cache');
 
 const {
   convertDateTimeToCMR
@@ -33,7 +36,7 @@ const STAC_SEARCH_PARAMS_CONVERSION_MAP = {
 };
 
 const DEFAULT_HEADERS = {
-  'Client-Id': 'cmr-stac-api-proxy'
+  'Client-Id': settings.clientId
 };
 
 /**
@@ -47,149 +50,15 @@ async function cmrSearch (path, params) {
   if (!params) throw new Error('Missing parameters');
   const url = makeCmrSearchLbUrl(path);
 
-  const [saParams, saHeaders] = await getSearchAfterParams(params);
+  const [saParams, saHeaders] = await getSearchAfterParams(params, DEFAULT_HEADERS);
   logger.info(`GET CMR [${path}][${JSON.stringify(saParams)}][${JSON.stringify(saHeaders)}]`);
   const response = await axios.get(url, {
     params: saParams,
     headers: saHeaders
   });
+
   await cacheSearchAfter(params, response);
   return response;
-}
-
-/**
- * Returns the page_num value as a number.
- */
-function getPageNumFromParams (params) {
-  return Number.isNaN(Number(params['page_num']))
-    ? 1
-    : Number(params['page_num'], 10);
-}
-
-/**
- * Get cached header search-after for a page based on a query.
- * @returns tuple of params and header objects
- */
-async function getSearchAfterParams (params = {}, headers = DEFAULT_HEADERS) {
-  const pageNum = getPageNumFromParams(params);
-
-  const saParams = Object.assign({}, params);
-  const saHeaders = Object.assign({}, headers);
-
-  delete saParams['page_num'];
-
-  const saParamString = JSON.stringify(saParams);
-
-  const ddbGetCommand = new GetItemCommand({
-    TableName: `${settings.stac.name}-searchAfterTable`,
-    Key: {
-      query: { S: `${saParamString}` },
-      page: { N: `${pageNum}` }
-    },
-    ProjectionExpression: 'searchAfter'
-  });
-
-  try {
-    const { Item } = await ddbClient.send(ddbGetCommand);
-
-    if (Item) {
-      const searchAfter = Item.searchAfter.S;
-      if (searchAfter) {
-        logger.debug(`Using cached cmr-search-after [${saParamString}][${pageNum}] => ${searchAfter}`);
-        saHeaders['cmr-search-after'] = searchAfter;
-      }
-      return [saParams, saHeaders];
-    }
-  } catch (err) {
-    logger.error("An error occurred reading search-after cache", err);
-  }
-
-  return [params, headers];
-}
-
-/**
- * Cache a `cmr-search-after` header value from a response.
- */
-async function cacheSearchAfter (params, response) {
-  if (!(response && response.headers)) {
-    logger.info('No headers returned from response from CMR.');
-    return Promise.resolve();
-  }
-
-  const saResponse = response.headers['cmr-search-after'];
-  if (!saResponse || saResponse.length === 0) {
-    logger.debug('No cmr-search-after header value was returned in the response from CMR.');
-    return Promise.resolve();
-  }
-
-  const pageNum = getPageNumFromParams(params);
-  const nextPage = pageNum + 1;
-  const saParams = Object.assign({}, params);
-  delete saParams['page_num'];
-  const saParamString = JSON.stringify(saParams);
-
-  logger.debug(`Caching cmr-search-after response [${saParamString}][${nextPage}] => [${saResponse}]`);
-  const ddbPutCommand = new PutItemCommand({
-    TableName: `${settings.stac.name}-searchAfterTable`,
-    Item: {
-      query: { S:`${saParamString}` },
-      page: { N:`${nextPage}` },
-      searchAfter: { S:`${saResponse}` },
-      expdate: { N:`${ttlInHours(4)}` }
-    }
-  });
-
-  return await ddbClient.send(ddbPutCommand);
-}
-
-/**
- * Cache a conceptId.
- */
-async function cacheConceptId (stacId, conceptId) {
-  if (!(stacId && conceptId)) {
-    return Promise.resolve();
-  }
-
-  logger.debug(`Caching stacId to conceptId ${stacId} => ${conceptId}`);
-  const ddbPutCommand = new PutItemCommand({
-    TableName: `${settings.stac.name}-conceptIdTable`,
-    Item: {
-      stacId: { S:`${stacId}` },
-      conceptId: { S:`${conceptId}` },
-      expdate: { N:`${ttlInHours(4)}` }
-    }
-  });
-
-  return await ddbClient.send(ddbPutCommand);
-}
-
-/**
- * Retrieve a conceptId from the cache.
- */
-async function getCachedConceptId (stacId) {
-  if (!stacId) {
-    return Promise.resolve();
-  }
-
-  logger.debug(`Checking conceptCache for stacId ${stacId}`);
-  const ddbGetCommand = new GetItemCommand({
-    TableName: `${settings.stac.name}-conceptIdTable`,
-    Key: {
-      stacId: { S:`${stacId}` }
-    }
-  });
-
-  try {
-    const { Item }  = await ddbClient.send(ddbGetCommand);
-    if (Item) {
-      const conceptId = Item.conceptId.S;
-      logger.debug(`Using cached stacId ${stacId} => ${conceptId}`);
-      return conceptId;
-    }
-  } catch (err) {
-    logger.error('A problem occurred reading from the concept cache', err);
-  }
-  return Promise.resolve();
 }
 
 /**
@@ -211,7 +80,9 @@ async function cmrSearchPost (path, params) {
 
   logger.info(`POST CMR [${path}][${JSON.stringify(saParams)}][${JSON.stringify(saHeaders)}]`);
   const response = await axios.post(url, saParams, { headers: saHeaders });
-  cacheSearchAfter(params, response);
+  if (response.headers['cmr-search-after']) {
+    cacheSearchAfter(params, response);
+  }
   return response;
 }
 
@@ -233,6 +104,7 @@ async function getProviderList () {
  * @param {string} providerId The CMR Provider ID
  */
 async function getProvider (providerId) {
+  logger.debug(`getProvider [${providerId}]`);
   const response = await cmrSearch('provider_holdings.json', { providerId });
   return response.data;
 }
@@ -242,8 +114,36 @@ async function getProvider (providerId) {
  * @param {object} params CMR Query parameters
  */
 async function findCollections (params = {}) {
+  logger.debug(`findCollections [${JSON.stringify(params)}]`);
   const response = await cmrSearch('/collections.json', params);
   return response.data.feed.entry;
+}
+
+/**
+ * Fetch a concept from CMR by conceptId.
+ * Will use a cached version of the concept if available.
+ */
+async function fetchConcept (cmrConceptId, opts = {format: "json"}) {
+  logger.debug(`fetchConcept [${cmrConceptId}][${JSON.stringify(opts)}]`);
+  let cachedConcept = await getCachedConcept(cmrConceptId);
+  if (cachedConcept) {
+    return cachedConcept;
+  }
+
+  const { format } = opts;
+  const extraOpts = Object.assign({}, opts);
+  delete extraOpts.format;
+
+  const response = await cmrSearch(`/concepts/${cmrConceptId}.${format}`, extraOpts);
+  logger.info(response.data);
+  logger.info(response.headers);
+  logger.info(response.status);
+
+  if (response.status === 200) {
+    await cacheConcept(cmrConceptId, response.data);
+    return response.data;
+  }
+  return null;
 }
 
 /**
@@ -289,7 +189,7 @@ function buildStacGranules(jsonGranules = [], ummGranules = []) {
  * @param {object} params Object of CMR Search parameters
  */
 async function findGranules (params = {}) {
-  // TODO swap these for single request for STAC format
+  // TODO convert this to single call to graphQL
   const jsonResponse = await getGranulesJsonResponse(params);
   const ummResponse = await getGranulesUmmResponse(params);
 
@@ -510,19 +410,13 @@ async function convertParams (providerId, params = {}) {
   }
 }
 
-/**
- * Return a unix timestamp N hours from NOW.
- */
-function ttlInHours(n) {
-  return Math.floor(((new Date()).getTime() + (n * 3600000)) / 1000);
-}
-
 module.exports = {
   cmrCollectionToStacId,
   cmrSearch,
   convertParams,
   findCollections,
   findGranules,
+  fetchConcept,
   getFacetParams,
   getGranuleTemporalFacets,
   getProvider,

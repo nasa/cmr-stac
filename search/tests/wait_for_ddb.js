@@ -3,8 +3,10 @@ const fs = require('fs').promises;
 const fileExists = async (path) =>!!(await fs.stat(path).catch(_ => false));
 
 const ddbLogPath = './dynamodb.log';
-const tables = ['conceptIdTable',
+const tables = ['conceptCacheTable',
+                'conceptIdTable',
                 'searchAfterTable'];
+
 
 /**
  * Wait for the offline DynamoDB to be running and for migrations to be complete.

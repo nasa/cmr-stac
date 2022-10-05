@@ -51,6 +51,7 @@ resources:
   # DynamoDB
   - ${file(resources/dynamodb-searchAfterCache.yml)}
   - ${file(resources/dynamodb-conceptIdCache.yml)}
+  - ${file(resources/dynamodb-conceptCache.yml)}
 
 plugins:
   - serverless-plugin-log-subscription

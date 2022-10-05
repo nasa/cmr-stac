@@ -23,7 +23,7 @@ Object.fromEntries = l => l.reduce((a, [k, v]) => ({ ...a, [k]: v }), {});
 /**
  * Fetch a list of collections from CMR for a provider.
  */
-async function getCollections (request, response) {
+async function getCollections(request, response) {
   try {
     logger.info(`GET ${request.params.providerId}/collections`);
     const pageSize = Number(request.query.limit || 10);
@@ -86,7 +86,7 @@ async function getCollections (request, response) {
 /**
  * Fetch a collection from CMR.
  */
-async function getCollection (request, response) {
+async function getCollection(request, response) {
   logger.info(`GET /${request.params.providerId}/collections/${request.params.collectionId}`);
   const event = request.apiGateway.event;
   const providerId = request.params.providerId;
@@ -124,7 +124,7 @@ async function getCollection (request, response) {
 /**
  * Fetch a list of cloud holding collections from CMR for the provider
  */
-async function findCloudCollections (providerId, collectionConceptIds) {
+async function findCloudCollections(providerId, collectionConceptIds) {
   const params = Object.assign(
     { provider_short_name: providerId },
     { cloud_hosted: 'true' },
@@ -154,10 +154,9 @@ async function findCloudCollections (providerId, collectionConceptIds) {
  * Extract parameters from requst object
  * @param {Object} request - Request object
  */
-function extractParams (request) {
+function extractParams(request) {
   const event = request.apiGateway.event;
   const method = event.httpMethod;
-  logger.info(`${method} ${event.path}`);
 
   let params;
   if (method === 'GET') {
@@ -173,7 +172,7 @@ function extractParams (request) {
 /**
  * Fetch a list of granules from CMR.
  */
-async function getItems (request, response) {
+async function getItems(request, response) {
   logRequest(request);
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
@@ -222,15 +221,13 @@ async function getItems (request, response) {
         // otherwise, we will get all the cloud holding collections for the provider.
         const allCloudCollections = await findCloudCollections(providerId, collectionConceptIds);
         const postSearchParams = new URLSearchParams(cmrParams);
+
         if (allCloudCollections.length !== 0) {
-          allCloudCollections.forEach(id => {
-            postSearchParams.append('collection_concept_id', id);
-          });
+          allCloudCollections.forEach(id => postSearchParams.append('collection_concept_id', id));
         }
+
         if (granuleURs) {
-          granuleURs.forEach(id => {
-            postSearchParams.append('granule_ur', id);
-          });
+          granuleURs.forEach(id => postSearchParams.append('granule_ur', id));
         }
         granulesResult = await cmr.findGranules(postSearchParams);
       } else {
@@ -248,7 +245,6 @@ async function getItems (request, response) {
       granulesResult.granules,
       parseInt(granulesResult.hits),
       params);
-
     // apply fields and context extensions
     const formatted = stacExtension.format(featureCollection,
       {
@@ -270,7 +266,7 @@ async function getItems (request, response) {
 /**
  * Fetch a granule from CMR.
  */
-async function getItem (request, response) {
+async function getItem(request, response) {
   const providerId = request.params.providerId;
   const collectionId = request.params.collectionId;
   const itemId = request.params.itemId;
@@ -300,7 +296,7 @@ async function getItem (request, response) {
 /**
  * Create parameter dictionary from browse_path_template and provided values
  */
-async function getCatalog (request, response) {
+async function getCatalog(request, response) {
   // browse parameters
   const browseTemplate = process.env.BROWSE_PATH.split('/');
   const params = request.params['0'].split('/');
@@ -347,7 +343,7 @@ async function getCatalog (request, response) {
   cat.createParent(selfUrl.slice(0, selfUrl.lastIndexOf('/')));
 
   // add browse links
-  const cmrParams = await cmr.stacCollectionToCmrParams(providerId, collectionId);
+  const cmrParams = cmr.stacCollectionToCmrParams(providerId, collectionId);
   const facets = await cmr.getGranuleTemporalFacets(cmrParams, year, month, day);
   if (day) {
     facets.itemids.forEach(id => cat.addItem(id, providerId, collectionId, id));
@@ -364,7 +360,7 @@ async function getCatalog (request, response) {
  * Returns a router.
  * @param cfg map of options.
  */
-function createRoutes (cfg = {}) {
+function createRoutes(cfg = {}) {
   const routes = express.Router();
   routes.get('/:providerId/collections', makeAsyncHandler(getCollections));
   routes.get('/:providerId/collections/:collectionId', makeAsyncHandler(getCollection));

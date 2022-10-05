@@ -61,7 +61,7 @@ function createMockResponse (statusCode = 200, data = {}) {
 
 const logger = createLogger({ logLevel: 'silly' });
 
-function createRequest (additionalData = null) {
+function createRequest (additionalData) {
   return Object.assign({
     apiGateway: {
       event: {
@@ -70,7 +70,7 @@ function createRequest (additionalData = null) {
       }
     },
     body: '{}',
-    app: { logger: logger },
+    app: { logger },
     query: {},
     params: {}
   }, additionalData);

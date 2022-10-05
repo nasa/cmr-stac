@@ -3,39 +3,27 @@ const cmr = require('../../lib/cmr');
 const { search } = require('../../lib/api/stac');
 const exampleData = require('../example-data');
 const axios = require('axios');
-
 const {
-  mockFunction,
-  revertFunction,
+  createRequest,
   createMockResponse,
-  createRequest
+  mockFunction,
+  revertFunction
 } = require('../util');
-const { logger } = require('../../lib/util');
-
-const origLogLevel = logger.level;
-beforeAll(() => {
-  logger.level = 'error';
-});
-
-afterAll(() => {
-  logger.level = origLogLevel;
-});
 
 describe('STAC Search', () => {
   let request, response;
 
   beforeEach(() => {
-    request = createRequest({
-      params: { providerId: 'LPDAAC' }
-    });
+    request = createRequest({params: { providerId: 'LPDAAC' }});
     response = createMockResponse();
-    mockFunction(cmr,
-      'findGranules',
-      Promise.resolve({ granules: exampleData.cmrGrans, hits: 19 }));
+
+    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 19 }));
+    mockFunction(cmr, 'fetchConcept', Promise.resolve(exampleData.cmrColls[0]));
   });
 
   afterEach(() => {
     revertFunction(cmr, 'findGranules');
+    revertFunction(cmr, 'fetchConcept');
   });
 
   const expectedResponse = {
