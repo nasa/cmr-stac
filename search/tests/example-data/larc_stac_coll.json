@@ -1,5 +1,5 @@
 {
-  "id": "MOP02N.v7",
+  "id": "MOP02N.7",
   "stac_version": "1.0.0",
   "type": "Collection",
   "license": "not-provided",
@@ -8,7 +8,7 @@
   "links": [
     {
       "rel": "self",
-      "href": "https://example.com/stac/LARC/collections/MOP02N.v7",
+      "href": "https://example.com/stac/LARC/collections/MOP02N.7",
       "title": "Info about this collection",
       "type": "application/json"
     },
@@ -26,7 +26,7 @@
     },
     {
       "rel": "items",
-      "href": "https://example.com/stac/LARC/collections/MOP02N.v7/items",
+      "href": "https://example.com/stac/LARC/collections/MOP02N.7/items",
       "title": "Granules in this collection",
       "type": "application/json"
     },
