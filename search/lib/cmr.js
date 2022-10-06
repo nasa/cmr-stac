@@ -163,43 +163,16 @@ async function fetchConcept (cmrConceptId, opts = {format: "json"}) {
 }
 
 /**
- * Search CMR for granules in UMM_JSON format
- */
-async function getGranulesUmmResponse(params = {}, opts = settings) {
-  if (opts.cmrStacRelativeRootUrl === '/cloudstac') {
-    return await cmrSearchPost('/granules.umm_json', params);
-  }
-  return await cmrSearch('/granules.umm_json', params);
-}
-
-/**
  * Search CMR for granules in JSON format.
  */
 async function getGranulesJsonResponse(params = {}, opts = settings) {
   if (opts.cmrStacRelativeRootUrl === '/cloudstac') {
-    return await cmrSearchPost('/granules.json', params);
+    return cmrSearchPost('/granules.json', params);
   }
+
   return await cmrSearch('/granules.json', params);
 }
 
-/**
- * Merge a list of umm and json formatted granules into a list of STAC granules.
- */
-function buildStacGranules(jsonGranules = [], ummGranules = []) {
-  const granules = jsonGranules.reduce(
-    (obj, item) => ({
-      ...obj,
-      [item.id]: item
-    }),
-    {}
-  );
-  ummGranules.forEach((g) => {
-    granules[g.meta['concept-id']].meta = g.meta;
-    granules[g.meta['concept-id']].umm = g.umm;
-  });
-
-  return granules;
-}
 /**
  * Search CMR for granules matching CMR query parameters
  * @param {object} params Object of CMR Search parameters
@@ -207,15 +180,11 @@ function buildStacGranules(jsonGranules = [], ummGranules = []) {
 async function findGranules (params = {}) {
   logger.debug(`Fetching granules [${JSON.stringify(params)}]`);
 
-  // TODO convert this to single call to graphQL
-  const jsonResponse = await getGranulesJsonResponse(params);
-  const ummResponse = await getGranulesUmmResponse(params);
-
-  const granules = buildStacGranules(jsonResponse.data.feed.entry,
-                                     ummResponse.data.items);
+  const granulesResponse = await getGranulesJsonResponse(params);
+  const granules = granulesResponse.data.feed.entry;
 
   // get total number of hits for this query from the returned header
-  const hits = _.get(jsonResponse, 'headers.cmr-hits', granules.length);
+  const hits = _.get(granulesResponse, 'headers.cmr-hits', granules.length);
   return { granules: Object.values(granules), hits };
 }
 
