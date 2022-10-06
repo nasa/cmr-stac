@@ -161,7 +161,7 @@ async function getSearchAfterParams (params = {}, headers = {}) {
  */
 async function cacheSearchAfter (params, response) {
   if (!(response && response.headers)) {
-    logger.info('No headers returned from response from CMR.');
+    logger.debug('No headers returned from response from CMR.');
     return;
   }
 
