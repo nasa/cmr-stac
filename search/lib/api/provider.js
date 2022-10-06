@@ -35,6 +35,7 @@ async function getProvider (request, response) {
     const isProvider = providerList.filter((providerObj) =>
       providerObj['provider-id'] === providerId
     );
+
     if (isProvider.length === 0) {
       throw new Error(`Provider [${providerId}] not found`);
     }

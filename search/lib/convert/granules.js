@@ -122,7 +122,7 @@ function cmrSpatialToGeoJSONGeometry (cmrGran) {
     }
   }
 
-  throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
+  throw new Error(`Unknown spatial system detected in ${JSON.stringify(cmrGran)}`);
 }
 
 function cmrSpatialToStacBbox (cmrGran) {
@@ -180,10 +180,15 @@ async function cmrGranuleToStac (event, granule) {
     }
   }
 
-  const dataLinks = granule.links.filter(l => l.rel === DATA_REL && !l.inherited);
+  let dataLinks = [];
+  let browseLink;
+  let opendapLink;
 
-  let browseLink = _.first(granule.links.filter(l => l.rel === BROWSE_REL));
-  let opendapLink = _.first(granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited));
+  if (granule.links) {
+    dataLinks = granule.links.filter(l => l.rel === DATA_REL && !l.inherited);
+    browseLink = _.first(granule.links.filter(l => l.rel === BROWSE_REL));
+    opendapLink = _.first(granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited));
+  }
 
   const linkToAsset = (l) => {
     const {href, type, title} = l;

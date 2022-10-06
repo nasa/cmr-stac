@@ -90,13 +90,19 @@ async function cmrSearchPost (path, params) {
  * Get list of providers
  */
 async function getProviderList () {
+  logger.debug(`Fetching list of providers`);
   let ingestUrl = '/ingest';
   if (settings.cmrLbUrl.includes('localhost')) {
     ingestUrl = ':3002';
   }
   const providerUrl = `${settings.cmrLbUrl}${ingestUrl}/providers`;
-  const rawProviders = await axios.get(providerUrl);
-  return rawProviders.data;
+  try {
+    const rawProviders = await axios.get(providerUrl);
+    return rawProviders.data;
+  } catch (err) {
+    logger.error(`An error occurred while fetching providers [${err.message}]`);
+    return [];
+  }
 }
 
 /**
@@ -104,8 +110,13 @@ async function getProviderList () {
  * @param {string} providerId The CMR Provider ID
  */
 async function getProvider (providerId) {
-  logger.debug(`getProvider [${providerId}]`);
+  logger.debug(`Fetching provider [${providerId}] details`);
   const response = await cmrSearch('provider_holdings.json', { providerId });
+  if (response.status !== 200) {
+    logger.error(JSON.stringify(response.message));
+    return null;
+  }
+
   return response.data;
 }
 
@@ -115,8 +126,14 @@ async function getProvider (providerId) {
  */
 async function findCollections (params = {}) {
   logger.debug(`findCollections [${JSON.stringify(params)}]`);
-  const response = await cmrSearch('/collections.json', params);
-  return response.data.feed.entry;
+
+  try {
+    const response = await cmrSearch('/collections.json', params);
+    return response.data.feed.entry;
+  } catch (err) {
+    logger.error(`A problem occurred while searching for collections [${err.message}]`);
+    return [];
+  }
 }
 
 /**
@@ -129,15 +146,14 @@ async function fetchConcept (cmrConceptId, opts = {format: "json"}) {
   if (cachedConcept) {
     return cachedConcept;
   }
+  logger.debug(`No cached concept found, fetching [${cmrConceptId} ]from CMR`);
 
   const { format } = opts;
   const extraOpts = Object.assign({}, opts);
   delete extraOpts.format;
 
   const response = await cmrSearch(`/concepts/${cmrConceptId}.${format}`, extraOpts);
-  logger.info(response.data);
-  logger.info(response.headers);
-  logger.info(response.status);
+  logger.info(`CMR responded with status [${response.status}]`)
 
   if (response.status === 200) {
     await cacheConcept(cmrConceptId, response.data);
@@ -189,6 +205,8 @@ function buildStacGranules(jsonGranules = [], ummGranules = []) {
  * @param {object} params Object of CMR Search parameters
  */
 async function findGranules (params = {}) {
+  logger.debug(`Fetching granules [${JSON.stringify(params)}]`);
+
   // TODO convert this to single call to graphQL
   const jsonResponse = await getGranulesJsonResponse(params);
   const ummResponse = await getGranulesUmmResponse(params);

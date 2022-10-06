@@ -21,7 +21,7 @@ async function getCachedConcept (cmrConceptId) {
     return null;
   }
 
-  logger.debug(`Checking conceptCache for cmrConceptId ${cmrConceptId}`);
+  logger.debug(`Checking conceptCache for concept with id [${cmrConceptId}]`);
   const ddbGetCommand = new GetItemCommand({
     TableName: CONCEPT_CACHE_TABLE,
     Key: {
@@ -33,10 +33,9 @@ async function getCachedConcept (cmrConceptId) {
     const { Item }  = await ddbClient.send(ddbGetCommand);
     if (Item) {
       const concept = JSON.parse(Item.concept.S);
-      logger.debug(`Using cached conceptId ${cmrConceptId} => ${JSON.stringify(concept)}`);
+      logger.debug(`Using cached concept with conceptId [${cmrConceptId}]`);
       return concept;
     }
-    logger.error(`No item was returned from dynamodb with key [${cmrConceptId}]`);
   } catch (err) {
     logger.error('A problem occurred reading from the concept cache', err);
   }
@@ -51,7 +50,7 @@ async function cacheConcept (cmrConceptId, concept) {
     return null;
   }
 
-  logger.debug(`Caching concept with conceptId ${cmrConceptId}`);
+  logger.debug(`Caching concept with conceptId [${cmrConceptId}]`);
   const ddbPutCommand = new PutItemCommand({
     TableName: CONCEPT_CACHE_TABLE,
     Item: {

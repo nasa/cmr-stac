@@ -258,7 +258,7 @@ async function getItems(request, response) {
     if (err instanceof stacExtension.errors.InvalidSortPropertyError) {
       response.status(422).json(err.message);
     } else {
-      response.status(400).json(err.message);
+      response.status(500).json({ error: err.message });
     }
   }
 }
