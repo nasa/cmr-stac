@@ -167,7 +167,7 @@ async function fetchConcept (cmrConceptId, opts = {format: "json"}) {
  */
 async function getGranulesJsonResponse(params = {}, opts = settings) {
   if (opts.cmrStacRelativeRootUrl === '/cloudstac') {
-    return async cmrSearchPost('/granules.json', params);
+    return await cmrSearchPost('/granules.json', params);
   }
 
   return await cmrSearch('/granules.json', params);
