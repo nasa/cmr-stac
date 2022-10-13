@@ -32,7 +32,7 @@ describe('errorHandler', () => {
     expect(response.status).toHaveBeenCalledWith(500);
     expect(response.json).toHaveBeenCalledWith({
       message: 'If the problem persists please contact cmr-support@earthdata.nasa.gov',
-      errors: ['An unexpected error occurred. We have been alerted and are are working to resolve the problem.',
+      errors: ['An unexpected error occurred. We have been alerted and are working to resolve the problem.',
                'a test error']
     });
     expect(next).toHaveBeenCalled();

@@ -12,8 +12,15 @@ const logger = createLogger(settings.logger);
 
 function logRequest (request) {
   const { headers, baseUrl, params, query, body } = request;
-  logger.info(JSON.stringify({ headers, baseUrl, params, query, body }));
+  logger.info(JSON.stringify({ headers: scrubSensitive(headers), baseUrl, params: scrubSensitive(params), query: scrubSensitive(query), body }));
 }
+
+const SENSITIVE_KEYS = [
+  'authorization',
+  'echo-token',
+  'token',
+  'password'
+];
 
 /**
  *
@@ -157,6 +164,23 @@ function createNavLink (event, params, rel) {
   return link;
 }
 
+/**
+ * Returns a map with sensitive values obfuscated.
+ * Useful when logging.
+ */
+function scrubSensitive(data, sensitiveKeys = SENSITIVE_KEYS) {
+  const scrubbed = {...data};
+
+  Object
+    .keys(scrubbed)
+    .filter(k => sensitiveKeys.indexOf(k.toLowerCase()) !== -1)
+    .forEach(k => {
+      scrubbed[k] = `${scrubbed[k].slice(0, 8)}XXX`;
+    });
+
+  return scrubbed;
+}
+
 module.exports = {
   ...app,
   createLogger,
@@ -174,5 +198,6 @@ module.exports = {
   makeCmrSearchUrl,
   toArray,
   logRequest,
+  scrubSensitive,
   errors
 };

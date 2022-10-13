@@ -5,7 +5,8 @@ const {
   logger,
   makeCmrSearchLbUrl,
   toArray,
-  errors
+  errors,
+  scrubSensitive
 } = require('./util');
 
 const {
@@ -59,7 +60,7 @@ async function cmrSearch (path, params = {}) {
   const url = makeCmrSearchLbUrl(path);
   const [saParams, saHeaders] = await getSearchAfterParams(params, DEFAULT_HEADERS);
 
-  logger.info(`GET CMR [${path}][${JSON.stringify(saParams)}][${JSON.stringify(saHeaders)}]`);
+  logger.info(`GET CMR [${path}][${JSON.stringify(scrubSensitive(saParams))}][${JSON.stringify(scrubSensitive(saHeaders))}]`);
 
   const response = await axios.get(url, {
     params: saParams,
@@ -87,7 +88,7 @@ async function cmrSearchPost (path, params) {
 
   const [saParams, saHeaders] = await getSearchAfterParams(params, headers);
 
-  logger.info(`POST CMR [${path}][${JSON.stringify(saParams)}][${JSON.stringify(saHeaders)}]`);
+  logger.info(`POST CMR [${path}][${JSON.stringify(scrubSensitive(saParams))}][${JSON.stringify(scrubSensitive(saHeaders))}]`);
 
   const response = await axios.post(url, saParams, { headers: saHeaders });
 
@@ -129,7 +130,7 @@ async function getProviderHoldings (providerId) {
  * @param {object} params CMR Query parameters
  */
 async function findCollections (params = {}) {
-  logger.debug(`findCollections [${JSON.stringify(params)}]`);
+  logger.debug(`findCollections [${JSON.stringify(scrubSensitive(params))}]`);
 
   const response = await cmrSearch('/collections.json', params);
   return response.data.feed.entry;
@@ -139,7 +140,7 @@ async function findCollections (params = {}) {
  * Fetch a concept from CMR by conceptId
  */
 async function fetchConcept (cmrConceptId, opts = {format: "json"}) {
-  logger.debug(`fetchConcept [${cmrConceptId}][${JSON.stringify(opts)}]`);
+  logger.debug(`fetchConcept [${cmrConceptId}][${JSON.stringify(scrubSensitive(opts))}]`);
 
   const { format } = opts;
   const extension = format ? `.${format}` : "";
@@ -401,7 +402,6 @@ async function convertParams (providerId, params = {}) {
     },
     []
   );
-  logger.debug(`Converting Params: ${JSON.stringify(params)} => ${JSON.stringify(converted)}`);
 
   const convertedParams = fromEntries(converted);
   return {...convertedParams, provider: providerId};

@@ -28,7 +28,7 @@ function errorHandler (error, req, res, next) {
     res
       .status(500)
       .json({ message: `If the problem persists please contact ${settings.supportAddress}`,
-              errors: ['An unexpected error occurred. We have been alerted and are are working to resolve the problem.',
+              errors: ['An unexpected error occurred. We have been alerted and are working to resolve the problem.',
                       error.message] });
   }
 
