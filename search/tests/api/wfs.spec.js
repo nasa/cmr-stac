@@ -14,6 +14,16 @@ const {
   getCatalog
 } = require('../../lib/api/wfs');
 
+const {logger: appLogger } = require('../../lib/util');
+
+beforeAll(() =>{
+  appLogger.silent = true;
+});
+
+afterAll(() => {
+  appLogger.silent = false;
+});
+
 describe('wfs routes', () => {
   let request, response;
 

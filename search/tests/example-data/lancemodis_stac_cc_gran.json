@@ -1,6 +1,6 @@
 {
     "type": "Feature",
-    "id": "G1848422111-LANCEMODIS",
+    "id": "LANCEMODIS:1028235774",
     "stac_version": "1.0.0",
     "stac_extensions": ["https://stac-extensions.github.io/eo/v1.0.0/schema.json"],
     "collection": "MOP02N.v7",
@@ -40,7 +40,7 @@
     "links": [
       {
         "rel": "self",
-        "href": "https://example.com/stac/LANCEMODIS/collections/MOP02N.v7/items/G1848422111-LANCEMODIS"
+        "href": "https://example.com/stac/LANCEMODIS/collections/MOP02N.v7/items/LANCEMODIS:1028235774"
       },
       {
         "rel": "parent",

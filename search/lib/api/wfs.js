@@ -231,9 +231,6 @@ async function getItems(request, response) {
     }
 
     const parentCollection = await cmr.fetchConcept(cmrParams['collection_concept_id']);
-    if (!parentCollection) {
-      throw new Error(`Collection with ID [${cmrParams['collection_concept_id']}] could not be located`);
-    }
 
     // convert CMR Granules to STAC Items
     const featureCollection = await convert.cmrGranulesToStac(event,
@@ -299,13 +296,7 @@ async function getItem(request, response) {
   const granule = granules[0];
 
   const parentCollection = await cmr.fetchConcept(granule.collection_concept_id);
-  if (!parentCollection) {
-    return response
-      .status(404)
-      .json({ errors: [`Parent collection with ID [${granule.collection_concept_id}] could not be located for granule with id [${granule.id}]`]});
-  }
-
-  const granuleResponse = await convert.cmrGranuleToStac(event, parentCollection, granule);
+  const granuleResponse = convert.cmrGranuleToStac(event, parentCollection, granule);
   return response.json(granuleResponse);
 };
 

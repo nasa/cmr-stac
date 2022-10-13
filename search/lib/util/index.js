@@ -5,6 +5,7 @@ const app = require('./app');
 const buildUrl = require('build-url');
 const { createLogger } = require('./logger');
 const { createDdbClient } = require('./ddbClient');
+const { errors } = require('./errors');
 
 const ddbClient = createDdbClient(settings.ddb);
 const logger = createLogger(settings.logger);
@@ -158,7 +159,7 @@ function createNavLink (event, params, rel) {
 
 module.exports = {
   ...app,
-    createLogger,
+  createLogger,
   createNavLink,
   ddbClient,
   extractParam,
@@ -173,4 +174,5 @@ module.exports = {
   makeCmrSearchUrl,
   toArray,
   logRequest,
+  errors
 };

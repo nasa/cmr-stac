@@ -6,7 +6,6 @@ const ddbLogPath = './dynamodb.log';
 const tables = ['conceptIdTable',
                 'searchAfterTable'];
 
-
 /**
  * Wait for the offline DynamoDB to be running and for migrations to be complete.
  */

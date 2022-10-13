@@ -9,6 +9,15 @@ const {
   mockFunction,
   revertFunction
 } = require('../util');
+const {logger} = require('../../lib/util');
+
+beforeAll(() =>{
+  logger.silent = true;
+});
+
+afterAll(() => {
+  logger.silent = false;
+});
 
 describe('STAC Search', () => {
   let request, response;

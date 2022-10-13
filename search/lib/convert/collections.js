@@ -14,23 +14,19 @@ function cmrCollSpatialToExtents (cmrColl) {
   let bbox;
 
   if (cmrColl.polygons) {
-    logger.debug(`polygons => bbox ${JSON.stringify(cmrColl.polygons)}`);
     bbox = cmrColl.polygons
       .map((rings) => rings[0])
       .map(pointStringToPoints)
       .reduce(addPointsToBbox, bbox);
   } else if (cmrColl.points) {
-    logger.debug(`points => bbox ${JSON.stringify(cmrColl.points)}`);
     const points = cmrColl.points.map(parseOrdinateString);
     const orderedPoints = points.map(([lat, lon]) => [lon, lat]);
     bbox = addPointsToBbox(bbox, orderedPoints);
   } else if (cmrColl.lines) {
-    logger.debug(`lines => bbox ${JSON.stringify(cmrColl.lines)}`);
     const linePoints = cmrColl.lines.map(parseOrdinateString);
     const orderedLines = linePoints.map(reorderBoxValues);
     bbox = orderedLines.reduce((box, line) => mergeBoxes(box, line), bbox);
   } else if (cmrColl.boxes) {
-    logger.debug(`boxes => bbox ${JSON.stringify(cmrColl.boxes)}`);
     bbox = cmrColl.boxes
       .reduce((box, boxStr) => mergeBoxes(
         box,

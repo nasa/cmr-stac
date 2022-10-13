@@ -5,8 +5,11 @@ const {
 } = require('./util');
 
 const {
+  BatchExecuteStatementCommand,
+  DescribeTableCommand,
   GetItemCommand,
-  PutItemCommand
+  PutItemCommand,
+  ScanCommand
 } = require("@aws-sdk/client-dynamodb");
 
 const CONCEPT_ID_CACHE_TABLE = `${settings.stac.name}-conceptIdTable`;
@@ -70,9 +73,8 @@ async function getCachedConceptId (stacId) {
 async function getSearchAfterParams (params = {}, headers = {}) {
   const pageNum = getPageNumFromParams(params);
 
-  const saParams = Object.assign({}, params);
-  const saHeaders = Object.assign({}, headers);
-
+  const saParams = {...params};
+  const saHeaders = {...headers};
   delete saParams['page_num'];
 
   const saParamString = JSON.stringify(saParams);
@@ -140,6 +142,60 @@ async function cacheSearchAfter (params, response) {
   return;
 }
 
+async function scanTable(table) {
+  const scan = new ScanCommand({
+    TableName: table
+  });
+
+  const { Count:count, Items:items } = await ddbClient.send(scan);
+  return { count, items };
+}
+
+/**
+ * Returns a delete statement for an item in a table.
+ */
+function deleteByKeysStatement(table, item) {
+  const { KeySchema } = table;
+  // use the whole key schema to generate the lookup for each item
+  const clauses = KeySchema.map(({AttributeName}) => {
+    const clause = `${AttributeName}=?`;
+    const parameter = item[AttributeName];
+    return [clause, parameter];
+  });
+
+  const selector = clauses.map(([clause, _]) => clause).join(" and ");
+  const parameters = clauses.map(([_, parameter]) => parameter);
+
+  return {
+    Statement: `DELETE FROM "${table.TableName}" WHERE ${selector}`,
+    Parameters: parameters
+  };
+}
+
+/**
+ * Return information about a DDB table.
+ */
+async function describeTable(table) {
+  const { Table }  = await ddbClient.send(new DescribeTableCommand({TableName: table}));
+  return Table;
+}
+
+/**
+ * Remove all items from the table;
+ */
+async function clearTable(tableName) {
+  const tableInfo = await describeTable(tableName);
+  const { items } = await scanTable(tableName);
+
+  const deleteParams = {
+    Statements: items.map((item) => deleteByKeysStatement(tableInfo, item))
+  };
+
+  await ddbClient.send(
+    new BatchExecuteStatementCommand(deleteParams)
+  );
+}
+
 /**
  * Returns the page_num value as a number.
  */
@@ -157,8 +213,14 @@ function ttlInHours(n) {
 }
 
 module.exports = {
+  tables: {
+    CONCEPT_ID_CACHE_TABLE,
+    SEARCH_AFTER_TABLE
+  },
   cacheConceptId,
   cacheSearchAfter,
   getCachedConceptId,
-  getSearchAfterParams
+  getSearchAfterParams,
+  clearTable,
+  scanTable
 };
