@@ -18,16 +18,15 @@ const SEARCH_AFTER_TABLE = `${settings.stac.name}-searchAfterTable`;
 /**
  * Cache a conceptId.
  */
-async function cacheConceptId (stacId, conceptId) {
-  if (!(stacId && conceptId)) {
-    return null;
-  }
+async function cacheConceptId (providerId, stacId, conceptId) {
+  if (!(stacId && conceptId)) return;
 
-  logger.debug(`Caching stacId to conceptId ${stacId} => ${conceptId}`);
+  logger.debug(`Caching stacId to conceptId [${providerId}][${stacId}] => [${conceptId}]`);
   const ddbPutCommand = new PutItemCommand({
     TableName: CONCEPT_ID_CACHE_TABLE,
     Item: {
       stacId: { S:`${stacId}` },
+      providerId: { S:`${providerId}` },
       conceptId: { S:`${conceptId}` },
       expdate: { N:`${ttlInHours(1)}` }
     }
@@ -40,16 +39,17 @@ async function cacheConceptId (stacId, conceptId) {
 /**
  * Retrieve a conceptId from the cache.
  */
-async function getCachedConceptId (stacId) {
+async function getCachedConceptId (providerId, stacId) {
   if (!stacId) {
     return null;
   }
 
-  logger.debug(`Checking conceptCache for stacId ${stacId}`);
+  logger.debug(`Checking conceptCache for stacId [${providerId}][${stacId}]`);
   const ddbGetCommand = new GetItemCommand({
     TableName: CONCEPT_ID_CACHE_TABLE,
     Key: {
-      stacId: { S:`${stacId}` }
+      stacId: { S:`${stacId}` },
+      providerId: { S: `${providerId}`}
     }
   });
 
@@ -57,7 +57,7 @@ async function getCachedConceptId (stacId) {
     const { Item }  = await ddbClient.send(ddbGetCommand);
     if (Item) {
       const conceptId = Item.conceptId.S;
-      logger.debug(`Using cached stacId ${stacId} => ${conceptId}`);
+      logger.debug(`Found cached stacId [${providerId}][${stacId}] => [${conceptId}]`);
       return conceptId;
     }
   } catch (err) {

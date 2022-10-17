@@ -31,9 +31,9 @@ functions:
           path: /{proxy+}
           method: any
     environment:
-      CMR_URL: 'http://localhost:3003'
-      CMR_LB_URL: 'http://localhost:3003'
-      CMR_STAC_RELATIVE_ROOT_URL: /cloudstac
+      CMR_URL: 'https://cmr.earthdata.nasa.gov'
+      CMR_LB_URL: 'https://cmr.earthdata.nasa.gov'
+      CMR_STAC_RELATIVE_ROOT_URL: /stac
       CMR_STAC_PROTOCOL: ${param:protocol, 'http'}
       LOG_LEVEL: info
       LOG_DISABLED: false

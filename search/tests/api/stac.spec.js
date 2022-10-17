@@ -72,10 +72,15 @@ describe('STAC Search Params', () => {
       return Promise.resolve(mockCollection);
     });
     jest.spyOn(axios, 'get').mockResolvedValue({
+      status: 200,
       headers: { 'cmr-hits': '0' },
       data: { feed: { entry: [] } },
       json: (v) => JSON.stringify(v, null, 2)
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('datetime', () => {

@@ -146,7 +146,7 @@ function extractParams(request) {
   const event = request.apiGateway.event;
   const method = event.httpMethod;
 
-  let params;
+  let params = {};
 
   switch (method) {
     case 'GET':
@@ -156,22 +156,10 @@ function extractParams(request) {
       params = stacExtension.prepare(request.body);
       break;
     default:
-      throw new Error(`Invalid httpMethod ${method}`);
+      throw new Error(`Unsupported request method ${method}`);
   }
 
   return params;
-}
-
-/**
- * Return a map where a collections property exists with a converted cmrCollectionId.
- */
-async function addCollectionToParams(providerId, stacCollectionId, params) {
-  const cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, stacCollectionId);
-  if (!cmrCollectionId) {
-    throw new errors.NotFound(`Collection [${stacCollectionId}] not found for provider [${providerId}]`);
-  }
-
-  return { ...params, collections: [cmrCollectionId] };
 }
 
 /**
@@ -180,24 +168,33 @@ async function addCollectionToParams(providerId, stacCollectionId, params) {
 async function getItems(request, response) {
   logRequest(request);
 
-  const { providerId, collectionId } = request.params;
+  const { providerId, collectionId:stacCollectionId } = request.params;
   const event = request.apiGateway.event;
 
   const { fields, ...params } = extractParams(request);
-  let collQueryParams = {...params};
 
-  if (collectionId) {
-    if (collQueryParams.collections) {
-      throw new Error(`Can not have collections param when there is collectionId [${collectionId}] specified.`);
+  const cmrCollectionId = await cmr.stacIdToCmrCollectionId(providerId, stacCollectionId);
+
+  if (stacCollectionId) {
+    if (!cmrCollectionId) {
+      return response
+        .status(404)
+        .json({errors: [`Collection [${stacCollectionId}] not found for provider [${providerId}]`]});
     }
-    collQueryParams = await addCollectionToParams(providerId, collectionId, params);
+
+    if (params.collections) {
+      return response
+        .status(401)
+        .json({errors: [`Can not have collections param when there is a collectionId [${stacCollectionId}] specified`]});
+    }
+    params.collections = [stacCollectionId];
   }
 
   // convert STAC params to CMR Params
-  const cmrParams = await cmr.convertParams(providerId, collQueryParams);
+  const cmrParams = await cmr.convertParams(providerId, params);
 
   let granulesResult = { granules: [], hits: 0 };
-  const collectionsRequested = _.has(collQueryParams, 'collections');
+  const collectionsRequested = _.has(params, 'collections');
   const validCollections = _.has(cmrParams, 'collection_concept_id');
 
   if ((collectionsRequested && validCollections) || (!collectionsRequested)) {
@@ -217,18 +214,19 @@ async function getItems(request, response) {
       const allCloudCollections = await findCloudCollections(providerId, collectionConceptIds);
       const postSearchParams = new URLSearchParams(cmrParams);
 
-      if (allCloudCollections.length !== 0) {
-        allCloudCollections.forEach(id => postSearchParams.append('collection_concept_id', id));
-      }
+      allCloudCollections.forEach(id => postSearchParams.append('collection_concept_id', id));
 
       if (granuleURs) {
         granuleURs.forEach(id => postSearchParams.append('granule_ur', id));
       }
       granulesResult = await cmr.findGranules(postSearchParams);
     } else {
-      logger.debug(`about to find granules ${JSON.stringify(cmrParams)}`);
       granulesResult = await cmr.findGranules(cmrParams);
     }
+  }
+
+  if (stacCollectionId) {
+    delete params.collections;
   }
 
   const parentPromises = granulesResult
@@ -295,9 +293,7 @@ async function getItem(request, response) {
       .json({ errors: [`Granule [${itemId}] could not be found`] });
   }
 
-  const granule = granules[0];
-
-  logger.debug(JSON.stringify(granule));
+  const [ granule ] = granules;
 
   const parentCollection = await cmr.fetchConcept(granule.collection_concept_id);
   const granuleResponse = convert.cmrGranuleToStac(event, parentCollection, granule);

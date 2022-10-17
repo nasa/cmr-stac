@@ -204,6 +204,7 @@ async function findGranules(params = {}) {
  * @param {string} stacCollectionId The STAC Collection ID
  */
 function stacCollectionToCmrParams (providerId, stacCollectionId) {
+  logger.debug(`Converting STAC id to CMR query [${providerId}][${stacCollectionId}]`);
   const cmrParams = { provider_id: providerId };
 
   const parts = stacCollectionId.split('.v');
@@ -223,34 +224,38 @@ function stacCollectionToCmrParams (providerId, stacCollectionId) {
 /**
  * Map STAC Collection ID to CMR Collection ID - uses cache to save mappings
  * @param {string} providerId CMR Provider ID
- * @param {string} stacId A STAC COllection ID
+ * @param {string} stacId A STAC Collection ID
  */
 async function stacIdToCmrCollectionId (providerId, stacId) {
-  let cachedId = await getCachedConceptId(stacId);
-  if (cachedId) return cachedId;
+  if (!(providerId && stacId)) return;
+
+  let cachedCmrId = await getCachedConceptId(providerId, stacId);
+  if (cachedCmrId) return cachedCmrId;
+  logger.debug(`No entry for [${providerId}][${stacId}] found in conceptCache, next checking CMR.`);
 
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
   const collections = await findCollections(cmrParams);
 
   if (!collections.length) {
+    logger.debug(`No collections found with search [${JSON.stringify(cmrParams)}]`);
     return null;
   }
 
   const [ collection ] = collections;
   const cmrCollectionId = collection.id;
-  await cacheConceptId(stacId, cmrCollectionId);
+  await cacheConceptId(providerId, stacId, cmrCollectionId);
   return cmrCollectionId;
 }
 
 /**
  * Map CMR Collection ID to STAC Collection ID
  *
- * @param {string} providerId CMR Provider ID
- * @param {string} collectionId CMR Collection ID
+ * @param {string} shortName collection short name
+ * @param {string} version collection version string
  */
 function cmrCollectionToStacId (shortName, version) {
-  const invalidVersions = ['Not provided', 'NA'];
-  if (version && !invalidVersions.includes(version)) {
+  const invalidVersions = ['not provided', 'na', 'not applicable'];
+  if (version && !invalidVersions.includes(version.toLowerCase())) {
     return `${shortName}.v${version}`;
   }
   return shortName;
