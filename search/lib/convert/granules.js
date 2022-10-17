@@ -17,6 +17,7 @@ const {
 } = require('../util');
 const { inflectBox } = require('./geodeticCoordinates');
 const cmr = require('../cmr');
+const e = require('express');
 
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
@@ -189,7 +190,6 @@ function cloudCoverAdditionalAttributeExtension (granule) {
   const attributes = granule.umm.AdditionalAttributes;
   const cc = attributes.find(({ Name }) => Name === 'CLOUD_COVERAGE');
   if (!cc) return;
-
   const ccValue = parseInt(_.first(_.get(cc, 'Values')));
   if (Number.isNaN(ccValue)) {
     logger.warn(`Could not convert CLOUD_COVERAGE with values [${cc.Values}] to a integer.`);
@@ -236,18 +236,22 @@ function cmrGranuleToStac (event, parentCollection, granule) {
       ];
     }, [[], {}]);
 
-  properties.datetime = granule.time_start;
-  properties.start_datetime = granule.time_start;
-  properties.end_datetime = granule.time_end ? granule.time_end : granule.time_start;
+  const { links,
+          time_start,
+          time_end } = granule;
+
+  properties.datetime = time_start;
+  properties.start_datetime = time_start;
+  properties.end_datetime = time_end ? time_end : time_start;
 
   let dataLinks = [];
   let browseLink;
   let opendapLink;
 
-  if (granule.links) {
-    dataLinks = granule.links.filter(l => l.rel === DATA_REL && !l.inherited);
-    browseLink = _.first(granule.links.filter(l => l.rel === BROWSE_REL));
-    opendapLink = _.first(granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited));
+  if (links) {
+    dataLinks = links.filter(l => l.rel === DATA_REL && !l.inherited);
+    browseLink = _.first(links.filter(l => l.rel === BROWSE_REL));
+    opendapLink = _.first(links.filter(l => l.rel === SERVICE_REL && !l.inherited));
   }
 
   const assets = {};
@@ -339,13 +343,15 @@ function cmrGranuleToStac (event, parentCollection, granule) {
 }
 
 /**
- *
+ * Converts a list of granules to STAC items.
  */
-function cmrGranulesToStac (event, parentColl, granules, hits = 0, params = {}) {
+function cmrGranulesToStac (event, parentColls, granules, hits = 0, params = {}) {
   const numberMatched = hits;
   const numberReturned = granules.length;
 
-  const items = granules.map((granule) => cmrGranuleToStac(event, parentColl, granule));
+  const items = granules
+        .map((granule) => cmrGranuleToStac(event, parentColls[granule.collection_concept_id], granule))
+        .filter((item) => item); // remove nulls
 
   const granulesResponse = {
     type: 'FeatureCollection',

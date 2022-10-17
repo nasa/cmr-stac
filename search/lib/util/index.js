@@ -24,16 +24,22 @@ const SENSITIVE_KEYS = [
 
 /**
  *
- * @param {string, array} value
  */
 function toArray (value) {
   if (typeof value === 'string' || value instanceof String) {
     return value.split(',');
   }
-  return value;
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return [value];
 }
 
 function getKeyCaseInsensitive (object, key) {
+  if (!object) return;
+
   const i = Object.keys(object)
     .find(k => k.toLowerCase() === key.toLowerCase());
   return object[i];

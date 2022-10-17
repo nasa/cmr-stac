@@ -15,16 +15,6 @@ const {
 } = require('../util');
 const cmr = require('../../lib/cmr');
 
-const {logger: appLogger } = require('../../lib/util');
-
-beforeAll(() =>{
-  appLogger.silent = true;
-});
-
-afterAll(() => {
-  appLogger.silent = false;
-});
-
 describe('granuleToItem', () => {
   describe('cmrPolygonToGeoJsonPolygon', () => {
     it('should return an array of coordinates for a GeoJson Polygon given one ring', () => {
@@ -237,17 +227,13 @@ describe('granuleToItem', () => {
   });
 
   describe('cmrGranuleToStac', () => {
-    const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
-    const expectedStacGran = exampleData.examplesByName.lancemodisStacGran;
-
     const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
 
     it('should return a FeatureGeoJSON from a cmrGran', () => {
-      const stacItem = cmrGranuleToStac(event, {
-        "short_name": "MOP02N",
-        "version_id": "7"
-      }, cmrGran);
-      expect(stacItem).toEqual(expectedStacGran);
+      const stacItem = cmrGranuleToStac(event,
+                                        exampleData.examplesByName.lpdaacCmrColl,
+                                        exampleData.examplesByName.lpdaacCmrGran);
+      expect(stacItem).toEqual(exampleData.examplesByName.lpdaacStacGran);
     });
   });
 
@@ -258,24 +244,19 @@ describe('granuleToItem', () => {
     const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
 
     it('should return a FeatureGeoJSON from a cmrGran containing a eo:cloud_cover field', () => {
-      const stacItem = cmrGranuleToStac(event, {"short_name" : "MOP02N", "version_id": "7"}, cmrGran);
+      const stacItem = cmrGranuleToStac(event, exampleData.examplesByName.lancemodisCmrColl, cmrGran);
       expect(stacItem).toEqual(expectedStacGran);
     });
   });
 
   describe('cmrGranuleToStac', () => {
-    const parentColl = {
-      "short_name": "MOP02N",
-      "version_id": "7"
-    };
-
     const cmrGran = exampleData.examplesByName.lancemodisCmrCcGranAdditionalAttributes;
     const expectedStacGran = exampleData.examplesByName.lancemodisStacCcGran;
 
     const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
 
     it('should return a FeatureGeoJSON from a cmrGran containing a CLOUD_COVERAGE value Additional Attributes field', () => {
-      const stacItem = cmrGranuleToStac(event, parentColl, cmrGran);
+      const stacItem = cmrGranuleToStac(event, exampleData.examplesByName.lancemodisCmrColl, cmrGran);
       expect(stacItem).toEqual(expectedStacGran);
     });
   });
@@ -289,15 +270,16 @@ describe('granuleToItem', () => {
       revertFunction(cmr, 'cmrCollectionToStacId');
     });
 
-    const parentColl = {
+    const parentColls = {"10": {
+      "id": 10,
       "short_name": "cmrGranulesToStacParent",
       "version_id": "2"
-    };
+    }};
 
     const cmrGran = [{
       id: 1,
       title: 1,
-      collection_concept_id: 10,
+      collection_concept_id: "10",
       dataset_id: 'datasetId',
       short_name: 'landsat',
       version_id: '1',
@@ -319,7 +301,7 @@ describe('granuleToItem', () => {
     const event = { headers: { Host: 'example.com' }, path: '/stac', queryStringParameters: [] };
 
     it('should return a CMR Granules search result to a FeatureCollection', () => {
-      const items = cmrGranulesToStac(event, parentColl, cmrGran, 1);
+      const items = cmrGranulesToStac(event, parentColls, cmrGran, 1);
       expect(items).toEqual({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
@@ -392,7 +374,7 @@ describe('granuleToItem', () => {
   describe('cmrGranuleToStac', () => {
     const cmrGran = {
       id: 1,
-      collection_concept_id: 10,
+      collection_concept_id: "10",
       dataset_id: 'datasetId',
       short_name: 'landsat',
       version_id: '1',

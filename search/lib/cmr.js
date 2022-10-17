@@ -67,6 +67,10 @@ async function cmrSearch (path, params = {}) {
     headers: saHeaders
   });
 
+  if (response.status >= 400) {
+    throw new errors.HttpError('A problem occurred with a GET search to CMR', response.status, response.data);
+  }
+
   if (response.headers['cmr-search-after']) {
     await cacheSearchAfter(params, response);
   }
@@ -92,6 +96,10 @@ async function cmrSearchPost (path, params) {
 
   const response = await axios.post(url, saParams, { headers: saHeaders });
 
+  if (response.status >= 400) {
+    throw new errors.HttpError('A problem occurred with a POST search to CMR', response.status, response.data);
+  }
+
   if (response.headers['cmr-search-after']) {
     await cacheSearchAfter(params, response);
   }
@@ -109,7 +117,10 @@ async function getProviders () {
   }
   const providerUrl = `${settings.cmrLbUrl}${ingestUrl}/providers`;
 
-  const { data } = await axios.get(providerUrl);
+  const { status, data } = await axios.get(providerUrl);
+  if (status >= 400) {
+    throw new errors.HttpError('A problem occurred getting the providers', status, data);
+  }
   return data;
 }
 
@@ -128,16 +139,20 @@ async function getProviderHoldings (providerId) {
  * Search CMR for collections matching query parameters.
  *
  * @param {object} params CMR Query parameters
+ * @returns {Promise.<Array.<CmrConcept>>}
  */
 async function findCollections (params = {}) {
   logger.debug(`findCollections [${JSON.stringify(scrubSensitive(params))}]`);
 
-  const response = await cmrSearch('/collections.json', params);
-  return response.data.feed.entry;
+  const { data } = await cmrSearch('/collections.json', params);
+  return _.get(data, 'feed.entry', []);
 }
 
 /**
- * Fetch a concept from CMR by conceptId
+ * Fetch a concept from CMR by conceptId.
+ *
+ * @param {string} cmrConceptId
+ * @returns {Promise.<CmrConcept>}
  */
 async function fetchConcept (cmrConceptId, opts = {format: "json"}) {
   logger.debug(`fetchConcept [${cmrConceptId}][${JSON.stringify(scrubSensitive(opts))}]`);
@@ -145,38 +160,35 @@ async function fetchConcept (cmrConceptId, opts = {format: "json"}) {
   const { format } = opts;
   const extension = format ? `.${format}` : "";
 
-  const { status, data } = await cmrSearch(`/concepts/${cmrConceptId}${extension}`);
-  if (status !== 200) {
-    throw new errors.NotFound(`Concept with ID [${cmrConceptId}] was not found.`);
-  }
+  const { data } = await cmrSearch(`/concepts/${cmrConceptId}${extension}`);
   return data;
 }
 
 /**
+ * @typedef CmrGranResult
+ * @property {string} hits
+ * @property {Array.<Granule>} granules
+ */
+
+/**
  * Search CMR for granules matching CMR query parameters
+ *
  * @param {object} params Object of CMR Search parameters
+ * @returns {Promise<CmrGranResult>}
  */
 async function findGranules(params = {}) {
   const usePost = settings.cmrStacRelativeRootUrl === '/cloudstac';
+  logger.debug(`Searching CMR for granules ${JSON.stringify(params)}`);
 
-  const { status: jsonStatus, data: gJson, headers } = usePost ?
+  const { data: gJson, headers } = usePost ?
         await cmrSearchPost('/granules.json', params) :
         await cmrSearch('/granules.json', params);
 
-  if (jsonStatus !== 200) {
-    throw new Error(`Could not fetch JSON granule data from CMR.`, gJson);
-  }
-
-  const { status: ummStatus, data: gUmm } = usePost ?
+  const { data: gUmm } = usePost ?
         await cmrSearchPost('/granules.umm_json', params) :
         await cmrSearch('/granules.umm_json', params);
 
-  if (ummStatus !== 200) {
-    throw new Error(`Could not fetch UMM_JSON granule data from CMR.`, gUmm);
-  }
-
   // merge the umm into the json
-  // TODO convert to single graphql call
   const granules = gJson.feed.entry.map(gj => {
     const { umm } = gUmm.items.find((gu) => _.get(gu, 'meta.concept-id') === gj.id);
     return {...gj, umm };
@@ -189,18 +201,19 @@ async function findGranules(params = {}) {
 /**
  * Convert a STAC Collection ID to set of CMR query parameters
  * @param {string} providerId The CMR Provider ID
- * @param {string} collectionId The STAC Collection ID
+ * @param {string} stacCollectionId The STAC Collection ID
  */
-function stacCollectionToCmrParams (providerId, collectionId) {
+function stacCollectionToCmrParams (providerId, stacCollectionId) {
   const cmrParams = { provider_id: providerId };
 
-  const parts = collectionId.split('.v');
+  const parts = stacCollectionId.split('.v');
   if (parts.length === 1) {
-    cmrParams.short_name = collectionId;
+    cmrParams.short_name = stacCollectionId;
   } else {
     cmrParams.version = parts.pop();
     cmrParams.short_name = parts.join('.');
   }
+
   if (settings.cmrStacRelativeRootUrl === '/cloudstac') {
     cmrParams.cloud_hosted = 'true';
   }
@@ -213,25 +226,20 @@ function stacCollectionToCmrParams (providerId, collectionId) {
  * @param {string} stacId A STAC COllection ID
  */
 async function stacIdToCmrCollectionId (providerId, stacId) {
-  let collectionId = await getCachedConceptId(stacId);
-
-  if (collectionId) {
-    return collectionId;
-  }
+  let cachedId = await getCachedConceptId(stacId);
+  if (cachedId) return cachedId;
 
   const cmrParams = stacCollectionToCmrParams(providerId, stacId);
-  let collections = [];
-  if (cmrParams) {
-    collections = await findCollections(cmrParams);
-  }
+  const collections = await findCollections(cmrParams);
 
   if (!collections.length) {
     return null;
   }
 
-  collectionId = collections[0].id;
-  cacheConceptId(stacId, collectionId);
-  return collectionId;
+  const [ collection ] = collections;
+  const cmrCollectionId = collection.id;
+  await cacheConceptId(stacId, cmrCollectionId);
+  return cmrCollectionId;
 }
 
 /**

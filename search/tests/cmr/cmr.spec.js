@@ -11,23 +11,15 @@ const {
   getFacetParams,
   getGranuleTemporalFacets
 } = require('../../lib/cmr');
+const { errors } = require('../../lib/util');
 
 const { tables, scanTable, clearTable } = require('../../lib/cache');
 
-const { logger } = require('../../lib/util');
-beforeAll(() => {
-  logger.silent = true;
-});
-
-afterAll(() => {
-  logger.silent = false;
-});
-
-afterEach(() => {
-  jest.restoreAllMocks();
-});
-
 describe('cmrSearch', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('should throw when not provided with a url', async () => {
     const error = new Error('Missing url');
     try {
@@ -39,8 +31,7 @@ describe('cmrSearch', () => {
 
   describe('formats a query for CMR', () => {
     it('uses GET queries', async () => {
-      axios.get = jest
-        .fn()
+      jest.spyOn(axios, 'get')
         .mockResolvedValue({
           status: 200,
           headers: { 'cmr-search-after': '[A, B, C]' },
@@ -49,20 +40,32 @@ describe('cmrSearch', () => {
 
       await cmrSearch('/collections.json', { 'page_num': 5 });
       expect(axios.get).toHaveBeenCalled();
+      jest.restoreAllMocks();
     });
   });
 
   describe('handling different responses from CMR', () => {
-    const statusCodes = [200, 400, 401, 500, 503];
-
-    statusCodes.forEach((statusCode) => {
-      it(`should handle a ${statusCode} response`, async () => {
-        axios.get = jest
-          .fn()
-          .mockResolvedValue({ status: statusCode, headers: {}, data: {} });
+    const successCodes = [200, 201, 209];
+    successCodes.forEach((statusCode) => {
+      it(`should handle success code ${statusCode} response`, async () => {
+        jest.spyOn(axios, 'get').mockResolvedValue({ status: statusCode, headers: {}, data: {} });
 
         const response = await cmrSearch('/collections.json', {});
         expect(response).toEqual({ status: statusCode, headers: {}, data: {} });
+        jest.restoreAllMocks();
+      });
+    });
+
+    const errorCodes = [400, 401, 403, 500, 501];
+    errorCodes.forEach((statusCode) => {
+      it(`should handle error code ${statusCode} response`, async () => {
+        jest.spyOn(axios, 'get').mockResolvedValue({ status: statusCode, headers: {}, data: {} });
+        try {
+          await cmrSearch('/collections.json', {});
+        } catch (err) {
+          expect(err).toBeInstanceOf(errors.HttpError);
+        }
+        jest.restoreAllMocks();
       });
     });
   });
@@ -80,8 +83,7 @@ describe('cmrSearchPost', () => {
 
   describe('formats a query for CMR', () => {
     it('uses POST queries', async () => {
-      axios.post = jest
-        .fn()
+      jest.spyOn(axios, 'post')
         .mockResolvedValue({
           status: 200,
           headers: {},
@@ -89,25 +91,28 @@ describe('cmrSearchPost', () => {
         });
 
       await cmrSearchPost('/collections.json', { 'page_num': 5 });
-      expect(axios.get).toHaveBeenCalled();
+      expect(axios.post).toHaveBeenCalled();
+      jest.restoreAllMocks();
     });
   });
 
-  describe('handling different responses from CMR', () => {
-    const statusCodes = [200, 400, 401, 500, 503];
+  describe('handling different error responses from CMR', () => {
+    const statusCodes = [400, 401, 500, 503];
 
     statusCodes.forEach((statusCode) => {
       it(`should handle a ${statusCode} response`, async () => {
-        axios.get = jest
-          .fn()
+        jest.spyOn(axios, 'post')
           .mockResolvedValue({
             status: statusCode,
-            headers: {},
-            data: { hits: 0, feed: { entry: [] } }
+            headers: {'cmr-hits': '0'},
+            data: { hits: 0, errors: ['an error'] }
           });
 
-        await cmrSearchPost('/collections.json', {});
-        expect(axios.post).toHaveBeenCalled();
+        try {
+          await cmrSearchPost('/collections.json', {});
+        } catch (err) {
+          expect(err).toBeDefined();
+        }
       });
     });
   });
@@ -121,9 +126,11 @@ describe('findCollections', () => {
         data: { feed: { entry: [{ concept_id: "C000000001-STAC_PROV", test: 'value' }] } }
       };
 
-      axios.get = jest
-        .fn()
-        .mockResolvedValue(cmrResponse);
+      jest.spyOn(axios, 'get').mockResolvedValue(cmrResponse);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
     });
 
     it('should return a list of collection', async () => {
@@ -157,14 +164,16 @@ describe('findCollections', () => {
 
   describe('when there are NO results', () => {
     beforeEach(() => {
-      axios.get = jest.fn();
       const cmrResponse = {
         headers: { 'cmr-hits': 0, 'cmr-search-after': '["h", "i", "j"]' },
         data: { feed: { entry: [] } }
       };
-      axios.get.mockResolvedValue(cmrResponse);
+      jest.spyOn(axios, 'get').mockResolvedValue(cmrResponse);
     });
 
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
 
     it('should return empty features', async () => {
       const result = await findCollections({
@@ -197,8 +206,7 @@ describe('findGranules', () => {
         }
       };
 
-      axios.get = jest
-        .fn()
+      jest.spyOn(axios, 'get')
         .mockImplementationOnce(() => Promise.resolve(cmrJsonResponse))
         .mockImplementationOnce(() => Promise.resolve(cmrUmmResponse));
     });
@@ -224,14 +232,12 @@ describe('findGranules', () => {
       data: { errors: ['a problem occurred upstream'] }
     };
 
-    axios.get = jest
-      .fn()
-      .mockResolvedValue(cmrResponse);
+    jest.spyOn(axios, 'get').mockResolvedValue(cmrResponse);
 
     try {
       await findGranules();
     } catch (err) {
-      expect(err.message).toContain('Could not fetch');
+      expect(err.message).toContain('A problem occurred with a GET search to CMR');
     }
   });
 });
@@ -372,12 +378,12 @@ describe('convertParams', () => {
     });
 
     it('should convert collections into collection_concept_id', async () => {
-      axios.get = jest.fn();
+
       const cmrResponse = {
         headers: { 'cmr-hits': 0, 'cmr-search-after': '["t", "u", "v"]' },
         data: { feed: { entry: [{ id: "C00000000001-STAC_PROV" }] } }
       };
-      axios.get.mockResolvedValue(cmrResponse);
+      jest.spyOn(axios, 'get').mockResolvedValue(cmrResponse);
 
       const params = {
         collections: ['name.v0']
@@ -423,7 +429,7 @@ describe('facets', () => {
 
   describe('getGranuleTemporalFacets', () => {
     beforeEach(() => {
-      axios.get = jest.fn();
+
       const resp = {
         headers: { 'cmr-hits': 0, 'cmr-search-after': '["j", "k", "l"]' },
         data: {
@@ -482,7 +488,11 @@ describe('facets', () => {
           }
         }
       };
-      axios.get.mockResolvedValue(resp);
+      jest.spyOn(axios, 'get').mockResolvedValue(resp);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
     });
 
 
@@ -512,25 +522,33 @@ describe('facets', () => {
   });
 });
 
-
 describe('STAC to CMR uses search-after for GET queries', () => {
-  beforeAll(() => {
-    axios.get = jest.fn();
-    const cmrResponses = [{
+  beforeAll(async () => {
+    const cmrJsonResponses = [{
+      status: 200,
       headers: { 'cmr-hits': 0, 'cmr-search-after': '["c", "m", "r"]' },
       data: { feed: { entry: [] } }
     }, {
+      status: 200,
       headers: { 'cmr-hits': 0, 'cmr-search-after': '["m", "r", "c"]' },
       data: { feed: { entry: [] } }
     }, {
+      status: 200,
       headers: { 'cmr-hits': 0, 'cmr-search-after': '["r", "c", "m"]' },
       data: { feed: { entry: [] } }
     }];
-    axios.get
-      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[0]))
-      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[1]))
-      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrResponses[2]))
-      .mockImplementation((_url, _req) => Promise.resolve(cmrResponses[2]));
+
+    jest.spyOn(axios, 'get')
+      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrJsonResponses[0]))
+      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrJsonResponses[1]))
+      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrJsonResponses[2]))
+      .mockImplementationOnce((_url, _req) => Promise.resolve(cmrJsonResponses[2]));
+
+    await clearTable(tables.SEARCH_AFTER_TABLE);
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 
   it('should behave normally on the first call', async () => {
@@ -549,21 +567,10 @@ describe('STAC to CMR uses search-after for GET queries', () => {
       page_num: 2,
       provider_id: 'CMR_PAGING'
     });
+
     expect(axios.get.mock.calls[1][1]).toEqual({
       headers: {
         'cmr-search-after': '["c", "m", "r"]',
-        'Client-Id': 'cmr-stac-api-proxy'
-      },
-      params: { provider_id: 'CMR_PAGING' }
-    });
-
-    await cmrSearch('paging-endpoint', {
-      page_num: 3,
-      provider_id: 'CMR_PAGING'
-    });
-    expect(axios.get.mock.calls[2][1]).toEqual({
-      headers: {
-        'cmr-search-after': '["m", "r", "c"]',
         'Client-Id': 'cmr-stac-api-proxy'
       },
       params: { provider_id: 'CMR_PAGING' }
@@ -575,7 +582,7 @@ describe('STAC to CMR uses search-after for GET queries', () => {
       page_num: 2,
       provider_id: 'CMR_PAGING'
     });
-    expect(axios.get.mock.calls[3][1]).toEqual({
+    expect(axios.get.mock.calls[2][1]).toEqual({
       headers: {
         'cmr-search-after': '["c", "m", "r"]',
         'Client-Id': 'cmr-stac-api-proxy'
@@ -587,7 +594,7 @@ describe('STAC to CMR uses search-after for GET queries', () => {
       page_num: 2,
       provider_id: 'CMR_PAGING'
     });
-    expect(axios.get.mock.calls[4][1]).toEqual({
+    expect(axios.get.mock.calls[3][1]).toEqual({
       headers: {
         'cmr-search-after': '["c", "m", "r"]',
         'Client-Id': 'cmr-stac-api-proxy'
@@ -646,8 +653,7 @@ describe('When using POST to query for granules', () => {
     settings.cmrStacRelativeRootUrl = '/cloudstac';
 
     // this is fragile and will break after the graphql changeover
-    axios.post = jest
-      .fn()
+    jest.spyOn(axios, 'post')
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrJsonResponses[0]))
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrUmmResponses[0]))
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve(cmrJsonResponses[1]))
@@ -661,11 +667,8 @@ describe('When using POST to query for granules', () => {
   afterAll(async () => {
     settings.cmrStacRelativeRootUrl = '/stac';
 
+    jest.restoreAllMocks();
     await clearTable(tables.SEARCH_AFTER_TABLE);
-  });
-
-  beforeEach(async () => {
-    const cachedSaItems = await scanTable(tables.SEARCH_AFTER_TABLE);
   });
 
   it('should use page_num for initial searches for granules', async () => {
@@ -700,8 +703,7 @@ describe('When using POST to query for granules', () => {
 
 describe('fetchConcept', () => {
   it('queries CMR', async () => {
-    axios.get = jest
-      .fn()
+    jest.spyOn(axios, 'get')
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve({
         status: 200,
         headers: { "content-type": "application/json" },
@@ -710,21 +712,24 @@ describe('fetchConcept', () => {
 
     await fetchConcept('C1280859287-GES_DISC');
     expect(axios.get).toHaveBeenCalled();
+    jest.restoreAllMocks();
   });
 
   it('throws on a 404', async () => {
-    axios.get = jest
-      .fn()
+    jest.spyOn(axios, 'get')
       .mockImplementationOnce((_url, _body, _headers) => Promise.resolve({
         status: 404,
         headers: { "content-type": "application/json" },
-        data: { errors: ["not found"] }
+        data: { errors: ["Concept with id [missing] was not found"] }
       }));
 
     try {
       await fetchConcept('C1280859287-GES_DISC');
     } catch (e) {
-      expect(e.message).toContain('was not found');
+      expect(e.message).toBeDefined();
+      expect(e).toBeInstanceOf(errors.HttpError);
     }
+
+    jest.restoreAllMocks();
   });
 });

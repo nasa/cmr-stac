@@ -3,7 +3,7 @@
     "id": "LANCEMODIS:1028235774",
     "stac_version": "1.0.0",
     "stac_extensions": ["https://stac-extensions.github.io/eo/v1.0.0/schema.json"],
-    "collection": "MOP02N.v7",
+    "collection": "LANCEMODIS_COLL.v6.1NRT",
     "geometry": {
       "type": "Polygon",
       "coordinates": [
@@ -40,15 +40,15 @@
     "links": [
       {
         "rel": "self",
-        "href": "https://example.com/stac/LANCEMODIS/collections/MOP02N.v7/items/LANCEMODIS:1028235774"
+        "href": "https://example.com/stac/LANCEMODIS/collections/LANCEMODIS_COLL.v6.1NRT/items/LANCEMODIS:1028235774"
       },
       {
         "rel": "parent",
-        "href": "https://example.com/stac/LANCEMODIS/collections/MOP02N.v7"
+        "href": "https://example.com/stac/LANCEMODIS/collections/LANCEMODIS_COLL.v6.1NRT"
       },
       {
         "rel": "collection",
-        "href": "https://example.com/stac/LANCEMODIS/collections/MOP02N.v7"
+        "href": "https://example.com/stac/LANCEMODIS/collections/LANCEMODIS_COLL.v6.1NRT"
       },
       {
         "rel": "root",
@@ -75,7 +75,7 @@
     },
     "assets": {
       "data": {
-        "href": "https://nrt3.modaps.eosdis.nasa.gov/archive/allData/61/MYD02HKM/2020/162/MYD02HKM.A2020162.2355.061.NRT.hdf",
+        "href": "https://nrt3.modaps.eosdis.nasa.gov/archive/allData/61/LANCEMODIS_COLL/2020/162/MYD02HKM.A2020162.2355.061.NRT.hdf",
         "type": "application/x-hdfeos"
       },
       "metadata": {

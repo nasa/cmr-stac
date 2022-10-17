@@ -13,16 +13,7 @@ const {
   getItem,
   getCatalog
 } = require('../../lib/api/wfs');
-
-const {logger: appLogger } = require('../../lib/util');
-
-beforeAll(() =>{
-  appLogger.silent = true;
-});
-
-afterAll(() => {
-  appLogger.silent = false;
-});
+const { errors } = require('../../lib/util');
 
 describe('wfs routes', () => {
   let request, response;
@@ -38,7 +29,11 @@ describe('wfs routes', () => {
     response = createMockResponse();
     mockFunction(cmr, 'findCollections', Promise.resolve(exampleData.cmrColls));
     mockFunction(cmr, 'convertParams', Promise.resolve({ collection_concept_id: '111' }));
-    mockFunction(cmr, 'fetchConcept', Promise.resolve(exampleData.cmrColls[0]));
+    jest.spyOn(cmr, 'fetchConcept').mockImplementation((id) => {
+      const coll = exampleData.cmrColls.find(coll => coll.id === id);
+      return Promise.resolve(coll);
+    });
+
     mockFunction(cmr, 'findGranules', Promise.resolve({
       granules: exampleData.cmrGrans,
       hits: exampleData.cmrGrans.length
@@ -138,14 +133,13 @@ describe('wfs routes', () => {
           revertFunction(cmr, 'findCollections');
         });
 
-        it('should return a 404.', async () => {
-          await getCollection(request, response);
-          expect(response.getData()).toEqual({
-            status: 404,
-            json: {
-              errors: ['Collection [1.v1] not found for provider [LPDAAC]']
-            }
-          });
+        it('should throw a NotFound.', async () => {
+          try {
+            await getCollection(request, response);
+          } catch (err) {
+            expect(err).toBeInstanceOf(errors.NotFound);
+
+          }
         });
       });
     });
@@ -171,14 +165,12 @@ describe('wfs routes', () => {
           revertFunction(cmr, 'findCollections');
         });
 
-        it('should return a 404.', async () => {
-          await getCollection(request, response);
-          expect(response.getData()).toEqual({
-            status: 404,
-            json: {
-              errors: ['Collection [1.v1] not found for provider [LPDAAC]']
-            }
-          });
+        it('should throw a NotFound.', async () => {
+          try {
+            await getCollection(request, response);
+          } catch (err) {
+            expect(err).toBeInstanceOf(errors.NotFound);
+          }
         });
       });
     });
@@ -186,7 +178,7 @@ describe('wfs routes', () => {
 
   describe('getItems', () => {
     describe('within /stac', () => {
-      it('should generate a item collection response.', async () => {
+      it('should generate an item collection response.', async () => {
         request.apiGateway.event.httpMethod = 'GET';
         await getItems(request, response);
         response.expect({
@@ -213,7 +205,7 @@ describe('wfs routes', () => {
         });
       });
 
-      it('should generate a item collection response with a next link.', async () => {
+      it('should generate an item collection response with a next link.', async () => {
         request.apiGateway.event.multiValueQueryStringParameters = { limit: [2] };
         request.apiGateway.event.httpMethod = 'GET';
         request.apiGateway.event.queryStringParameters = { limit: 2 };
@@ -291,7 +283,7 @@ describe('wfs routes', () => {
       afterEach(() => {
         settings.cmrStacRelativeRootUrl = '/stac';
       });
-      it('should generate a item collection response.', async () => {
+      it('should generate an item collection response.', async () => {
         request.apiGateway.event.httpMethod = 'GET';
         await getItems(request, response);
         response.expect({
@@ -318,7 +310,7 @@ describe('wfs routes', () => {
         });
       });
 
-      it('should generate a item collection response with a next link.', async () => {
+      it('should generate an item collection response with a next link.', async () => {
         request.apiGateway.event.multiValueQueryStringParameters = { limit: [2] };
         request.apiGateway.event.httpMethod = 'GET';
         request.apiGateway.event.queryStringParameters = { limit: 2 };

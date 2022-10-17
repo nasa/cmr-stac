@@ -1,6 +1,8 @@
-
 const _ = require('lodash');
 
+/**
+ * Return an object without a 'fields' property.
+ */
 function prepare (request) {
   return _.omit(request, ['fields']);
 }

@@ -38,35 +38,21 @@ describe('errorHandler', () => {
     expect(next).toHaveBeenCalled();
   });
 
-  it('should return a 400 error with the CMR errors attached.', () => {
-    const error = {
-      message: 'some other test error',
-      response: { data: { errors: ['an error'] } }
-    };
+  it('should return a 4xx error with the CMR errors attached.', () => {
+    const error = new errors.HttpError('problem', 403, { errors: ['a cmr error'] });
+
     errorHandler(error, request, response, next);
 
-    expect(response.status).toHaveBeenCalledWith(400);
-    expect(response.json).toHaveBeenCalledWith({ errors: ['an error'] });
-    expect(next).toHaveBeenCalled();
-  });
-
-  it('should return a 401 error with the CMR errors attached.', () => {
-    const error = {
-      message: 'invalid credentials',
-      response: { status: 401,
-                  data: { errors: ['401 error'] } }
-    };
-    errorHandler(error, request, response, next);
-
-    expect(response.status).toHaveBeenCalledWith(401);
-    expect(response.json).toHaveBeenCalledWith({ errors: ['401 error'] });
+    expect(response.status).toHaveBeenCalledWith(403);
+    expect(response.json).toHaveBeenCalledWith({ message: 'problem', errors: ['a cmr error'] });
     expect(next).toHaveBeenCalled();
   });
 
   it('should handle a NotFound', () => {
-    errorHandler(new errors.NotFound('not found'), request, response, next);
+    const error = new errors.NotFound('something was not found');
+    errorHandler(error, request, response, next);
 
     expect(response.status).toHaveBeenLastCalledWith(404);
-    expect(response.json).toHaveBeenLastCalledWith({errors: ['not found']});
+    expect(response.json).toHaveBeenLastCalledWith({errors: ['something was not found']});
   });
 });

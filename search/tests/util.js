@@ -33,6 +33,7 @@ function revertFunction (obj, name) {
   return obj;
 }
 
+
 function createMockResponse (statusCode = 200, data = {}) {
   this.data = data;
   const mockResp = {

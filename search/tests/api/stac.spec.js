@@ -5,18 +5,11 @@ const exampleData = require('../example-data');
 const axios = require('axios');
 const {
   createRequest,
-  createMockResponse,
-  mockFunction,
-  revertFunction
+  createMockResponse
 } = require('../util');
-const {logger} = require('../../lib/util');
 
-beforeAll(() =>{
-  logger.silent = true;
-});
-
-afterAll(() => {
-  logger.silent = false;
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe('STAC Search', () => {
@@ -26,13 +19,11 @@ describe('STAC Search', () => {
     request = createRequest({params: { providerId: 'LPDAAC' }});
     response = createMockResponse();
 
-    mockFunction(cmr, 'findGranules', Promise.resolve({ granules: exampleData.cmrGrans, hits: 19 }));
-    mockFunction(cmr, 'fetchConcept', Promise.resolve(exampleData.cmrColls[0]));
-  });
-
-  afterEach(() => {
-    revertFunction(cmr, 'findGranules');
-    revertFunction(cmr, 'fetchConcept');
+    jest.spyOn(cmr, 'findGranules').mockResolvedValue({ granules: exampleData.cmrGrans, hits: 19 });
+    jest.spyOn(cmr, 'fetchConcept').mockImplementation(async (id) => {
+      const mockCollection = exampleData.cmrColls.find((coll) => coll.id === id);
+      return Promise.resolve(mockCollection);
+    });
   });
 
   const expectedResponse = {
@@ -76,18 +67,15 @@ describe('STAC Search Params', () => {
 
   beforeEach(() => {
     response = createMockResponse(200, { feed: { entry: [] } });
-    axios.get = jest.fn(async () => {
-      return Promise.resolve({
-        headers: { 'cmr-hits': 0,
-          'cmr-search-after': ['a', 'b', 'c'] },
-        data: { feed: { entry: [] } },
-        json: (v) => JSON.stringify(v, null, 2)
-      });
+    jest.spyOn(cmr, 'fetchConcept').mockImplementation(async (id) => {
+      const mockCollection = exampleData.cmrColls.find((coll) => coll.id === id);
+      return Promise.resolve(mockCollection);
     });
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
+    jest.spyOn(axios, 'get').mockResolvedValue({
+      headers: { 'cmr-hits': '0' },
+      data: { feed: { entry: [] } },
+      json: (v) => JSON.stringify(v, null, 2)
+    });
   });
 
   describe('datetime', () => {
@@ -235,7 +223,6 @@ describe('STAC Search Params', () => {
       });
 
       await search(request, response);
-
       expect(axios.get).toHaveBeenCalledWith(
         'http://localhost:3003/granules.json',
         {

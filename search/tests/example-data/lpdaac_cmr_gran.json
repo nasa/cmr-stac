@@ -13,7 +13,7 @@
   "original_format": "ECHO10",
   "granule_size": "37.1923",
   "browse_flag": true,
-  "collection_concept_id": "C1328403374-LPDAAC_ECS",
+  "collection_concept_id": "C1299783579-LPDAAC_ECS",
   "online_access_flag": true,
   "links": [{
     "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
