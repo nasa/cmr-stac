@@ -31,8 +31,8 @@ functions:
           path: /{proxy+}
           method: any
     environment:
-      CMR_URL: 'http://localhost:3003'
-      CMR_LB_URL: 'http://localhost:3003'
+      CMR_URL: 'http://localhost'
+      CMR_LB_URL: 'http://localhost'
       CMR_STAC_RELATIVE_ROOT_URL: /stac
       CMR_STAC_PROTOCOL: ${param:protocol, 'http'}
       LOG_LEVEL: info
