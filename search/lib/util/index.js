@@ -5,27 +5,41 @@ const app = require('./app');
 const buildUrl = require('build-url');
 const { createLogger } = require('./logger');
 const { createDdbClient } = require('./ddbClient');
+const { errors } = require('./errors');
 
-const ddbClient = createDdbClient(settings.ddb)
+const ddbClient = createDdbClient(settings.ddb);
 const logger = createLogger(settings.logger);
 
 function logRequest (request) {
-  const { headers, baseUrl, params, query, body, apiGateway } = request;
-  logger.info(JSON.stringify({ headers, baseUrl, params, query, body, apiGateway }));
+  const { headers, baseUrl, params, query, body } = request;
+  logger.info(JSON.stringify({ headers: scrubSensitive(headers), baseUrl, params: scrubSensitive(params), query: scrubSensitive(query), body }));
 }
+
+const SENSITIVE_KEYS = [
+  'authorization',
+  'echo-token',
+  'token',
+  'password'
+];
 
 /**
  *
- * @param {string, array} value
  */
 function toArray (value) {
   if (typeof value === 'string' || value instanceof String) {
     return value.split(',');
   }
-  return value;
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return [value];
 }
 
 function getKeyCaseInsensitive (object, key) {
+  if (!object) return;
+
   const i = Object.keys(object)
     .find(k => k.toLowerCase() === key.toLowerCase());
   return object[i];
@@ -156,9 +170,26 @@ function createNavLink (event, params, rel) {
   return link;
 }
 
+/**
+ * Returns a map with sensitive values obfuscated.
+ * Useful when logging.
+ */
+function scrubSensitive(data, sensitiveKeys = SENSITIVE_KEYS) {
+  const scrubbed = {...data};
+
+  Object
+    .keys(scrubbed)
+    .filter(k => sensitiveKeys.indexOf(k.toLowerCase()) !== -1)
+    .forEach(k => {
+      scrubbed[k] = `${scrubbed[k].slice(0, 8)}XXX`;
+    });
+
+  return scrubbed;
+}
+
 module.exports = {
   ...app,
-    createLogger,
+  createLogger,
   createNavLink,
   ddbClient,
   extractParam,
@@ -173,4 +204,6 @@ module.exports = {
   makeCmrSearchUrl,
   toArray,
   logRequest,
+  scrubSensitive,
+  errors
 };

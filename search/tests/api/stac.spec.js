@@ -3,39 +3,27 @@ const cmr = require('../../lib/cmr');
 const { search } = require('../../lib/api/stac');
 const exampleData = require('../example-data');
 const axios = require('axios');
-
 const {
-  mockFunction,
-  revertFunction,
-  createMockResponse,
-  createRequest
+  createRequest,
+  createMockResponse
 } = require('../util');
-const { logger } = require('../../lib/util');
 
-const origLogLevel = logger.level;
-beforeAll(() => {
-  logger.level = 'error';
-});
-
-afterAll(() => {
-  logger.level = origLogLevel;
+afterEach(() => {
+  jest.restoreAllMocks();
 });
 
 describe('STAC Search', () => {
   let request, response;
 
   beforeEach(() => {
-    request = createRequest({
-      params: { providerId: 'LPDAAC' }
-    });
+    request = createRequest({params: { providerId: 'LPDAAC' }});
     response = createMockResponse();
-    mockFunction(cmr,
-      'findGranules',
-      Promise.resolve({ granules: exampleData.cmrGrans, hits: 19 }));
-  });
 
-  afterEach(() => {
-    revertFunction(cmr, 'findGranules');
+    jest.spyOn(cmr, 'findGranules').mockResolvedValue({ granules: exampleData.cmrGrans, hits: 19 });
+    jest.spyOn(cmr, 'fetchConcept').mockImplementation(async (id) => {
+      const mockCollection = exampleData.cmrColls.find((coll) => coll.id === id);
+      return Promise.resolve(mockCollection);
+    });
   });
 
   const expectedResponse = {
@@ -79,13 +67,15 @@ describe('STAC Search Params', () => {
 
   beforeEach(() => {
     response = createMockResponse(200, { feed: { entry: [] } });
-    axios.get = jest.fn(async () => {
-      return Promise.resolve({
-        headers: { 'cmr-hits': 0,
-          'cmr-search-after': ['a', 'b', 'c'] },
-        data: { feed: { entry: [] } },
-        json: (v) => JSON.stringify(v, null, 2)
-      });
+    jest.spyOn(cmr, 'fetchConcept').mockImplementation(async (id) => {
+      const mockCollection = exampleData.cmrColls.find((coll) => coll.id === id);
+      return Promise.resolve(mockCollection);
+    });
+    jest.spyOn(axios, 'get').mockResolvedValue({
+      status: 200,
+      headers: { 'cmr-hits': '0' },
+      data: { feed: { entry: [] } },
+      json: (v) => JSON.stringify(v, null, 2)
     });
   });
 
@@ -238,7 +228,6 @@ describe('STAC Search Params', () => {
       });
 
       await search(request, response);
-
       expect(axios.get).toHaveBeenCalledWith(
         'http://localhost:3003/granules.json',
         {

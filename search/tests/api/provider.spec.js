@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const { getProvider, getProviders } = require('../../lib/api/provider');
+const { getProvider , getProviders } = require('../../lib/api/provider');
 const settings = require('../../lib/settings');
 const cmr = require('../../lib/cmr');
 const {
@@ -111,10 +111,10 @@ const expectedCloudLinks = [
 describe('getProviders', () => {
   describe('within /stac', () => {
     beforeEach(() => {
-      mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
+      mockFunction(cmr, 'getProviders', Promise.resolve(mockProviderResponse));
     });
     afterEach(() => {
-      revertFunction(cmr, 'getProviderList');
+      revertFunction(cmr, 'getProviders');
     });
 
     it('should return an array', async () => {
@@ -134,11 +134,11 @@ describe('getProviders', () => {
   describe('within /cloudstac', () => {
     beforeEach(() => {
       settings.cmrStacRelativeRootUrl = '/cloudstac';
-      mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
+      mockFunction(cmr, 'getProviders', Promise.resolve(mockProviderResponse));
     });
     afterEach(() => {
       settings.cmrStacRelativeRootUrl = '/stac';
-      revertFunction(cmr, 'getProviderList');
+      revertFunction(cmr, 'getProviders');
     });
 
     it('should return an array', async () => {
@@ -231,11 +231,11 @@ describe('getProvider', () => {
     };
 
     beforeEach(() => {
-      mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
+      mockFunction(cmr, 'getProviders', Promise.resolve(mockProviderResponse));
       mockFunction(cmr, 'findCollections', Promise.resolve([]));
     });
     afterEach(() => {
-      revertFunction(cmr, 'getProviderList');
+      revertFunction(cmr, 'getProviders');
       revertFunction(cmr, 'findCollections');
     });
     it('should return a provider json object', async () => {
@@ -352,12 +352,12 @@ describe('getProvider', () => {
 
     beforeEach(() => {
       settings.cmrStacRelativeRootUrl = '/cloudstac';
-      mockFunction(cmr, 'getProviderList', Promise.resolve(mockProviderResponse));
+      mockFunction(cmr, 'getProviders', Promise.resolve(mockProviderResponse));
       mockFunction(cmr, 'findCollections', Promise.resolve([expectedResponse2]));
     });
     afterEach(() => {
       settings.cmrStacRelativeRootUrl = '/stac';
-      revertFunction(cmr, 'getProviderList');
+      revertFunction(cmr, 'getProviders');
       revertFunction(cmr, 'findCollections');
     });
 

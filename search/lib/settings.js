@@ -72,6 +72,8 @@ function getSettings () {
   settings.cmrLbUrl = process.env.CMR_LB_URL || 'http://localhost';
   settings.protocol = process.env.CMR_STAC_PROTOCOL || 'https';
   settings.maxLimit = process.env.CMR_STAC_MAX_LIMIT || 250;
+  settings.clientId = process.env.CMR_STAC_CLIENT_ID || 'cmr-stac-api-proxy';
+  settings.supportAddress = process.env.CMR_SUPPORT_EMAIL || 'cmr-support@earthdata.nasa.gov';
 
   settings.throwCmrConvertParamErrors = process.env.THROW_CMR_CONVERT_PARAM_ERRORS === 'true';
 

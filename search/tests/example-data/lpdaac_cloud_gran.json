@@ -3,33 +3,15 @@
   "id": "SC:VIP01.004:2242263776",
   "stac_version": "1.0.0",
   "stac_extensions": [],
-  "collection": "VIP01.v004",
+  "collection": "AST14DEM.v003",
   "geometry": {
     "type": "Polygon",
-    "coordinates": [
-      [
-        [
-          -180,
-          -90
-        ],
-        [
-          180,
-          -90
-        ],
-        [
-          180,
-          90
-        ],
-        [
-          -180,
-          90
-        ],
-        [
-          -180,
-          -90
-        ]
-      ]
-    ]
+    "coordinates": [[
+      [-180, -90],
+      [180, -90],
+      [180, 90],
+      [-180, 90],
+      [-180, -90]]]
   },
   "bbox": [
     -180,
@@ -40,15 +22,15 @@
   "links": [
     {
       "rel": "self",
-      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/VIP01.v004/items/SC:VIP01.004:2242263776"
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.v003/items/SC:VIP01.004:2242263776"
     },
     {
       "rel": "parent",
-      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/VIP01.v004"
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.v003"
     },
     {
       "rel": "collection",
-      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/VIP01.v004"
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.v003"
     },
     {
       "rel": "root",

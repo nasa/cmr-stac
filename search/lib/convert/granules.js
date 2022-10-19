@@ -8,6 +8,7 @@ const {
   reorderBoxValues
 } = require('./bounding-box');
 const {
+  logger,
   generateAppUrl,
   wfs,
   generateSelfUrl,
@@ -16,15 +17,14 @@ const {
 } = require('../util');
 const { inflectBox } = require('./geodeticCoordinates');
 const cmr = require('../cmr');
-const Promise = require('bluebird');
+const e = require('express');
 
 const DATA_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#';
 const BROWSE_REL = 'http://esipfed.org/ns/fedsearch/1.1/browse#';
 const SERVICE_REL = 'http://esipfed.org/ns/fedsearch/1.1/service#';
 
 function cmrPolygonToGeoJsonPolygon (polygon) {
-  const rings = polygon.map((ringStr) => pointStringToPoints(ringStr));
-  return rings;
+  return polygon.map((ringStr) => pointStringToPoints(ringStr));
 }
 
 function cmrBoxToGeoJsonPolygon (box) {
@@ -38,90 +38,104 @@ function cmrBoxToGeoJsonPolygon (box) {
   ]];
 }
 
-function cmrSpatialToGeoJSONGeometry (cmrGran) {
-  let geometry = [];
+const granPolyConverter = (polygons) => {
+  const geometry = polygons.map(cmrPolygonToGeoJsonPolygon);
   let geoJsonSpatial;
 
-  // Polygons
-  if (cmrGran.polygons) {
-    geometry = geometry.concat(cmrGran.polygons.map(cmrPolygonToGeoJsonPolygon));
-    if (geometry.length > 1) {
-      geoJsonSpatial = {
-        type: 'MultiPolygon',
-        coordinates: geometry
-      };
-      return geoJsonSpatial;
-    } else if (geometry.length === 1) {
-      geoJsonSpatial = {
-        type: 'Polygon',
-        coordinates: geometry[0]
-      };
-      return geoJsonSpatial;
-    }
+  if (geometry.length > 1) {
+    geoJsonSpatial = {
+      type: 'MultiPolygon',
+      coordinates: geometry
+    };
+    return geoJsonSpatial;
+  } else if (geometry.length === 1) {
+    geoJsonSpatial = {
+      type: 'Polygon',
+      coordinates: geometry[0]
+    };
+    return geoJsonSpatial;
   }
+  return null;
+};
 
-  if (cmrGran.boxes) {
-    geometry = geometry.concat(cmrGran.boxes.map(cmrBoxToGeoJsonPolygon));
-    if (geometry.length > 1) {
-      geoJsonSpatial = {
-        type: 'MultiPolygon',
-        coordinates: geometry
-      };
-      return geoJsonSpatial;
-    } else if (geometry.length === 1) {
-      geoJsonSpatial = {
-        type: 'Polygon',
-        coordinates: geometry[0]
-      };
-      return geoJsonSpatial;
-    }
+const granBoxConverter = (boxes) => {
+  const geometry = boxes.map(cmrBoxToGeoJsonPolygon);
+  let geoJsonSpatial;
+  if (geometry.length > 1) {
+    geoJsonSpatial = {
+      type: 'MultiPolygon',
+      coordinates: geometry
+    };
+    return geoJsonSpatial;
+  } else if (geometry.length === 1) {
+    geoJsonSpatial = {
+      type: 'Polygon',
+      coordinates: geometry[0]
+    };
+    return geoJsonSpatial;
   }
+  return null;
+};
 
-  // Points
-  if (cmrGran.points) {
-    geometry = geometry.concat(cmrGran.points.map((ps) => {
+const granPointsConverter = (points) => {
+  const geometry = points.map((ps) => {
       const [lat, lon] = parseOrdinateString(ps);
       return [lon, lat];
-    }));
-    if (geometry.length > 1) {
-      geoJsonSpatial = {
-        type: 'MultiPoint',
-        coordinates: geometry
-      };
-      return geoJsonSpatial;
-    } else if (geometry.length === 1) {
-      geoJsonSpatial = {
-        type: 'Point',
-        coordinates: geometry[0]
-      };
-      return geoJsonSpatial;
-    }
-  }
+  });
+  let geoJsonSpatial;
 
-  // Lines
-  if (cmrGran.lines) {
-    geometry = cmrGran.lines.map(ls => {
+  if (geometry.length > 1) {
+    geoJsonSpatial = {
+      type: 'MultiPoint',
+      coordinates: geometry
+    };
+    return geoJsonSpatial;
+  } else if (geometry.length === 1) {
+    geoJsonSpatial = {
+      type: 'Point',
+      coordinates: geometry[0]
+    };
+    return geoJsonSpatial;
+  }
+  return null;
+};
+
+const granLinesConverter = (lines) => {
+  const geometry = lines.map(ls => {
       const linePoints = parseOrdinateString(ls);
       const orderedLines = reorderBoxValues(linePoints);
       return _.chunk(orderedLines, 2);
-    });
+  });
+  let geoJsonSpatial;
 
-    if (geometry.length > 1) {
-      geoJsonSpatial = {
-        type: 'MultiLineString',
-        coordinates: geometry
-      };
-      return geoJsonSpatial;
-    } else if (geometry.length === 1) {
-      geoJsonSpatial = {
-        type: 'LineString',
-        coordinates: geometry[0]
-      };
-      return geoJsonSpatial;
-    }
+  if (geometry.length > 1) {
+    geoJsonSpatial = {
+      type: 'MultiLineString',
+      coordinates: geometry
+    };
+    return geoJsonSpatial;
+  } else if (geometry.length === 1) {
+    geoJsonSpatial = {
+      type: 'LineString',
+      coordinates: geometry[0]
+    };
+    return geoJsonSpatial;
+  }
+  return null;
+};
+
+function cmrSpatialToGeoJSONGeometry (gran) {
+  const {boxes, lines, polygons, points} = gran;
+
+  if (!(boxes || lines || polygons || points)) {
+    logger.warn(`Spatial system unknown or missing in concept [${gran.id}]`);
+    return;
   }
 
-  throw new Error(`Unknown spatial ${JSON.stringify(cmrGran)}`);
+  if (polygons) return granPolyConverter(polygons);
+  if (boxes) return granBoxConverter(boxes);
+  if (points) return granPointsConverter(points);
+  if (lines) return granLinesConverter(lines);
 }
 
 function cmrSpatialToStacBbox (cmrGran) {
@@ -152,70 +166,106 @@ function cmrSpatialToStacBbox (cmrGran) {
   return bbox;
 }
 
-async function cmrGranuleToStac (event, granule) {
-  const properties = {};
+const linkToAsset = (l) => {
+  const { href, type, title } = l;
 
-  properties.datetime = granule.time_start;
-  properties.start_datetime = granule.time_start;
-  properties.end_datetime = granule.time_end ? granule.time_end : granule.time_start;
+  const asset = { href, type };
+  if (title) {
+    asset.title = title;
+  }
+  return asset;
+};
 
-  let dataLink;
+/**
+ * Return the cloud_cover extension and property.
+ * Checks for `umm.ADDITIONAL_ATTRIBUTES' values on the granule
+ *
+ * @param {object} granule
+ * @return {Array.<{extension:string, property:object}>|null}
+ */
+function cloudCoverAdditionalAttributeExtension (granule) {
+  const eoExtension = 'https://stac-extensions.github.io/eo/v1.0.0/schema.json';
+  if (!_.has(granule, 'umm.AdditionalAttributes')) return;
+
+  const attributes = granule.umm.AdditionalAttributes;
+  const cc = attributes.find(({ Name }) => Name === 'CLOUD_COVERAGE');
+  if (!cc) return;
+  const ccValue = parseInt(_.first(_.get(cc, 'Values')));
+  if (Number.isNaN(ccValue)) {
+    logger.warn(`Could not convert CLOUD_COVERAGE with values [${cc.Values}] to a integer.`);
+    return;
+  }
+  return [eoExtension, { 'eo:cloud_cover': ccValue }];
+}
+
+/**
+ * Return the cloud_cover extension and property.
+ * Checks for `umm.CloudCover' values on the granule
+ *
+ * @param {object} granule
+ * @return {Array.<{extension:string, property:object}>|null}
+ */
+function cloudCoverExtension (granule) {
+  const eoExtension = 'https://stac-extensions.github.io/eo/v1.0.0/schema.json';
+
+  if (!_.has(granule, 'umm.CloudCover')) return;
+
+  const cc = granule.umm.CloudCover;
+  return [eoExtension, {'eo:cloud_cover': cc}];
+}
+
+/**
+ *
+ */
+function cmrGranuleToStac (event, parentCollection, granule) {
+  const extensionBuilders = [
+    cloudCoverExtension,
+    cloudCoverAdditionalAttributeExtension
+  ];
+
+  const [extensions, properties] = extensionBuilders
+    .reduce(([exts, props], extBldr) => {
+      const data = extBldr(granule);
+
+      if (!data) return [exts, props];
+
+      const [newExt, newProps] = data;
+      return [
+        [...exts, newExt],
+        {...props, ...newProps}
+      ];
+    }, [[], {}]);
+
+  const { links,
+          time_start,
+          time_end } = granule;
+
+  properties.datetime = time_start;
+  properties.start_datetime = time_start;
+  properties.end_datetime = time_end ? time_end : time_start;
+
+  let dataLinks = [];
   let browseLink;
   let opendapLink;
 
-  const extensions = [];
-  if (_.has(granule, 'umm.CloudCover')) {
-    const eo = granule.umm.CloudCover;
-    extensions.push('https://stac-extensions.github.io/eo/v1.0.0/schema.json');
-    properties['eo:cloud_cover'] = eo;
-  } else if (_.has(granule, 'umm.AdditionalAttributes')) {
-     // HACK: CMR-8623 this is block should be removed after providers update their metadata
-    const attributes = granule.umm.AdditionalAttributes;
-    const eo = attributes.filter(attr => attr.Name === 'CLOUD_COVERAGE');
-    if (eo.length) {
-      extensions.push('https://stac-extensions.github.io/eo/v1.0.0/schema.json');
-      const eoValue = eo[0].Values[0];
-      properties['eo:cloud_cover'] = parseInt(eoValue);
-    }
+  if (links) {
+    dataLinks = links.filter(l => l.rel === DATA_REL && !l.inherited);
+    browseLink = _.first(links.filter(l => l.rel === BROWSE_REL));
+    opendapLink = _.first(links.filter(l => l.rel === SERVICE_REL && !l.inherited));
   }
-
-  if (granule.links) {
-    dataLink = granule.links.filter(l => l.rel === DATA_REL && !l.inherited);
-    browseLink = _.first(
-      granule.links.filter(l => l.rel === BROWSE_REL)
-    );
-    opendapLink = _.first(
-      granule.links.filter(l => l.rel === SERVICE_REL && !l.inherited)
-    );
-  }
-
-  const linkToAsset = (l) => {
-    if (l.title === undefined) {
-      return {
-        href: l.href,
-        type: l.type
-      };
-    } else {
-      return {
-        title: l.title,
-        href: l.href,
-        type: l.type
-      };
-    }
-  };
 
   const assets = {};
-  if (dataLink && dataLink.length) {
-    if (dataLink.length > 1) {
-      dataLink.forEach(l => {
-        const splitLink = l.href.split('.');
-        const fileType = splitLink[splitLink.length - 2];
-        assets[fileType] = linkToAsset(l);
-      });
-    } else {
-      assets.data = linkToAsset(dataLink[0]);
-    }
+
+  if (dataLinks.length > 1) {
+    dataLinks.forEach(l => {
+      const splitLink = l.href.split('.');
+      const fileType = splitLink[splitLink.length - 2];
+      assets[fileType] = linkToAsset(l);
+    });
+  } else if (dataLinks.length === 1) {
+    assets.data = linkToAsset(dataLinks[0]);
   }
+
   if (browseLink) {
     assets.browse = linkToAsset(browseLink);
 
@@ -238,30 +288,23 @@ async function cmrGranuleToStac (event, granule) {
         break;
     }
   }
+
   if (opendapLink) {
     assets.opendap = linkToAsset(opendapLink);
   }
 
   assets.metadata = wfs.createAssetLink(makeCmrSearchUrl(`/concepts/${granule.id}.native`));
-  let { ShortName, EntryTitle, Version } = granule.umm.CollectionReference;
-  if (EntryTitle) {
-    const collections = await cmr.findCollections({ entry_title: EntryTitle });
-    if (collections.length === 0) {
-      return null;
-    } else {
-      ShortName = collections[0].short_name;
-      Version = collections[0].version_id;
-    }
-  }
-  const collectionId = cmr.cmrCollectionToStacId(ShortName, Version);
-  const gid = granule.umm.GranuleUR;
+  const collectionId = cmr.cmrCollectionToStacId(parentCollection.short_name, parentCollection.version_id);
+  const gid = granule.title;
+  const geometry = cmrSpatialToGeoJSONGeometry(granule);
+
   return {
     type: 'Feature',
     id: gid,
     stac_version: settings.stac.version,
     stac_extensions: extensions,
     collection: collectionId,
-    geometry: cmrSpatialToGeoJSONGeometry(granule),
+    geometry,
     bbox: cmrSpatialToStacBbox(granule),
     links: [
       {
@@ -299,13 +342,16 @@ async function cmrGranuleToStac (event, granule) {
   };
 }
 
-async function cmrGranulesToStac (event, granules, hits = 0, params = {}) {
+/**
+ * Converts a list of granules to STAC items.
+ */
+function cmrGranulesToStac (event, parentColls, granules, hits = 0, params = {}) {
   const numberMatched = hits;
   const numberReturned = granules.length;
 
-  const items = await Promise.map(granules, async (granule) => {
-    return cmrGranuleToStac(event, granule);
-  });
+  const items = granules
+        .map((granule) => cmrGranuleToStac(event, parentColls[granule.collection_concept_id], granule))
+        .filter((item) => item); // remove nulls
 
   const granulesResponse = {
     type: 'FeatureCollection',

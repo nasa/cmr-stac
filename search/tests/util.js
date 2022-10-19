@@ -33,6 +33,7 @@ function revertFunction (obj, name) {
   return obj;
 }
 
+
 function createMockResponse (statusCode = 200, data = {}) {
   this.data = data;
   const mockResp = {
@@ -61,7 +62,7 @@ function createMockResponse (statusCode = 200, data = {}) {
 
 const logger = createLogger({ logLevel: 'silly' });
 
-function createRequest (additionalData = null) {
+function createRequest (additionalData) {
   return Object.assign({
     apiGateway: {
       event: {
@@ -70,7 +71,7 @@ function createRequest (additionalData = null) {
       }
     },
     body: '{}',
-    app: { logger: logger },
+    app: { logger },
     query: {},
     params: {}
   }, additionalData);

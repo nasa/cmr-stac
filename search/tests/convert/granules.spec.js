@@ -1,4 +1,5 @@
 const settings = require('../../lib/settings');
+
 const {
   cmrPolygonToGeoJsonPolygon,
   cmrBoxToGeoJsonPolygon,
@@ -125,6 +126,7 @@ describe('granuleToItem', () => {
       cmrSpatial = {
         boxes: ['32,44,10,18']
       };
+
       expect(cmrSpatialToGeoJSONGeometry(cmrSpatial)).toEqual({
         type: 'Polygon',
         coordinates: [
@@ -166,15 +168,6 @@ describe('granuleToItem', () => {
           ]
         ]
       });
-    });
-
-    it('should return an error if their is no geometry', () => {
-      cmrSpatial = {
-        points: [],
-        boxes: [],
-        polygons: []
-      };
-      expect(() => cmrSpatialToGeoJSONGeometry(cmrSpatial)).toThrow(Error);
     });
   });
 
@@ -227,21 +220,20 @@ describe('granuleToItem', () => {
       expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([-180, -90, 180, 90]);
     });
 
-    it('should return a bounding box containing the WHOLE_WORLD_BBOX', () => {
+    it('should rqeturn a bounding box containing the WHOLE_WORLD_BBOX', () => {
       cmrCollection = {};
       expect(cmrSpatialToStacBbox(cmrCollection)).toEqual([]);
     });
   });
 
   describe('cmrGranuleToStac', () => {
-    const cmrGran = exampleData.examplesByName.lancemodisCmrGran;
-    const expectedStacGran = exampleData.examplesByName.lancemodisStacGran;
-
     const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
 
-    it('should return a FeatureGeoJSON from a cmrGran', async () => {
-      const stacItem = await cmrGranuleToStac(event, cmrGran);
-      expect(stacItem).toEqual(expectedStacGran);
+    it('should return a FeatureGeoJSON from a cmrGran', () => {
+      const stacItem = cmrGranuleToStac(event,
+                                        exampleData.examplesByName.lpdaacCmrColl,
+                                        exampleData.examplesByName.lpdaacCmrGran);
+      expect(stacItem).toEqual(exampleData.examplesByName.lpdaacStacGran);
     });
   });
 
@@ -251,8 +243,8 @@ describe('granuleToItem', () => {
 
     const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
 
-    it('should return a FeatureGeoJSON from a cmrGran containing a eo:cloud_cover field', async () => {
-      const stacItem = await cmrGranuleToStac(event, cmrGran);
+    it('should return a FeatureGeoJSON from a cmrGran containing a eo:cloud_cover field', () => {
+      const stacItem = cmrGranuleToStac(event, exampleData.examplesByName.lancemodisCmrColl, cmrGran);
       expect(stacItem).toEqual(expectedStacGran);
     });
   });
@@ -263,8 +255,8 @@ describe('granuleToItem', () => {
 
     const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
 
-    it('should return a FeatureGeoJSON from a cmrGran containing a CLOUD_COVERAGE value Additional Attributes field', async () => {
-      const stacItem = await cmrGranuleToStac(event, cmrGran);
+    it('should return a FeatureGeoJSON from a cmrGran containing a CLOUD_COVERAGE value Additional Attributes field', () => {
+      const stacItem = cmrGranuleToStac(event, exampleData.examplesByName.lancemodisCmrColl, cmrGran);
       expect(stacItem).toEqual(expectedStacGran);
     });
   });
@@ -278,9 +270,16 @@ describe('granuleToItem', () => {
       revertFunction(cmr, 'cmrCollectionToStacId');
     });
 
+    const parentColls = {"10": {
+      "id": 10,
+      "short_name": "cmrGranulesToStacParent",
+      "version_id": "2"
+    }};
+
     const cmrGran = [{
       id: 1,
-      collection_concept_id: 10,
+      title: 1,
+      collection_concept_id: "10",
       dataset_id: 'datasetId',
       short_name: 'landsat',
       version_id: '1',
@@ -296,20 +295,13 @@ describe('granuleToItem', () => {
         }
       ],
       data_center: 'USA',
-      points: ['77,139'],
-      umm: {
-        GranuleUR: 1,
-        CollectionReference: {
-          ShortName: 'landsat',
-          Version: '1'
-        }
-      }
+      points: ['77,139']
     }];
 
     const event = { headers: { Host: 'example.com' }, path: '/stac', queryStringParameters: [] };
 
-    it('should return a CMR Granules search result to a FeatureCollection', async () => {
-      const items = await cmrGranulesToStac(event, cmrGran, 1);
+    it('should return a CMR Granules search result to a FeatureCollection', () => {
+      const items = cmrGranulesToStac(event, parentColls, cmrGran, 1);
       expect(items).toEqual({
         type: 'FeatureCollection',
         stac_version: settings.stac.version,
@@ -378,10 +370,11 @@ describe('granuleToItem', () => {
       });
     });
   });
+
   describe('cmrGranuleToStac', () => {
     const cmrGran = {
       id: 1,
-      collection_concept_id: 10,
+      collection_concept_id: "10",
       dataset_id: 'datasetId',
       short_name: 'landsat',
       version_id: '1',
@@ -397,30 +390,19 @@ describe('granuleToItem', () => {
         }
       ],
       data_center: 'USA',
-      points: ['77,139'],
-      umm: {
-        GranuleUR: 1,
-        CollectionReference: {
-          ShortName: 'landsat',
-          Version: '1'
-        },
-        relatedUrls: [{
-          "url": "https://opendap.earthdata.nasa.gov/collections/C1940473819-POCLOUD/granules/20220726101001-JPL-L2P_GHRSST-SSTskin-MODIS_A-D-v02.0-fv01.0",
-          "type": "USE SERVICE API",
-          "subtype": "OPENDAP DATA",
-          "description": "OPeNDAP request URL"
-        }]
-      }
+      points: ['77,139']
     };
 
     const event = { headers: { Host: 'example.com' }, multiValueQueryStringParameters: [] };
 
-    it('opendap url should be taken from the the service relatedUrls', async () => {
-      const stacItem = await cmrGranuleToStac(event, cmrGran);
+    it('opendap url should be taken from the the service relatedUrls', () => {
+      const stacItem = cmrGranuleToStac(event, {
+        "short_name": "mini",
+        "version_id": "3"
+      }, cmrGran);
       expect(stacItem.assets.opendap).toEqual({
         title: 'OPeNDAP request URL',
-        href: 'https://opendap.earthdata.nasa.gov/collections/C1940473819-POCLOUD/granules/20220726101001-JPL-L2P_GHRSST-SSTskin-MODIS_A-D-v02.0-fv01.0',
-        type: undefined
+        href: 'https://opendap.earthdata.nasa.gov/collections/C1940473819-POCLOUD/granules/20220726101001-JPL-L2P_GHRSST-SSTskin-MODIS_A-D-v02.0-fv01.0'
       });
     });
   });

@@ -7,9 +7,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: stacId
           AttributeType: S
+        - AttributeName: providerId
+          AttributeType: S
       KeySchema:
         - AttributeName: stacId
           KeyType: HASH
+        - AttributeName: providerId
+          KeyType: RANGE
       TimeToLiveSpecification:
         AttributeName: expdate
         Enabled: true

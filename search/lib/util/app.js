@@ -26,7 +26,7 @@ const createLink = (rel, href = '', title, type = 'application/json', method = n
     href = href.replace('.native', '.xml');
   }
 
-  const link = { rel: rel, href: href, title: title, type: type };
+  const link = { rel, href, title, type };
   if (method) {
     link.method = method;
   }

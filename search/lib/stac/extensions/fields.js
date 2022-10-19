@@ -1,11 +1,15 @@
-
 const _ = require('lodash');
+const { logger } = require('../../util');
 
+/**
+ * Return an object without a 'fields' property.
+ */
 function prepare (request) {
   return _.omit(request, ['fields']);
 }
 
 function format (result, fields) {
+  logger.debug(`Formatting ${fields}`);
   if (_.isUndefined(fields) || _.isNull(fields)) return result;
 
   const { _sourceIncludes, _sourceExcludes } = buildFieldsFilter(fields);

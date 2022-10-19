@@ -21,14 +21,9 @@
     "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
     "type": "application/x-hdfeos",
     "hreflang": "en-US",
-    "href": "https://nrt3.modaps.eosdis.nasa.gov/archive/allData/61/MYD02HKM/2020/162/MYD02HKM.A2020162.2355.061.NRT.hdf"
+    "href": "https://nrt3.modaps.eosdis.nasa.gov/archive/allData/61/LANCEMODIS_COLL/2020/162/MYD02HKM.A2020162.2355.061.NRT.hdf"
   }],
   "umm": {
-    "GranuleUR": "G1848422111-LANCEMODIS",
-    "CollectionReference": {
-      "ShortName": "MYD02HKM",
-      "Version": "6.1NRT"
-    },
     "AdditionalAttributes": [
       {
         "Name": "CLOUD_COVERAGE",

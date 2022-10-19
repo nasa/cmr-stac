@@ -1,5 +1,14 @@
 const settings = require('../../lib/settings');
 const { createRootCatalog } = require('../../lib/stac/catalog');
+const {logger} = require('../../lib/util');
+
+beforeAll(() =>{
+  logger.silent = true;
+});
+
+afterAll(() => {
+  logger.silent = false;
+});
 
 describe('createRootCatalog', () => {
   let rootCatalog;

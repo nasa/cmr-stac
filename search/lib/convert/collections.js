@@ -1,6 +1,6 @@
 const cmr = require('../cmr');
 const settings = require('../settings');
-const { wfs, generateAppUrl, makeCmrSearchUrl } = require('../util');
+const { logger, wfs, generateAppUrl, makeCmrSearchUrl } = require('../util');
 const {
   WHOLE_WORLD_BBOX,
   pointStringToPoints,
@@ -11,7 +11,8 @@ const {
 } = require('./bounding-box');
 
 function cmrCollSpatialToExtents (cmrColl) {
-  let bbox = null;
+  let bbox;
+
   if (cmrColl.polygons) {
     bbox = cmrColl.polygons
       .map((rings) => rings[0])
@@ -31,9 +32,9 @@ function cmrCollSpatialToExtents (cmrColl) {
         box,
         reorderBoxValues(parseOrdinateString(boxStr))), bbox);
   } else {
-    // whole world bbox
-    bbox = WHOLE_WORLD_BBOX;
+     bbox = WHOLE_WORLD_BBOX;
   }
+
   return bbox;
 }
 
