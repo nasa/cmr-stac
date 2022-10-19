@@ -32,7 +32,7 @@
     "jest-junit": "^14.0.0",
     "redoc-cli": "^0.13.16",
     "serverless-dynamodb-local": "^0.2.40",
-    "serverless-offline": "^8.8.0",
+    "serverless-offline": "^8.8.1",
     "serverless-plugin-log-subscription": "^2.1.2",
     "serverless-s3-deploy": "^0.10.1"
   },
