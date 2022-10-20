@@ -60,7 +60,7 @@ resources:
   - ${file(resources/iam-cmrStacRole.yml)}
   # DynamoDB
   - ${file(resources/dynamodb-searchAfterCache.yml)}
-  - ${file(resources/dynamodb-conceptIdCache.yml)}
+  - ${file(resources/dynamodb-conceptCache.yml)}
   # S3
   - ${file(resources/s3-docsBucket.yml)}
 
