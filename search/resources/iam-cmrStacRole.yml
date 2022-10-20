@@ -26,4 +26,4 @@ Resources:
                 - dynamodb:*
               Resource:
                 - "Fn::GetAtt": [SearchAfterCache, Arn]
-                - "Fn::GetAtt": [ConceptIdCache, Arn]
+                - "Fn::GetAtt": [ConceptCache, Arn]
