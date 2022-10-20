@@ -12,23 +12,23 @@ const {
   ScanCommand
 } = require("@aws-sdk/client-dynamodb");
 
-const CONCEPT_ID_CACHE_TABLE = `${settings.stac.name}-conceptIdTable`;
+const CONCEPT_CACHE_TABLE = `${settings.stac.name}-conceptTable`;
 const SEARCH_AFTER_TABLE = `${settings.stac.name}-searchAfterTable`;
 
 /**
  * Cache a conceptId.
  */
-async function cacheConceptId (providerId, stacId, conceptId) {
+async function cacheConceptId(providerId, stacId, conceptId) {
   if (!(stacId && conceptId)) return;
 
   logger.debug(`Caching stacId to conceptId [${providerId}][${stacId}] => [${conceptId}]`);
   const ddbPutCommand = new PutItemCommand({
-    TableName: CONCEPT_ID_CACHE_TABLE,
+    TableName: CONCEPT_CACHE_TABLE,
     Item: {
-      stacId: { S:`${stacId}` },
-      providerId: { S:`${providerId}` },
-      conceptId: { S:`${conceptId}` },
-      expdate: { N:`${ttlInHours(1)}` }
+      stacId: { S: `${stacId}` },
+      providerId: { S: `${providerId}` },
+      conceptId: { S: `${conceptId}` },
+      expdate: { N: `${ttlInHours(1)}` }
     }
   });
 
@@ -39,22 +39,22 @@ async function cacheConceptId (providerId, stacId, conceptId) {
 /**
  * Retrieve a conceptId from the cache.
  */
-async function getCachedConceptId (providerId, stacId) {
+async function getCachedConceptId(providerId, stacId) {
   if (!stacId) {
     return null;
   }
 
   logger.debug(`Checking conceptCache for stacId [${providerId}][${stacId}]`);
   const ddbGetCommand = new GetItemCommand({
-    TableName: CONCEPT_ID_CACHE_TABLE,
+    TableName: CONCEPT_CACHE_TABLE,
     Key: {
-      stacId: { S:`${stacId}` },
-      providerId: { S: `${providerId}`}
+      stacId: { S: `${stacId}` },
+      providerId: { S: `${providerId}` }
     }
   });
 
   try {
-    const { Item }  = await ddbClient.send(ddbGetCommand);
+    const { Item } = await ddbClient.send(ddbGetCommand);
     if (Item) {
       const conceptId = Item.conceptId.S;
       logger.debug(`Found cached stacId [${providerId}][${stacId}] => [${conceptId}]`);
@@ -70,11 +70,11 @@ async function getCachedConceptId (providerId, stacId) {
  * Get cached header search-after for a page based on a query.
  * @returns tuple of params and header objects
  */
-async function getSearchAfterParams (params = {}, headers = {}) {
+async function getSearchAfterParams(params = {}, headers = {}) {
   const pageNum = getPageNumFromParams(params);
 
-  const saParams = {...params};
-  const saHeaders = {...headers};
+  const saParams = { ...params };
+  const saHeaders = { ...headers };
   delete saParams['page_num'];
 
   const saParamString = JSON.stringify(saParams);
@@ -109,7 +109,7 @@ async function getSearchAfterParams (params = {}, headers = {}) {
 /**
  * Cache a `cmr-search-after` header value from a response.
  */
-async function cacheSearchAfter (params, response) {
+async function cacheSearchAfter(params, response) {
   if (!(response && response.headers)) {
     logger.debug('No headers returned from response from CMR.');
     return;
@@ -131,10 +131,10 @@ async function cacheSearchAfter (params, response) {
   const ddbPutCommand = new PutItemCommand({
     TableName: SEARCH_AFTER_TABLE,
     Item: {
-      query: { S:`${saParamString}` },
-      page: { N:`${nextPage}` },
-      searchAfter: { S:`${saResponse}` },
-      expdate: { N:`${ttlInHours(1)}` }
+      query: { S: `${saParamString}` },
+      page: { N: `${nextPage}` },
+      searchAfter: { S: `${saResponse}` },
+      expdate: { N: `${ttlInHours(1)}` }
     }
   });
 
@@ -147,7 +147,7 @@ async function scanTable(table) {
     TableName: table
   });
 
-  const { Count:count, Items:items } = await ddbClient.send(scan);
+  const { Count: count, Items: items } = await ddbClient.send(scan);
   return { count, items };
 }
 
@@ -157,7 +157,7 @@ async function scanTable(table) {
 function deleteByKeysStatement(table, item) {
   const { KeySchema } = table;
   // use the whole key schema to generate the lookup for each item
-  const clauses = KeySchema.map(({AttributeName}) => {
+  const clauses = KeySchema.map(({ AttributeName }) => {
     const clause = `${AttributeName}=?`;
     const parameter = item[AttributeName];
     return [clause, parameter];
@@ -176,7 +176,7 @@ function deleteByKeysStatement(table, item) {
  * Return information about a DDB table.
  */
 async function describeTable(table) {
-  const { Table }  = await ddbClient.send(new DescribeTableCommand({TableName: table}));
+  const { Table } = await ddbClient.send(new DescribeTableCommand({ TableName: table }));
   return Table;
 }
 
@@ -199,7 +199,7 @@ async function clearTable(tableName) {
 /**
  * Returns the page_num value as a number.
  */
-function getPageNumFromParams (params) {
+function getPageNumFromParams(params) {
   return Number.isNaN(Number(params['page_num']))
     ? 1
     : Number(params['page_num'], 10);
@@ -214,7 +214,7 @@ function ttlInHours(n) {
 
 module.exports = {
   tables: {
-    CONCEPT_ID_CACHE_TABLE,
+    CONCEPT_CACHE_TABLE,
     SEARCH_AFTER_TABLE
   },
   cacheConceptId,

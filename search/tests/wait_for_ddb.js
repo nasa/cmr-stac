@@ -1,10 +1,12 @@
 const fs = require('fs').promises;
 
-const fileExists = async (path) =>!!(await fs.stat(path).catch(_ => false));
+const fileExists = async (path) => !!(await fs.stat(path).catch(_ => false));
 
 const ddbLogPath = './dynamodb.log';
-const tables = ['conceptIdTable',
-                'searchAfterTable'];
+const tables = [
+  'conceptTable',
+  'searchAfterTable'
+];
 
 /**
  * Wait for the offline DynamoDB to be running and for migrations to be complete.
@@ -45,4 +47,4 @@ const waitForDdb = async (path, opts = {}) => {
 };
 
 console.info('Waiting for DyanmoDB Tables');
-waitForDdb(ddbLogPath, { attempts: 10, requiredTables : tables });
+waitForDdb(ddbLogPath, { attempts: 10, requiredTables: tables });
