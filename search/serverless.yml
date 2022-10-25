@@ -35,7 +35,7 @@ functions:
       CMR_LB_URL: 'http://localhost'
       CMR_STAC_RELATIVE_ROOT_URL: /stac
       CMR_STAC_PROTOCOL: ${param:protocol, 'http'}
-      GRAPHQL_URL: ${param:graphql-url, 'http://localhost:3000/dev/api'}
+      GRAPHQL_URL: ${param:graphql-url, 'http://localhost:3003/dev/api'}
       LOG_LEVEL: info
       LOG_DISABLED: false
       STAC_VERSION: 1.0.0
