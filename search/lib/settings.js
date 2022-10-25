@@ -74,7 +74,7 @@ function getSettings () {
   settings.maxLimit = process.env.CMR_STAC_MAX_LIMIT || 250;
   settings.clientId = process.env.CMR_STAC_CLIENT_ID || 'cmr-stac-api-proxy';
   settings.supportAddress = process.env.CMR_SUPPORT_EMAIL || 'cmr-support@earthdata.nasa.gov';
-  settings.graphQlUrl = process.env.GRAPHQL_URL || 'http://localhost/graphql';
+  settings.graphQlUrl = process.env.GRAPHQL_URL || 'http://localhost:3000/dev/api';
 
   settings.throwCmrConvertParamErrors = process.env.THROW_CMR_CONVERT_PARAM_ERRORS === 'true';
 
