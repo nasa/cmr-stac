@@ -16,6 +16,10 @@ provider:
 custom:
   cmrStacName: ${param:cmr-stac-name}
   cmrStacRelativeRootUrl: ${param:cmr-stac-relative-root-url, '/cloudstac'}
+  graphqlUrlPrefix:
+    sit: ".sit"
+    uat: ".uat"
+    prod: ""
   logSubscription:
     enabled: true
     destinationArn: ${cf:${opt:stage}.logForwardingArn}
@@ -39,6 +43,7 @@ functions:
       CMR_URL: ${param:cmr-url}
       CMR_LB_URL: ${param:cmr-lb-url, 'http://${cf:${opt:stage}.servicesDnsName}'}
       CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
+      GRAPHQL_URL: ${param:graphql-url, 'https://graphql${custom.graphqlUrlPrefix.${opt:stage}}.earthdata.nasa.gov/api'}
       BROWSE_PATH: year/month/day
       LOG_DISABLED: false
       LOG_LEVEL: info
