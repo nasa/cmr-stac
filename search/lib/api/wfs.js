@@ -134,7 +134,6 @@ async function findCloudCollections(providerId, collectionConceptIds) {
       break;
     }
   }
-  logger.debug(`allCloudCollections: ${allCloudCollections.length}`);
   return allCloudCollections;
 }
 

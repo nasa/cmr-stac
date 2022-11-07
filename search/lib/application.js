@@ -2,6 +2,7 @@ const express = require('express');
 const awsServerless = require('aws-serverless-express');
 const awsServerlessMiddleware = require('aws-serverless-express/middleware');
 const cors = require('cors');
+const morgan = require('morgan');
 
 const api = require('./api');
 const { errorHandler } = require('./error-handler');
@@ -48,6 +49,7 @@ function initialize () {
 
   application.use(express.json());
   application.use(cors());
+  application.use(morgan('common'));
   application.use(awsServerlessMiddleware.eventContext());
   application.use(urlRewriteMiddleware);
   application.use(settings.cmrStacRelativeRootUrl, api.routes);
@@ -65,7 +67,7 @@ function initialize () {
  * @returns {Promise<*>}
  */
 module.exports.handler = async (event, context) => {
-  const application = await initialize();
+  const application = initialize();
   const server = awsServerless.createServer(application);
   return awsServerless.proxy(server, event, context, 'PROMISE').promise;
 };

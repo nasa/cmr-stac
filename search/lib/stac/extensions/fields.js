@@ -9,7 +9,6 @@ function prepare (request) {
 }
 
 function format (result, fields) {
-  logger.debug(`Formatting ${fields}`);
   if (_.isUndefined(fields) || _.isNull(fields)) return result;
 
   const { _sourceIncludes, _sourceExcludes } = buildFieldsFilter(fields);

@@ -4,7 +4,7 @@ const { errors } = require('./util');
 const stacExtension = require('./stac/extension');
 
 function errorHandler(error, req, res, next) {
-  req.app.logger.error(`Error during request to URL [${req.url}] [${JSON.stringify(error)}]`);
+  req.app.logger.error(`Error during request to URL [${req.url}] [${error.message}]`);
 
   if (error instanceof errors.NotFound) {
     res
