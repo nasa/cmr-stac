@@ -12,6 +12,7 @@ RUN apt-get update && \
     make \
     openjdk-11-jre \
     procps \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 # install Node LTS
