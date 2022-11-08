@@ -18,7 +18,7 @@
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",
     "morgan": "^1.10.0",
-    "serverless": "^3.19.0",
+    "serverless": "^3.24.1",
     "winston": "^3.8.1"
   },
   "devDependencies": {
@@ -38,7 +38,7 @@
     "serverless-s3-deploy": "^0.10.1"
   },
   "scripts": {
-    "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
+    "preinstall": "npx npm-force-resolutions",
     "postinstall": "npm run dynamodb:install",
     "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
     "start": "IS_LOCAL=true AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret sls offline start --config serverless.yml --stage dev --param=\"cmr-stac-name=test-stac\"",
