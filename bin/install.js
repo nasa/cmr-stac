@@ -10,5 +10,5 @@ const libDirectory = resolve(__dirname, '..');
 fs.readdirSync(libDirectory).forEach((entry) => {
   var modPath = join(libDirectory, entry);
   if (!fs.existsSync(join(modPath, 'package.json'))) return;
-  cp.spawn(npmCmd, ['i'], { env: process.env, cwd: modPath, stdio: 'inherit' });
+  cp.spawn(npmCmd, ['ci'], { env: process.env, cwd: modPath, stdio: 'inherit' });
 });
