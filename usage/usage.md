@@ -91,19 +91,10 @@ Each Item returned from CMR-STAC includes a series of links as well:
 The first thing to do when getting familiar with CMR-STAC is to browse through the catalog and get a sense for its structure, and what types of data (Collections and Items) are available. 
 The easiest way to browse is to install a JSON extension for your browser of choice (e.g., [JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa/related) for Chrome).
 
-![](https://s3.gifyu.com/images/cmr-stac-browse-opt.gif)
-
 [STAC Browser](https://github.com/radiantearth/stac-browser) is a web interface to browse through
 a STAC Catalog. STAC Browser is what is used in [STAC Index](https://stacindex.org/catalogs/cmr-stac#/) to be able to browse through any STAC API that has been added to the index.
 
-Another way to browse the API is with [SnapPlanet](https://rocket.snapplanet.io/) - a more graphical interface that allows users with some basic search options. Specify the CMR-STAC Provider catalog
-to SnapPlanet by specifying the `u` parameter to https://rocket.snapplanet.io/, e.g.,
-
-https://rocket.snapplanet.io/map?u=https://cmr.earthdata.nasa.gov/stac/LPCLOUD
-
-This displays a map interface and some filtering options including geographic and temporal.
-
-![](https://s3.gifyu.com/images/snapplanet-search-opt.gif)
+![](https://s3.gifyu.comro/images/snapplanet-search-opt.gif)
 
 ## Searching Items
 

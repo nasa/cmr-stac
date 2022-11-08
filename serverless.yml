@@ -1,0 +1,73 @@
+service: cmr-stac-api
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+  iam:
+    role: cmrStacRole
+  vpc:
+    securityGroupIds:
+      - ${cf:${opt:stage}.servicesSecurityGroupId}
+    subnetIds: !Split [",", "${cf:${opt:stage}.subnetIds}"]
+  environment:
+    CMR_URL: ${param:cmr-url, "https://cmr${self:custom.stagePrefix.${opt:stage}}.earthdata.nasa.gov"}
+    CMR_LB_URL: ${param:cmr-lb-url, "http://${cf:${opt:stage}.servicesDnsName}"}
+    GRAPHQL_URL: ${param:graphql-url, "https://graphql${self:custom.stagePrefix.${opt:stage}}.earthdata.nasa.gov/api"}
+    STAC_VERSION: "1.0.0"
+
+custom:
+  stagePrefix:
+    sit: ".sit"
+    uat: ".uat"
+    prod: ""
+  logSubscription:
+    enabled: true
+    destinationArn: ${cf:${opt:stage}.logForwardingArn}
+  docsBucket: cmr-stac-static-bucket-${opt:stage}
+  s3Sync:
+    - bucketName: cmr-stac-static-bucket-${opt:stage}
+      localDir: docs
+      bucketPrefix: docs/
+  assets:
+    targets:
+      - bucket:
+          Ref: cmrStacDocsBucket
+        empty: true
+        prefix: docs
+        files:
+          - source: ./docs/
+            globs: "**/index.html"
+
+functions:
+  stac:
+    handler: src/lambda.handler
+    timeout: 60
+    events:
+      - alb:
+          listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
+          priority: 500
+          conditions:
+            path: "/stac*"
+            method:
+              - GET
+              - POST
+      - alb:
+          listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
+          priority: 501
+          conditions:
+            path: "/cloudstac*"
+            method:
+              - GET
+              - POST
+
+resources:
+  # IAM
+  - ${file(resources/iam-cmrStacRole.yml)}
+  # S3
+  - ${file(resources/s3-docsBucket.yml)}
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-s3-sync
+  - serverless-plugin-log-subscription

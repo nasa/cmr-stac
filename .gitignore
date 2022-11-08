@@ -144,3 +144,6 @@ $RECYCLE.BIN/
 
 /search/.dynamodb/
 *.out
+
+.build
+*.map

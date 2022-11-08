@@ -40,24 +40,11 @@ The remainder of this README is documentation for developing, testing, and deplo
 
 | Directory            | Description  |
 | -------------------- | ------------ |
-| [bin](./bin)         | Scripts used for installation and setup |
-| [docs](./docs)       | Documentation on usage of the CMR-STAC endpoint(s) |
-| [search](./search)   | The CMR-STAC application |
-| [search/docs](./search/docs)  | is where the combined specification document made from the STAC and WFS3 specification documents is held. Paths and component schemas are defined here. The generated STAC documentation file is also located in this directory. |
-| [search/lib](./search/lib)    | The `lib` directory contains the main logic of the application. It is broken down into modules pertaining to areas of responsibility. A summary of those modules can be found below. |
-| [search/tests](./search/tests)   | The `tests` directory is where all of the unit tests for the application are held. There is a directory for every corresponding subdirectory in the `lib` directory. We have not provided examples of how any of our modules work inside of this documentation, however, our test are written in a manner where you can see an example of how a function or module works. |
+| [usage](./usage)       | Documentation on usage of the CMR-STAC endpoint(s) |
+| [stac_v1](./stac_v1/)   | The historical version of the CMR-STAC application (deprecated) |
+| [docs](./search/docs)  | is where the combined specification document made from the STAC and WFS3 specification documents is held. Paths and component schemas are defined here. The generated STAC documentation file is also located in this directory. |
+| [src](./src)    | The `src` directory contains the main logic of the application. It is broken down into modules pertaining to areas of responsibility.
 | [scripts](./scripts) | Utility (Python) scripts for validating and crawling CMR-STAC |
-
-### `lib` modules
-
-- `api/`: The `api` directory houses the api routing logic for the application
-- `application.js`: The main [Express](https://expressjs.com/) application.
-- `cmr.js`: contains logic to query CMR, including searching for collections and granules, getting collections and granules, and building CMR search URLs.
-- `convert/`: Functions that are used to convert CMR data fields into their corresponding STAC/WFS3 fields.
-- `settings.js`: Contains settings and controls fetching of settings from environment variables
-- `stac/`: Contains utility functions used in creating the STAC API endpoints and the links between endpoints.
-This includes logic to dynamically create or display catalogs during a search.
-- `util/`: houses utility functions used throughout the application, such as for building URLs
 
 ### Setup
 
@@ -77,13 +64,14 @@ npm install
 To run the CMR-STAC server locally:
 
 ```bash
-npm start
+npm run dev
 ```
 
 This will run the process in the current terminal session, the local server will be available at:
 
 ```
-http://localhost:2888/dev/stac
+http://localhost:3000/stac
+http://localhost:3000/cloudstac
 ```
 
 ### Deploying
@@ -103,8 +91,6 @@ There are some environment variables included in the `serverless.yml` file for t
 
 - LOG_LEVEL: info
 - LOG_DISABLED: false
-- STAC_BASE_URL: <http://localhost:3000>
-- STAC_VERSION: 1.0.0
 - STAGE: `${self:provider.stage}`
 
 STAGE is the AWS API Gateway `stage` that the application is being deployed. That by default is a setting in the `serverless.yml` file that environment variable will reference.
@@ -112,22 +98,12 @@ STAGE is the AWS API Gateway `stage` that the application is being deployed. Tha
 Use the npm script deploy to deploy the CMR-STAC application to AWS:
 
 ```bash
-cd search
-npm run deploy
-```
-
-This will use the default AWS credentials on the system to deploy. If using profiles, use the `aws-profile` switch:
-
-```bash
-npm run deploy -- --aws-profile <profile-name>
-```
-
-To override the environment variables, they can be specified on the command line.
-
-```bash
-npm run deploy -- --stage <sit|uat|prod> --cmr-url <cmr-base-url>
+export AWS_PROFILE=xxxxxx
+npm run deploy -- --stage <sit|uat|prod>
+npm run deploy:docs -- --stage <sit|uat|prod>
 ```
 
 ## License
 
-CMR-STAC is published under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). See [LICENSE.txt](./LICENSE.txt)
+NASA Open Source Agreement v1.3 (NASA-1.3)
+See [LICENSE.txt](./LICENSE.txt)
