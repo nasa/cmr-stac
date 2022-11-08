@@ -22,6 +22,5 @@ RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && \
     npm cache clean --force
 
 RUN useradd -ms /bin/bash builder
-USER builder
 
-WORKDIR /home/builder
+WORKDIR /app
