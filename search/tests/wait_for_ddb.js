@@ -17,6 +17,8 @@ const waitForDdb = async (path, opts = {}) => {
 
   if (attempts <= 0) {
     console.error('DynamoDB did not start in allotted time');
+    const ddbLog = await fs.readFile(path, 'utf-8');
+    console.log(ddbLog);
     return false;
   }
 
