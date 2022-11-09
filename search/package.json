@@ -17,6 +17,7 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",
+    "morgan": "^1.10.0",
     "serverless": "^3.19.0",
     "winston": "^3.8.1"
   },
