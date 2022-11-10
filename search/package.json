@@ -38,7 +38,7 @@
     "serverless-s3-deploy": "^0.10.1"
   },
   "scripts": {
-    "preinstall": "npm install -D serverless && npm run dynamodb:install && npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
+    "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
     "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
     "start": "IS_LOCAL=true AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret sls offline start --config serverless.yml --stage dev --param=\"cmr-stac-name=test-stac\"",
     "deploy": "sls deploy --config serverless.yml",
@@ -53,7 +53,6 @@
     "pretest": "rm -f dynamodb.log && npm run dynamodb:up && node tests/wait_for_ddb.js",
     "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --coverage --reporters=jest-junit --reporters=default",
     "test:watch": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --reporters=default --watch",
-    "posttest": "npm run dynamodb:down",
     "ci": "npm run lint && npm run test"
   },
   "resolutions": {
