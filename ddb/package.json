@@ -1,0 +1,18 @@
+{
+  "name": "ddb",
+  "description": "This solely exists to run dynamodb for testing purposes",
+  "version": "1.0.0",
+  "dependencies": {
+    "serverless": "^3.24.1",
+    "serverless-dynamodb-local": "^0.2.40",
+    "serverless-offline": "^8.8.0"
+  },
+  "scripts": {
+    "dynamodb:install": "sls dynamodb install --param=\"cmr-stac-name=test-stac\"",
+    "dynamodb:up": "nohup sls dynamodb start --migrate --param=\"cmr-stac-name=test-stac\" > dynamodb.log 2>&1 &",
+    "dynamodb:down": "ps aux | grep \"dynamodb\" | grep -v grep | awk '{print $2}'| xargs kill",
+    "pretest": "rm -f dynamodb.log && npm run dynamodb:up && node tests/wait_for_ddb.js",
+    "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --coverage --reporters=jest-junit --reporters=default",
+    "posttest": "npm run dynamodb:down"
+  }
+}

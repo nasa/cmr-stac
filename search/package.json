@@ -17,7 +17,7 @@
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "mime-types": "^2.1.35",
-    "serverless": "^3.19.0",
+    "morgan": "^1.10.0",
     "winston": "^3.8.1"
   },
   "devDependencies": {
@@ -31,14 +31,14 @@
     "jest": "^28.1.2",
     "jest-junit": "^14.0.0",
     "redoc-cli": "^0.13.16",
+    "serverless": "^3.24.1",
     "serverless-dynamodb-local": "^0.2.40",
-    "serverless-offline": "^8.8.1",
+    "serverless-offline": "^8.8.0",
     "serverless-plugin-log-subscription": "^2.1.2",
     "serverless-s3-deploy": "^0.10.1"
   },
   "scripts": {
     "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
-    "postinstall": "npm run dynamodb:install",
     "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
     "start": "IS_LOCAL=true AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret sls offline start --config serverless.yml --stage dev --param=\"cmr-stac-name=test-stac\"",
     "deploy": "sls deploy --config serverless.yml",
@@ -53,7 +53,6 @@
     "pretest": "rm -f dynamodb.log && npm run dynamodb:up && node tests/wait_for_ddb.js",
     "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --coverage --reporters=jest-junit --reporters=default",
     "test:watch": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --reporters=default --watch",
-    "posttest": "npm run dynamodb:down",
     "ci": "npm run lint && npm run test"
   },
   "resolutions": {
