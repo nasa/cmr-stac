@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "serverless": "^3.24.1",
-    "serverless-dynamodb-local": "^0.2.40",
+    "serverless-dynamodb-local": "^1.0.2",
     "serverless-offline": "^8.8.0"
   },
   "scripts": {
