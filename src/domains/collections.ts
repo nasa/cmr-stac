@@ -185,6 +185,9 @@ export const getCollections = async (
   return { count, cursor, facets, items: items.map(collectionToStac) };
 };
 
+/**
+ * Fetches only collectionIds.
+ */
 export const getCollectionIds = async (
   query: CollectionsInput,
   opts: {
@@ -212,7 +215,7 @@ export const getCollectionIds = async (
     { authorization: authorization }
   );
 
-  console.debug("Outbound GQL collections query =>", query);
+  console.debug("Outbound GQL collectionIds query =>", query);
   const {
     collections: { count, cursor, items },
   } = await request({

@@ -5,6 +5,7 @@ import { buildRootUrl, ERRORS } from "../utils";
 import { getCollectionIds } from "../domains/collections";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const DEFAULT_LIMIT = 2000;
 
 const selfLinks = (root: string, providerId: string): Links => {
   return [
@@ -81,7 +82,10 @@ export const handler = async (req: Request, res: Response): Promise<any> => {
   const cloudOnly =
     req.headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
 
-  const query = { provider: providerId, limit: 2000, ...cloudOnly };
+  const limit = Number.isNaN(Number(req.query.limit))
+    ? DEFAULT_LIMIT
+    : Number(req.query.limit);
+  const query = { provider: providerId, limit, ...cloudOnly };
 
   let collections = [];
   try {

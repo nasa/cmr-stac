@@ -38,8 +38,8 @@ const selfLinks = (root: string): Link[] => {
 const providerLinks = (root: string, providers: CmrProvider[]): Link[] => {
   return providers.map((provider) => {
     return {
-      title: provider["short-name"],
       rel: "child",
+      title: provider["short-name"],
       type: "application/json",
       href: `${root}/${provider["provider-id"]}`,
     };
@@ -54,7 +54,7 @@ export const rootCatalogHandler = async (
   res: Response
 ): Promise<any> => {
   const isCloudStac = req.headers["cloud-stac"] === "true";
-  const id = isCloudStac ? "CLOUDSTAC" : "STAC";
+  const id = isCloudStac ? "CMR-CLOUDSTAC" : "CMR-STAC";
 
   let providers: CmrProvider[] = [];
   try {
@@ -69,12 +69,13 @@ export const rootCatalogHandler = async (
   const _providerLinks = providerLinks(appRoot, providers);
 
   const rootCatalog = {
-    id,
-    title: `NASA' Common Metadata Repository ${id} API`,
-    stac_version: STAC_VERSION,
     type: "Catalog",
-    description: `This is the landing page for CMR-${id}. Each provider link contains a STAC endpoint.`,
+    id,
+    stac_version: STAC_VERSION,
     links: [..._selfLinks, ..._providerLinks],
+    stac_extensions: [],
+    title: `NASA' Common Metadata Repository ${id} API`,
+    description: `This is the landing page for CMR-${id}. Each provider link contains a STAC endpoint.`,
   } as STACCatalog;
 
   return res.json(rootCatalog);
