@@ -52,6 +52,18 @@ const collectionsQuery = gql`
   }
 `;
 
+const collectionIdsQuery = gql`
+  query getCollections($params: CollectionsInput!) {
+    collections(params: $params) {
+      count
+      cursor
+      items {
+        conceptId
+      }
+    }
+  }
+`;
+
 export const cmrCollSpatialToExtents = (
   collection: Collection
 ): SpatialExtent => {
@@ -171,4 +183,46 @@ export const getCollections = async (
   });
 
   return { count, cursor, facets, items: items.map(collectionToStac) };
+};
+
+export const getCollectionIds = async (
+  query: CollectionsInput,
+  opts: {
+    headers?: { "client-id"?: string; [key: string]: any };
+    [key: string]: any;
+  } = {}
+): Promise<{
+  count: number;
+  cursor: string | null;
+  conceptIds: String[];
+}> => {
+  let userClientId = "cmr-stac";
+  let authorization;
+
+  const { headers } = opts;
+  if (headers) {
+    userClientId = headers["client-id"]
+      ? `${headers["client-id"]}-cmr-stac`
+      : "cmr-stac";
+    authorization = headers.authorization;
+  }
+
+  const requestHeaders = mergeMaybe(
+    { "client-id": userClientId },
+    { authorization: authorization }
+  );
+
+  console.debug("Outbound GQL collections query =>", query);
+  const {
+    collections: { count, cursor, items },
+  } = await request({
+    url: GRAPHQL_URL,
+    document: collectionIdsQuery,
+    variables: { params: query },
+    requestHeaders,
+  });
+
+  const conceptIds = items.map((coll: { conceptId: string }) => coll.conceptId);
+
+  return { count, cursor, conceptIds };
 };

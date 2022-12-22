@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 
 import { Links, STACCatalog } from "../@types/StacCatalog";
-import { STACCollection } from "../@types/StacCollection";
 import { buildRootUrl, ERRORS } from "../utils";
-import { getCollections } from "../domains/collections";
+import { getCollectionIds } from "../domains/collections";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
@@ -65,12 +64,12 @@ const selfLinks = (root: string, providerId: string): Links => {
 const collectionsLinks = (
   root: string,
   providerId: string,
-  collections: STACCollection[]
+  collectionIds: String[]
 ) => {
-  return collections.map((collection) => {
+  return collectionIds.map((collection) => {
     return {
       rel: "child",
-      href: `${root}/${providerId}/collections/${collection.id}`,
+      href: `${root}/${providerId}/collections/${collection}`,
       type: "application/json",
     };
   });
@@ -81,12 +80,15 @@ export const handler = async (req: Request, res: Response): Promise<any> => {
 
   const cloudOnly =
     req.headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
-  const query = { provider: providerId, ...cloudOnly };
 
-  let collections;
+  const query = { provider: providerId, limit: 2000, ...cloudOnly };
+
+  let collections = [];
   try {
-    const { items } = await getCollections(query, { headers: req.headers });
-    collections = items;
+    const { conceptIds } = await getCollectionIds(query, {
+      headers: req.headers,
+    });
+    collections = conceptIds;
   } catch (err) {
     console.error("A problem occurred querying for collections.", err);
     return res.status(503).json(ERRORS.serviceUnavailable);

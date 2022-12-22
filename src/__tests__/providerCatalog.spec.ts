@@ -34,8 +34,8 @@ describe("GET /:provider", () => {
     it("should return a 200 status", async () => {
       sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollections")
-        .resolves({ facets: null, count: 0, cursor: null, items: [] });
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, conceptIds: [] });
 
       const res = await request(stacApp).get("/stac/TEST_PROVIDER");
       expect(res.statusCode).to.equal(200);
@@ -44,8 +44,8 @@ describe("GET /:provider", () => {
     it("should return a catalog response", async () => {
       sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollections")
-        .resolves({ facets: null, count: 0, cursor: null, items: [] });
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, conceptIds: [] });
 
       const { body: catalog } = await request(stacApp).get(
         "/stac/TEST_PROVIDER"
@@ -61,8 +61,8 @@ describe("GET /:provider", () => {
     it("should have a root link", async () => {
       sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollections")
-        .resolves({ facets: null, count: 0, cursor: null, items: [] });
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, conceptIds: [] });
 
       const { body: catalog } = await request(stacApp).get(
         "/stac/TEST_PROVIDER"
@@ -77,8 +77,8 @@ describe("GET /:provider", () => {
     it("should have a self link", async () => {
       sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollections")
-        .resolves({ facets: null, count: 0, cursor: null, items: [] });
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, conceptIds: [] });
 
       const { body: catalog } = await request(stacApp).get(
         "/stac/TEST_PROVIDER"
@@ -94,8 +94,8 @@ describe("GET /:provider", () => {
     it("should have a collections link", async () => {
       sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollections")
-        .resolves({ facets: null, count: 0, cursor: null, items: [] });
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, conceptIds: [] });
 
       const { body: catalog } = await request(stacApp).get(
         "/stac/TEST_PROVIDER"
@@ -115,8 +115,8 @@ describe("GET /:provider", () => {
       it(`should have a ${method} search link`, async () => {
         sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
         sandbox
-          .stub(Collections, "getCollections")
-          .resolves({ facets: null, count: 0, cursor: null, items: [] });
+          .stub(Collections, "getCollectionIds")
+          .resolves({ count: 0, cursor: null, conceptIds: [] });
 
         const { body: catalog } = await request(stacApp).get(
           "/stac/TEST_PROVIDER"
@@ -136,8 +136,8 @@ describe("GET /:provider", () => {
     it("should have a conformance link", async () => {
       sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollections")
-        .resolves({ facets: null, count: 0, cursor: null, items: [] });
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, conceptIds: [] });
 
       const { body: catalog } = await request(stacApp).get(
         "/stac/TEST_PROVIDER"
@@ -157,8 +157,8 @@ describe("GET /:provider", () => {
     it("should have a service-desc link", async () => {
       sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollections")
-        .resolves({ facets: null, count: 0, cursor: null, items: [] });
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, conceptIds: [] });
 
       const { body: catalog } = await request(stacApp).get(
         "/stac/TEST_PROVIDER"
@@ -182,8 +182,8 @@ describe("GET /:provider", () => {
     it("should have a service-doc link", async () => {
       sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollections")
-        .resolves({ facets: null, count: 0, cursor: null, items: [] });
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, conceptIds: [] });
 
       const { body: catalog } = await request(stacApp).get(
         "/stac/TEST_PROVIDER"
@@ -201,7 +201,7 @@ describe("GET /:provider", () => {
       expect(link).to.have.property("title", "HTML documentation");
     });
 
-    const collectionCount = [0, 1, 10];
+    const collectionCount = [0, 1, 10, 1000];
     collectionCount.forEach((quantity) => {
       describe(`given the provider has ${quantity} collections`, () => {
         it("should have a child link for each collection", async function () {
@@ -210,11 +210,11 @@ describe("GET /:provider", () => {
           sandbox.stub(Provider, "getProviders").resolves(cmrProvidersResponse);
 
           const mockCollections = generateSTACCollections(quantity);
-          sandbox.stub(Collections, "getCollections").resolves({
-            facets: null,
+
+          sandbox.stub(Collections, "getCollectionIds").resolves({
             count: mockCollections.length,
             cursor: "foundCursor",
-            items: mockCollections,
+            conceptIds: mockCollections.map((coll) => coll.id),
           });
 
           const { body: catalog } = await request(stacApp).get(
