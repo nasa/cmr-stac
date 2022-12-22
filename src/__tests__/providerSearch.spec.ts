@@ -317,7 +317,7 @@ describe("Query validation", () => {
 
   describe("given various cases of INTERSECTS", () => {
     ["intersects", "INTERSECTS", "iNtErSeCtS"].forEach((label) => {
-      it("should return handle ${label}", async () => {
+      it(`should return handle ${label}`, async () => {
         sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
 
         sandbox.stub(Items, "getItems").resolves(emptyItems);

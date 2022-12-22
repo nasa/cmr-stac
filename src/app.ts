@@ -25,9 +25,11 @@ const createApp = () => {
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  const logger =
-    process.env.IS_LOCAL !== "true" ? morgan("dev") : morgan("combined");
-  app.use(logger);
+  if (!process.env.CI) {
+    const logger =
+      process.env.IS_LOCAL !== "true" ? morgan("dev") : morgan("combined");
+    app.use(logger);
+  }
 
   app.use(/\/(cloud)?stac?/, cloudStacMiddleware, routes);
 
