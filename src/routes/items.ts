@@ -103,7 +103,7 @@ export const itemsHandler = async (req: Request, res: Response) => {
     }
 
     if (cursor && nextCursor) {
-      res.cookie(`prev-${cursor}`, nextCursor, {
+      res.cookie(`prev-${nextCursor}`, cursor, {
         maxAge: WEEK_IN_MS,
       });
     }
