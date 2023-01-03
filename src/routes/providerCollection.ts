@@ -49,7 +49,7 @@ const selfLinks = (req: Request): Link[] => {
     {
       rel: "via",
       href: `${CMR_ROOT}/search/concepts/${collectionId}.umm_json`,
-      title: "CMR UMM",
+      title: "CMR UMM for the collection",
       type: "application/vnd.nasa.cmr.umm+json",
     },
   ];
