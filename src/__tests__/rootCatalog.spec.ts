@@ -36,7 +36,7 @@ describe("GET /stac", () => {
     const validate = ajv.compile(CatalogSpec);
     const stacSchemaValid = validate(body);
 
-    expect(body).to.have.property("id", "STAC");
+    expect(body).to.have.property("id", "CMR-STAC");
     expect(stacSchemaValid).to.be.true;
     expect(body).to.have.property("links");
 

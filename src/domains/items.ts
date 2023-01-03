@@ -271,9 +271,9 @@ export const granuleToStac = (granule: Granule): STACItem => {
   const bbox = granuleToBbox(granule);
 
   const item = {
+    type: "Feature",
     id: granule.conceptId,
     stac_version: STAC_VERSION,
-    type: "Feature",
     stac_extensions,
     properties,
     geometry,

@@ -39,7 +39,7 @@ export const itemHandler = async (req: Request, res: Response) => {
     });
   }
 
-  return res.json(item);
+  return res.contentType("application/geo+json").json(item);
 };
 
 /**
@@ -126,7 +126,7 @@ export const itemsHandler = async (req: Request, res: Response) => {
       },
     };
 
-    return res.json(itemsResponse);
+    return res.contentType("application/geo+json").json(itemsResponse);
   } catch (err) {
     return res
       .status(503)
