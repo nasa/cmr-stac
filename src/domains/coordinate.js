@@ -4,53 +4,6 @@ const { parseOrdinateString } = require("./bounding-box");
 const DEG_TO_RAD = Math.PI / 180;
 const RAD_TO_DEG = 180 / Math.PI;
 
-// Convert a GeoJSON Polygon to coordinates used in CMR queries
-function convertPolygonToCMR(coordinates) {
-  if (coordinates.length > 1) {
-    throw new Error("Interior LinearRings are not supported");
-  }
-  return _.flattenDeep(_.first(coordinates)).join(",");
-}
-
-// Convert a GeoJSON LineString to coordinates used in CMR queries
-function convertLineStringToCMR(coordinates) {
-  return _.flattenDeep(coordinates).join(",");
-}
-
-// Convert a GeoJSON Point to coordinates used in CMR queries
-function convertPointToCMR(coordinates) {
-  return coordinates.join(",");
-}
-
-// Class for converting GeoJSON to CMR query parameters
-function convertGeometryToCMR(geometry) {
-  switch (geometry.type) {
-    case "Polygon":
-      return [["polygon", convertPolygonToCMR(geometry.coordinates)]];
-    case "LineString":
-      return [["line", convertLineStringToCMR(geometry.coordinates)]];
-    case "Point":
-      return [["point", convertPointToCMR(geometry.coordinates)]];
-    case "MultiPolygon":
-      return [
-        ["polygon", geometry.coordinates.map(convertPolygonToCMR)],
-        ["options[polygon][or]", "true"],
-      ];
-    case "MultiLineString":
-      return [
-        ["line", geometry.coordinates.map(convertLineStringToCMR)],
-        ["options[line][or]", "true"],
-      ];
-    case "MultiPoint":
-      return [
-        ["point", geometry.coordinates.map(convertPointToCMR)],
-        ["options[point][or]", "true"],
-      ];
-    default:
-      throw new Error(`Unsupported Geometry type ${geometry.type}`);
-  }
-}
-
 // Class for dealing with conversions between lat/lng, phi/theta, and x/y/z as well
 // as operations on the various forms.
 // Consider properties on this class to be immutable.  Changing, say, 'x' will not
@@ -186,6 +139,5 @@ class Coordinate {
 }
 
 module.exports = {
-  convertGeometryToCMR,
   Coordinate,
 };
