@@ -134,28 +134,31 @@ export const geoJsonToQuery = (geoJson: string | string[]) => {
 };
 
 const buildQuery = async (req: Request) => {
-  const limit = Number.isNaN(Number(req.query.limit))
+  const { providerId } = req.params;
+  const query = req.method === "GET" ? req.query : req.body;
+
+  const limit = Number.isNaN(Number(query.limit))
     ? DEFAULT_LIMIT
-    : Number(req.query.limit);
+    : Number(query.limit);
 
   const cloudOnly = req.headers["cloud-stac"] === "true";
 
   let gqlQuery: GranulesInput = {
-    provider: req.params.providerId,
+    provider: providerId,
     limit,
   };
 
   // TODO in CLOUDSTAC validate query.collections are in-fact cloudhosted
   gqlQuery = mergeMaybe(gqlQuery, {
-    cursor: req.query.cursor,
-    boundingBox: req.query.bbox,
-    conceptIds: req.query.ids,
-    collectionConceptIds: req.query.collections,
+    cursor: query.cursor,
+    boundingBox: query.bbox,
+    conceptIds: query.ids,
+    collectionConceptIds: query.collections,
   });
 
-  if (req.query.intersects) {
+  if (query.intersects) {
     const { polygons, lines, points } = geoJsonToQuery(
-      req.query.intersects.toString()
+      query.intersects.toString()
     );
     gqlQuery = mergeMaybe(gqlQuery, {
       polygon: polygons,
@@ -168,7 +171,7 @@ const buildQuery = async (req: Request) => {
     // have to search by collectionConceptIds and not provider to filter on 'cloudHosted'
     const { items: collections } = await getCollections(
       {
-        provider: req.params.providerId,
+        provider: providerId,
         cloudHosted: true,
         hasGranules: true,
       },
@@ -185,9 +188,10 @@ const buildQuery = async (req: Request) => {
 
 export const handler = async (req: Request, res: Response): Promise<any> => {
   const root = buildRootUrl(req);
-  const providerId = req.params.providerId!;
+  const { providerId } = req.params;
 
   const gqlQuery = await buildQuery(req);
+  console.log(JSON.stringify(gqlQuery, null, 2));
 
   let itemsResponse;
   try {

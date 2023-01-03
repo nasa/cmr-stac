@@ -27,6 +27,13 @@ router.get(
   validateStacQuery,
   makeAsyncHandler(providerSearch)
 );
+router.post(
+  "/:providerId/search",
+  validateProvider,
+  validateStacQuery,
+  makeAsyncHandler(providerSearch)
+);
+
 router.get(
   "/:providerId/collections",
   validateProvider,

@@ -127,16 +127,8 @@ const validBbox = (bbox: string) => {
   );
 };
 
-/**
- * Middleware that validates query params.
- * Adds the `stacQuery` to the request object.
- */
-export const validateStacQuery = (
-  req: Request<{}, {}, {}, StacQuery>,
-  _res: Response,
-  next: NextFunction
-) => {
-  const limit = req.query.limit ?? 10;
+const validateStacOrThrow = (query: StacQuery) => {
+  const limit = query.limit ?? 10;
 
   if (0 > limit || limit > MAX_LIMIT_SIZE) {
     throw new InvalidParameterError(
@@ -144,23 +136,49 @@ export const validateStacQuery = (
     );
   }
 
-  if (req.query.bbox && !validBbox(req.query.bbox)) {
+  if (query.bbox && !validBbox(query.bbox)) {
     throw new InvalidParameterError(
       `BBOX must be in the form of 'bbox=swLon,swLat,neLon,neLat' with valid latitude and longitude.`
     );
   }
 
-  if (req.query.bbox && req.query.intersects) {
+  if (query.bbox && query.intersects) {
     throw new InvalidParameterError(
       "Query params BBOX and INTERSECTS are mutually exclusive. You may only use one at a time."
     );
   }
 
-  if (!validDateTime(req.query.datetime)) {
+  if (!validDateTime(query.datetime)) {
     throw new InvalidParameterError(
       "Query param datetime does not match any valid date format. Please use RFC3339 or ISO8601 valid dates."
     );
   }
+};
+
+/**
+ * Middleware that validates query params.
+ */
+export const validateStacQuery = (
+  req: Request<{}, {}, {}, StacQuery>,
+  _res: Response,
+  next: NextFunction
+) => {
+  const query = req.query;
+  validateStacOrThrow(query);
+
+  next();
+};
+
+/**
+ * Middleware that validates a STAC POST body.
+ */
+export const validateStacBody = (
+  req: Request<{}, StacQuery, {}, {}>,
+  _res: Response,
+  next: NextFunction
+) => {
+  const query = req.body;
+  validateStacOrThrow(query);
 
   next();
 };
