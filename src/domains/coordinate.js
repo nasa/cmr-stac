@@ -8,7 +8,7 @@ const RAD_TO_DEG = 180 / Math.PI;
 // as operations on the various forms.
 // Consider properties on this class to be immutable.  Changing, say, 'x' will not
 // update `phi` or `theta` and will throw normalization out of whack.
-class Coordinate {
+export class Coordinate {
   constructor(phi, theta, x, y, z) {
     this.phi = phi;
     this.theta = theta;
@@ -137,7 +137,3 @@ class Coordinate {
     return `<${this.x.toFixed(3)}, ${this.y.toFixed(3)}, ${this.z.toFixed(3)}>`;
   }
 }
-
-module.exports = {
-  Coordinate,
-};

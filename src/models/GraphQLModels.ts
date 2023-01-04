@@ -13,7 +13,6 @@ export interface GranulesInput extends GraphQLInput {
   // ids
   conceptIds?: string[];
   title?: string[];
-  // TODO conceptIds: missing from graphQL
 
   // collections
   collectionConceptId?: string;

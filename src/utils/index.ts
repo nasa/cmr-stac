@@ -29,6 +29,14 @@ export const buildRootUrl = (req: Request): string => {
   return `${protocol}://${host}${stacPath}`;
 };
 
+export const buildClientId = (clientId?: string): string => {
+  if (clientId) return `${clientId}-cmr-stac`;
+  else return "cmr-stac";
+};
+
+/**
+ * Wrap express handler with async error handling.
+ */
 export const makeAsyncHandler = (fn: Function) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {

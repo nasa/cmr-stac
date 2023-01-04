@@ -1,8 +1,8 @@
-const { Coordinate } = require('./coordinate');
+const { Coordinate } = require("./coordinate");
 
 // Class for dealing with operations on great circle arcs
-class Arc {
-  constructor (coordA, coordB) {
+export class Arc {
+  constructor(coordA, coordB) {
     let newCoordA = coordA;
     let newCoordB = coordB;
     if (newCoordB.theta < newCoordA.theta) {
@@ -22,7 +22,7 @@ class Arc {
   /**
    * @returns Coordinate object
    */
-  inflection () {
+  inflection() {
     const normal = this.normal.toLatLng();
 
     const southInflectionLat = -90 + Math.abs(normal.lat);
@@ -43,17 +43,13 @@ class Arc {
     return null;
   }
 
-  coversLongitude (lon) {
+  coversLongitude(lon) {
     const theta = (lon * Math.PI) / 180.0;
     const thetaMin = Math.min(this.coordA.theta, this.coordB.theta);
     const thetaMax = Math.max(this.coordA.theta, this.coordB.theta);
     if (Math.abs(thetaMax - thetaMin) < Math.PI) {
       return thetaMin < theta && theta < thetaMax;
     }
-    return (theta > thetaMax) || (theta < thetaMin);
+    return theta > thetaMax || theta < thetaMin;
   }
 }
-
-module.exports = {
-  Arc
-};

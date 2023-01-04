@@ -3,6 +3,7 @@ import { gql, request } from "graphql-request";
 
 import { SpatialExtent } from "../@types/StacCollection";
 import { STACItem, GeoJSONGeometry } from "../@types/StacItem";
+
 import { Granule, GranulesInput, FacetGroup } from "../models/GraphQLModels";
 import { inflectBox } from "./geodeticCoordinates";
 import {
@@ -13,7 +14,7 @@ import {
   pointStringToPoints,
   reorderBoxValues,
 } from "./bounding-box";
-import { mergeMaybe } from "../utils";
+import { mergeMaybe, buildClientId } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 const GRAPHQL_URL = process.env.GRAPHQL_URL!;
@@ -40,8 +41,18 @@ const granulesQuery = gql`
   }
 `;
 
+/**
+ * Convert a 2D bbox string into GeoJSON Polygon coordinates format.
+ */
 const cmrBoxToGeoJsonPolygon = (box: string): number[][][] => {
-  const [s, w, n, e] = parseOrdinateString(box) as number[];
+  const coordinates = parseOrdinateString(box) as number[];
+  // a 6 coordinate box is technically valid if elevation is included but CMR only supports 2d boxes
+  if (coordinates.length !== 4)
+    throw new Error(
+      `Invalid bbox [${box}], exactly 4 coordinates are required.`
+    );
+
+  const [s, w, n, e] = coordinates;
   return [
     [
       [w, s],
@@ -53,10 +64,16 @@ const cmrBoxToGeoJsonPolygon = (box: string): number[][][] => {
   ];
 };
 
+/**
+ * Convert a polygon string into a GeoJSON Polygon coordinates.
+ */
 const cmrPolygonToGeoJsonPolygon = (polygon: string[]) => {
   return polygon.map((ring: string) => pointStringToPoints(ring));
 };
 
+/**
+ * Convert an array of polygon strings into a GeoJSON geometry.
+ */
 const granPolyConverter = (polygons: string[][]): GeoJSONGeometry | null => {
   const geometry = polygons.map(cmrPolygonToGeoJsonPolygon);
 
@@ -78,6 +95,8 @@ const granPolyConverter = (polygons: string[][]): GeoJSONGeometry | null => {
 };
 
 /**
+ * Convert an array of boxes to a GeoJSON Geometry.
+ *
  * @example
  * granBoxConverter([
  *   "26.685 15.016 47.471 46.31"
@@ -102,6 +121,9 @@ const granBoxConverter = (boxes: string[]): GeoJSONGeometry | null => {
   return null;
 };
 
+/**
+ * Convert an array of points into a GeoJSON Geometry.
+ */
 const granPointsConverter = (points: string[]): GeoJSONGeometry | null => {
   const geometries = points.map((ps) => {
     const [lat, lon] = parseOrdinateString(ps);
@@ -125,6 +147,9 @@ const granPointsConverter = (points: string[]): GeoJSONGeometry | null => {
   return null;
 };
 
+/**
+ * Convert an array of lines to GeoJSON Geometry.
+ */
 const granLinesConverter = (lines: string[]): GeoJSONGeometry | null => {
   const geometry = lines
     .map(parseOrdinateString)
@@ -146,6 +171,11 @@ const granLinesConverter = (lines: string[]): GeoJSONGeometry | null => {
   return null;
 };
 
+/**
+ * Create a GeoJSON geometry from a granule.
+ *
+ * May return null if no applicable geometry data exists.
+ */
 const cmrSpatialToGeoJSONGeometry = (gran: Granule): GeoJSONGeometry | null => {
   const { boxes, lines, polygons, points } = gran;
 
@@ -160,6 +190,10 @@ const cmrSpatialToGeoJSONGeometry = (gran: Granule): GeoJSONGeometry | null => {
   return null;
 };
 
+/**
+ * Create a Bbox from a granule' geospatial data.
+ * If the granule has no applicable geometry, the entire world bbox is returned.
+ */
 const granuleToBbox = (granule: Granule): SpatialExtent | null => {
   if (granule.polygons) {
     let points = granule.polygons
@@ -202,10 +236,13 @@ const granuleToBbox = (granule: Granule): SpatialExtent | null => {
 const filterUnique = (val: string, idx: number, arr: string[]) =>
   arr.indexOf(val) === idx;
 
+/**
+ * Return the cloudCover extension schema and properties for a granule.
+ */
 const cloudCoverExtension = (
   granule: Granule
-): [string, { [key: string]: number | string }] | undefined => {
-  if (granule.cloudCover === null) return;
+): [string, { [key: string]: any }] | undefined => {
+  if (granule.cloudCover === null || granule.cloudCover === undefined) return;
 
   return [
     "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
@@ -213,6 +250,13 @@ const cloudCoverExtension = (
   ];
 };
 
+/**
+ * Returns the self-links for a STACItem.
+ *
+ * @param root URL root of the STAC catalog.
+ * @param providerId Provider ID
+ * @param item The STAC Item
+ */
 const selfLinks = (root: string, providerId: string, item: STACItem) => {
   return [
     {
@@ -238,18 +282,34 @@ const selfLinks = (root: string, providerId: string, item: STACItem) => {
   ];
 };
 
+/**
+ * Build a list of STAC extensions and properties for the given granule.
+ *
+ * Extension builder functions must take a granule as input and
+ * should return an array with the Schema of the extension
+ * as the first element, and the associated property map as the second.
+ *
+ * @example
+ * deriveExtensions(granule, [cloudCoverBldr, projectionBldr]) =>
+ * [
+ *    ["https://stac-extensions.github.io/eo/v1.0.0/schema.json",
+ *     "https://stac-extensions.github.io/projection/v1.0.0/schema.json"],
+ *   { "eo:cloud_cover": 50,
+ *     "proj:epsg" : 32659
+ *     "proj:shape" : [ 5558, 9559 ]}
+ * ]
+ */
 const deriveExtensions = (
-  granule: Granule
+  granule: Granule,
+  extensionBuilders: Function[]
 ): [string[], { [key: string]: any }] => {
-  const extensionBuilders = [cloudCoverExtension];
-
   const [extensions, props] = extensionBuilders.reduce(
-    ([accExts, accProps], extBldr) => {
+    ([accExtensions, accProps], extBldr) => {
       const data = extBldr(granule);
-      if (!data) return [accExts, accProps];
+      if (!data) return [accExtensions, accProps];
 
       const [newExt, newProps] = data;
-      return [[...accExts, newExt], { ...accProps, ...newProps }];
+      return [[...accExtensions, newExt], { ...accProps, ...newProps }];
     },
     [[] as string[], {}]
   );
@@ -257,8 +317,13 @@ const deriveExtensions = (
   return [extensions.filter(filterUnique), props];
 };
 
+/**
+ * Convert a granule to a STAC Item.
+ */
 export const granuleToStac = (granule: Granule): STACItem => {
-  const [stac_extensions, extensionProps] = deriveExtensions(granule);
+  const [stacExtensions, extensionProps] = deriveExtensions(granule, [
+    cloudCoverExtension,
+  ]);
 
   const properties = {
     datetime: granule.timeStart,
@@ -274,7 +339,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
     type: "Feature",
     id: granule.conceptId,
     stac_version: STAC_VERSION,
-    stac_extensions,
+    stac_extensions: stacExtensions,
     properties,
     geometry,
     bbox,
@@ -283,6 +348,9 @@ export const granuleToStac = (granule: Granule): STACItem => {
   return { ...item, collection: granule.collectionConceptId };
 };
 
+/**
+ * Return an object containing list of STAC Items matching the given query.
+ */
 export const getItems = async (
   query: GranulesInput = {},
   opts: {
@@ -301,15 +369,13 @@ export const getItems = async (
   let authorization;
   const { headers } = opts;
   if (headers) {
-    userClientId = headers["client-id"]
-      ? `${headers["client-id"]}-cmr-stac`
-      : "cmr-stac";
+    userClientId = buildClientId(headers["client-id"]);
     authorization = headers.authorization;
   }
 
   const requestHeaders = mergeMaybe(
     { "client-id": userClientId },
-    { authorization: authorization }
+    { authorization }
   );
 
   console.time("GQL items query took");
@@ -322,11 +388,21 @@ export const getItems = async (
   return { facets, count, cursor, items: items.map(granuleToStac) };
 };
 
+/**
+ * Add or append self links to an item.
+ */
 export const addProviderLinks = (
   root: string,
   providerId: string,
   item: STACItem
 ): STACItem => {
-  item.links = selfLinks(root, providerId, item);
+  const providerLinks = selfLinks(root, providerId, item);
+
+  if (Array.isArray(item.links)) {
+    item.links = [...item.links, ...providerLinks];
+  } else {
+    item.links = providerLinks;
+  }
+
   return item;
 };

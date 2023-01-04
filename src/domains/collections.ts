@@ -10,7 +10,7 @@ import {
   CollectionsInput,
   FacetGroup,
 } from "../models/GraphQLModels";
-import { mergeMaybe } from "../utils";
+import { mergeMaybe, buildClientId } from "../utils";
 
 const CMR_ROOT = process.env.CMR_URL;
 
@@ -23,7 +23,7 @@ import {
   reorderBoxValues,
 } from "./bounding-box";
 
-const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3002/api";
+const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3003/api";
 
 const collectionsQuery = gql`
   query getCollections($params: CollectionsInput!) {
@@ -116,6 +116,9 @@ const createExtent = (collection: Collection): Extents => {
   };
 };
 
+/**
+ * Convert a GraphQL collection item into a STACCollection.
+ */
 export const collectionToStac = (collection: any): STACCollection => {
   const extent = createExtent(collection);
   const { directDistributionInformation } = collection;
@@ -123,7 +126,7 @@ export const collectionToStac = (collection: any): STACCollection => {
   let assets: AssetLinks = {};
   if (directDistributionInformation) {
     assets = directDistributionInformation.s3BucketAndObjectPrefixNames
-      // this handles badly formatted lists of links intead of correct array of strings
+      // this handles badly formatted lists of links instead of correct array of strings
       .flatMap((s3Link: string) => s3Link.split(","))
       .map((s3Link: string) => s3Link.trim())
       .filter((s3Link: string) => s3Link.startsWith("s3://"))
@@ -186,15 +189,13 @@ export const getCollections = async (
 
   const { headers } = opts;
   if (headers) {
-    userClientId = headers["client-id"]
-      ? `${headers["client-id"]}-cmr-stac`
-      : "cmr-stac";
+    userClientId = buildClientId(headers["client-id"]);
     authorization = headers.authorization;
   }
 
   const requestHeaders = mergeMaybe(
     { "client-id": userClientId },
-    { authorization: authorization }
+    { authorization }
   );
 
   console.debug("Outbound GQL collections query =>", query);
@@ -229,15 +230,13 @@ export const getCollectionIds = async (
 
   const { headers } = opts;
   if (headers) {
-    userClientId = headers["client-id"]
-      ? `${headers["client-id"]}-cmr-stac`
-      : "cmr-stac";
+    userClientId = buildClientId(headers["client-id"]);
     authorization = headers.authorization;
   }
 
   const requestHeaders = mergeMaybe(
     { "client-id": userClientId },
-    { authorization: authorization }
+    { authorization }
   );
 
   console.debug("Outbound GQL collectionIds query =>", query);

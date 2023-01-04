@@ -1,4 +1,4 @@
-import { query, Request, Response } from "express";
+import { Request, Response } from "express";
 
 import { Links, STACCatalog } from "../@types/StacCatalog";
 import { STACCollection } from "../@types/StacCollection";
@@ -72,11 +72,13 @@ const selfLinks = (
       title: `First page of collections by ${providerId}`,
     },
   ];
-  
+
   if (cursor) {
     links.push({
       rel: "next",
-      href: `${root}/${providerId}/collections?cursor=${cursor}${encodeQuery(req.query)}`,
+      href: `${root}/${providerId}/collections?cursor=${cursor}${encodeQuery(
+        req.query
+      )}`,
       type: "application/json",
       title: `Next page of collections by ${providerId}`,
     });
@@ -85,15 +87,13 @@ const selfLinks = (
   return links;
 };
 
-const encodeQuery = (
-  params: any
-) => {
+const encodeQuery = (params: any) => {
   let queryUrlString = "";
   Object.keys(params).forEach((key) => {
-    queryUrlString += `&${key}=${params[key]}`
+    queryUrlString += `&${key}=${params[key]}`;
   });
   return queryUrlString;
-}
+};
 
 const generateCollectionLinks = (
   root: string,
