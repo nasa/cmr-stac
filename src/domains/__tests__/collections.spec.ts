@@ -92,4 +92,12 @@ describe("collectionsToStac", () => {
       expect(collectionToStac({})).to.have.deep.property("assets", {});
     });
   });
+
+  describe("given a collection with null direct distribution information", () => {
+    it("should return a STAC collection with empty assets", () => {
+      expect(
+        collectionToStac({ directDistributionInformation: null })
+      ).to.have.deep.property("assets", {});
+    });
+  });
 });

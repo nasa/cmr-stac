@@ -115,11 +115,11 @@ const createExtent = (collection: Collection): Extents => {
 };
 
 const extractAssets = (collection: any): AssetLinks => {
-  const {
-    directDistributionInformation: { s3BucketAndObjectPrefixNames = [] } = {},
-  } = collection;
+  const s3Info =
+    collection.directDistributionInformation?.s3BucketAndObjectPrefixNames ??
+    [];
 
-  return s3BucketAndObjectPrefixNames
+  return s3Info
     .flatMap((s3Link: string) => s3Link.split(","))
     .map((s3Link: string) => s3Link.trim())
     .filter((s3Link: string) => s3Link.startsWith("s3://"))
