@@ -49,9 +49,7 @@ const collectionsQuery = gql`
         useConstraints
         relatedUrls
 
-        directDistributionInformation {
-          s3BucketAndObjectPrefixNames
-        }
+        directDistributionInformation
       }
     }
   }
@@ -116,29 +114,29 @@ const createExtent = (collection: Collection): Extents => {
   };
 };
 
+const extractAssets = (collection: any): AssetLinks => {
+  const {
+    directDistributionInformation: { s3BucketAndObjectPrefixNames = [] } = {},
+  } = collection;
+
+  return s3BucketAndObjectPrefixNames
+    .flatMap((s3Link: string) => s3Link.split(","))
+    .map((s3Link: string) => s3Link.trim())
+    .filter((s3Link: string) => s3Link.startsWith("s3://"))
+    .reduce((acc: AssetLinks, href: string) => {
+      const assetTitle = href.replace("s3://", "").replace(/[\/\-:\.]/gi, "_");
+      const newAsset: AssetLinks = {};
+      newAsset[`s3_${assetTitle}`] = { href, roles: ["data"] };
+      return { ...acc, ...newAsset };
+    }, {});
+};
+
 /**
  * Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: any): STACCollection => {
   const extent = createExtent(collection);
-  const { directDistributionInformation } = collection;
-
-  let assets: AssetLinks = {};
-  if (directDistributionInformation) {
-    assets = directDistributionInformation.s3BucketAndObjectPrefixNames
-      // this handles badly formatted lists of links instead of correct array of strings
-      .flatMap((s3Link: string) => s3Link.split(","))
-      .map((s3Link: string) => s3Link.trim())
-      .filter((s3Link: string) => s3Link.startsWith("s3://"))
-      .reduce((acc: AssetLinks, href: string) => {
-        const assetTitle = href
-          .replace("s3://", "")
-          .replace(/[\/\-:\.]/gi, "_");
-        const newAsset: AssetLinks = {};
-        newAsset[`s3_${assetTitle}`] = { href, roles: ["data"] };
-        return { ...acc, ...newAsset };
-      }, {});
-  }
+  const assets = extractAssets(collection);
 
   return {
     type: "Collection",
@@ -184,17 +182,13 @@ export const getCollections = async (
   cursor: string | null;
   items: STACCollection[];
 }> => {
-  let userClientId = "cmr-stac";
-  let authorization;
+  const { headers = {} } = opts;
 
-  const { headers } = opts;
-  if (headers) {
-    userClientId = buildClientId(headers["client-id"]);
-    authorization = headers.authorization;
-  }
+  const clientId = buildClientId(headers["client-id"]);
+  const authorization = headers.authorization;
 
   const requestHeaders = mergeMaybe(
-    { "client-id": userClientId },
+    { "client-id": clientId },
     { authorization }
   );
 

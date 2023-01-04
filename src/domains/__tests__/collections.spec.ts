@@ -44,7 +44,7 @@ describe("collectionsToStac", () => {
           },
         });
 
-        expect(coll.assets!).to.deep.equal({
+        expect(coll).to.have.deep.property("assets", {
           s3_op_test_protected_SOME_DATA_002: {
             href: "s3://op-test-protected/SOME_DATA.002",
             roles: ["data"],
@@ -73,7 +73,7 @@ describe("collectionsToStac", () => {
           },
         });
 
-        expect(coll.assets!).to.deep.equal({
+        expect(coll).to.have.deep.property("assets", {
           s3_op_test_protected_SOME_DATA_002: {
             href: "s3://op-test-protected/SOME_DATA.002",
             roles: ["data"],
@@ -84,6 +84,12 @@ describe("collectionsToStac", () => {
           },
         });
       });
+    });
+  });
+
+  describe("given a collection without direct distribution information", () => {
+    it("should return a STAC collection with empty assets", () => {
+      expect(collectionToStac({})).to.have.deep.property("assets", {});
     });
   });
 });
