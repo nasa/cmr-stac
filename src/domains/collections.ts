@@ -122,7 +122,7 @@ const extractAssets = (collection: any): AssetLinks => {
   return s3Info
     .flatMap((s3Link: string) => s3Link.split(","))
     .map((s3Link: string) => s3Link.trim())
-    .filter((s3Link: string) => s3Link.startsWith("s3://"))
+    .filter((s3Link: string) => s3Link !== "")
     .reduce((acc: AssetLinks, href: string) => {
       const assetTitle = href.replace("s3://", "").replace(/[\/\-:\.]/gi, "_");
       const newAsset: AssetLinks = {};
