@@ -68,7 +68,7 @@ describe("bbox", () => {
             { lat: 7, lon: 8 },
           ]
         )
-      ).to.deep.equal([1, 2, 7, 8]);
+      ).to.deep.equal([1, 2, 8, 7]);
     });
   });
 

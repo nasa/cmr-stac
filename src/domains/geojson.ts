@@ -1,7 +1,12 @@
 import { GeoJSONGeometry } from "../@types/StacItem";
+import { SpatialExtent } from "../@types/StacCollection";
 import { chunk } from "lodash";
 import { Collection, Granule } from "../models/GraphQLModels";
-import { pointStringToPoints, parseOrdinateString } from "./bounding-box";
+import {
+  pointStringToPoints,
+  parseOrdinateString,
+  reorderBoxValues,
+} from "./bounding-box";
 
 /**
  * Convert a list of polygon strings into a GeoJSON Polygon coordinates.
@@ -19,14 +24,17 @@ export const cmrPolygonToGeoJsonCoordinates = (polygons: string[]) => {
 export const cmrBoxToGeoJsonPolygonCoordinates = (
   box: string
 ): number[][][] => {
-  const coordinates = parseOrdinateString(box) as number[];
-  // a 6 coordinate box is technically valid if elevation is included but CMR only supports 2d boxes
-  if (coordinates.length !== 4)
+  const coordinates = reorderBoxValues(
+    parseOrdinateString(box) as SpatialExtent
+  ) as SpatialExtent;
+
+  if (!coordinates || coordinates.length !== 4)
+    // a 6 coordinate box is technically valid if elevation is included but CMR only supports 2d boxes
     throw new Error(
       `Invalid bbox [${box}], exactly 4 coordinates are required.`
     );
 
-  const [s, w, n, e] = coordinates;
+  const [e, s, w, n] = coordinates;
   return [
     [
       [w, s],

@@ -7,6 +7,31 @@ const { max, min } = Math;
 export const WHOLE_WORLD_BBOX: SpatialExtent = [-180, -90, 180, 90];
 
 /**
+ * Reorder box values from CMR format to GeoJSON format.
+ *
+ * @param cmrBox - Bounding box in CMR order [S, E, N, W]
+ * @returns - Bounding box in GeoJSON order [E, S, W, N]
+ */
+export const reorderBoxValues = (cmrBox: SpatialExtent) => {
+  if (!cmrBox) return null;
+
+  let east, west, north, south;
+
+  if (cmrBox.length === 6) {
+    // CMR doesn't currently support 3d bounding boxes
+    // extra comma and spaces are placeholders and intentional
+    [south, east /* elevation */, , north, west /* elevation */] = cmrBox;
+  }
+
+  if (cmrBox.length === 4) {
+    [south, east, north, west] = cmrBox;
+  }
+
+  if (east) return [east, south, west, north];
+  else return null;
+};
+
+/**
  * Determines whether a bounding box crosses over the antimeridian
  *
  * @param bbox in a `[W, S, E, N]` format
@@ -151,7 +176,7 @@ export const mergeBoxes = (
  * @returns An array of float values
  */
 export const parseOrdinateString = (ordString: string) => {
-  return ordString.split(/\s|,/).map(parseFloat);
+  return ordString.split(/\s+|,/).map(parseFloat);
 };
 
 /**
@@ -191,7 +216,10 @@ export const cmrSpatialToExtent = (
   }
 
   if (cmrData.boxes) {
-    return cmrData.boxes.map(parseOrdinateString).reduce(mergeBoxes, null);
+    return cmrData.boxes
+      .map(parseOrdinateString)
+      .map(reorderBoxValues)
+      .reduce(mergeBoxes, null);
   }
 
   return WHOLE_WORLD_BBOX as SpatialExtent;

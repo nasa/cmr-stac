@@ -34,7 +34,7 @@ describe("granuleToStac", () => {
             ],
           ],
         },
-        bbox: [-26.108146, 29.868095, -11.485987, 40.191402],
+        bbox: [-26.1081458, 29.8680955, -11.4859874, 40.0118589],
         properties: {
           datetime: "2009-09-14T00:00:00.000Z",
           start_datetime: "2009-09-14T00:00:00.000Z",
@@ -49,8 +49,8 @@ describe("granuleToStac", () => {
     it("should return a STACItem", () => {
       const item = granuleToStac({
         ...baseGranule,
-        //         W    S  E   N
-        boxes: ["-60 -180 60 180"],
+        //         S    W   N   E
+        boxes: ["-60 -180  50 170"],
       });
 
       expect(item).to.deep.equal({
@@ -62,15 +62,15 @@ describe("granuleToStac", () => {
           type: "Polygon",
           coordinates: [
             [
+              [170, -60],
               [-180, -60],
-              [180, -60],
-              [180, 90],
-              [-180, 90],
-              [-180, -60],
+              [-180, 50],
+              [170, 50],
+              [170, -60],
             ],
           ],
         },
-        bbox: [-180, -60, 180, 60],
+        bbox: [-180, -60, 170, 50],
         properties: {
           datetime: "2009-09-14T00:00:00.000Z",
           start_datetime: "2009-09-14T00:00:00.000Z",
