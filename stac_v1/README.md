@@ -1,1 +1,0 @@
-# STAC API Version 1 (DEPRECATED)

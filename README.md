@@ -40,11 +40,10 @@ The remainder of this README is documentation for developing, testing, and deplo
 
 | Directory            | Description  |
 | -------------------- | ------------ |
-| [usage](./usage)       | Documentation on usage of the CMR-STAC endpoint(s) |
-| [stac_v1](./stac_v1/)   | The historical version of the CMR-STAC application (deprecated) |
 | [docs](./search/docs)  | is where the combined specification document made from the STAC and WFS3 specification documents is held. Paths and component schemas are defined here. The generated STAC documentation file is also located in this directory. |
 | [src](./src)    | The `src` directory contains the main logic of the application. It is broken down into modules pertaining to areas of responsibility.
 | [scripts](./scripts) | Utility (Python) scripts for validating and crawling CMR-STAC |
+| [usage](./usage)       | Documentation on usage of the CMR-STAC endpoint(s) |
 
 ### Setup
 
