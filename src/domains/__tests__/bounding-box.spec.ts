@@ -1,47 +1,38 @@
 import { expect } from "chai";
-
+import { SpatialExtent } from "../../@types/StacCollection";
 import {
   addPointsToBbox,
   mergeBoxes,
-  reorderBoxValues,
   crossesAntimeridian,
+  WHOLE_WORLD_BBOX,
 } from "../bounding-box";
 
 describe("bbox", () => {
-  const testBbox = [-10, -10, 10, 10];
-  const testBbox2 = [-20, 10, 44, 7];
-  const points = [
-    [100, 20],
-    [5, -5],
+  const testBbox: SpatialExtent = [-10, -10, 10, 10];
+  const testBbox2: SpatialExtent = [-20, 10, 44, 7];
+  const points: { lat: number; lon: number }[] = [
+    { lon: 100, lat: 20 },
+    { lon: 5, lat: -5 },
   ];
-  const lotsOfPoints = [
-    [100, 20],
-    [5, -5],
-    [-40, 73],
+  const lotsOfPoints: { lat: number; lon: number }[] = [
+    { lon: 100, lat: 20 },
+    { lon: 5, lat: -5 },
+    { lon: -40, lat: 73 },
   ];
-  const WHOLE_WORLD_BBOX = [-180, -90, 180, 90];
-
-  describe("reorderBoxValues", () => {
-    const cmrWorldBox = [-90, -180, 90, 180];
-
-    it("should reorder the box values to be [minLon, minLat, maxLon, maxLat]", () => {
-      expect(reorderBoxValues(cmrWorldBox)).to.deep.equal(WHOLE_WORLD_BBOX);
-    });
-  });
 
   describe("addPointsToBbox", () => {
     it("should create the largest bbox", () => {
-      expect(addPointsToBbox(testBbox, points)).to.deep.equal([
+      expect(addPointsToBbox([...testBbox], points)).to.deep.equal([
         -10, -10, 100, 20,
       ]);
     });
 
     it("should return the largest box possible from points", () => {
-      expect(addPointsToBbox([], points)).to.deep.equal([5, -5, 100, 20]);
+      expect(addPointsToBbox(null, points)).to.deep.equal([5, -5, 100, 20]);
     });
 
     it("should return the biggest box possible from lotsOfPoints", () => {
-      expect(addPointsToBbox([], lotsOfPoints)).to.deep.equal([
+      expect(addPointsToBbox(null, lotsOfPoints)).to.deep.equal([
         -40, -5, 100, 73,
       ]);
     });
@@ -73,8 +64,8 @@ describe("bbox", () => {
         addPointsToBbox(
           [1, 2, 3, 4],
           [
-            [5, 6],
-            [7, 8],
+            { lat: 5, lon: 6 },
+            { lat: 7, lon: 8 },
           ]
         )
       ).to.deep.equal([1, 2, 7, 8]);
@@ -114,8 +105,8 @@ describe("bbox", () => {
   });
 
   describe("crossesAntimeridian", () => {
-    const amBox = [170, -10, -175, 5];
-    const nonAmBox = [-150, -60, -130, -40];
+    const amBox: SpatialExtent = [170, -10, -175, 5];
+    const nonAmBox: SpatialExtent = [-150, -60, -130, -40];
 
     it("should return true if box crosses the antimeridian", () => {
       expect(crossesAntimeridian(amBox)).to.equal(true);

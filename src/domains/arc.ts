@@ -1,8 +1,8 @@
-const { Coordinate } = require("./coordinate");
+import { Coordinate } from "./coordinate";
 
 // Class for dealing with operations on great circle arcs
 export class Arc {
-  constructor(coordA, coordB) {
+  constructor(coordA: Coordinate, coordB: Coordinate) {
     let newCoordA = coordA;
     let newCoordB = coordB;
     if (newCoordB.theta < newCoordA.theta) {

@@ -1,28 +1,14 @@
 import { gql, request } from "graphql-request";
-import {
-  Extents,
-  AssetLinks,
-  SpatialExtent,
-  STACCollection,
-} from "../@types/StacCollection";
+import { Extents, AssetLinks, STACCollection } from "../@types/StacCollection";
 import {
   Collection,
   CollectionsInput,
   FacetGroup,
 } from "../models/GraphQLModels";
 import { mergeMaybe, buildClientId } from "../utils";
+import { cmrSpatialToExtent } from "./bounding-box";
 
 const CMR_ROOT = process.env.CMR_URL;
-
-import {
-  WHOLE_WORLD_BBOX,
-  pointStringToPoints,
-  parseOrdinateString,
-  addPointsToBbox,
-  mergeBoxes,
-  reorderBoxValues,
-} from "./bounding-box";
-
 const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3003/api";
 
 const collectionsQuery = gql`
@@ -67,46 +53,10 @@ const collectionIdsQuery = gql`
   }
 `;
 
-export const cmrCollSpatialToExtents = (
-  collection: Collection
-): SpatialExtent => {
-  if (collection.polygons) {
-    return collection.polygons
-      .map((rings: any) => rings[0])
-      .map(pointStringToPoints)
-      .reduce(addPointsToBbox, []);
-  }
-
-  if (collection.points) {
-    const points: number[][] = collection.points.map(parseOrdinateString);
-    const orderedPoints = points.map((point) => [point[1], point[0]]);
-    return addPointsToBbox(null, orderedPoints) as SpatialExtent;
-  }
-
-  if (collection.lines) {
-    const linePoints = collection.lines.map(parseOrdinateString);
-    const orderedLines = linePoints.map(reorderBoxValues);
-    return orderedLines.reduce(
-      (box: SpatialExtent, line: any) => mergeBoxes(box, line),
-      null as SpatialExtent
-    );
-  }
-
-  if (collection.boxes) {
-    return collection.boxes.reduce(
-      (box: SpatialExtent, boxStr: string) =>
-        mergeBoxes(box, reorderBoxValues(parseOrdinateString(boxStr))),
-      []
-    );
-  }
-
-  return WHOLE_WORLD_BBOX as SpatialExtent;
-};
-
 const createExtent = (collection: Collection): Extents => {
   return {
     spatial: {
-      bbox: [cmrCollSpatialToExtents(collection)],
+      bbox: [cmrSpatialToExtent(collection)],
     },
     temporal: {
       interval: [[collection.timeStart, collection.timeEnd]],

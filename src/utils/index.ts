@@ -61,10 +61,10 @@ export const mergeMaybe = (
 ) => {
   return Object.keys(maybeMap).reduce((nextMap, key) => {
     // JS safety
-    if (!maybeMap.hasOwnProperty(key)) return nextMap;
+    if (!Object.prototype.hasOwnProperty.call(maybeMap, key)) return nextMap;
 
-    // skip null and undefined
-    if (maybeMap[key] === null || maybeMap[key] === undefined) return nextMap;
+    // skip null or undefined, purposely not using ===
+    if (maybeMap[key] == null) return nextMap;
 
     // skip emptyStrings
     if (typeof maybeMap[key] === "string" && maybeMap[key].trim() === "")

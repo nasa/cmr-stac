@@ -1,19 +1,10 @@
-import { chunk } from "lodash";
 import { gql, request } from "graphql-request";
 
-import { SpatialExtent } from "../@types/StacCollection";
-import { STACItem, GeoJSONGeometry } from "../@types/StacItem";
-
+import { STACItem } from "../@types/StacItem";
 import { Granule, GranulesInput, FacetGroup } from "../models/GraphQLModels";
-import { inflectBox } from "./geodeticCoordinates";
-import {
-  WHOLE_WORLD_BBOX,
-  addPointsToBbox,
-  mergeBoxes,
-  parseOrdinateString,
-  pointStringToPoints,
-  reorderBoxValues,
-} from "./bounding-box";
+
+import { cmrSpatialToExtent } from "./bounding-box";
+import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, buildClientId } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -40,198 +31,6 @@ const granulesQuery = gql`
     }
   }
 `;
-
-/**
- * Convert a 2D bbox string into GeoJSON Polygon coordinates format.
- */
-const cmrBoxToGeoJsonPolygon = (box: string): number[][][] => {
-  const coordinates = parseOrdinateString(box) as number[];
-  // a 6 coordinate box is technically valid if elevation is included but CMR only supports 2d boxes
-  if (coordinates.length !== 4)
-    throw new Error(
-      `Invalid bbox [${box}], exactly 4 coordinates are required.`
-    );
-
-  const [s, w, n, e] = coordinates;
-  return [
-    [
-      [w, s],
-      [e, s],
-      [e, n],
-      [w, n],
-      [w, s],
-    ],
-  ];
-};
-
-/**
- * Convert a polygon string into a GeoJSON Polygon coordinates.
- */
-const cmrPolygonToGeoJsonPolygon = (polygon: string[]) => {
-  return polygon.map((ring: string) => pointStringToPoints(ring));
-};
-
-/**
- * Convert an array of polygon strings into a GeoJSON geometry.
- */
-const granPolyConverter = (polygons: string[][]): GeoJSONGeometry | null => {
-  const geometry = polygons.map(cmrPolygonToGeoJsonPolygon);
-
-  if (geometry.length > 1) {
-    return {
-      type: "MultiPolygon",
-      coordinates: geometry,
-    } as GeoJSONGeometry;
-  }
-
-  if (geometry.length === 1) {
-    return {
-      type: "Polygon",
-      coordinates: geometry[0],
-    } as GeoJSONGeometry;
-  }
-
-  return null;
-};
-
-/**
- * Convert an array of boxes to a GeoJSON Geometry.
- *
- * @example
- * granBoxConverter([
- *   "26.685 15.016 47.471 46.31"
- * ])
- */
-const granBoxConverter = (boxes: string[]): GeoJSONGeometry | null => {
-  const geometries = boxes.map(cmrBoxToGeoJsonPolygon);
-
-  if (geometries.length > 1) {
-    return {
-      type: "MultiPolygon",
-      coordinates: geometries,
-    } as GeoJSONGeometry;
-  }
-
-  if (geometries.length === 1) {
-    return {
-      type: "Polygon",
-      coordinates: geometries[0],
-    } as GeoJSONGeometry;
-  }
-  return null;
-};
-
-/**
- * Convert an array of points into a GeoJSON Geometry.
- */
-const granPointsConverter = (points: string[]): GeoJSONGeometry | null => {
-  const geometries = points.map((ps) => {
-    const [lat, lon] = parseOrdinateString(ps);
-    return [lon, lat];
-  });
-
-  if (geometries.length > 1) {
-    return {
-      type: "MultiPoint",
-      coordinates: geometries,
-    } as GeoJSONGeometry;
-  }
-
-  if (geometries.length === 1) {
-    return {
-      type: "Point",
-      coordinates: geometries[0],
-    } as GeoJSONGeometry;
-  }
-
-  return null;
-};
-
-/**
- * Convert an array of lines to GeoJSON Geometry.
- */
-const granLinesConverter = (lines: string[]): GeoJSONGeometry | null => {
-  const geometry = lines
-    .map(parseOrdinateString)
-    .map((line) => chunk(line, 2).map(([lat, lon]) => [lon, lat]));
-
-  if (geometry.length > 1) {
-    return {
-      type: "MultiLineString",
-      coordinates: geometry,
-    } as GeoJSONGeometry;
-  }
-
-  if (geometry.length === 1) {
-    return {
-      type: "LineString",
-      coordinates: geometry[0],
-    } as GeoJSONGeometry;
-  }
-  return null;
-};
-
-/**
- * Create a GeoJSON geometry from a granule.
- *
- * May return null if no applicable geometry data exists.
- */
-const cmrSpatialToGeoJSONGeometry = (gran: Granule): GeoJSONGeometry | null => {
-  const { boxes, lines, polygons, points } = gran;
-
-  if (polygons) return granPolyConverter(polygons);
-  if (boxes) return granBoxConverter(boxes);
-  if (points) return granPointsConverter(points);
-  if (lines) return granLinesConverter(lines);
-
-  console.debug(
-    `Spatial system unknown or missing in concept [${gran.conceptId}]`
-  );
-  return null;
-};
-
-/**
- * Create a Bbox from a granule' geospatial data.
- * If the granule has no applicable geometry, the entire world bbox is returned.
- */
-const granuleToBbox = (granule: Granule): SpatialExtent | null => {
-  if (granule.polygons) {
-    let points = granule.polygons
-      .flatMap((ring) => ring.flatMap(pointStringToPoints))
-      .map(([lon, lat]) => [lat, lon]);
-    const inflectedPoints = inflectBox(points).map((point) =>
-      parseFloat(point.toFixed(6))
-    );
-    return reorderBoxValues(inflectedPoints) as SpatialExtent;
-  }
-
-  if (granule.points) {
-    const points = granule.points.map(parseOrdinateString);
-    const orderedPoints = points.map(([lat, lon]) => [lon, lat]);
-    return addPointsToBbox(null, orderedPoints) as SpatialExtent;
-  }
-
-  if (granule.lines) {
-    const points = granule.lines
-      .flatMap(pointStringToPoints)
-      .map(([lon, lat]) => [lat, lon]);
-
-    return addPointsToBbox(null, points) as SpatialExtent;
-  }
-
-  if (granule.boxes) {
-    return granule.boxes.reduce(
-      (box, boxStr) =>
-        mergeBoxes(
-          box,
-          reorderBoxValues(parseOrdinateString(boxStr))
-        ) as SpatialExtent,
-      null as SpatialExtent
-    ) as SpatialExtent;
-  }
-
-  return WHOLE_WORLD_BBOX as SpatialExtent;
-};
 
 const filterUnique = (val: string, idx: number, arr: string[]) =>
   arr.indexOf(val) === idx;
@@ -333,7 +132,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
   };
 
   const geometry = cmrSpatialToGeoJSONGeometry(granule);
-  const bbox = granuleToBbox(granule);
+  const bbox = cmrSpatialToExtent(granule);
 
   const item = {
     type: "Feature",
@@ -398,11 +197,9 @@ export const addProviderLinks = (
 ): STACItem => {
   const providerLinks = selfLinks(root, providerId, item);
 
-  if (Array.isArray(item.links)) {
-    item.links = [...item.links, ...providerLinks];
-  } else {
-    item.links = providerLinks;
-  }
+  item.links = Array.isArray(item.links)
+    ? [...item.links, ...providerLinks]
+    : providerLinks;
 
   return item;
 };

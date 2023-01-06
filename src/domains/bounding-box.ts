@@ -1,7 +1,10 @@
-const { chunk } = require("lodash");
+import { chunk } from "lodash";
+import { SpatialExtent } from "../@types/StacCollection";
+import { Collection, Granule } from "../models/GraphQLModels";
+
 const { max, min } = Math;
 
-const WHOLE_WORLD_BBOX = [-180, -90, 180, 90];
+export const WHOLE_WORLD_BBOX: SpatialExtent = [-180, -90, 180, 90];
 
 /**
  * Determines whether a bounding box crosses over the antimeridian
@@ -9,37 +12,34 @@ const WHOLE_WORLD_BBOX = [-180, -90, 180, 90];
  * @param bbox in a `[W, S, E, N]` format
  * @returns true if the box crosses the antimeridian, false otherwise
  */
-function crossesAntimeridian(bbox) {
-  // true if W > E
+export const crossesAntimeridian = (bbox: SpatialExtent) => {
+  if (!bbox) return false;
+  if (bbox.length === 6) {
+    // 3d bbox
+    return bbox[0] > bbox[3];
+  }
+  // 2d bbox
   return bbox[0] > bbox[2];
-}
+};
 
 /**
  *
  * @param bbox - An array of float coordinates in the format `[W, S, E, N]`
- * @param points - An array of of arrays of two float coordinates in the format [lon, lat]
- * @returns number[] - A single array of float coordinates in the format `[W, S, E, N]`
+ * @param points - A single or array of coordinate objects
+ * @returns SpatialExtent - A single array of float coordinates in the format `[W, S, E, N]`
  */
-function addPointsToBbox(bbox, points) {
-  let w;
-  let s;
-  let e;
-  let n;
-  if (bbox) {
-    [w, s, e, n] = bbox;
-  }
-  points.forEach(([lon, lat]) => {
-    if (w) {
-      w = min(w, lon);
-      s = min(s, lat);
-      e = max(e, lon);
-      n = max(n, lat);
-    } else {
-      [w, s, e, n] = [lon, lat, lon, lat];
-    }
-  });
-  return [w, s, e, n];
-}
+export const addPointsToBbox = (
+  bbox: SpatialExtent,
+  points: { lat: number; lon: number }[] | { lat: number; lon: number }
+) => {
+  const pointsList = Array.isArray(points) ? [...points] : [points];
+
+  return pointsList
+    .map(({ lon, lat }) => [lon, lat, lon, lat] as SpatialExtent)
+    .reduce((extent: SpatialExtent, box: SpatialExtent) => {
+      return mergeBoxes(extent, box);
+    }, bbox);
+};
 
 /**
  * Join two bounding boxes to create a single box that is the minimal bounding box
@@ -47,9 +47,12 @@ function addPointsToBbox(bbox, points) {
  *
  * @param box1 - A bounding-box array of floats in the `[W, S, E, N]` format
  * @param box2 - A bounding-box array of floats in the `[W, S, E, N]` format
- * @returns number[] - A single combined bounding-box in the `[W, S, E, N]` format
+ * @returns SpatialExtent - A single combined bounding-box in the `[W, S, E, N]` format
  */
-function mergeBoxes(box1, box2) {
+export const mergeBoxes = (
+  box1: SpatialExtent,
+  box2: SpatialExtent
+): SpatialExtent => {
   if ((!box1 || box1.length < 4) && (!box2 || box2.length < 4)) {
     return null;
   }
@@ -140,48 +143,56 @@ function mergeBoxes(box1, box2) {
   const s = min(box1[1], box2[1]);
 
   return [w, s, e, n];
-}
+};
+
+/**
+ * Return a list of floats from a array of string values
+ * @param ordString - String consisting of numeric values
+ * @returns An array of float values
+ */
+export const parseOrdinateString = (ordString: string) => {
+  return ordString.split(/\s|,/).map(parseFloat);
+};
 
 /**
  *
- * @param {string} numStr - A string of coordinate values, separated by spaces and/or commas
- * @returns {number[]} - An array of float coordinate values
+ * @param latLonPoints - A string of coordinate values in CMR `lat lon...` format
+ * @returns An array of coordinates
  */
-function parseOrdinateString(numStr) {
-  return numStr.split(/\s|,/).map(parseFloat);
-}
+export const pointStringToPoints = (latLonPoints: string) => {
+  return chunk(parseOrdinateString(latLonPoints), 2).map(([lat, lon]) => {
+    return { lat: lat, lon: lon };
+  });
+};
 
-/**
- *
- * @param pointStr - A string of coordinate values
- * @returns {number[][]} - An array containing arrays of 2 floating points representing coordinate points.
- */
-function pointStringToPoints(pointStr) {
-  return chunk(parseOrdinateString(pointStr), 2).map(([lon, lat]) => [
-    lat,
-    lon,
-  ]);
-}
-
-/**
- * Convert a CMR bounding box to GeoJSON
- *
- * @param cmrBox - Bounding box in CMR order [S, W, N, E]
- * @returns - Bounding box in GeoJSON order [W, S, E, N]
- */
-function reorderBoxValues(cmrBox) {
-  if (!cmrBox) {
-    throw new Error("Missing arguments");
+export const cmrSpatialToExtent = (
+  cmrData: Collection | Granule
+): SpatialExtent => {
+  if (cmrData.polygons) {
+    return (
+      cmrData.polygons
+        // only first ring is needed from each, subsequent rings are holes
+        .map((rings: string[]) => rings[0])
+        .map(pointStringToPoints)
+        .reduce(addPointsToBbox, null)
+    );
   }
-  return [cmrBox[1], cmrBox[0], cmrBox[3], cmrBox[2]];
-}
 
-module.exports = {
-  addPointsToBbox,
-  mergeBoxes,
-  parseOrdinateString,
-  pointStringToPoints,
-  reorderBoxValues,
-  crossesAntimeridian,
-  WHOLE_WORLD_BBOX,
+  if (cmrData.points) {
+    return cmrData.points
+      .map(parseOrdinateString)
+      .reduce(addPointsToBbox, null);
+  }
+
+  if (cmrData.lines) {
+    return cmrData.lines
+      .flatMap(pointStringToPoints)
+      .reduce(addPointsToBbox, null);
+  }
+
+  if (cmrData.boxes) {
+    return cmrData.boxes.map(parseOrdinateString).reduce(mergeBoxes, null);
+  }
+
+  return WHOLE_WORLD_BBOX as SpatialExtent;
 };
