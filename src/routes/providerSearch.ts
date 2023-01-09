@@ -5,11 +5,11 @@ import { flattenDeep } from "lodash";
 import { Link } from "../@types/StacCatalog";
 import { GeoJSONGeometry, STACItem } from "../@types/StacItem";
 
-import { GranulesInput } from "../models/GraphQLModels";
 import { getCollections } from "../domains/collections";
 import { getItems, addProviderLinks } from "../domains/items";
-import { mergeMaybe, buildRootUrl, ERRORS } from "../utils";
+import { GranulesInput } from "../models/GraphQLModels";
 import { InvalidParameterError } from "../models/errors";
+import { mergeMaybe, buildRootUrl, ERRORS } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 const DEFAULT_LIMIT = 250;

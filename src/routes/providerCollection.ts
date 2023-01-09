@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { buildRootUrl } from "../utils";
 import { Link } from "../@types/StacCollection";
 import { getCollections } from "../domains/collections";
+import { getItems } from "../domains/items";
 
 const CMR_ROOT = process.env.CMR_URL;
 

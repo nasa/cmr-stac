@@ -1,6 +1,6 @@
 import { gql, request } from "graphql-request";
 
-import { STACItem } from "../@types/StacItem";
+import { AssetLinks, STACItem } from "../@types/StacItem";
 import { Granule, GranulesInput, FacetGroup } from "../models/GraphQLModels";
 
 import { cmrSpatialToExtent } from "./bounding-box";
@@ -134,6 +134,30 @@ export const granuleToStac = (granule: Granule): STACItem => {
   const geometry = cmrSpatialToGeoJSONGeometry(granule);
   const bbox = cmrSpatialToExtent(granule);
 
+  const dataLink = granule.links.find(
+    (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/data#"
+  );
+  const metadataLink = granule.links.find(
+    (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/metadata#"
+  );
+
+  let assets: AssetLinks = {};
+  if (dataLink) {
+    assets = mergeMaybe(assets, {
+      data: { href: dataLink.href, title: "Data Download" },
+    });
+  }
+  if (metadataLink) {
+    assets = mergeMaybe(assets, {
+      metadata: {
+        href: metadataLink.href,
+        title: "Metadata",
+        type: "application/xml",
+      },
+    });
+  }
+
+  // core STACItem
   const item = {
     type: "Feature",
     id: granule.conceptId,
@@ -142,6 +166,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
     properties,
     geometry,
     bbox,
+    assets,
   } as STACItem;
 
   return { ...item, collection: granule.collectionConceptId };

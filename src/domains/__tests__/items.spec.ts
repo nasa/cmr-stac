@@ -41,6 +41,17 @@ describe("granuleToStac", () => {
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
         collection: "C9876543210-TEST_PROV",
+        assets: {
+          data: {
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
+            title: "Data Download",
+          },
+          metadata: {
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
+            title: "Metadata",
+            type: "application/xml",
+          },
+        },
       });
     });
   });
@@ -77,6 +88,17 @@ describe("granuleToStac", () => {
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
         collection: "C9876543210-TEST_PROV",
+        assets: {
+          data: {
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
+            title: "Data Download",
+          },
+          metadata: {
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
+            title: "Metadata",
+            type: "application/xml",
+          },
+        },
       });
     });
   });
@@ -110,6 +132,17 @@ describe("granuleToStac", () => {
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
         collection: "C9876543210-TEST_PROV",
+        assets: {
+          data: {
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
+            title: "Data Download",
+          },
+          metadata: {
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
+            title: "Metadata",
+            type: "application/xml",
+          },
+        },
       });
     });
   });

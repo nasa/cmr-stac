@@ -95,67 +95,16 @@ const encodeQuery = (params: any) => {
   return queryUrlString;
 };
 
-const generateCollectionLinks = (
-  root: string,
-  providerId: string,
-  collection: STACCollection
-) => {
-  return [
-    {
-      rel: "self",
-      href: `${root}/${providerId}/collections/${collection.id}`,
-      title: "Info about this collection",
-      type: "application/json",
-    },
-    {
-      rel: "root",
-      href: `${root}`,
-      title: "Root catalog",
-      type: "application/json",
-    },
-    {
-      rel: "parent",
-      href: `${root}/${providerId}`,
-      title: "Parent catalog",
-      type: "application/json",
-    },
-    {
-      rel: "items",
-      href: `${root}/${providerId}/collections/${collection.id}/items`,
-      title: "STAC Items in this collection",
-      type: "application/json",
-    },
-  ];
-};
-
 const collectionsLinks = (
   root: string,
   providerId: string,
   collections: STACCollection[]
 ) => {
   return collections.map((collection) => {
-    const {
-      id,
-      stac_version,
-      license,
-      title = "N/A",
-      type,
-      description = "N/A",
-      extent,
-      links,
-    } = collection;
     return {
-      id,
-      stac_version,
-      license,
-      title,
-      type,
-      description,
-      links: [
-        ...generateCollectionLinks(root, providerId, collection),
-        ...links,
-      ],
-      extent: { extent },
+      rel: "child",
+      href: `${root}/${providerId}/collection/${collection.id}`,
+      type: "application/geo+json",
     };
   });
 };
@@ -202,8 +151,7 @@ export const handler = async (req: Request, res: Response): Promise<any> => {
     stac_version: STAC_VERSION,
     type: "Catalog",
     description: `Root catalog for ${providerId}`,
-    links: [..._selfLinks],
-    collections: [..._childLinks],
+    links: [..._selfLinks, ..._childLinks],
   } as STACCatalog;
 
   res.json(providerCatalog);

@@ -2,12 +2,15 @@ import * as sinon from "sinon";
 import { expect } from "chai";
 import request from "supertest";
 
+import CatalogSpec from "../../resources/catalog-spec/json-schema/catalog.json";
+
 import Ajv from "ajv";
 const apply = require("ajv-formats-draft2019");
 const ajv = new Ajv();
 apply(ajv);
 
 import { createApp } from "../app";
+import { generateSTACCollections } from "../utils/testUtils";
 const app = createApp();
 import * as Providers from "../domains/providers";
 import * as Collections from "../domains/collections";
@@ -51,10 +54,34 @@ describe("GET /:provider/collections", () => {
       );
 
       expect(statusCode).to.equal(200);
-      expect(body).has.property("title");
-      expect(body).have.property("description");
-      expect(body).have.property("links");
-      expect(body).have.property("collections");
+
+      const validate = ajv.compile(CatalogSpec);
+      const stacSchemaValid = validate(body);
+
+      expect(stacSchemaValid, JSON.stringify(validate.errors, null, 2)).to.be
+        .true;
+    });
+
+    describe("given there are child collections", () => {
+      it("should return a valid STAC catalog", async () => {
+        sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+        sandbox.stub(Collections, "getCollections").resolves({
+          facets: null,
+          count: 1,
+          cursor: "abc",
+          items: generateSTACCollections(1),
+        });
+
+        const { body } = await request(app).get(
+          "/stac/TEST_PROVIDER/collections"
+        );
+
+        const validate = ajv.compile(CatalogSpec);
+        const stacSchemaValid = validate(body);
+
+        expect(stacSchemaValid, JSON.stringify(validate.errors, null, 2)).to.be
+          .true;
+      });
     });
 
     describe("given an invalid datetime parameter", () => {
@@ -80,7 +107,7 @@ describe("GET /:provider/collections", () => {
         [
           "2000-12-31",
           "2000-12-31T23:59:59.000",
-          "2000-12-31T23:59:59.000Z"
+          "2000-12-31T23:59:59.000Z",
         ].forEach((dateString) => {
           it(`should handle ${dateString} and return a 200`, async () => {
             sandbox
@@ -89,7 +116,7 @@ describe("GET /:provider/collections", () => {
             sandbox
               .stub(Collections, "getCollections")
               .resolves(emptyCollections);
-  
+
             const { statusCode, body } = await request(app).get(
               `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
             );
@@ -114,7 +141,7 @@ describe("GET /:provider/collections", () => {
             sandbox
               .stub(Collections, "getCollections")
               .resolves(emptyCollections);
-  
+
             const { statusCode, body } = await request(app).get(
               `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
             );
@@ -139,7 +166,7 @@ describe("GET /:provider/collections", () => {
             sandbox
               .stub(Collections, "getCollections")
               .resolves(emptyCollections);
-  
+
             const { statusCode, body } = await request(app).get(
               `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
             );
