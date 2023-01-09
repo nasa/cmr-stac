@@ -4,13 +4,15 @@ import { Collection, Granule } from "../models/GraphQLModels";
 
 const { max, min } = Math;
 
-export const WHOLE_WORLD_BBOX: SpatialExtent = [-180, -90, 180, 90];
+export const WHOLE_WORLD_BBOX_CMR: SpatialExtent = [-90, -180, 90, 180];
+export const WHOLE_WORLD_BBOX_STAC: SpatialExtent = [-180, -90, 180, 90];
 
 /**
- * Reorder box values from CMR format to GeoJSON format.
+ * Convert box coordintes between CMR format and GeoJSON.
+ * See https://www.rfc-editor.org/rfc/rfc7946#section-5
  *
- * @param cmrBox - Bounding box in CMR order [S, E, N, W]
- * @returns - Bounding box in GeoJSON order [E, S, W, N]
+ * @param cmrBox Bounding box in CMR order [S, E, N, W]
+ * @returns Bounding box in GeoJSON order [E, S, W, N]
  */
 export const reorderBoxValues = (cmrBox: SpatialExtent) => {
   if (!cmrBox) return null;
@@ -18,8 +20,8 @@ export const reorderBoxValues = (cmrBox: SpatialExtent) => {
   let east, west, north, south;
 
   if (cmrBox.length === 6) {
-    // CMR doesn't currently support 3d bounding boxes
-    // extra comma and spaces are placeholders and intentional
+    // CMR doesn't currently support 3d bounding boxes but handle it just in case
+    // extra comma and spaces are intentional placeholders for elevation values
     [south, east /* elevation */, , north, west /* elevation */] = cmrBox;
   }
 
@@ -49,9 +51,9 @@ export const crossesAntimeridian = (bbox: SpatialExtent) => {
 
 /**
  *
- * @param bbox - An array of float coordinates in the format `[W, S, E, N]`
+ * @param bbox - An array of float coordinates in the format `[E, S, W, N]`
  * @param points - A single or array of coordinate objects
- * @returns SpatialExtent - A single array of float coordinates in the format `[W, S, E, N]`
+ * @returns SpatialExtent - A single array of float coordinates in the format `[E, S, W, N]`
  */
 export const addPointsToBbox = (
   bbox: SpatialExtent,
@@ -186,7 +188,7 @@ export const parseOrdinateString = (ordString: string) => {
  */
 export const pointStringToPoints = (latLonPoints: string) => {
   return chunk(parseOrdinateString(latLonPoints), 2).map(([lat, lon]) => {
-    return { lat: lat, lon: lon };
+    return { lat, lon };
   });
 };
 
@@ -205,7 +207,7 @@ export const cmrSpatialToExtent = (
 
   if (cmrData.points) {
     return cmrData.points
-      .map(parseOrdinateString)
+      .map(pointStringToPoints)
       .reduce(addPointsToBbox, null);
   }
 
@@ -222,5 +224,5 @@ export const cmrSpatialToExtent = (
       .reduce(mergeBoxes, null);
   }
 
-  return WHOLE_WORLD_BBOX as SpatialExtent;
+  return WHOLE_WORLD_BBOX_STAC as SpatialExtent;
 };

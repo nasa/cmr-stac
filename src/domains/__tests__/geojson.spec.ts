@@ -9,9 +9,9 @@ describe("cmrPolygonToGeoJsonCoordinates", () => {
       expect(cmrPolygonToGeoJsonCoordinates(polygonStr)).to.deep.equal([
         [
           [-10, -10],
-          [-10, 10],
-          [10, 10],
           [10, -10],
+          [10, 10],
+          [-10, 10],
           [-10, -10],
         ],
       ]);

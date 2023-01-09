@@ -2,11 +2,7 @@ import { GeoJSONGeometry } from "../@types/StacItem";
 import { SpatialExtent } from "../@types/StacCollection";
 import { chunk } from "lodash";
 import { Collection, Granule } from "../models/GraphQLModels";
-import {
-  pointStringToPoints,
-  parseOrdinateString,
-  reorderBoxValues,
-} from "./bounding-box";
+import { pointStringToPoints, parseOrdinateString } from "./bounding-box";
 
 /**
  * Convert a list of polygon strings into a GeoJSON Polygon coordinates.
@@ -15,7 +11,7 @@ import {
 export const cmrPolygonToGeoJsonCoordinates = (polygons: string[]) => {
   return polygons
     .map(pointStringToPoints)
-    .map((coords) => coords.map(({ lat, lon }) => [lat, lon]));
+    .map((coords) => coords.map(({ lat, lon }) => [lon, lat]));
 };
 
 /**
@@ -24,9 +20,7 @@ export const cmrPolygonToGeoJsonCoordinates = (polygons: string[]) => {
 export const cmrBoxToGeoJsonPolygonCoordinates = (
   box: string
 ): number[][][] => {
-  const coordinates = reorderBoxValues(
-    parseOrdinateString(box) as SpatialExtent
-  ) as SpatialExtent;
+  const coordinates = parseOrdinateString(box) as SpatialExtent;
 
   if (!coordinates || coordinates.length !== 4)
     // a 6 coordinate box is technically valid if elevation is included but CMR only supports 2d boxes
@@ -34,7 +28,7 @@ export const cmrBoxToGeoJsonPolygonCoordinates = (
       `Invalid bbox [${box}], exactly 4 coordinates are required.`
     );
 
-  const [e, s, w, n] = coordinates;
+  const [s, w, n, e] = coordinates;
   return [
     [
       [w, s],
@@ -99,7 +93,7 @@ export const boxToGeoJSON = (boxes: string[]): GeoJSONGeometry | null => {
 export const pointsToGeoJSON = (points: string[]): GeoJSONGeometry | null => {
   const geometries = points
     .map(parseOrdinateString)
-    .flatMap((points) => chunk(points, 2));
+    .flatMap((points) => chunk(points, 2).map(([lat, lon]) => [lon, lat]));
 
   if (geometries.length > 1) {
     return {
@@ -122,7 +116,9 @@ export const pointsToGeoJSON = (points: string[]): GeoJSONGeometry | null => {
  * Convert an array of lines to GeoJSON Geometry.
  */
 export const linesToGeoJSON = (lines: string[]): GeoJSONGeometry | null => {
-  const geometry = lines.map(parseOrdinateString).map((line) => chunk(line, 2));
+  const geometry = lines
+    .map(parseOrdinateString)
+    .map((line) => chunk(line, 2).map(([lat, lon]) => [lon, lat]));
 
   if (geometry.length > 1) {
     return {

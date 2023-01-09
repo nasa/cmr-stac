@@ -4,7 +4,7 @@ import {
   addPointsToBbox,
   mergeBoxes,
   crossesAntimeridian,
-  WHOLE_WORLD_BBOX,
+  WHOLE_WORLD_BBOX_STAC,
 } from "../bounding-box";
 
 describe("bbox", () => {
@@ -54,9 +54,9 @@ describe("bbox", () => {
     });
 
     it("should return the WHOLE_WORLD_BOX", () => {
-      expect(addPointsToBbox(WHOLE_WORLD_BBOX, lotsOfPoints)).to.deep.equal(
-        WHOLE_WORLD_BBOX
-      );
+      expect(
+        addPointsToBbox(WHOLE_WORLD_BBOX_STAC, lotsOfPoints)
+      ).to.deep.equal(WHOLE_WORLD_BBOX_STAC);
     });
 
     it("should merge the boxes", () => {
@@ -92,8 +92,8 @@ describe("bbox", () => {
     });
 
     it("should return the WHOLE_WORLD_BBOX", () => {
-      expect(mergeBoxes(testBbox, WHOLE_WORLD_BBOX)).to.deep.equal(
-        WHOLE_WORLD_BBOX
+      expect(mergeBoxes(testBbox, WHOLE_WORLD_BBOX_STAC)).to.deep.equal(
+        WHOLE_WORLD_BBOX_STAC
       );
     });
 
