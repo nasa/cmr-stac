@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { parseURL } from "whatwg-url";
 
-import { getItems } from "../domains/items";
+import { addProviderLinks, getItems } from "../domains/items";
 import { buildRootUrl, mergeMaybe, WEEK_IN_MS } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const CMR_ROOT = process.env.CMR_URL!;
 
 const selfLinks = (req: Request) => {
   const root = buildRootUrl(req);
@@ -21,7 +22,7 @@ const selfLinks = (req: Request) => {
 };
 
 export const itemHandler = async (req: Request, res: Response) => {
-  const { collectionId, itemId } = req.params;
+  const { providerId, collectionId, itemId } = req.params;
   const itemQuery = {
     collectionConceptIds: [collectionId],
     conceptId: itemId,
@@ -39,7 +40,9 @@ export const itemHandler = async (req: Request, res: Response) => {
     });
   }
 
-  return res.contentType("application/geo+json").json(item);
+  return res
+    .contentType("application/geo+json")
+    .json(addProviderLinks(CMR_ROOT, providerId, item));
 };
 
 /**

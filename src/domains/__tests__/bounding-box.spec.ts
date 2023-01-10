@@ -4,8 +4,23 @@ import {
   addPointsToBbox,
   mergeBoxes,
   crossesAntimeridian,
+  reorderBoxValues,
   WHOLE_WORLD_BBOX_STAC,
 } from "../bounding-box";
+
+describe("reorderBoxValues", () => {
+  describe("given a box in CMR format", () => {
+    it("should return a box in STAC format", () => {
+      expect(reorderBoxValues([1, 2, 3, 4])).to.deep.equal([2, 1, 4, 3]);
+    });
+  });
+
+  describe("given null", () => {
+    it("should return null", () => {
+      expect(reorderBoxValues(null)).to.be.null;
+    });
+  });
+});
 
 describe("bbox", () => {
   const testBbox: SpatialExtent = [-10, -10, 10, 10];

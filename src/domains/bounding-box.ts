@@ -36,7 +36,7 @@ export const reorderBoxValues = (cmrBox: SpatialExtent) => {
 /**
  * Determines whether a bounding box crosses over the antimeridian
  *
- * @param bbox in a `[W, S, E, N]` format
+ * @param bbox in STAC/GeoJSON `[E, S, W, N]` format
  * @returns true if the box crosses the antimeridian, false otherwise
  */
 export const crossesAntimeridian = (bbox: SpatialExtent) => {
@@ -195,32 +195,27 @@ export const pointStringToPoints = (latLonPoints: string) => {
 export const cmrSpatialToExtent = (
   cmrData: Collection | Granule
 ): SpatialExtent => {
-  if (cmrData.polygons) {
-    return (
-      cmrData.polygons
-        // only first ring is needed from each, subsequent rings are holes
-        .map((rings: string[]) => rings[0])
-        .map(pointStringToPoints)
-        .reduce(addPointsToBbox, null)
-    );
-  }
+  const { polygons, lines, points, boxes } = cmrData;
 
-  if (cmrData.points) {
-    return cmrData.points
+  if (polygons) {
+    return polygons
+      .map((rings: string[]) => rings[0]) // outer rings only
       .map(pointStringToPoints)
       .reduce(addPointsToBbox, null);
   }
 
-  if (cmrData.lines) {
-    return cmrData.lines
-      .flatMap(pointStringToPoints)
-      .reduce(addPointsToBbox, null);
+  if (points) {
+    return points.map(pointStringToPoints).reduce(addPointsToBbox, null);
   }
 
-  if (cmrData.boxes) {
-    return cmrData.boxes
+  if (lines) {
+    return lines.flatMap(pointStringToPoints).reduce(addPointsToBbox, null);
+  }
+
+  if (boxes) {
+    return boxes
       .map(parseOrdinateString)
-      .map(reorderBoxValues)
+      .map(reorderBoxValues) // CMR returns box coordinates in lon/lat
       .reduce(mergeBoxes, null);
   }
 

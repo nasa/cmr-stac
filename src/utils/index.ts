@@ -56,9 +56,10 @@ export const makeAsyncHandler = (fn: Function) => {
  * - empty strings
  */
 export const mergeMaybe = (
-  map: { [key: string]: any },
+  map: { [key: string]: any } | any,
   maybeMap: { [key: string]: any }
 ) => {
+  const baseMap = map ?? {};
   return Object.keys(maybeMap).reduce((nextMap, key) => {
     // JS safety
     if (!Object.prototype.hasOwnProperty.call(maybeMap, key)) return nextMap;
@@ -77,5 +78,5 @@ export const mergeMaybe = (
     const keyPair: { [k: string]: any } = {};
     keyPair[key] = maybeMap[key];
     return { ...nextMap, ...keyPair };
-  }, map);
+  }, baseMap);
 };

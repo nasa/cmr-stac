@@ -44,12 +44,11 @@ describe("granuleToStac", () => {
         assets: {
           data: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
-            title: "Data Download",
+            title: "Direct Download",
           },
-          metadata: {
+          provider_metadata: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
-            title: "Metadata",
-            type: "application/xml",
+            title: "Provider Metadata",
           },
         },
       });
@@ -91,12 +90,11 @@ describe("granuleToStac", () => {
         assets: {
           data: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
-            title: "Data Download",
+            title: "Direct Download",
           },
-          metadata: {
+          provider_metadata: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
-            title: "Metadata",
-            type: "application/xml",
+            title: "Provider Metadata",
           },
         },
       });
@@ -135,12 +133,11 @@ describe("granuleToStac", () => {
         assets: {
           data: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
-            title: "Data Download",
+            title: "Direct Download",
           },
-          metadata: {
+          provider_metadata: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
-            title: "Metadata",
-            type: "application/xml",
+            title: "Provider Metadata",
           },
         },
       });

@@ -78,6 +78,18 @@ const selfLinks = (root: string, providerId: string, item: STACItem) => {
       rel: "provider",
       href: `${root}/${providerId}`,
     },
+    {
+      rel: "via",
+      href: `${root}/search/concepts/${item.id}.json`,
+      title: "CMR JSON metadata for collection",
+      type: "application/json",
+    },
+    {
+      rel: "via",
+      href: `${root}/search/concepts/${item.id}.umm_json`,
+      title: "CMR UMM_JSON metadata for collection",
+      type: "application/vnd.nasa.cmr.umm+json",
+    },
   ];
 };
 
@@ -137,6 +149,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
   const dataLink = granule.links.find(
     (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/data#"
   );
+
   const metadataLink = granule.links.find(
     (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/metadata#"
   );
@@ -144,15 +157,14 @@ export const granuleToStac = (granule: Granule): STACItem => {
   let assets: AssetLinks = {};
   if (dataLink) {
     assets = mergeMaybe(assets, {
-      data: { href: dataLink.href, title: "Data Download" },
+      data: { href: dataLink.href, title: "Direct Download" },
     });
   }
   if (metadataLink) {
     assets = mergeMaybe(assets, {
-      metadata: {
+      provider_metadata: {
         href: metadataLink.href,
-        title: "Metadata",
-        type: "application/xml",
+        title: "Provider Metadata",
       },
     });
   }
@@ -225,6 +237,14 @@ export const addProviderLinks = (
   item.links = Array.isArray(item.links)
     ? [...item.links, ...providerLinks]
     : providerLinks;
+
+  item.assets = mergeMaybe(item.assets, {
+    metadata: {
+      href: `${root}/search/concepts/${item.id}.json`,
+      title: "Metadata",
+      type: "application/json",
+    },
+  });
 
   return item;
 };
