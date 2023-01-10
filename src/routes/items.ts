@@ -5,7 +5,6 @@ import { addProviderLinks, getItems } from "../domains/items";
 import { buildRootUrl, mergeMaybe, WEEK_IN_MS } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
-const CMR_ROOT = process.env.CMR_URL!;
 
 const selfLinks = (req: Request) => {
   const root = buildRootUrl(req);
@@ -40,9 +39,10 @@ export const itemHandler = async (req: Request, res: Response) => {
     });
   }
 
+  const root = buildRootUrl(req);
   return res
     .contentType("application/geo+json")
-    .json(addProviderLinks(CMR_ROOT, providerId, item));
+    .json(addProviderLinks(root, providerId, item));
 };
 
 /**

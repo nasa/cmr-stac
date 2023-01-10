@@ -103,7 +103,7 @@ const collectionsLinks = (
   return collections.map((collection) => {
     return {
       rel: "child",
-      href: `${root}/${providerId}/collection/${collection.id}`,
+      href: `${root}/${providerId}/collections/${collection.id}`,
       type: "application/geo+json",
     };
   });
