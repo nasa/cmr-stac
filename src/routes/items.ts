@@ -66,7 +66,7 @@ export const itemsHandler = async (req: Request, res: Response) => {
     { cursor }
   );
 
-  let _selfLinks = selfLinks(req);
+  const _selfLinks = selfLinks(req);
 
   try {
     const {

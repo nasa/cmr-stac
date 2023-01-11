@@ -65,7 +65,7 @@ const selfLinks = (root: string, providerId: string): Links => {
 const collectionsLinks = (
   root: string,
   providerId: string,
-  collectionIds: String[]
+  collectionIds: string[]
 ) => {
   return collectionIds.map((collection) => {
     return {
@@ -92,7 +92,7 @@ export const handler = async (req: Request, res: Response): Promise<any> => {
     const { conceptIds } = await getCollectionIds(query, {
       headers: req.headers,
     });
-    collections = conceptIds;
+    collections = [...conceptIds];
   } catch (err) {
     console.error("A problem occurred querying for collections.", err);
     return res.status(503).json(ERRORS.serviceUnavailable);

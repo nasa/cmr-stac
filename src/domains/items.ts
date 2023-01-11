@@ -2,13 +2,14 @@ import { gql, request } from "graphql-request";
 
 import { AssetLinks, STACItem } from "../@types/StacItem";
 import { Granule, GranulesInput, FacetGroup } from "../models/GraphQLModels";
+import { StacExtension, StacExtensions } from "../models/StacModels";
 
 import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, buildClientId } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
-const GRAPHQL_URL = process.env.GRAPHQL_URL!;
+const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013";
 const CMR_URL = process.env.CMR_URL;
 
 const granulesQuery = gql`
@@ -39,15 +40,13 @@ const filterUnique = (val: string, idx: number, arr: string[]) =>
 /**
  * Return the cloudCover extension schema and properties for a granule.
  */
-const cloudCoverExtension = (
-  granule: Granule
-): [string, { [key: string]: any }] | undefined => {
-  if (granule.cloudCover === null || granule.cloudCover === undefined) return;
-
-  return [
-    "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
-    { "eo:cloud_cover": granule.cloudCover },
-  ];
+const cloudCoverExtension = (granule: Granule) => {
+  // purposely using ==
+  if (granule.cloudCover == null) return;
+  return {
+    extension: "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
+    properties: { "eo:cloud_cover": granule.cloudCover },
+  };
 };
 
 /**
@@ -113,27 +112,27 @@ const selfLinks = (root: string, providerId: string, item: STACItem) => {
  */
 const deriveExtensions = (
   granule: Granule,
-  extensionBuilders: Function[]
-): [string[], { [key: string]: any }] => {
-  const [extensions, props] = extensionBuilders.reduce(
-    ([accExtensions, accProps], extBldr) => {
-      const data = extBldr(granule);
-      if (!data) return [accExtensions, accProps];
+  extensionBuilders: ((g: Granule) => StacExtension | undefined)[]
+): StacExtensions => {
+  return extensionBuilders.reduce(
+    ({ extensions, properties }, extBldr) => {
+      const ext = extBldr(granule);
+      if (!ext) return { extensions, properties };
 
-      const [newExt, newProps] = data;
-      return [[...accExtensions, newExt], { ...accProps, ...newProps }];
+      return {
+        extensions: [...extensions, ext.extension].filter(filterUnique),
+        properties: mergeMaybe(properties, ext.properties),
+      };
     },
-    [[] as string[], {}]
+    { extensions: [], properties: {} } as StacExtensions
   );
-
-  return [extensions.filter(filterUnique), props];
 };
 
 /**
  * Convert a granule to a STAC Item.
  */
 export const granuleToStac = (granule: Granule): STACItem => {
-  const [stacExtensions, extensionProps] = deriveExtensions(granule, [
+  const { extensions, properties: extProps } = deriveExtensions(granule, [
     cloudCoverExtension,
   ]);
 
@@ -141,7 +140,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
     datetime: granule.timeStart,
     start_datetime: granule.timeStart,
     end_datetime: granule.timeEnd,
-    ...extensionProps,
+    ...extProps,
   };
 
   const geometry = cmrSpatialToGeoJSONGeometry(granule);
@@ -175,7 +174,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
     type: "Feature",
     id: granule.conceptId,
     stac_version: STAC_VERSION,
-    stac_extensions: stacExtensions,
+    stac_extensions: extensions,
     properties,
     geometry,
     bbox,

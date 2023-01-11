@@ -133,21 +133,17 @@ const s3Assets = (collection: any) => {
     .map((s3Link: string) => s3Link.trim())
     .filter((s3Link: string) => s3Link !== "")
     .reduce((acc: AssetLinks, href: string) => {
-      const assetTitle = href.replace("s3://", "").replace(/[\/\-:\.]/gi, "_");
+      const assetTitle = href.replace("s3://", "").replace(/[/\-:.]/gi, "_");
       const newAsset: AssetLinks = {};
       newAsset[`s3_${assetTitle}`] = { href, roles: ["data"] };
       return { ...acc, ...newAsset };
     }, {});
 };
 
-const extractAssets = (collection: any): AssetLinks => {
-  const assetExtractors = [
-    downloadAsset,
-    metadataAsset,
-    thumbnailAsset,
-    s3Assets,
-  ];
-
+const extractAssets = (
+  collection: any,
+  assetExtractors: ((c: any) => AssetLinks)[]
+): AssetLinks => {
   return assetExtractors.reduce(
     (accAssets, extract) => mergeMaybe(accAssets, extract(collection)),
     {} as AssetLinks
@@ -158,10 +154,17 @@ const extractAssets = (collection: any): AssetLinks => {
  * Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: any): STACCollection => {
-  const extent = createExtent(collection);
-  const assets = extractAssets(collection);
+  const assetExtractors = [
+    downloadAsset,
+    metadataAsset,
+    thumbnailAsset,
+    s3Assets,
+  ];
 
-  let links = [
+  const extent = createExtent(collection);
+  const assets = extractAssets(collection, assetExtractors);
+
+  const links = [
     {
       rel: "about",
       href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.html`,
@@ -242,7 +245,7 @@ export const getCollectionIds = async (
 ): Promise<{
   count: number;
   cursor: string | null;
-  conceptIds: String[];
+  conceptIds: string[];
 }> => {
   let userClientId = "cmr-stac";
   let authorization;

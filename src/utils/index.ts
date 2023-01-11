@@ -37,7 +37,7 @@ export const buildClientId = (clientId?: string): string => {
 /**
  * Wrap express handler with async error handling.
  */
-export const makeAsyncHandler = (fn: Function) => {
+export const makeAsyncHandler = (fn: (rq: Request, rs: Response) => any) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await fn(req, res);

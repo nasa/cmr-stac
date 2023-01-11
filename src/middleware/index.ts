@@ -26,11 +26,12 @@ export const cloudStacMiddleware = (
 export const notFoundHandler = (
   _req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
   res
     .status(404)
     .json({ errors: ["Oops! Unable to find the requested resource."] });
+  next();
 };
 
 /**
@@ -40,7 +41,7 @@ export const errorHandler = (
   err: any,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
   if (err instanceof InvalidParameterError) {
     return res.status(400).json({ errors: [err.message] });
@@ -48,6 +49,7 @@ export const errorHandler = (
 
   console.error("A fatal error occurred", err);
   res.status(500).json(ERRORS.internalServerError);
+  next();
 };
 
 /**
@@ -159,7 +161,7 @@ const validateStacOrThrow = (query: StacQuery) => {
  * Middleware that validates query params.
  */
 export const validateStacQuery = (
-  req: Request<{}, {}, {}, StacQuery>,
+  req: Request<object, object, object, StacQuery>,
   _res: Response,
   next: NextFunction
 ) => {
@@ -173,7 +175,7 @@ export const validateStacQuery = (
  * Middleware that validates a STAC POST body.
  */
 export const validateStacBody = (
-  req: Request<{}, StacQuery, {}, {}>,
+  req: Request<object, StacQuery, object, object>,
   _res: Response,
   next: NextFunction
 ) => {
