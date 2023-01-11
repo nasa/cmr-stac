@@ -53,6 +53,9 @@ const collectionIdsQuery = gql`
   }
 `;
 
+/**
+ * Return an Extent object based on the the CMR spatial and temporal values.
+ */
 const createExtent = (collection: Collection): Extents => {
   return {
     spatial: {
@@ -64,7 +67,63 @@ const createExtent = (collection: Collection): Extents => {
   };
 };
 
-const extractAssets = (collection: any): AssetLinks => {
+/**
+ * Return a download asset if present.
+ */
+const downloadAsset = (collection: any) => {
+  const dataLink = collection.relatedUrls?.find(
+    (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/data#"
+  );
+
+  if (dataLink) {
+    return {
+      data: { href: dataLink.href, title: "Direct Download" },
+    };
+  }
+};
+
+/**
+ * Return a metadata asset if present.
+ */
+const metadataAsset = (collection: any) => {
+  const metadataLink = collection.links?.find(
+    (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/metadata#"
+  );
+
+  if (metadataLink) {
+    return {
+      provider_metadata: {
+        href: metadataLink.href,
+        title: "Provider Metadata",
+      },
+    };
+  }
+};
+
+/**
+ * Return a thumbnail asset if present.
+ */
+const thumbnailAsset = (collection: any) => {
+  const thumbnail = collection.relatedUrls?.find(
+    (link: { type: string; url: string; [key: string]: any }) =>
+      link.type === "GET RELATED VISUALIZATION"
+  );
+
+  if (thumbnail) {
+    return {
+      thumbnail: {
+        href: thumbnail.url,
+        title: "Thumbnail",
+        roles: ["thumbnail"],
+      },
+    };
+  }
+};
+
+/**
+ * Return a map of S3 links as assets if present.
+ */
+const s3Assets = (collection: any) => {
   const s3Info =
     collection.directDistributionInformation?.s3BucketAndObjectPrefixNames ??
     [];
@@ -81,12 +140,47 @@ const extractAssets = (collection: any): AssetLinks => {
     }, {});
 };
 
+const extractAssets = (collection: any): AssetLinks => {
+  const assetExtractors = [
+    downloadAsset,
+    metadataAsset,
+    thumbnailAsset,
+    s3Assets,
+  ];
+
+  return assetExtractors.reduce(
+    (accAssets, extract) => mergeMaybe(accAssets, extract(collection)),
+    {} as AssetLinks
+  );
+};
+
 /**
  * Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: any): STACCollection => {
   const extent = createExtent(collection);
   const assets = extractAssets(collection);
+
+  let links = [
+    {
+      rel: "about",
+      href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.html`,
+      title: "HTML metadata for collection",
+      type: "text/html",
+    },
+    {
+      rel: "via",
+      href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.json`,
+      title: "CMR JSON metadata for collection",
+      type: "application/json",
+    },
+    {
+      rel: "via",
+      href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.umm_json`,
+      title: "CMR UMM_JSON metadata for collection",
+      type: "application/vnd.nasa.cmr.umm+json",
+    },
+  ];
 
   return {
     type: "Collection",
@@ -97,26 +191,7 @@ export const collectionToStac = (collection: any): STACCollection => {
     stac_version: "1.0.0",
     extent,
     assets,
-    links: [
-      {
-        rel: "about",
-        href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.html`,
-        title: "HTML metadata for collection",
-        type: "text/html",
-      },
-      {
-        rel: "via",
-        href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.json`,
-        title: "CMR JSON metadata for collection",
-        type: "application/json",
-      },
-      {
-        rel: "via",
-        href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.umm_json`,
-        title: "CMR UMM_JSON metadata for collection",
-        type: "application/vnd.nasa.cmr.umm+json",
-      },
-    ],
+    links,
   };
 };
 

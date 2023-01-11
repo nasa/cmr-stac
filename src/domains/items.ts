@@ -9,6 +9,7 @@ import { mergeMaybe, buildClientId } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 const GRAPHQL_URL = process.env.GRAPHQL_URL!;
+const CMR_URL = process.env.CMR_URL;
 
 const granulesQuery = gql`
   query getGranules($params: GranulesInput) {
@@ -240,7 +241,7 @@ export const addProviderLinks = (
 
   item.assets = mergeMaybe(item.assets, {
     metadata: {
-      href: `${root}/search/concepts/${item.id}.json`,
+      href: `${CMR_URL}/search/concepts/${item.id}.json`,
       title: "Metadata",
       type: "application/json",
     },

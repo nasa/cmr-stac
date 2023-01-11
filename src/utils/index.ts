@@ -60,6 +60,8 @@ export const mergeMaybe = (
   maybeMap: { [key: string]: any }
 ) => {
   const baseMap = map ?? {};
+  if (!maybeMap) return baseMap;
+
   return Object.keys(maybeMap).reduce((nextMap, key) => {
     // JS safety
     if (!Object.prototype.hasOwnProperty.call(maybeMap, key)) return nextMap;
