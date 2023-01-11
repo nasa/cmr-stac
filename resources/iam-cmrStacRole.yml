@@ -1,0 +1,18 @@
+---
+Resources:
+  cmrStacRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: stacRole-${opt:stage}
+      PermissionsBoundary: arn:aws:iam::${aws:accountId}:policy/NGAPShRoleBoundary
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
