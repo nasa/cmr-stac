@@ -27,7 +27,7 @@ const createApp = () => {
 
   if (!process.env.CI) {
     const logger =
-      process.env.IS_LOCAL === "true" ? morgan("dev") : morgan("combined");
+      process.env.IS_LOCAL !== "true" ? morgan("dev") : morgan("combined");
     app.use(logger);
   }
 
