@@ -1,0 +1,74 @@
+service: cmr-stac-api
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: us-east-1
+  iam:
+    role: cmrStacRole
+  deploymentBucket:
+    name: ${cf:${opt:stage}.cmrStacDeploymentBucket}
+  vpc:
+    securityGroupIds:
+      - ${cf:${opt:stage}.servicesSecurityGroupId}
+    subnetIds: !Split [ ",", '${cf:${opt:stage}.subnetIds}' ]
+
+custom:
+  cmrStacName: ${param:cmr-stac-name}
+  cmrStacRelativeRootUrl: ${param:cmr-stac-relative-root-url, '/stac'}
+  logSubscription:
+    enabled: true
+    destinationArn: ${cf:${opt:stage}.logForwardingArn}
+  docsBucket: cmr-stac-static-bucket-${opt:stage}
+  graphqlUrlPrefix:
+    sit: ".sit"
+    uat: ".uat"
+    prod: ""
+  assets:
+    targets:
+    - bucket:
+        Ref: cmrStacDocsBucket
+      empty: true
+      prefix: docs
+      files:
+      - source: ./docs/
+        globs: '**/index.html'
+
+package:
+  patterns:
+    - lib/**
+
+functions:
+  stac-api:
+    name: cmr-${self:custom.cmrStacName}-${opt:stage}
+    handler: lib/application.handler
+    timeout: 60
+    events:
+      - alb:
+          listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
+          priority: ${param:cmr-lb-priority, 83}
+          conditions:
+            path: ${self:custom.cmrStacRelativeRootUrl}*
+    environment:
+      CMR_URL: ${param:cmr-url}
+      CMR_LB_URL: ${param:cmr-lb-url, 'http://${cf:${opt:stage}.servicesDnsName}'}
+      CMR_STAC_RELATIVE_ROOT_URL: ${self:custom.cmrStacRelativeRootUrl}
+      GRAPHQL_URL: ${param:graphql-url, 'https://graphql${self:custom.graphqlUrlPrefix.${opt:stage}}.earthdata.nasa.gov/api'}
+      BROWSE_PATH: year/month/day
+      LOG_DISABLED: false
+      LOG_LEVEL: info
+      STAC_NAME: ${self:custom.cmrStacName}
+      STAC_VERSION: 1.0.0
+
+resources:
+  # IAM
+  - ${file(resources/iam-cmrStacRole.yml)}
+  # DynamoDB
+  - ${file(resources/dynamodb-searchAfterCache.yml)}
+  - ${file(resources/dynamodb-conceptCache.yml)}
+  # S3
+  - ${file(resources/s3-docsBucket.yml)}
+
+plugins:
+  - serverless-s3-deploy
+  - serverless-plugin-log-subscription

@@ -1,0 +1,20 @@
+---
+Resources:
+  SearchAfterCache:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.cmrStacName}-searchAfterTable
+      AttributeDefinitions:
+        - AttributeName: query
+          AttributeType: S
+        - AttributeName: page
+          AttributeType: N
+      KeySchema:
+        - AttributeName: query
+          KeyType: HASH
+        - AttributeName: page
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: expdate
+        Enabled: true
+      BillingMode: PAY_PER_REQUEST

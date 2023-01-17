@@ -1,0 +1,30 @@
+{
+  "producer_granule_id": "MYD02HKM.A2020162.2355.061.2020163011006.NRT.hdf",
+  "time_start": "2020-06-10T23:55:00.000Z",
+  "updated": "2020-06-11T01:10:52.489Z",
+  "dataset_id": "MODIS/Aqua Calibrated Radiances 5-Min L1B Swath 500m - NRT",
+  "data_center": "LANCEMODIS",
+  "title": "LANCEMODIS:1028235774",
+  "coordinate_system": "GEODETIC",
+  "day_night_flag": "BOTH",
+  "time_end": "2020-06-11T00:00:00.000Z",
+  "id": "G1848422111-LANCEMODIS",
+  "original_format": "ECHO10",
+  "granule_size": "83.7333726882935",
+  "browse_flag": false,
+  "polygons": [
+    [
+      "-46.728858 -130.072843 -51.176483 -163.057516 -69.364972 -164.573697 -61.968957 -112.537606 -46.728858 -130.072843"
+    ]
+  ],
+  "collection_concept_id": "C1426617060-LANCEMODIS",
+  "online_access_flag": true,
+  "links": [
+    {
+      "rel": "http://esipfed.org/ns/fedsearch/1.1/data#",
+      "type": "application/x-hdfeos",
+      "hreflang": "en-US",
+      "href": "https://nrt3.modaps.eosdis.nasa.gov/archive/allData/61/LANCEMODIS_COLL/2020/162/MYD02HKM.A2020162.2355.061.NRT.hdf"
+    }
+  ]
+}

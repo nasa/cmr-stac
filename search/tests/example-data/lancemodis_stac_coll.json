@@ -1,0 +1,66 @@
+{
+  "description": "The 500 meter MODIS Level 1B Near Real Time (NRT) data set contains calibrated and...",
+  "extent":  {
+    "spatial":  {
+      "bbox":  [
+        [
+        -180,
+        -90,
+        180,
+        90
+      ]
+      ]
+    },
+    "temporal":  {
+      "interval":  [
+        [
+        "2017-10-20T00:00:00.000Z",
+        null
+      ]
+      ]
+    }
+  },
+  "id": "LANCEMODIS_COLL.v6.1NRT",
+  "license": "not-provided",
+  "links":  [
+    {
+    "href": "https://example.com/stac/LANCEMODIS/collections/LANCEMODIS_COLL.v6.1NRT",
+    "rel": "self",
+    "title": "Info about this collection",
+    "type": "application/json"
+  },
+    {
+    "href": "https://example.com/stac",
+    "rel": "root",
+    "title": "Root catalog",
+    "type": "application/json"
+  },
+    {
+    "href": "https://example.com/stac/LANCEMODIS",
+    "rel": "parent",
+    "title": "Parent catalog",
+    "type": "application/json"
+  },
+    {
+    "href": "https://example.com/stac/LANCEMODIS/collections/LANCEMODIS_COLL.v6.1NRT/items",
+    "rel": "items",
+    "title": "Granules in this collection",
+    "type": "application/json"
+  },
+    {
+    "href": "http://localhost:3003/concepts/C1426617060-LANCEMODIS.html",
+    "rel": "about",
+    "title": "HTML metadata for collection",
+    "type": "text/html"
+  },
+    {
+    "href": "http://localhost:3003/concepts/C1426617060-LANCEMODIS.json",
+    "rel": "via",
+    "title": "CMR JSON metadata for collection",
+    "type": "application/json"
+  }
+  ],
+  "stac_version": "1.0.0",
+  "title": "MODIS/Aqua Calibrated Radiances 5-Min L1B Swath 500m - NRT",
+  "type": "Collection"
+}

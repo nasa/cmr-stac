@@ -1,0 +1,67 @@
+service: cmr-stac-api
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: dev
+  region: us-east-1
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+          Resource:
+            - "Fn::GetAtt": [searchAfterTable, Arn]
+            - "Fn::GetAtt": [conceptTable, Arn]
+
+functions:
+  search-api:
+    handler: lib/application.handler
+    events:
+      - http:
+          path: /
+          method: GET
+      - http:
+          path: /{proxy+}
+          method: any
+    environment:
+      CMR_URL: 'http://localhost'
+      CMR_LB_URL: 'http://localhost'
+      CMR_STAC_RELATIVE_ROOT_URL: /stac
+      CMR_STAC_PROTOCOL: ${param:protocol, 'http'}
+      GRAPHQL_URL: ${param:graphql-url, 'http://localhost:3003/dev/api'}
+      LOG_LEVEL: info
+      LOG_DISABLED: false
+      STAC_VERSION: 1.0.0
+      STAC_NAME: ${self:custom.cmrStacName}
+      BROWSE_PATH: year/month/day
+
+custom:
+  cmrStacName: ${param:cmr-stac-name}
+  serverless-offline:
+    httpPort: 2888
+    lambdaPort: 2889
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+
+resources:
+  # DynamoDB
+  - ${file(resources/dynamodb-searchAfterCache.yml)}
+  - ${file(resources/dynamodb-conceptCache.yml)}
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline

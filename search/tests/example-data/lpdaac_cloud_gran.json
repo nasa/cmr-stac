@@ -1,0 +1,73 @@
+{
+  "type": "Feature",
+  "id": "SC:VIP01.004:2242263776",
+  "stac_version": "1.0.0",
+  "stac_extensions": [],
+  "collection": "AST14DEM.v003",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [-180, -90],
+      [180, -90],
+      [180, 90],
+      [-180, 90],
+      [-180, -90]]]
+  },
+  "bbox": [
+    -180,
+    -90,
+    180,
+    90
+  ],
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.v003/items/SC:VIP01.004:2242263776"
+    },
+    {
+      "rel": "parent",
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.v003"
+    },
+    {
+      "rel": "collection",
+      "href": "https://example.com/cloudstac/LPDAAC_ECS/collections/AST14DEM.v003"
+    },
+    {
+      "rel": "root",
+      "href": "https://example.com/cloudstac/"
+    },
+    {
+      "rel": "provider",
+      "href": "https://example.com/cloudstac/LPDAAC_ECS"
+    },
+    {
+      "rel": "via",
+      "href": "http://localhost:3003/concepts/G1328420897-LPDAAC_ECS.json"
+    },
+    {
+      "rel": "via",
+      "href": "http://localhost:3003/concepts/G1328420897-LPDAAC_ECS.umm_json"
+    }
+  ],
+  "properties": {
+    "datetime": "1981-01-01T00:00:00.000Z",
+    "start_datetime": "1981-01-01T00:00:00.000Z",
+    "end_datetime": "1981-01-01T23:59:59.000Z"
+  },
+  "assets": {
+    "data": {
+      "title": "This file may be downloaded directly from this link",
+      "href": "https://e4ftl01.cr.usgs.gov//MODV6_Dal_H/VIP/VIP01.004/1981.01.01/VIP01.A1981001.004.2016175124032.hdf",
+      "type": "application/x-hdfeos"
+    },
+    "browse": {
+      "title": "This Browse file may be downloaded directly from this link (BROWSE)",
+      "href": "https://e4ftl01.cr.usgs.gov//WORKING/BRWS/Browse.001/2016.09.16/VIP01.A1981001.004.2016175124032.jpg",
+      "type": "image/jpeg"
+    },
+    "metadata": {
+      "href": "http://localhost:3003/concepts/G1328420897-LPDAAC_ECS.xml",
+      "type": "application/xml"
+    }
+  }
+}

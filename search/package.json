@@ -1,0 +1,61 @@
+{
+  "name": "search",
+  "version": "1.0.0",
+  "description": "A lambda that implements the STAC and WFS specifications as a CMR Proxy",
+  "main": "lib/application.js",
+  "repository": "https://github.com/Element84/cmr-stac-api-proxy",
+  "author": "Element 84",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.121.0",
+    "aws-serverless-express": "^3.4.0",
+    "axios": "^0.27.2",
+    "bluebird": "^3.7.2",
+    "build-url": "^6.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "mime-types": "^2.1.35",
+    "morgan": "^1.10.0",
+    "winston": "^3.8.1"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.101",
+    "@types/jest": "^28.1.4",
+    "@types/node": "^18.0.0",
+    "ajv": "^8.11.0",
+    "ajv-formats": "^2.1.1",
+    "ajv-formats-draft2019": "^1.6.1",
+    "eslint": "^8.18.0",
+    "jest": "^28.1.2",
+    "jest-junit": "^14.0.0",
+    "redoc-cli": "^0.13.16",
+    "serverless": "^3.24.1",
+    "serverless-dynamodb-local": "^0.2.40",
+    "serverless-offline": "^8.8.0",
+    "serverless-plugin-log-subscription": "^2.1.2",
+    "serverless-s3-deploy": "^0.10.1"
+  },
+  "scripts": {
+    "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
+    "debug": "export SLS_DEBUG=* && IS_LOCAL=true sls offline start --config serverless.yml --stage dev",
+    "start": "IS_LOCAL=true AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret sls offline start --config serverless.yml --stage dev --param=\"cmr-stac-name=test-stac\"",
+    "deploy": "sls deploy --config serverless.yml",
+    "deploy-docs": "sls s3deploy -v --config serverless-ngap.yml",
+    "ngap-deploy": "sls deploy --config serverless-ngap.yml",
+    "ngap-deploy-cloudstac": "sls deploy --config serverless-ngap-cloudstac.yml",
+    "remove": "sls dynamodb remove && sls remove --config serverless.yml",
+    "lint": "eslint ./lib/** ./tests/** --fix",
+    "dynamodb:install": "sls dynamodb install --param=\"cmr-stac-name=test-stac\"",
+    "dynamodb:up": "nohup sls dynamodb start --migrate --param=\"cmr-stac-name=test-stac\" > dynamodb.log 2>&1 &",
+    "dynamodb:down": "ps aux | grep \"dynamodb\" | grep -v grep | awk '{print $2}'| xargs kill",
+    "pretest": "rm -f dynamodb.log && npm run dynamodb:up && node tests/wait_for_ddb.js",
+    "test": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --coverage --reporters=jest-junit --reporters=default",
+    "test:watch": "AWS_ACCESS_KEY_ID=testLocal AWS_SECRET_ACCESS_KEY=secret IS_LOCAL=true STAC_NAME=test-stac jest --env=node --reporters=default --watch",
+    "ci": "npm run lint && npm run test"
+  },
+  "resolutions": {
+    "file-type": "16.5.4"
+  }
+}

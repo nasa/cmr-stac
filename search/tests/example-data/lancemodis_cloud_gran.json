@@ -1,0 +1,85 @@
+{
+  "type": "Feature",
+  "id": "LANCEMODIS:1028235774",
+  "stac_version": "1.0.0",
+  "stac_extensions": [],
+  "collection": "LANCEMODIS_COLL.v6.1NRT",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -130.072843,
+          -46.728858
+        ],
+        [
+          -163.057516,
+          -51.176483
+        ],
+        [
+          -164.573697,
+          -69.364972
+        ],
+        [
+          -112.537606,
+          -61.968957
+        ],
+        [
+          -130.072843,
+          -46.728858
+        ]
+      ]
+    ]
+  },
+  "bbox": [
+    -164.573697,
+    -69.492825,
+    -112.537606,
+    -46.728858
+  ],
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/LANCEMODIS_COLL.v6.1NRT/items/LANCEMODIS:1028235774"
+    },
+    {
+      "rel": "parent",
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/LANCEMODIS_COLL.v6.1NRT"
+    },
+    {
+      "rel": "collection",
+      "href": "https://example.com/cloudstac/LANCEMODIS/collections/LANCEMODIS_COLL.v6.1NRT"
+    },
+    {
+      "rel": "root",
+      "href": "https://example.com/cloudstac/"
+    },
+    {
+      "rel": "provider",
+      "href": "https://example.com/cloudstac/LANCEMODIS"
+    },
+    {
+      "rel": "via",
+      "href": "http://localhost:3003/concepts/G1848422111-LANCEMODIS.json"
+    },
+    {
+      "rel": "via",
+      "href": "http://localhost:3003/concepts/G1848422111-LANCEMODIS.umm_json"
+    }
+  ],
+  "properties": {
+    "datetime": "2020-06-10T23:55:00.000Z",
+    "start_datetime": "2020-06-10T23:55:00.000Z",
+    "end_datetime": "2020-06-11T00:00:00.000Z"
+  },
+  "assets": {
+    "data": {
+      "href": "https://nrt3.modaps.eosdis.nasa.gov/archive/allData/61/LANCEMODIS_COLL/2020/162/MYD02HKM.A2020162.2355.061.NRT.hdf",
+      "type": "application/x-hdfeos"
+    },
+    "metadata": {
+      "href": "http://localhost:3003/concepts/G1848422111-LANCEMODIS.xml",
+      "type": "application/xml"
+    }
+  }
+}

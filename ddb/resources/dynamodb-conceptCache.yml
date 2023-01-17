@@ -1,0 +1,20 @@
+---
+Resources:
+  ConceptCache:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.cmrStacName}-conceptTable
+      AttributeDefinitions:
+        - AttributeName: stacId
+          AttributeType: S
+        - AttributeName: providerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: stacId
+          KeyType: HASH
+        - AttributeName: providerId
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: expdate
+        Enabled: true
+      BillingMode: PAY_PER_REQUEST
