@@ -48,7 +48,8 @@ const selfLinks = (
     },
   ];
 
-  if (nextCursor) {
+  // only include `next` if there is a cursor, and no limit has been set
+  if (nextCursor && originalQuery.limit == null) {
     const newQuery = { ...originalQuery };
     newQuery["cursor"] = nextCursor;
 

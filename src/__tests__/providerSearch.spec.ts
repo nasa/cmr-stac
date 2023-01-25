@@ -205,6 +205,36 @@ describe("GET /:provider/search", () => {
       });
     });
 
+    describe("given a limit has been set", () => {
+      it("should not have a next link", async () => {
+        const mockItems = generateSTACItems("mock_collection_a", 1);
+
+        sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+        sandbox.stub(Collections, "getCollections").resolves({
+          facets: null,
+          count: 2,
+          cursor: "cursor",
+          items: [{ id: "mock_collection_a" } as STACCollection],
+        });
+        sandbox.stub(Items, "getItems").resolves({
+          facets: null,
+          count: mockItems.length,
+          cursor: "next",
+          items: mockItems,
+        });
+
+        const { body: data } = await request(app)
+          .get("/stac/PROVIDER/search")
+          .query({ limit: 1 });
+
+        const firstLink = data.links.find((link: Link) => link.rel === "first");
+        expect(firstLink).not.to.be.undefined;
+
+        const nextLink = data.links.find((link: Link) => link.rel === "next");
+        expect(nextLink).to.be.undefined;
+      });
+    });
+
     const limits = [
       ["valid", 100, 200],
       ["larger than the max", 99999, 400],
@@ -221,7 +251,7 @@ describe("GET /:provider/search", () => {
             .resolves(emptyCollections);
           sandbox.stub(Items, "getItems").resolves(emptyItems);
 
-          const { statusCode } = await request(app)
+          const { statusCode, body } = await request(app)
             .get("/stac/PROVIDER/search")
             .query({ limit });
 
