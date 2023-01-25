@@ -4,6 +4,27 @@ const { expect } = chai;
 import { buildQuery, sortByToSortKeys, stringifyQuery } from "../stacQuery";
 
 describe("buildQuery", () => {
+  describe("given a bounding box", () => {
+    [
+      { label: "as array", bbox: [-121, 38, -119, 40] },
+      { label: "as string", bbox: "-121,38,-119,40" },
+    ].forEach(({ label, bbox }) =>
+      describe(`${label}`, () => {
+        it("should return a valid query", async () => {
+          const query = await buildQuery({
+            method: "POST",
+            body: { bbox },
+            params: { providerId: "MY_PROV" },
+            headers: {},
+            query: {},
+          } as any);
+
+          expect(query).to.have.property("boundingBox", "-121,38,-119,40");
+        });
+      })
+    );
+  });
+
   describe("given an `eo:cloud_cover` query", () => {
     [
       {
@@ -73,6 +94,10 @@ describe("stringifyQuery", () => {
       { query: { limit: 2 }, queryString: "limit=2" },
       {
         query: { bbox: [-180, -90, 180, 90] },
+        queryString: "bbox=-180,-90,180,90",
+      },
+      {
+        query: { bbox: "-180,-90,180,90" },
         queryString: "bbox=-180,-90,180,90",
       },
       {

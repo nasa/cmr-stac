@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { flattenDeep, keyBy } from "lodash";
+import { flattenDeep } from "lodash";
 
 import { GeoJSONGeometry } from "../@types/StacItem";
 import { InvalidParameterError } from "../models/errors";
@@ -159,7 +159,7 @@ export const buildQuery = async (req: Request | any) => {
 
   gqlQuery = mergeMaybe(gqlQuery, {
     cursor: query.cursor,
-    boundingBox: query.bbox,
+    boundingBox: Array.isArray(query.bbox) ? query.bbox.join(",") : query.bbox,
     conceptId: granuleIds,
   });
   // TODO use OR to search readableGranuleName as well as conceptId when available
