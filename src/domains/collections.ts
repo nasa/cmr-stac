@@ -9,7 +9,7 @@ import { mergeMaybe, buildClientId, scrubTokens } from "../utils";
 import { cmrSpatialToExtent } from "./bounding-box";
 
 const CMR_ROOT = process.env.CMR_URL;
-const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3003/api";
+const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013/api";
 
 const collectionsQuery = gql`
   query getCollections($params: CollectionsInput!) {
