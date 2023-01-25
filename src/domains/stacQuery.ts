@@ -6,6 +6,7 @@ import { InvalidParameterError } from "../models/errors";
 import { GranulesInput } from "../models/GraphQLModels";
 import { getCollectionIds } from "./collections";
 import { flattenTree, mergeMaybe, isPlainObject } from "../utils";
+import { convertDateTime } from "../utils/datetime";
 
 export const DEFAULT_LIMIT = 250;
 export const CMR_QUERY_MAX = 2000;
@@ -138,11 +139,9 @@ export const sortByToSortKeys = (sortBys?: string | string[]): string[] => {
 
 export const buildQuery = async (req: Request | any) => {
   const { providerId, collectionId } = req.params;
-  const query = req.method === "GET" ? req.query : req.body;
+  const query = mergeMaybe(req.query, req.body);
 
-  const limit = Number.isNaN(Number(query.limit))
-    ? DEFAULT_LIMIT
-    : Number(query.limit);
+  const limit = Number.isNaN(Number(query.limit)) ? null : Number(query.limit);
 
   const sortKey = sortByToSortKeys(query.sortBy);
 
@@ -150,7 +149,11 @@ export const buildQuery = async (req: Request | any) => {
 
   let gqlQuery: GranulesInput = mergeMaybe(
     { provider: providerId, limit },
-    { sortKey, collectionConceptIds: collectionId ? [collectionId] : [] }
+    {
+      sortKey,
+      collectionConceptIds: collectionId ? [collectionId] : [],
+      temporal: convertDateTime(query.datetime),
+    }
   );
 
   const granuleIds = (
@@ -162,7 +165,6 @@ export const buildQuery = async (req: Request | any) => {
     boundingBox: Array.isArray(query.bbox) ? query.bbox.join(",") : query.bbox,
     conceptId: granuleIds,
   });
-  // TODO use OR to search readableGranuleName as well as conceptId when available
 
   const queryBuilders = [intersectsQuery, cloudCoverQuery];
 

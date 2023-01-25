@@ -7,7 +7,6 @@ import { StacExtension, StacExtensions } from "../models/StacModels";
 import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, buildClientId, scrubTokens } from "../utils";
-import { time } from "console";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013";
@@ -280,7 +279,7 @@ export const getItemIds = async (
   console.time(timingMessage);
   const {
     granules: { count, items, cursor },
-  } = await request(GRAPHQL_URL, granulesQuery, variables, requestHeaders);
+  } = await request(GRAPHQL_URL, granuleIdsQuery, variables, requestHeaders);
   console.timeEnd(timingMessage);
 
   const conceptIds = items.map((item: { conceptId: string }) => item.conceptId);

@@ -1,13 +1,9 @@
 import { Request, Response } from "express";
 
-import { addProviderLinks, getItemIds, getItems } from "../domains/items";
+import { addProviderLinks, getItems } from "../domains/items";
 import { getCollections } from "../domains/collections";
-import {
-  CMR_QUERY_MAX,
-  buildQuery,
-  stringifyQuery,
-} from "../domains/stacQuery";
-import { buildRootUrl, WEEK_IN_MS } from "../utils";
+import { buildQuery, stringifyQuery } from "../domains/stacQuery";
+import { buildRootUrl, mergeMaybe, WEEK_IN_MS } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
@@ -82,7 +78,7 @@ export const itemsHandler = async (req: Request, res: Response) => {
     });
 
     const root = buildRootUrl(req);
-    const originalQuery = req.method === "POST" ? req.body : req.query;
+    const originalQuery = mergeMaybe(req.query, req.body);
 
     if (cursor && req.cookies[`prev-${cursor}`]) {
       const prevResultsQuery = { ...originalQuery };
@@ -94,7 +90,7 @@ export const itemsHandler = async (req: Request, res: Response) => {
       });
     }
 
-    if (nextCursor) {
+    if (nextCursor && originalQuery.limit == null) {
       const nextResultsQuery = { ...originalQuery };
       nextResultsQuery.cursor = nextCursor;
 

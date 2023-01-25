@@ -47,6 +47,12 @@ router.get(
   makeAsyncHandler(providerCollection)
 );
 
+router.post(
+  "/:providerId/collections/:collectionId",
+  validateProvider,
+  makeAsyncHandler(providerCollection)
+);
+
 router.get(
   "/:providerId/collections/:collectionId/items",
   validateProvider,
@@ -55,6 +61,13 @@ router.get(
 );
 
 router.get(
+  "/:providerId/collections/:collectionId/items/:itemId",
+  validateProvider,
+  validateCollection,
+  makeAsyncHandler(itemHandler)
+);
+
+router.post(
   "/:providerId/collections/:collectionId/items/:itemId",
   validateProvider,
   validateCollection,

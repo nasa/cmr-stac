@@ -14,7 +14,7 @@ const selfLinks = (
   providerId: string,
   nextCursor?: string | null
 ): Links => {
-  const originalQuery = req.method === "POST" ? req.body : req.query;
+  const originalQuery = mergeMaybe(req.query, req.body);
 
   const links = [
     {

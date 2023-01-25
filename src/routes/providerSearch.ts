@@ -8,7 +8,7 @@ import {
   buildQuery,
   stringifyQuery,
 } from "../domains/stacQuery";
-import { buildRootUrl, ERRORS } from "../utils";
+import { buildRootUrl, mergeMaybe, ERRORS } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
@@ -19,7 +19,7 @@ const selfLinks = (
 ): Link[] => {
   const { providerId } = req.params;
 
-  const originalQuery = req.method === "GET" ? req.query : req.body;
+  const originalQuery = mergeMaybe(req.query, req.body);
 
   let links = [
     {
