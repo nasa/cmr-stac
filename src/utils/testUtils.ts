@@ -160,7 +160,7 @@ export const generateCollections = (
       timeStart: "2020-01-01T00:00:00.000Z",
       timeEnd: "2021-01-01T00:00:00.000Z",
       useConstraints: {
-        description: "not-provided",
+        description: "proprietary",
       },
       relatedUrls: [],
     } as Collection);

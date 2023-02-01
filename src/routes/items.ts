@@ -110,7 +110,7 @@ export const itemsHandler = async (req: Request, res: Response) => {
       type: "FeatureCollection",
       description: `Items in the collection ${collectionId}`,
       id: `${collectionId}-items`,
-      license: collection.license ?? "NOT FOUND",
+      license: collection.license ?? "proprietary",
       extent: collection.extent,
       stac_version: STAC_VERSION,
       numberMatched: count,

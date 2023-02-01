@@ -48,10 +48,9 @@ describe("GET /stac", () => {
       "title",
       `NASA CMR-STAC Root Catalog`
     );
-    expect(body.links.find((l: Link) => l.rel === "about")).to.have.property(
-      "title",
-      `NASA CMR-STAC Documentation`
-    );
+    expect(
+      body.links.find((l: Link) => l.rel === "service-doc")
+    ).to.have.property("title", `NASA CMR-STAC Documentation`);
   });
 
   describe("given CMR responds with providers", () => {

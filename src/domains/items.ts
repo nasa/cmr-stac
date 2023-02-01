@@ -149,12 +149,19 @@ export const granuleToStac = (granule: Granule): STACItem => {
     cloudCoverExtension,
   ]);
 
-  const properties = {
-    datetime: granule.timeStart,
-    start_datetime: granule.timeStart,
-    end_datetime: granule.timeEnd,
-    ...extProps,
-  };
+  const properties: { [key: string]: string } = mergeMaybe(
+    {},
+    {
+      datetime: granule.timeStart,
+      ...extProps,
+    }
+  );
+
+  if (granule.timeStart && granule.timeEnd) {
+    // BOTH are required if available
+    properties.start_datetime = granule.timeStart;
+    properties.end_datetime = granule.timeEnd;
+  }
 
   const geometry = cmrSpatialToGeoJSONGeometry(granule);
   const bbox = cmrSpatialToExtent(granule);

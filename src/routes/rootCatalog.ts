@@ -18,18 +18,24 @@ const selfLinks = (root: string): Link[] => {
       rel: "self",
       href: root,
       title: `NASA CMR-${id} Root Catalog`,
-      type: "application/json",
+      type: "application/geo+json",
     },
     {
       rel: "root",
       href: root,
       title: `NASA CMR-${id} Root Catalog`,
-      type: "application/json",
+      type: "application/geo+json",
     },
     {
-      rel: "about",
+      rel: "service-doc",
       href: "https://wiki.earthdata.nasa.gov/display/ED/CMR+SpatioTemporal+Asset+Catalog+%28CMR-STAC%29+Documentation",
       title: `NASA CMR-${id} Documentation`,
+      type: "text/html",
+    },
+    {
+      rel: "service-desc",
+      href: `${root}/docs/swagger.json`,
+      title: "OpenAI Documentation",
       type: "application/json",
     },
   ];

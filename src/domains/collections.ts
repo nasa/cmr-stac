@@ -186,15 +186,31 @@ export const collectionToStac = (collection: any): STACCollection => {
     },
   ];
 
+  if (collection.useConstraints) {
+    links.push({
+      rel: "license",
+      href: collection.useConstraints.linkage,
+      type: collection.useConstraints.mimeType,
+      title: collection.useConstraints.name,
+    });
+  }
+
+  const provider = {
+    name: collection.conceptId?.split("-")[1] ?? "CMR",
+    roles: collection.conceptId ? ["producer"] : ["host"],
+  };
+
   return {
     type: "Collection",
     id: collection.conceptId,
     title: collection.title,
     description: collection["abstract"],
-    license: collection.useConstraints?.description ?? "not-provided",
+    // license *should* be a SPDX string see https://spdx.org/licenses/ to be valid for STAC
+    license: collection.useConstraints?.description ?? "proprietary",
     stac_version: "1.0.0",
     extent,
     assets,
+    provider,
     links,
   };
 };
