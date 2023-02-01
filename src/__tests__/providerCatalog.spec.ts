@@ -101,10 +101,8 @@ describe("GET /:provider", () => {
         "/stac/TEST_PROVIDER"
       );
 
-      const link: Link = catalog.links.find(
-        (l: Link) => l.rel === "collections"
-      );
-      expect(link).to.have.property("rel", "collections");
+      const link: Link = catalog.links.find((l: Link) => l.rel === "data");
+      expect(link).to.have.property("rel", "data");
       expect(link).to.have.property("type", "application/json");
       expect(link.href).to.match(/^https?:\/\/.*\/TEST_PROVIDER\/collections$/);
       expect(link).to.have.property("title", "Provider Collections");

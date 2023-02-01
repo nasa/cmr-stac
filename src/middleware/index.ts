@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ERRORS, scrubTokens } from "../utils";
+import { ERRORS, scrubTokens, mergeMaybe } from "../utils";
 import { validDateTime } from "../utils/datetime";
 import { getProvider } from "../domains/providers";
 import { getCollections } from "../domains/collections";
@@ -137,41 +137,50 @@ export const validateCollection = async (
 
 const inclusiveBetween = (v: number, mmin: number, mmax: number) =>
   mmin <= v && v <= mmax;
-const validLat = (lat: number) => inclusiveBetween(lat, -90.0, 90.0);
-const validLon = (lon: number) => inclusiveBetween(lon, -180.0, 180.0);
-const validBbox = (bbox: string) => {
-  // 2D bounding box only, CMR does not support 3D bounding box '(lon, lat, elevation)'
-  const parsedBbox = parseOrdinateString(bbox);
-  if (parsedBbox.length !== 4) return false;
 
-  const [swLon, swLat, neLon, neLat] = parsedBbox;
+const validLat = (lat: number) => inclusiveBetween(lat, -90.0, 90.0);
+
+const validLon = (lon: number) => inclusiveBetween(lon, -180.0, 180.0);
+
+const validBbox = (bbox: string | number[]) => {
+  const parsedBbox =
+    typeof bbox === "string" ? parseOrdinateString(bbox) : bbox;
+
+  if (parsedBbox.length !== 4 && parsedBbox.length !== 6) return false;
+
+  let swLon, swLat, neLon, neLat;
+  if (parsedBbox.length === 4) {
+    [swLon, swLat, neLon, neLat] = parsedBbox;
+  } else {
+    [swLon, swLat, , neLon, neLat] = parsedBbox;
+  }
   return (
     validLon(swLon) && validLat(swLat) && validLon(neLon) && validLat(neLat)
   );
 };
 
 const validateStacOrThrow = (query: StacQuery) => {
-  const limit = query.limit ?? 10;
+  const { bbox, intersects, datetime, limit: strLimit } = query;
 
-  if (0 > limit || limit > MAX_LIMIT_SIZE) {
-    throw new InvalidParameterError(
-      `Limit must be an integer bewteen 0 and ${MAX_LIMIT_SIZE}.`
-    );
+  const limit = Number.isNaN(Number(strLimit)) ? null : Number(strLimit);
+
+  if (limit && limit < 0) {
+    throw new InvalidParameterError(`Limit may not be negative.`);
   }
 
-  if (query.bbox && !validBbox(query.bbox)) {
+  if (bbox && !validBbox(bbox)) {
     throw new InvalidParameterError(
       `BBOX must be in the form of 'bbox=swLon,swLat,neLon,neLat' with valid latitude and longitude.`
     );
   }
 
-  if (query.bbox && query.intersects) {
+  if (bbox && intersects) {
     throw new InvalidParameterError(
       "Query params BBOX and INTERSECTS are mutually exclusive. You may only use one at a time."
     );
   }
 
-  if (!validDateTime(query.datetime)) {
+  if (!validDateTime(datetime)) {
     throw new InvalidParameterError(
       "Query param datetime does not match any valid date format. Please use RFC3339 or ISO8601 valid dates."
     );
@@ -182,25 +191,11 @@ const validateStacOrThrow = (query: StacQuery) => {
  * Middleware that validates query params.
  */
 export const validateStacQuery = (
-  req: Request<object, object, object, StacQuery>,
+  req: Request<object, StacQuery, object, StacQuery>,
   _res: Response,
   next: NextFunction
 ) => {
-  const query = req.query;
-  validateStacOrThrow(query);
-
-  next();
-};
-
-/**
- * Middleware that validates a STAC POST body.
- */
-export const validateStacBody = (
-  req: Request<object, StacQuery, object, object>,
-  _res: Response,
-  next: NextFunction
-) => {
-  const query = req.body;
+  const query = mergeMaybe(req.query, req.body);
   validateStacOrThrow(query);
 
   next();

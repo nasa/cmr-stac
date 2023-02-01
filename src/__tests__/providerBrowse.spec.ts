@@ -93,9 +93,9 @@ describe("GET /:provider/collections", () => {
           .stub(Collections, "getCollectionIds")
           .resolves(emptyCollectionIds);
 
-        const { statusCode, body } = await request(app).get(
-          "/stac/TEST_PROVIDER/collections?datetime=1234-56-789"
-        );
+        const { statusCode, body } = await request(app)
+          .get("/stac/TEST_PROVIDER/collections")
+          .query({ datetime: "1234-56-789" });
 
         expect(statusCode).to.equal(400);
         expect(body).to.deep.equal({
@@ -121,9 +121,9 @@ describe("GET /:provider/collections", () => {
               .stub(Collections, "getCollectionIds")
               .resolves(emptyCollectionIds);
 
-            const { statusCode, body } = await request(app).get(
-              `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
-            );
+            const { statusCode, body } = await request(app)
+              .get(`/stac/TEST_PROVIDER/collections`)
+              .query({ datetime: dateString });
             expect(statusCode).to.equal(200);
           });
         });
@@ -146,9 +146,9 @@ describe("GET /:provider/collections", () => {
               .stub(Collections, "getCollectionIds")
               .resolves(emptyCollectionIds);
 
-            const { statusCode, body } = await request(app).get(
-              `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
-            );
+            const { statusCode, body } = await request(app)
+              .get(`/stac/TEST_PROVIDER/collections`)
+              .query({ datetime: dateString });
             expect(statusCode).to.equal(200);
           });
         });
@@ -162,6 +162,8 @@ describe("GET /:provider/collections", () => {
           "2000-12-31T23:59:59.000/2001-12-31T23:59:59.000",
           "2000-12-31T23:59:59.000Z,2001-12-31T23:59:59.000Z",
           "2000-12-31T23:59:59.000Z/2001-12-31T23:59:59.000Z",
+          "1996-12-19T16:39:57+08:00",
+          "1985-04-12T23:20:50.52+01:00/1986-04-12T23:20:50.52+01:00",
         ].forEach((dateString) => {
           it(`should handle ${dateString} and return a 200`, async () => {
             sandbox
@@ -172,9 +174,9 @@ describe("GET /:provider/collections", () => {
               .stub(Collections, "getCollectionIds")
               .resolves(emptyCollectionIds);
 
-            const { statusCode, body } = await request(app).get(
-              `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
-            );
+            const { statusCode, body } = await request(app)
+              .get(`/stac/TEST_PROVIDER/collections`)
+              .query({ datetime: dateString });
             expect(statusCode).to.equal(200);
           });
         });

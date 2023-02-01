@@ -30,7 +30,7 @@ const selfLinks = (
       title: `Root Catalog`,
     },
     {
-      rel: "collections",
+      rel: "data",
       href: `${root}/${providerId}/collections`,
       type: "application/json",
       title: "Provider Collections",
@@ -150,6 +150,7 @@ export const handler = async (req: Request, res: Response): Promise<any> => {
     stac_version: STAC_VERSION,
     type: "Catalog",
     description: `Root catalog for ${providerId}`,
+    conformsTo: [],
     links: [..._selfLinks, ..._childLinks],
   } as STACCatalog;
 

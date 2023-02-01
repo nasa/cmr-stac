@@ -47,7 +47,7 @@ const providerLinks = (root: string, providers: CmrProvider[]): Link[] => {
 };
 
 export const conformanceHandler = (_: Request, res: Response): any =>
-  res.json(conformance);
+  res.json({ conformsTo: conformance });
 
 export const rootCatalogHandler = async (
   req: Request,
@@ -72,6 +72,7 @@ export const rootCatalogHandler = async (
     type: "Catalog",
     id,
     stac_version: STAC_VERSION,
+    conformsTo: conformance,
     links: [..._selfLinks, ..._providerLinks],
     stac_extensions: [],
     title: `NASA' Common Metadata Repository ${id} API`,

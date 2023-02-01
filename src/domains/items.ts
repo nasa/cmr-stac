@@ -7,6 +7,7 @@ import { StacExtension, StacExtensions } from "../models/StacModels";
 import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, buildClientId, scrubTokens } from "../utils";
+import { CMR_QUERY_MAX } from "./stacQuery";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013";
@@ -205,40 +206,79 @@ export const getItems = async (
   opts: {
     headers?: { "client-id"?: string; [key: string]: any };
     [key: string]: any;
-  } = {}
+  } = {},
+  prevItems: STACItem[] = []
 ): Promise<{
   count: number;
   cursor: string | null;
   items: STACItem[];
   facets: FacetGroup | null;
 }> => {
-  const variables = { params: { ...query } };
+  const paginatedQuery = { ...query };
+  if (paginatedQuery.limit != null) {
+    paginatedQuery.limit = Math.min(query.limit!, CMR_QUERY_MAX);
+  }
+  const variables = { params: { ...paginatedQuery } };
 
-  let userClientId = "cmr-stac";
-  let authorization;
   const { headers } = opts;
+
+  let userClientId, authorization;
   if (headers) {
     userClientId = buildClientId(headers["client-id"]);
     authorization = headers.authorization;
   }
 
   const requestHeaders = mergeMaybe(
-    { "client-id": userClientId },
-    { authorization }
+    {},
+    {
+      "client-id": userClientId,
+      authorization,
+    }
   );
 
   const timingMessage = `Outbound GQL items query => ${JSON.stringify(
-    query,
+    paginatedQuery,
     null,
     2
-  )} ${JSON.stringify(scrubTokens(requestHeaders), null, 2)}`;
-  console.time(timingMessage);
-  const {
-    granules: { count, items, cursor, facets },
-  } = await request(GRAPHQL_URL, granulesQuery, variables, requestHeaders);
-  console.timeEnd(timingMessage);
+  )} ${JSON.stringify(scrubTokens(headers), null, 2)}`;
 
-  return { facets, count, cursor, items: items.map(granuleToStac) };
+  try {
+    console.time(timingMessage);
+    const {
+      granules: { count, items, cursor },
+    } = await request(GRAPHQL_URL, granulesQuery, variables, requestHeaders);
+
+    const totalItems = [...prevItems, ...items.map(granuleToStac)];
+
+    const moreResultsAvailable = !!cursor;
+    const foundEnoughItems = totalItems.length >= (query.limit ?? -1);
+
+    if (!foundEnoughItems && moreResultsAvailable) {
+      const nextQuery = { ...query, cursor };
+      return await getItems(nextQuery, opts, totalItems);
+    }
+
+    return { items: totalItems, count, facets: null, cursor };
+  } catch (err: any) {
+    if (err.response?.status === 200) {
+      const errors = err.response.errors
+        .map((e: any) => e.message)
+        .filter((msg: any) => msg)
+        .reduce(
+          (errs: string[], errMsg: string) => [...errs, errMsg],
+          [] as string[]
+        );
+      console.info(
+        `An invalid collections query was provided. ${errors.join(" ")}`
+      );
+      return { count: 0, cursor: null, items: [], facets: null };
+    } else {
+      throw err;
+    }
+    return { items: [], count: 0, facets: null, cursor: null };
+  } finally {
+    console.timeEnd(timingMessage);
+  }
 };
 
 /**
@@ -276,13 +316,13 @@ export const getItemIds = async (
     2
   )}\n ${JSON.stringify(scrubTokens(requestHeaders), null, 2)}`;
 
-  console.time(timingMessage);
   const {
     granules: { count, items, cursor },
   } = await request(GRAPHQL_URL, granuleIdsQuery, variables, requestHeaders);
   console.timeEnd(timingMessage);
 
   const conceptIds = items.map((item: { conceptId: string }) => item.conceptId);
+
   return { count, cursor, conceptIds };
 };
 

@@ -226,18 +226,36 @@ export const getCollections = async (
     null,
     2
   )} ${JSON.stringify(scrubTokens(requestHeaders), null, 2)}`;
-  console.time(timingMessage);
-  const {
-    collections: { count, cursor, items, facets },
-  } = await request({
-    url: GRAPHQL_URL,
-    document: collectionsQuery,
-    variables: { params: query },
-    requestHeaders,
-  });
-  console.timeEnd(timingMessage);
-
-  return { count, cursor, facets, items: items.map(collectionToStac) };
+  try {
+    console.time(timingMessage);
+    const {
+      collections: { count, cursor, items, facets },
+    } = await request({
+      url: GRAPHQL_URL,
+      document: collectionsQuery,
+      variables: { params: query },
+      requestHeaders,
+    });
+    return { count, cursor, facets, items: items.map(collectionToStac) };
+  } catch (err: any) {
+    if (err.response?.status === 200) {
+      const errors = err.response.errors
+        .map((e: any) => e.message)
+        .filter((msg: any) => msg)
+        .reduce(
+          (errs: string[], errMsg: string) => [...errs, errMsg],
+          [] as string[]
+        );
+      console.info(
+        `An invalid collections query was provided. ${errors.join(" ")}`
+      );
+      return { count: 0, cursor: null, items: [], facets: null };
+    } else {
+      throw err;
+    }
+  } finally {
+    console.timeEnd(timingMessage);
+  }
 };
 
 /**

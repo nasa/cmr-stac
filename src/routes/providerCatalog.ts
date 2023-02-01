@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { Links, STACCatalog } from "../@types/StacCatalog";
 import { buildRootUrl, ERRORS } from "../utils";
 import { getCollectionIds } from "../domains/collections";
+import { conformance } from "../domains/providers";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 const DEFAULT_LIMIT = 2000;
@@ -22,7 +23,7 @@ const selfLinks = (root: string, providerId: string): Links => {
       title: `Root Catalog`,
     },
     {
-      rel: "collections",
+      rel: "data",
       href: `${root}/${providerId}/collections`,
       type: "application/json",
       title: "Provider Collections",
@@ -108,6 +109,7 @@ export const handler = async (req: Request, res: Response): Promise<any> => {
     stac_version: STAC_VERSION,
     type: "Catalog",
     description: `Root catalog for ${providerId}`,
+    conformsTo: conformance,
     links: [..._selfLinks, ..._childLinks],
   } as STACCatalog;
 

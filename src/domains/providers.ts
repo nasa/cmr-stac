@@ -7,12 +7,14 @@ const CMR_LB_SEARCH = `${CMR_LB_URL}/search`;
 const CMR_LB_SEARCH_COLLECTIONS = `${CMR_LB_SEARCH}/collections`;
 
 export const conformance = [
-  "https://api.stacspec.org/v1.0.0-beta.1/core",
-  "https://api.stacspec.org/v1.0.0-beta.1/item-search",
-  "https://api.stacspec.org/v1.0.0-beta.1/item-search#fields",
-  "https://api.stacspec.org/v1.0.0-beta.1/item-search#query",
-  "https://api.stacspec.org/v1.0.0-beta.1/item-search#sort",
-  "https://api.stacspec.org/v1.0.0-beta.1/item-search#context",
+  "https://api.stacspec.org/v1.0.0-rc.2/core",
+  "https://api.stacspec.org/v1.0.0-rc.2/item-search",
+  "https://api.stacspec.org/v1.0.0-rc.2/ogcapi-features/",
+  "https://api.stacspec.org/v1.0.0-rc.2/item-search#fields",
+  "https://api.stacspec.org/v1.0.0-rc.2/item-search#features",
+  "https://api.stacspec.org/v1.0.0-rc.2/item-search#query",
+  "https://api.stacspec.org/v1.0.0-rc.2/item-search#sort",
+  "https://api.stacspec.org/v1.0.0-rc.2/item-search#context",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson",

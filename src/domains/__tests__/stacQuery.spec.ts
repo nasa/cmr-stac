@@ -6,8 +6,17 @@ import { buildQuery, sortByToSortKeys, stringifyQuery } from "../stacQuery";
 describe("buildQuery", () => {
   describe("given a bounding box", () => {
     [
-      { label: "as array", bbox: [-121, 38, -119, 40] },
-      { label: "as string", bbox: "-121,38,-119,40" },
+      { label: "as 2d array", bbox: [-121, 38, -119, 40] },
+      { label: "as 3d array", bbox: [-121, 38, 0, -119, 40, 0] },
+      { label: "as 2d bbox string", bbox: "-121,38,-119,40" },
+      {
+        label: "as 2d bbox string with extra spaces ",
+        bbox: "-121, 38, -119, 40",
+      },
+      {
+        label: "as 3d bbox string with extra spaces ",
+        bbox: "-121, 38, 0, -119, 40, 0",
+      },
     ].forEach(({ label, bbox }) =>
       describe(`${label}`, () => {
         it("should return a valid query", async () => {

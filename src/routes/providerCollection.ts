@@ -56,19 +56,24 @@ const selfLinks = (req: Request): Link[] => {
 };
 
 export const handler = async (req: Request, res: Response): Promise<any> => {
+  const { headers } = req;
   const { providerId, collectionId } = req.params;
   const query = { provider: providerId, conceptId: collectionId };
 
-  const {
-    items: [collection],
-  } = await getCollections(query, { headers: req.headers });
+  try {
+    const {
+      items: [collection],
+    } = await getCollections(query, { headers });
 
-  if (!collection) {
-    return res.status(404).json({
-      errors: `Collection with ID [${collectionId}] in provider [${providerId}] not found.`,
-    });
+    if (!collection) {
+      return res.status(404).json({
+        errors: `Collection with ID [${collectionId}] in provider [${providerId}] not found.`,
+      });
+    }
+
+    collection.links = selfLinks(req);
+    return res.json(collection);
+  } catch (err) {
+    return res.status(500).json((err as Error).message);
   }
-
-  collection.links = selfLinks(req);
-  return res.json(collection);
 };

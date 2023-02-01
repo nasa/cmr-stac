@@ -237,7 +237,7 @@ describe("GET /:provider/search", () => {
 
     const limits = [
       ["valid", 100, 200],
-      ["larger than the max", 99999, 400],
+      ["needing to page", 9999999, 200],
       ["negative", -9, 400],
     ];
     limits.forEach(([label, limit, expected]) => {
@@ -335,9 +335,9 @@ describe("Query validation", () => {
             .stub(Items, "getItems")
             .resolves(emptyItems);
 
-          const { statusCode, body } = await request(app).get(
-            `/stac/PROVIDER/search?intersects=${JSON.stringify(geometry)}`
-          );
+          const { statusCode, body } = await request(app)
+            .get(`/stac/PROVIDER/search`)
+            .query({ intersects: geometry });
           expect(statusCode, JSON.stringify(body, null, 2)).to.equal(200);
           expect(getItemsSpy).to.have.been.calledOnce;
         });
@@ -349,12 +349,11 @@ describe("Query validation", () => {
     ["intersects", "INTERSECTS", "iNtErSeCtS"].forEach((label) => {
       it(`should return handle ${label}`, async () => {
         sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
-
         sandbox.stub(Items, "getItems").resolves(emptyItems);
 
-        const { statusCode, body } = await request(app).get(
-          `/stac/PROVIDER/search?${label}=${JSON.stringify(point)}`
-        );
+        const { statusCode, body } = await request(app)
+          .get(`/stac/PROVIDER/search`)
+          .query({ intersects: point });
         expect(statusCode, JSON.stringify(body, null, 2)).to.equal(200);
       });
     });

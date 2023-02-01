@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { Link } from "../@types/StacCatalog";
 import { STACItem } from "../@types/StacItem";
 import { getItems, addProviderLinks } from "../domains/items";
+import { conformance } from "../domains/providers";
 import {
   DEFAULT_LIMIT,
   buildQuery,
@@ -80,6 +81,7 @@ export const handler = async (req: Request, res: Response): Promise<any> => {
     console.error("A problem occurred retrieving granules", err);
     return res.status(503).json(ERRORS.serviceUnavailable);
   }
+
   const { count, cursor, items } = itemsResponse;
   const features = items.map((item: STACItem) =>
     addProviderLinks(root, providerId, item)
@@ -87,11 +89,12 @@ export const handler = async (req: Request, res: Response): Promise<any> => {
 
   const _selfLinks = selfLinks(root, cursor, req);
 
-  res.json({
+  res.contentType("application/geo+json").json({
     type: "FeatureCollection",
     stac_version: STAC_VERSION,
     numberMatched: count,
     numberReturned: features.length,
+    conformsTo: conformance,
     features,
     links: [..._selfLinks],
     context: {

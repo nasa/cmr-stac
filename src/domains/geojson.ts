@@ -2,6 +2,7 @@ import { GeoJSONGeometry } from "../@types/StacItem";
 import { SpatialExtent } from "../@types/StacCollection";
 import { chunk } from "lodash";
 import { Collection, Granule } from "../models/GraphQLModels";
+import { InvalidParameterError } from "../models/errors";
 import { pointStringToPoints, parseOrdinateString } from "./bounding-box";
 
 /**
@@ -134,6 +135,33 @@ export const linesToGeoJSON = (lines: string[]): GeoJSONGeometry | null => {
     } as GeoJSONGeometry;
   }
   return null;
+};
+
+export const stringToGeoJSON = (geometry: string): GeoJSONGeometry => {
+  try {
+    const geoJson = JSON.parse(geometry);
+    if (!geoJson.type) {
+      console.info(`Missing 'type' from GeoJSON geometry [${geometry}]`);
+      throw new InvalidParameterError(
+        "Invalid intersects parameter detected. Missing ['type'].  Please verify all intersects are a valid GeoJSON geometry."
+      );
+    }
+
+    if (!geoJson.coordinates) {
+      console.info(`Missing 'coordinates' from GeoJSON geometry [${geometry}]`);
+      throw new InvalidParameterError(
+        "Invalid intersects parameter detected. Missing ['coordinates'] Please verify all intersects are a valid GeoJSON geometry."
+      );
+    }
+    return geoJson as GeoJSONGeometry;
+  } catch (err) {
+    console.info(
+      `Failed to parse GeoJSON [${geometry}] : ${(err as Error).message}`
+    );
+    throw new InvalidParameterError(
+      "Invalid intersects parameter detected. Unable to parse. Please verify it is a valid GeoJSON geometry."
+    );
+  }
 };
 
 /**

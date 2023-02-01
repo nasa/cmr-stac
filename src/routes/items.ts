@@ -115,7 +115,17 @@ export const itemsHandler = async (req: Request, res: Response) => {
       stac_version: STAC_VERSION,
       numberMatched: count,
       numberReturned: items.length,
-      features: items,
+      features: items.map((item) => {
+        item.links = [
+          {
+            rel: "self",
+            href: `${root}${req.url}/${item.id}`,
+            type: "application/geo+json",
+            title: item.id,
+          },
+        ];
+        return item;
+      }),
       links: _selfLinks,
       context: {
         returned: items.length,
@@ -126,8 +136,6 @@ export const itemsHandler = async (req: Request, res: Response) => {
 
     return res.contentType("application/geo+json").json(itemsResponse);
   } catch (err) {
-    console.log(err);
-    console.log(`a big fat problem happened`);
     console.error(JSON.stringify(err, null, 2));
     return res
       .status(503)
