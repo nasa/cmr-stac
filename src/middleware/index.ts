@@ -1,14 +1,31 @@
 import { Request, Response, NextFunction } from "express";
-import { ERRORS, scrubTokens, mergeMaybe } from "../utils";
-import { validDateTime } from "../utils/datetime";
-import { getProvider } from "../domains/providers";
-import { getCollections } from "../domains/collections";
+
+import { Provider } from "../models/CmrModels";
 import { StacQuery } from "../models/StacModels";
-import { InvalidParameterError } from "../models/errors";
+import {
+  InvalidParameterError,
+  ItemNotFound,
+  ServiceUnavailableError,
+} from "../models/errors";
+
+import { WarmCache } from "../domains/cache";
+import { getCollections } from "../domains/collections";
 import { parseOrdinateString } from "../domains/bounding-box";
+import { getProviders, getCloudProviders } from "../domains/providers";
 
-const MAX_LIMIT_SIZE = 250;
+import { scrubTokens, mergeMaybe, ERRORS } from "../utils";
+import { validDateTime } from "../utils/datetime";
+import { uniq } from "lodash";
 
+const STAC_QUERY_MAX = 5000;
+
+// Will live in warm lambda instances for 10 minutes
+const cachedProviders = new WarmCache<Provider>();
+const cachedCloudProviders = new WarmCache<Provider>();
+
+/**
+ * Debug log relevant information for a request.
+ */
 export const logFullRequestMiddleware = (
   req: Request,
   _res: Response,
@@ -18,11 +35,35 @@ export const logFullRequestMiddleware = (
     `\n` +
       `PATH: ${req.path}\n` +
       `METHOD: ${req.method}\n` +
-      `HEADERS: ${JSON.stringify(scrubTokens(req.headers), null, 2)}\n` +
+      `HOSTNAME: ${req.hostname}\n`,
+    `HEADERS: ${JSON.stringify(scrubTokens(req.headers), null, 2)}\n` +
       `QUERY: ${JSON.stringify(req.query, null, 2)}\n` +
       `BODY: ${JSON.stringify(req.body, null, 2)}\n` +
-      `URL: ${req.url}`
+      `URL: ${req.url}\n` +
+      `ORIGINAL_URL: ${req.originalUrl}\n` +
+      `BASE_URL: ${req.baseUrl}\n` +
+      `PARAMS: ${JSON.stringify(req.params, null, 2)}`
   );
+  next();
+};
+
+export const cacheMiddleware = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  req.cache = {
+    providers: cachedProviders,
+    cloudProviders: cachedCloudProviders,
+  };
+
+  if (process.env.IS_LOCAL === "true") {
+    req.on("end", () => {
+      req.cache?.providers.clear();
+      req.cache?.cloudProviders.clear();
+    });
+  }
+
   next();
 };
 
@@ -40,65 +81,112 @@ export const cloudStacMiddleware = (
 /**
  * Top level not found handler
  */
-export const notFoundHandler = (
-  _req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const notFoundHandler = (_req: Request, res: Response) =>
   res
     .status(404)
     .json({ errors: ["Oops! Unable to find the requested resource."] });
-  next();
-};
 
 /**
  * Top level error handler
+ * This *MUST* contain all 4 parameters
  */
 export const errorHandler = (
   err: any,
   _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   if (err instanceof InvalidParameterError) {
-    return res.status(400).json({ errors: [err.message] });
+    res.status(400).json({ errors: [err.message] });
+  } else if (err instanceof ItemNotFound) {
+    res.status(404).json({ errors: [err.message] });
+  } else if (err instanceof ServiceUnavailableError) {
+    res.status(503).json({ errors: [err.message] });
+  } else {
+    console.error("A fatal error occurred", err);
+    res
+      .status(err.status ?? 500)
+      .json({ errors: [ERRORS.internalServerError] });
+  }
+};
+
+export const refreshProviderCache = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) => {
+  const isCloudStacReq = req.headers["cloud-hosted"] === "true";
+
+  if (
+    cachedProviders.isEmpty() ||
+    (isCloudStacReq && cachedCloudProviders.isEmpty())
+  ) {
+    const [errs, updatedProviders] = await getProviders();
+
+    if (errs)
+      return next(new ServiceUnavailableError(ERRORS.serviceUnavailable));
+
+    updatedProviders!.forEach((provider) => {
+      cachedProviders.set(provider["provider-id"], provider);
+    });
+
+    // update cloud-hosted if necessary for this call
+    if (isCloudStacReq) {
+      const [searchErrs, cloudProvs] = await getCloudProviders(
+        cachedProviders.getAll()
+      );
+
+      if (searchErrs)
+        return next(new ServiceUnavailableError(ERRORS.serviceUnavailable));
+
+      cloudProvs.forEach((cloudProv) =>
+        cachedCloudProviders.set(cloudProv["provider-id"], cloudProv)
+      );
+    }
   }
 
-  console.error("A fatal error occurred", err);
-  res.status(500).json(ERRORS.internalServerError);
   next();
 };
 
 /**
- * Middleware that adds `provider` to the request object.
+ * Middleware validates the provider in the route is valid and exists.
+ *
+ * If the provider is found, the `provider` is attached to the request.
+ * If the provider does not exist, it exits early with a 404.
+ * If a problem occurs retrieving the information, a 503 is returned.
  */
 export const validateProvider = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
+  if (!req.params.providerId) {
+    return next();
+  }
+
   const { providerId } = req.params;
+  const isCloudStacReq = req.headers["cloud-hosted"] === "true";
 
-  try {
-    const provider = await getProvider(providerId);
+  const provider = isCloudStacReq
+    ? req.cache?.cloudProviders.get(providerId)
+    : req.cache?.providers.get(providerId);
 
-    if (!provider) {
-      return res.status(404).json({
-        errors: [`Provider [${providerId}] not found.`],
-      });
-    }
-
+  if (!provider && isCloudStacReq) {
+    next(
+      new ItemNotFound(
+        `Provider [${providerId}] not found or is does not have any visible cloud hosted collections.`
+      )
+    );
+  } else if (!provider) {
+    next(new ItemNotFound(`Provider [${providerId}] not found.`));
+  } else {
     req.provider = provider;
-
     next();
-  } catch (err) {
-    console.error("A problem occurred retrieving providers.", err);
-    return res.status(503).json(ERRORS.serviceUnavailable);
   }
 };
 
 /**
- * Middleware that adds the collection to the request object.
+ * Middleware that adds the `collection` to the request object.
  * Should be used after the provider has been validated.
  *
  * @example
@@ -109,30 +197,36 @@ export const validateProvider = async (
  */
 export const validateCollection = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
-  const { providerId, collectionId } = req.params;
+  const {
+    headers,
+    params: { providerId, collectionId },
+  } = req;
   const query = { provider: providerId, conceptId: collectionId };
 
   try {
     const {
       items: [collection],
-    } = await getCollections(query, { headers: req.headers });
+    } = await getCollections(query, { headers });
 
-    if (!collection) {
-      return res.status(404).json({
-        errors: `Collection with ID [${collectionId}] in provider [${providerId}] not found.`,
-      });
-    }
+    if (!collection)
+      return next(
+        new ItemNotFound(
+          `Collection with ID [${collectionId}] in provider [${providerId}] not found.`
+        )
+      );
 
     req.collection = collection;
-
-    next();
   } catch (err) {
-    console.error("A problem occurred querying for collections.", err);
-    return res.status(503).json(ERRORS.serviceUnavailable);
+    console.error(
+      "A problem occurred querying for collections.",
+      (err as Error).stack
+    );
+    return next(new ServiceUnavailableError(ERRORS.serviceUnavailable));
   }
+  next();
 };
 
 const inclusiveBetween = (v: number, mmin: number, mmax: number) =>
@@ -155,7 +249,12 @@ const validBbox = (bbox: string | number[]) => {
     [swLon, swLat, , neLon, neLat] = parsedBbox;
   }
   return (
-    validLon(swLon) && validLat(swLat) && validLon(neLon) && validLat(neLat)
+    validLon(swLon) &&
+    validLat(swLat) &&
+    validLon(neLon) &&
+    validLat(neLat) &&
+    swLat <= neLat &&
+    swLon <= neLon
   );
 };
 
@@ -164,25 +263,27 @@ const validateStacOrThrow = (query: StacQuery) => {
 
   const limit = Number.isNaN(Number(strLimit)) ? null : Number(strLimit);
 
-  if (limit && limit < 0) {
-    throw new InvalidParameterError(`Limit may not be negative.`);
+  if (limit && (limit < 0 || limit > STAC_QUERY_MAX)) {
+    return new InvalidParameterError(
+      `Limit must be between 0 and ${STAC_QUERY_MAX}`
+    );
   }
 
   if (bbox && !validBbox(bbox)) {
-    throw new InvalidParameterError(
+    return new InvalidParameterError(
       `BBOX must be in the form of 'bbox=swLon,swLat,neLon,neLat' with valid latitude and longitude.`
     );
   }
 
   if (bbox && intersects) {
-    throw new InvalidParameterError(
+    return new InvalidParameterError(
       "Query params BBOX and INTERSECTS are mutually exclusive. You may only use one at a time."
     );
   }
 
-  if (!validDateTime(datetime)) {
-    throw new InvalidParameterError(
-      "Query param datetime does not match any valid date format. Please use RFC3339 or ISO8601 valid dates."
+  if (datetime && !validDateTime(datetime)) {
+    return new InvalidParameterError(
+      "Query param datetime does not match a valid date format. Please use RFC3339 or ISO8601 formatted datetime strings."
     );
   }
 };
@@ -195,8 +296,12 @@ export const validateStacQuery = (
   _res: Response,
   next: NextFunction
 ) => {
-  const query = mergeMaybe(req.query, req.body);
-  validateStacOrThrow(query);
+  // this feels hacky, check express decoding for proper handling of "+" symbol
+  // this is for timestamps with offsets i.e. 1937-01-01T12:00:27.87+01:00
+  if (req.query.datetime) {
+    req.query.datetime = req.query.datetime.replace(" ", "+");
+  }
 
-  next();
+  const query = mergeMaybe(req.query, req.body);
+  next(validateStacOrThrow(query));
 };

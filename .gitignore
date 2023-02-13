@@ -146,3 +146,7 @@ $RECYCLE.BIN/
 *.out
 
 .build/
+
+# emacs
+\#*\#
+.\#*

@@ -22,7 +22,8 @@ import { STACCollection } from "../@types/StacCollection";
 import { STACItem } from "../@types/StacItem";
 
 const cmrProvidersResponse = [
-  { "provider-id": "TEST_PROV", "short-name": "TEST_PROV" },
+  null,
+  [{ "provider-id": "TEST_PROV", "short-name": "TEST_PROV" }],
 ];
 
 const cmrCollectionsResponse = {
@@ -31,12 +32,10 @@ const cmrCollectionsResponse = {
       id: "TEST_COLL",
     } as STACCollection,
   ],
-  facets: null,
   cursor: "TEST_COLL_CURSOR",
   count: 1,
 };
 const cmrItemsResponse = {
-  facets: null,
   items: [
     {
       id: "TEST_ITEM",
@@ -54,7 +53,9 @@ afterEach(() => {
 
 describe("GET /PROVIDER/collections/COLLECTION/items", () => {
   beforeEach(() => {
-    sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
     sandbox
       .stub(Collections, "getCollections")
       .resolves(cmrCollectionsResponse);
@@ -73,7 +74,7 @@ describe("GET /PROVIDER/collections/COLLECTION/items", () => {
   describe("given the collection does not exist", () => {
     it("should return 404", async () => {
       const { statusCode } = await request(app).get(
-        "/BAD_PROVIDER/collections/COLLECTION/items"
+        "/TEST/collections/COLLECTION/items"
       );
       expect(statusCode).to.equal(404);
     });
@@ -82,7 +83,7 @@ describe("GET /PROVIDER/collections/COLLECTION/items", () => {
   describe("given the provider and collection exist", () => {
     it("should return 200", async () => {
       const { statusCode, body } = await request(app).get(
-        "/stac/TEST_PROV/collections/TEST_COLL/items"
+        "/stac/TEST/collections/TEST_COLL/items"
       );
       expect(statusCode, JSON.stringify(body, null, 2)).to.equal(200);
     });
@@ -92,7 +93,7 @@ describe("GET /PROVIDER/collections/COLLECTION/items", () => {
 describe("GET /PROVIDER/collections/COLLECTION/items/ITEM", () => {
   describe("given the provider does not exist", () => {
     it("should return 404", async () => {
-      sandbox.stub(Providers, "getProviders").resolves([]);
+      sandbox.stub(Providers, "getProviders").resolves([null, []]);
 
       const { statusCode, body } = await request(app).get(
         "/BAD_PROVIDER/collections/COLLECTION/items/ITEM"
@@ -103,13 +104,15 @@ describe("GET /PROVIDER/collections/COLLECTION/items/ITEM", () => {
 
   describe("given the collection does not exist", () => {
     it("should return 404", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox
         .stub(Collections, "getCollections")
-        .resolves({ facets: null, cursor: null, items: [], count: 0 });
+        .resolves({ cursor: null, items: [], count: 0 });
 
       const { statusCode } = await request(app).get(
-        "/stac/TEST_PROV/collections/COLLECTION/items/ITEM"
+        "/stac/TEST/collections/COLLECTION/items/ITEM"
       );
       expect(statusCode).to.equal(404);
     });
@@ -117,24 +120,24 @@ describe("GET /PROVIDER/collections/COLLECTION/items/ITEM", () => {
 
   describe("given the item does not exist", () => {
     it("should return 404", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
 
       sandbox.stub(Collections, "getCollections").resolves({
-        facets: null,
         cursor: null,
         items: [{ id: "TEST_COLL" } as STACCollection],
         count: 1,
       });
 
       sandbox.stub(Items, "getItems").resolves({
-        facets: null,
         cursor: null,
         items: [],
         count: 0,
       });
 
       const { statusCode } = await request(app).get(
-        "/stac/BAD_PROVIDER/collections/COLLECTION/items/ITEM"
+        "/stac/TEST/collections/COLLECTION/items/ITEM"
       );
       expect(statusCode).to.equal(404);
     });
@@ -142,22 +145,22 @@ describe("GET /PROVIDER/collections/COLLECTION/items/ITEM", () => {
 
   describe("given the provider, collection, and item exist", () => {
     it("should return 200", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves({
-        facets: null,
         cursor: null,
         items: [{ id: "TEST_COLL" } as STACCollection],
         count: 1,
       });
       sandbox.stub(Items, "getItems").resolves({
-        facets: null,
         cursor: "cursor",
         items: [{ id: "TEST_ITEM" } as STACItem],
         count: 1,
       });
 
       const { statusCode } = await request(app).get(
-        "/stac/TEST_PROV/collections/TEST_COLL/items/TEST_ITEM"
+        "/stac/TEST/collections/TEST_COLL/items/TEST_ITEM"
       );
       expect(statusCode).to.equal(200);
     });

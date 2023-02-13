@@ -1,16 +1,16 @@
-import { gql, request } from "graphql-request";
+import { Request } from "express";
+import { gql } from "graphql-request";
 
 import { AssetLinks, STACItem } from "../@types/StacItem";
-import { Granule, GranulesInput, FacetGroup } from "../models/GraphQLModels";
+import { Granule, GranulesInput } from "../models/GraphQLModels";
 import { StacExtension, StacExtensions } from "../models/StacModels";
 
 import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
-import { mergeMaybe, buildClientId, scrubTokens } from "../utils";
-import { CMR_QUERY_MAX } from "./stacQuery";
+import { mergeMaybe, stacContext } from "../utils";
+import { paginateQuery, GraphQLHandler } from "./stacQuery";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
-const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013";
 const CMR_URL = process.env.CMR_URL;
 
 const granulesQuery = gql`
@@ -69,37 +69,45 @@ const cloudCoverExtension = (granule: Granule) => {
  * @param providerId Provider ID
  * @param item The STAC Item
  */
-const selfLinks = (root: string, providerId: string, item: STACItem) => {
+const selfLinks = (req: Request, item: STACItem) => {
+  const { provider } = req;
+  const { stacRoot, self } = stacContext(req);
+
   return [
     {
       rel: "self",
-      href: `${root}/${providerId}/collections/${item.collection}/items/${item.id}`,
+      href: `${stacRoot}/${provider?.["provider-id"]}/collections/${item.collection}/items/${item.id}`,
+      type: "application/geo+json",
     },
     {
       rel: "parent",
-      href: `${root}/${providerId}/collections/${item.collection}`,
+      href: `${stacRoot}/${provider?.["provider-id"]}/collections/${item.collection}/`,
+      type: "application/geo+json",
     },
     {
       rel: "collection",
-      href: `${root}/${providerId}/collections/${item.collection}`,
+      href: `${stacRoot}/${provider?.["provider-id"]}/collections/${item.collection}/`,
+      type: "application/geo+json",
     },
     {
       rel: "root",
-      href: `${root}`,
+      href: `${stacRoot}`,
+      type: "application/json",
     },
     {
       rel: "provider",
-      href: `${root}/${providerId}`,
+      href: `${stacRoot}/${provider?.["provider-id"]}`,
+      type: "application/json",
     },
     {
       rel: "via",
-      href: `${root}/search/concepts/${item.id}.json`,
+      href: `${CMR_URL}/search/concepts/${item.id}.json`,
       title: "CMR JSON metadata for item",
       type: "application/json",
     },
     {
       rel: "via",
-      href: `${root}/search/concepts/${item.id}.umm_json`,
+      href: `${CMR_URL}/search/concepts/${item.id}.umm_json`,
       title: "CMR UMM_JSON metadata for item",
       type: "application/vnd.nasa.cmr.umm+json",
     },
@@ -205,94 +213,30 @@ export const granuleToStac = (granule: Granule): STACItem => {
   return { ...item, collection: granule.collectionConceptId };
 };
 
-/**
- * Return an object containing list of STAC Items matching the given query.
- */
-export const getItems = async (
-  query: GranulesInput = {},
-  opts: {
-    headers?: { "client-id"?: string; [key: string]: any };
-    [key: string]: any;
-  } = {},
-  prevItems: STACItem[] = []
-): Promise<{
-  count: number;
-  cursor: string | null;
-  items: STACItem[];
-  facets: FacetGroup | null;
-}> => {
-  const paginatedQuery = { ...query };
-  if (paginatedQuery.limit != null) {
-    paginatedQuery.limit = Math.min(query.limit!, CMR_QUERY_MAX);
-  }
-  const variables = { params: { ...paginatedQuery } };
-
-  const { headers } = opts;
-
-  let userClientId, authorization;
-  if (headers) {
-    userClientId = buildClientId(headers["client-id"]);
-    authorization = headers.authorization;
-  }
-
-  const requestHeaders = mergeMaybe(
-    {},
-    {
-      "client-id": userClientId,
-      authorization,
-    }
-  );
-
-  const timingMessage = `Outbound GQL items query => ${JSON.stringify(
-    paginatedQuery,
-    null,
-    2
-  )} ${JSON.stringify(scrubTokens(headers), null, 2)}`;
-
+const granulesQueryHandler: GraphQLHandler = (response: any) => {
   try {
-    console.time(timingMessage);
     const {
       granules: { count, items, cursor },
-    } = await request(GRAPHQL_URL, granulesQuery, variables, requestHeaders);
+    } = response;
 
-    const totalItems = [...prevItems, ...items.map(granuleToStac)];
-
-    const moreResultsAvailable = !!cursor;
-    const foundEnoughItems = totalItems.length >= (query.limit ?? -1);
-
-    if (!foundEnoughItems && moreResultsAvailable) {
-      const nextQuery = { ...query, cursor };
-      return await getItems(nextQuery, opts, totalItems);
-    }
-
-    return { items: totalItems, count, facets: null, cursor };
-  } catch (err: any) {
-    if (err.response?.status === 200) {
-      const errors = err.response.errors
-        .map((e: any) => e.message)
-        .filter((msg: any) => msg)
-        .reduce(
-          (errs: string[], errMsg: string) => [...errs, errMsg],
-          [] as string[]
-        );
-      console.info(
-        `An invalid collections query was provided. ${errors.join(" ")}`
-      );
-      return { count: 0, cursor: null, items: [], facets: null };
-    } else {
-      throw err;
-    }
-    return { items: [], count: 0, facets: null, cursor: null };
-  } finally {
-    console.timeEnd(timingMessage);
+    return [
+      null,
+      {
+        count,
+        cursor,
+        items: items.map(granuleToStac),
+      },
+    ];
+  } catch (err) {
+    return [(err as Error).message, null];
   }
 };
 
 /**
- * Return an object containing list of STAC Items Ids matching the given query.
+ * Return an object containing list of STAC Items matching the given query.
  */
-export const getItemIds = async (
-  query: GranulesInput = {},
+export const getItems = async (
+  params: GranulesInput,
   opts: {
     headers?: { "client-id"?: string; [key: string]: any };
     [key: string]: any;
@@ -300,35 +244,52 @@ export const getItemIds = async (
 ): Promise<{
   count: number;
   cursor: string | null;
+  items: STACItem[];
+}> => await paginateQuery(granulesQuery, params, opts, granulesQueryHandler);
+
+const granuleIdsQueryHandler: GraphQLHandler = (response: any) => {
+  try {
+    const {
+      granules: { count, conceptIds, cursor },
+    } = response;
+
+    return [
+      null,
+      {
+        count,
+        cursor,
+        items: conceptIds,
+      },
+    ];
+  } catch (err) {
+    return [(err as Error).message, null];
+  }
+};
+
+/**
+ * Return an object containing list of STAC Items Ids matching the given query.
+ */
+export const getItemIds = async (
+  params: GranulesInput,
+  opts: {
+    headers?: { [key: string]: any };
+    [key: string]: any;
+  } = {}
+): Promise<{
+  count: number;
+  cursor: string | null;
   conceptIds: string[];
 }> => {
-  const variables = { params: { ...query } };
-
-  let userClientId = "cmr-stac";
-  let authorization;
-  const { headers } = opts;
-  if (headers) {
-    userClientId = buildClientId(headers["client-id"]);
-    authorization = headers.authorization;
-  }
-
-  const requestHeaders = mergeMaybe(
-    { "client-id": userClientId },
-    { authorization }
-  );
-
-  const timingMessage = `Outbound GQL item Ids query => ${JSON.stringify(
-    query,
-    null,
-    2
-  )}\n ${JSON.stringify(scrubTokens(requestHeaders), null, 2)}`;
-
   const {
-    granules: { count, items, cursor },
-  } = await request(GRAPHQL_URL, granuleIdsQuery, variables, requestHeaders);
-  console.timeEnd(timingMessage);
-
-  const conceptIds = items.map((item: { conceptId: string }) => item.conceptId);
+    count,
+    cursor,
+    items: conceptIds,
+  } = await paginateQuery(
+    granuleIdsQuery,
+    params,
+    opts,
+    granuleIdsQueryHandler
+  );
 
   return { count, cursor, conceptIds };
 };
@@ -336,12 +297,8 @@ export const getItemIds = async (
 /**
  * Add or append self links to an item.
  */
-export const addProviderLinks = (
-  root: string,
-  providerId: string,
-  item: STACItem
-): STACItem => {
-  const providerLinks = selfLinks(root, providerId, item);
+export const addProviderLinks = (req: Request, item: STACItem): STACItem => {
+  const providerLinks = selfLinks(req, item);
 
   item.links = Array.isArray(item.links)
     ? [...item.links, ...providerLinks]

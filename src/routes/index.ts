@@ -1,77 +1,96 @@
 import express from "express";
 
-import { makeAsyncHandler } from "../utils";
+import { rootCatalogHandler } from "./rootCatalog";
+import { rootConformanceHandler } from "./conformance";
+import { healthcheckHandler } from "./healthcheck";
+
+import { searchHandler } from "./search";
+import { providerCatalogHandler } from "./catalog";
+import { collectionHandler, collectionsHandler } from "./browse";
+import { multiItemHandler, singleItemHandler } from "./items";
+
 import {
+  refreshProviderCache,
   validateProvider,
-  validateCollection,
   validateStacQuery,
+  logFullRequestMiddleware,
+  cloudStacMiddleware,
+  cacheMiddleware,
+  validateCollection,
 } from "../middleware";
 
-import { rootCatalogHandler, conformanceHandler } from "./rootCatalog";
-import { handler as providerCatalog } from "./providerCatalog";
-import { handler as providerBrowse } from "./providerBrowse";
-import { handler as providerSearch } from "./providerSearch";
-import { handler as providerCollection } from "./providerCollection";
-import { itemHandler, itemsHandler } from "./items";
+import { wrapErrorHandler } from "../utils";
+import { providerConformanceHandler } from "./providerConformance";
 
 const router = express.Router();
 
-router.get("/", makeAsyncHandler(rootCatalogHandler));
+router.use(logFullRequestMiddleware, cloudStacMiddleware, cacheMiddleware);
 
-// validate providers from here on
-router.get("/:providerId", validateProvider, makeAsyncHandler(providerCatalog));
-router.get("/:providerId/conformance", validateProvider, conformanceHandler);
+router.get("/", refreshProviderCache, wrapErrorHandler(rootCatalogHandler));
+router.get("/health", wrapErrorHandler(healthcheckHandler));
+router.get("/conformance", wrapErrorHandler(rootConformanceHandler));
+
 router.get(
-  "/:providerId/search",
+  "/:providerId",
+  refreshProviderCache,
   validateProvider,
-  validateStacQuery,
-  makeAsyncHandler(providerSearch)
+  wrapErrorHandler(providerCatalogHandler)
 );
-router.post(
-  "/:providerId/search",
+router.get(
+  "/:providerId/conformance",
+  refreshProviderCache,
   validateProvider,
-  validateStacQuery,
-  makeAsyncHandler(providerSearch)
+  wrapErrorHandler(providerConformanceHandler)
 );
+
+router
+  .route("/:providerId/search")
+  .get(
+    refreshProviderCache,
+    validateProvider,
+    validateStacQuery,
+    wrapErrorHandler(searchHandler)
+  )
+  .post(
+    refreshProviderCache,
+    validateProvider,
+    validateStacQuery,
+    wrapErrorHandler(searchHandler)
+  );
 
 router.get(
   "/:providerId/collections",
+  refreshProviderCache,
   validateProvider,
   validateStacQuery,
-  makeAsyncHandler(providerBrowse)
+  wrapErrorHandler(collectionsHandler)
 );
 
 router.get(
   "/:providerId/collections/:collectionId",
+  refreshProviderCache,
   validateProvider,
-  makeAsyncHandler(providerCollection)
-);
-
-router.post(
-  "/:providerId/collections/:collectionId",
-  validateProvider,
-  makeAsyncHandler(providerCollection)
+  validateStacQuery,
+  validateCollection,
+  wrapErrorHandler(collectionHandler)
 );
 
 router.get(
   "/:providerId/collections/:collectionId/items",
+  refreshProviderCache,
   validateProvider,
+  validateStacQuery,
   validateCollection,
-  makeAsyncHandler(itemsHandler)
+  wrapErrorHandler(multiItemHandler)
 );
 
 router.get(
   "/:providerId/collections/:collectionId/items/:itemId",
+  refreshProviderCache,
   validateProvider,
+  validateStacQuery,
   validateCollection,
-  makeAsyncHandler(itemHandler)
-);
-
-router.post(
-  "/:providerId/collections/:collectionId/items/:itemId",
-  validateProvider,
-  validateCollection,
-  makeAsyncHandler(itemHandler)
+  wrapErrorHandler(singleItemHandler)
 );
 
 export default router;

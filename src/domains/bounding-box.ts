@@ -187,9 +187,10 @@ export const parseOrdinateString = (ordString: string) => {
  * @returns An array of coordinates
  */
 export const pointStringToPoints = (latLonPoints: string) => {
-  return chunk(parseOrdinateString(latLonPoints), 2).map(([lat, lon]) => {
-    return { lat, lon };
-  });
+  return chunk(parseOrdinateString(latLonPoints), 2).map(([lat, lon]) => ({
+    lat,
+    lon,
+  }));
 };
 
 export const cmrSpatialToExtent = (
@@ -204,13 +205,11 @@ export const cmrSpatialToExtent = (
       .reduce(addPointsToBbox, null);
   }
 
-  if (points) {
+  if (points)
     return points.map(pointStringToPoints).reduce(addPointsToBbox, null);
-  }
 
-  if (lines) {
+  if (lines)
     return lines.flatMap(pointStringToPoints).reduce(addPointsToBbox, null);
-  }
 
   if (boxes) {
     return boxes

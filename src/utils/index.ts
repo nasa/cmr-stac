@@ -3,47 +3,61 @@ import { Request, Response, NextFunction } from "express";
 export const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
 
 export const ERRORS = {
-  internalServerError: {
-    status: 500,
-    errors: [
-      "Oops! Something has gone wrong. We have been alerted and are working to resolve the problem. Please try your request again later.",
-    ],
-  },
-  serviceUnavailable: {
-    status: 503,
-    errors: [
-      "Oops! A problem occurred upstream and we were unable to process your request. We have been alerted and are working to resolve the problem. Please try your request again later.",
-    ],
-  },
+  internalServerError:
+    "Oops! Something has gone wrong. We have been alerted and are working to resolve the problem. Please try your request again later.",
+  serviceUnavailable:
+    "Oops! A problem occurred upstream and we were unable to process your request. We have been alerted and are working to resolve the problem. Please try your request again later.",
 };
 
+/**
+ * Builds the root STAC url from the request.
+ */
 export const buildRootUrl = (req: Request): string => {
-  const stacPath = req.baseUrl;
-  const protocol =
-    req.headers["cloudfront-forwarded-proto"] ??
-    req.headers["x-forwarded-proto"] ??
-    "http";
-  const host =
-    req.headers["x-forwarded-host"] ?? req.headers["host"] ?? "localhost:3000";
+  const { headers } = req;
 
-  return `${protocol}://${host}${stacPath}`;
+  const protocol =
+    headers["cloudfront-forwarded-proto"] ??
+    headers["x-forwarded-proto"] ??
+    "http";
+
+  const host =
+    headers["x-forwarded-host"] ?? headers["host"] ?? "localhost:3000";
+
+  return `${protocol}://${host}`;
 };
 
 export const buildClientId = (clientId?: string): string => {
   if (clientId) return `${clientId}-cmr-stac`;
-  else return "cmr-stac";
+  return "cmr-stac";
 };
 
 /**
  * Wrap express handler with async error handling.
  */
-export const makeAsyncHandler = (fn: (rq: Request, rs: Response) => any) => {
+export const wrapErrorHandler = (fn: (rq: Request, rs: Response) => any) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await fn(req, res);
     } catch (error) {
       next(error);
     }
+  };
+};
+
+export const stacContext = (req: Request) => {
+  const { headers, originalUrl } = req;
+  const isCloudStac = headers["cloud-stac"] === "true";
+  const root = buildRootUrl(req);
+  const stac = isCloudStac ? "cloudstac" : "stac";
+  // default to empty string so `undefined` isn't printed
+  const path = originalUrl.split("?").at(0) ?? "";
+
+  return {
+    id: isCloudStac ? "CLOUD-STAC" : "STAC",
+    root,
+    stacRoot: `${root}/${stac}`,
+    path: `${root}${path}`,
+    self: `${root}${originalUrl}`,
   };
 };
 
@@ -57,7 +71,7 @@ export const makeAsyncHandler = (fn: (rq: Request, rs: Response) => any) => {
  */
 export const mergeMaybe = (
   map: { [key: string]: any } | any,
-  maybeMap: { [key: string]: any }
+  maybeMap?: { [key: string]: any }
 ) => {
   const baseMap = map ?? {};
   if (!maybeMap) return baseMap;

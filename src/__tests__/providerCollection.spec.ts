@@ -36,14 +36,12 @@ afterEach(() => {
   sandbox.restore();
 });
 
-const cmrProvidersResponse = [
-  { "provider-id": "TEST_PROVIDER", "short-name": "TEST_PROVIDER" },
-];
-
 describe("GET /:provider/collections/:collectionId", () => {
   describe("given an invalid provider", () => {
     it("should return a 404", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
       const { statusCode, body } = await request(app).get(
@@ -59,17 +57,18 @@ describe("GET /:provider/collections/:collectionId", () => {
 
   describe("given an invalid collectionId", () => {
     it("should return a 404", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
       const { statusCode, body } = await request(app).get(
-        "/stac/TEST_PROVIDER/collections/foo"
+        "/stac/TEST/collections/MISSING"
       );
 
       expect(statusCode).to.equal(404);
       expect(body).to.deep.equal({
-        errors:
-          "Collection with ID [foo] in provider [TEST_PROVIDER] not found.",
+        errors: ["Collection with ID [MISSING] in provider [TEST] not found."],
       });
     });
   });
@@ -79,16 +78,17 @@ describe("GET /:provider/collections/:collectionId", () => {
       const mockCollections = generateSTACCollections(1);
       const mockCollection = mockCollections[0];
 
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves({
-        facets: null,
         count: 1,
         cursor: "cursor",
         items: mockCollections,
       });
 
       const { statusCode, body } = await request(app).get(
-        `/stac/TEST_PROVIDER/collections/${mockCollection.id}`
+        `/stac/TEST/collections/${mockCollection.id}`
       );
 
       expect(statusCode).to.equal(200);

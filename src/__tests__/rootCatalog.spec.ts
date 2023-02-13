@@ -16,7 +16,8 @@ const app = createApp();
 import * as Providers from "../domains/providers";
 
 const cmrProvidersResponse = [
-  { "provider-id": "PROVIDER_A", "short-name": "PROVIDER_A" },
+  null,
+  [{ "provider-id": "TEST", "short-name": "TEST" }],
 ];
 
 const sandbox = sinon.createSandbox();
@@ -27,7 +28,7 @@ afterEach(() => {
 
 describe("GET /stac", () => {
   before(() => {
-    sandbox.stub(Providers, "getProviders").resolves([]);
+    sandbox.stub(Providers, "getProviders").resolves([null, []]);
   });
 
   it("should return a catalog response", async () => {
@@ -55,15 +56,18 @@ describe("GET /stac", () => {
 
   describe("given CMR responds with providers", () => {
     before(() => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]!);
     });
 
     it("should have an entry for each provider in the links", async () => {
       const { statusCode, body } = await request(app).get("/stac");
 
       expect(statusCode).to.equal(200);
+      const [, expectedProviders] = cmrProvidersResponse;
 
-      cmrProvidersResponse.forEach((provider) => {
+      expectedProviders!.forEach((provider) => {
         const providerLink = body.links.find((l: Link) =>
           l.href.includes(provider["provider-id"])
         );
@@ -80,7 +84,7 @@ describe("GET /stac", () => {
     it("should return a 503 response", async () => {
       sandbox
         .stub(Providers, "getProviders")
-        .throws(new Error("No upstream connection"));
+        .resolves(["No upstream connection", null]);
 
       const { statusCode, body } = await request(app).get("/stac");
 

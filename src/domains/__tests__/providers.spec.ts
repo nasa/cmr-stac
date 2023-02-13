@@ -44,16 +44,10 @@ describe("getCloudProviders", () => {
           {
             "provider-id": "PROV1",
             "short-name": "PROV1",
-            "cmr-only": false,
-            small: false,
-            consortiums: ["EOSDIS FEDEO"],
           },
           {
             "provider-id": "PROV2",
             "short-name": "PROV2",
-            "cmr-only": false,
-            small: false,
-            consortiums: ["CWIC"],
           },
         ],
       })
@@ -62,7 +56,12 @@ describe("getCloudProviders", () => {
       .onThirdCall()
       .resolves({ status: 200, headers: { "cmr-hits": "1" } });
 
-    const providers = await getCloudProviders();
-    expect(providers).to.have.length(1);
+    const [, providers] = await getCloudProviders();
+    expect(providers).to.deep.equal([
+      {
+        "provider-id": "PROV2",
+        "short-name": "PROV2",
+      },
+    ]);
   });
 });

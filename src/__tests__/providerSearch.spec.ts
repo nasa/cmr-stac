@@ -30,12 +30,8 @@ import { generateSTACItems } from "../utils/testUtils";
 
 const sandbox = sinon.createSandbox();
 
-const cmrProvidersResponse = [
-  { "provider-id": "PROVIDER", "short-name": "PROVIDER" },
-];
-
-const emptyCollections = { facets: null, count: 0, cursor: null, items: [] };
-const emptyItems = { facets: null, count: 0, cursor: null, items: [] };
+const emptyCollections = { count: 0, cursor: null, items: [] };
+const emptyItems = { count: 0, cursor: null, items: [] };
 
 afterEach(() => {
   sandbox.restore();
@@ -44,61 +40,30 @@ afterEach(() => {
 describe("GET /:provider/search", () => {
   describe("given a valid provider", () => {
     it("should return 200", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
       sandbox.stub(Items, "getItems").resolves(emptyItems);
 
-      const { statusCode } = await request(app).get("/stac/PROVIDER/search");
+      const { statusCode } = await request(app).get("/stac/TEST/search");
 
       expect(statusCode).to.equal(200);
     });
 
-    it("should return a search response", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
-      sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
-      sandbox.stub(Items, "getItems").resolves(emptyItems);
-
-      const { body: data } = await request(app)
-        .get("/stac/PROVIDER/search")
-        .query({ providerId: "PROVIDER" });
-
-      expect(data).to.have.property("type", "FeatureCollection");
-      expect(data).to.have.property("stac_version", "1.0.0");
-
-      expect(data).to.have.property("numberMatched");
-      expect(data.numberMatched).to.be.a("number");
-
-      expect(data).to.have.property("numberReturned");
-      expect(data.numberReturned).to.be.a("number");
-
-      expect(data).to.have.property("features");
-      expect(Array.isArray(data.features)).to.be.true;
-
-      expect(data).to.have.property("links");
-      expect(Array.isArray(data.links)).to.be.true;
-
-      expect(data).to.have.property("context");
-      expect(data.context).to.have.property("returned");
-      expect(data.context.returned).to.be.a("number");
-
-      expect(data.context).to.have.property("limit");
-      expect(data.context.limit).to.be.a("number");
-
-      expect(data.context).to.have.property("matched");
-      expect(data.context.matched).to.be.a("number");
-    });
-
     it("should have self link with the current search", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
       sandbox.stub(Items, "getItems").resolves(emptyItems);
 
       const { body: data } = await request(app)
-        .get("/stac/PROVIDER/search")
+        .get("/stac/TEST/search")
         .query({ bbox: "-180,-90,180,90" });
 
       const selfLink = data.links.find((l: Link) => l.rel === "self");
-      const resourceRoute = `/stac/PROVIDER/search?bbox=${encodeURIComponent(
+      const resourceRoute = `/stac/TEST/search?bbox=${encodeURIComponent(
         "-180,-90,180,90"
       )}`;
 
@@ -107,29 +72,33 @@ describe("GET /:provider/search", () => {
     });
 
     it("should have root link to the root catalog", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
       sandbox.stub(Items, "getItems").resolves(emptyItems);
 
       const { body: data } = await request(app)
-        .get("/stac/PROVIDER/search")
-        .query({ providerId: "PROVIDER", bbox: "-180,-90,180,90" });
+        .get("/stac/TEST/search")
+        .query({ providerId: "TEST", bbox: "-180,-90,180,90" });
 
       const selfLink = data.links.find((l: Link) => l.rel === "root");
       expect(selfLink.href).to.have.string("/");
     });
 
     it("should have provider link to the provider catalog", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
       sandbox.stub(Items, "getItems").resolves(emptyItems);
 
       const { body: data } = await request(app)
-        .get("/stac/PROVIDER/search")
-        .query({ providerId: "PROVIDER", bbox: "-180,-90,180,90" });
+        .get("/stac/TEST/search")
+        .query({ providerId: "TEST", bbox: "-180,-90,180,90" });
 
-      const selfLink = data.links.find((l: Link) => l.rel === "provider");
-      expect(selfLink.href).to.match(/\/stac\/PROVIDER$/);
+      const selfLink = data.links.find((l: Link) => l.rel === "parent");
+      expect(selfLink.href).to.match(/\/stac\/TEST$/);
     });
 
     describe("given there are items found", () => {
@@ -140,9 +109,13 @@ describe("GET /:provider/search", () => {
         });
         const mockItems = [...mockAItems, ...mockBItems];
 
-        sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([
+            null,
+            [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
+          ]);
         sandbox.stub(Collections, "getCollections").resolves({
-          facets: null,
           count: 2,
           cursor: "cursor",
           items: [
@@ -151,7 +124,6 @@ describe("GET /:provider/search", () => {
           ],
         });
         sandbox.stub(Items, "getItems").resolves({
-          facets: null,
           count: mockItems.length,
           cursor: "nextPage",
           items: mockItems,
@@ -178,9 +150,13 @@ describe("GET /:provider/search", () => {
         });
         const mockItems = [...mockAItems, ...mockBItems];
 
-        sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([
+            null,
+            [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
+          ]);
         sandbox.stub(Collections, "getCollections").resolves({
-          facets: null,
           count: 2,
           cursor: "cursor",
           items: [
@@ -189,7 +165,6 @@ describe("GET /:provider/search", () => {
           ],
         });
         sandbox.stub(Items, "getItems").resolves({
-          facets: null,
           count: mockItems.length + 10,
           cursor: "next",
           items: mockItems,
@@ -205,39 +180,9 @@ describe("GET /:provider/search", () => {
       });
     });
 
-    describe("given a limit has been set", () => {
-      it("should not have a next link", async () => {
-        const mockItems = generateSTACItems("mock_collection_a", 1);
-
-        sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
-        sandbox.stub(Collections, "getCollections").resolves({
-          facets: null,
-          count: 2,
-          cursor: "cursor",
-          items: [{ id: "mock_collection_a" } as STACCollection],
-        });
-        sandbox.stub(Items, "getItems").resolves({
-          facets: null,
-          count: mockItems.length,
-          cursor: "next",
-          items: mockItems,
-        });
-
-        const { body: data } = await request(app)
-          .get("/stac/PROVIDER/search")
-          .query({ limit: 1 });
-
-        const firstLink = data.links.find((link: Link) => link.rel === "first");
-        expect(firstLink).not.to.be.undefined;
-
-        const nextLink = data.links.find((link: Link) => link.rel === "next");
-        expect(nextLink).to.be.undefined;
-      });
-    });
-
     const limits = [
       ["valid", 100, 200],
-      ["needing to page", 9999999, 200],
+      ["needing to page", 4000, 200],
       ["negative", -9, 400],
     ];
     limits.forEach(([label, limit, expected]) => {
@@ -245,13 +190,16 @@ describe("GET /:provider/search", () => {
         it(`it should return status ${expected}`, async () => {
           sandbox
             .stub(Providers, "getProviders")
-            .resolves(cmrProvidersResponse);
+            .resolves([
+              null,
+              [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
+            ]);
           sandbox
             .stub(Collections, "getCollections")
             .resolves(emptyCollections);
           sandbox.stub(Items, "getItems").resolves(emptyItems);
 
-          const { statusCode, body } = await request(app)
+          const { statusCode } = await request(app)
             .get("/stac/PROVIDER/search")
             .query({ limit });
 
@@ -263,7 +211,9 @@ describe("GET /:provider/search", () => {
 
   describe("given an invalid provider", () => {
     it("should return 404", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       const { statusCode } = await request(app).get("/stac/BAD_PROV/search");
       expect(statusCode).to.equal(404);
     });
@@ -273,11 +223,13 @@ describe("GET /:provider/search", () => {
 describe("Query validation", () => {
   describe("given a valid BBOX", () => {
     it("should return 200", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Items, "getItems").resolves(emptyItems);
 
       const { statusCode } = await request(app)
-        .get("/stac/PROVIDER/search")
+        .get("/stac/TEST/search")
         .query({ bbox: "-180,-90,180,90" });
       expect(statusCode).to.equal(200);
     });
@@ -287,7 +239,10 @@ describe("Query validation", () => {
         it(`should handle case ${variation}`, async () => {
           sandbox
             .stub(Providers, "getProviders")
-            .resolves(cmrProvidersResponse);
+            .resolves([
+              null,
+              [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
+            ]);
           sandbox.stub(Items, "getItems").resolves(emptyItems);
 
           const { statusCode } = await request(app).get(
@@ -301,7 +256,12 @@ describe("Query validation", () => {
 
   describe("given an invalid BBOX", () => {
     it("should return 400", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([
+          null,
+          [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
+        ]);
       sandbox.stub(Items, "getItems").resolves(emptyItems);
 
       const { statusCode, body } = await request(app).get(
@@ -329,7 +289,10 @@ describe("Query validation", () => {
         it("should return 200", async () => {
           sandbox
             .stub(Providers, "getProviders")
-            .resolves(cmrProvidersResponse);
+            .resolves([
+              null,
+              [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
+            ]);
 
           const getItemsSpy = sandbox
             .stub(Items, "getItems")
@@ -348,7 +311,12 @@ describe("Query validation", () => {
   describe("given various cases of INTERSECTS", () => {
     ["intersects", "INTERSECTS", "iNtErSeCtS"].forEach((label) => {
       it(`should return handle ${label}`, async () => {
-        sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([
+            null,
+            [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
+          ]);
         sandbox.stub(Items, "getItems").resolves(emptyItems);
 
         const { statusCode, body } = await request(app)
@@ -361,9 +329,14 @@ describe("Query validation", () => {
 
   describe("given both an INTERSECTS and BBOX parameter", () => {
     it("should return 400", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([
+          null,
+          [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
+        ]);
 
-      const { statusCode } = await request(app).get(
+      const { statusCode, body } = await request(app).get(
         `/stac/PROVIDER/search?bbox=0,0,0,0&intersects=${JSON.stringify(point)}`
       );
       expect(statusCode).to.equal(400);

@@ -26,7 +26,7 @@ const isValidDate = (date: string) => {
   return !Number.isNaN(new Date(date).getTime());
 };
 
-export const convertDateTime = (dateTime?: string) => {
+export const dateTimeToRange = (dateTime?: string) => {
   if (!dateTime) return;
 
   const dateTimeArray = splitOnDelimiters(dateTime, [",", "/"]);

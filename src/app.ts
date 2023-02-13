@@ -9,12 +9,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import routes from "./routes";
-import {
-  notFoundHandler,
-  errorHandler,
-  logFullRequestMiddleware,
-  cloudStacMiddleware,
-} from "./middleware";
+import { notFoundHandler, errorHandler } from "./middleware";
 
 const createApp = () => {
   const app = express();
@@ -32,12 +27,7 @@ const createApp = () => {
     app.use(logger);
   }
 
-  app.use(
-    /\/(cloud)?stac?/,
-    logFullRequestMiddleware,
-    cloudStacMiddleware,
-    routes
-  );
+  app.use(/\/(cloud)?stac?/, routes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

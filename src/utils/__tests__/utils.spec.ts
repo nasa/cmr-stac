@@ -4,15 +4,15 @@ import { buildRootUrl } from "../index";
 
 describe("buildRootUrl", () => {
   describe("given request with HOST header set", () => {
-    it("should return a valid url", () => {
-      expect(
-        buildRootUrl({
-          baseUrl: "/stac",
-          headers: {
-            host: "my-test-host",
-          },
-        } as Request)
-      ).to.equal("http://my-test-host/stac");
+    ["host", "x-forwarded-host"].forEach((hostHeader) => {
+      it(`should handle ${hostHeader} and return a valid url`, () => {
+        const headers: any = {};
+        headers[hostHeader] = "my-test-host";
+
+        expect(buildRootUrl({ headers } as Request)).to.deep.equal(
+          "http://my-test-host"
+        );
+      });
     });
   });
 });
