@@ -74,10 +74,13 @@ export const getCloudProviders = async (
 
   const { authorization } = opts;
 
-  const [searchErrs, cloudProviders] = await candidates!.reduce(
-    async (promised, provider) => {
-      const [errs, cloudProviders] = await promised;
+  const searchErrs: string[] = [];
+  const cloudProviders: Provider[] = [];
+
+  await Promise.all(
+    candidates!.map(async (provider) => {
       try {
+        const start = new Date();
         const { headers } = await axios.get(CMR_LB_SEARCH_COLLECTIONS, {
           params: mergeMaybe(
             { provider: provider["short-name"], cloud_hosted: true },
@@ -86,21 +89,16 @@ export const getCloudProviders = async (
         });
 
         if (headers["cmr-hits"] === "0") {
-          return [errs, cloudProviders];
+          cloudProviders.push(provider);
         }
-
-        return [errs, [...cloudProviders, provider]];
       } catch (e) {
         console.error(
           `A problem occurred checking provider [${provider["provider-id"]}] for cloud holdings.`,
           e
         );
-        return [[...errs, (e as Error).message], cloudProviders];
+        searchErrs.push((e as Error).message);
       }
-    },
-
-    Promise.resolve([[], []] as [string[], Provider[]])
+    })
   );
-
   return [searchErrs.length ? searchErrs : null, cloudProviders];
 };

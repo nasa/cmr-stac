@@ -1,4 +1,4 @@
-import { WarmCache } from "./domains/cache";
+import { WarmProviderCache } from "./domains/cache";
 import { Provider } from "./models/CmrModels";
 
 /**
@@ -8,8 +8,8 @@ declare global {
   namespace Express {
     export interface Request {
       cache?: {
-        providers: WarmCache<Provider>;
-        cloudProviders: WarmCache<Provider>;
+        providers: WarmProviderCache;
+        cloudProviders: WarmProviderCache;
       };
       provider?: Provider;
       collection?: any;

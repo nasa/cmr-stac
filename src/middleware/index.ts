@@ -8,20 +8,19 @@ import {
   ServiceUnavailableError,
 } from "../models/errors";
 
-import { WarmCache } from "../domains/cache";
+import { WarmProviderCache } from "../domains/cache";
 import { getCollections } from "../domains/collections";
 import { parseOrdinateString } from "../domains/bounding-box";
 import { getProviders, getCloudProviders } from "../domains/providers";
 
 import { scrubTokens, mergeMaybe, ERRORS } from "../utils";
 import { validDateTime } from "../utils/datetime";
-import { uniq } from "lodash";
 
 const STAC_QUERY_MAX = 5000;
 
 // Will live in warm lambda instances for 10 minutes
-const cachedProviders = new WarmCache<Provider>();
-const cachedCloudProviders = new WarmCache<Provider>();
+const cachedProviders = new WarmProviderCache();
+const cachedCloudProviders = new WarmProviderCache();
 
 /**
  * Debug log relevant information for a request.
@@ -168,8 +167,8 @@ export const validateProvider = async (
   const isCloudStacReq = req.headers["cloud-hosted"] === "true";
 
   const provider = isCloudStacReq
-    ? req.cache?.cloudProviders.get(providerId)
-    : req.cache?.providers.get(providerId);
+    ? await req.cache?.cloudProviders.get(providerId)
+    : await req.cache?.providers.get(providerId);
 
   if (!provider && isCloudStacReq) {
     next(

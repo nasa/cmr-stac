@@ -24,7 +24,7 @@ import { providerConformanceHandler } from "./providerConformance";
 
 const router = express.Router();
 
-router.use(logFullRequestMiddleware, cloudStacMiddleware, cacheMiddleware);
+router.use(cloudStacMiddleware, cacheMiddleware, logFullRequestMiddleware);
 
 router.get("/", refreshProviderCache, wrapErrorHandler(rootCatalogHandler));
 router.get("/health", wrapErrorHandler(healthcheckHandler));

@@ -1,3 +1,6 @@
+import { Provider } from "../models/CmrModels";
+import { getProvider } from "../domains/providers";
+
 interface Cache<T> {
   data: T;
   expiration: number;
@@ -7,7 +10,7 @@ interface Cache<T> {
  * An in-memory cache that will live for the life of a warm lambda instance.
  * An optional TTL in seconds value may be used to expire items sooner.
  */
-export class WarmCache<T> {
+export abstract class WarmCache<T> {
   ttl: number;
   store: { [key: string]: Cache<T> } = {};
 
@@ -25,6 +28,10 @@ export class WarmCache<T> {
     }
   }
 
+  abstract fetchFromRemote(
+    key: string
+  ): Promise<[string, null] | [null, T | null]>;
+
   public size(): number {
     this.expireItems();
 
@@ -35,12 +42,16 @@ export class WarmCache<T> {
     return this.size() === 0;
   }
 
-  public get(key: string): T | undefined {
+  public async get(key: string): Promise<T | undefined> {
     this.expireItems();
 
-    if (this.store[key] !== undefined) {
-      return this.store[key].data;
-    }
+    const localData = this.store[key];
+    if (localData) return localData.data;
+
+    const [err, remoteData] = await this.fetchFromRemote(key);
+
+    if (err) return;
+    if (remoteData) return this.set(key, remoteData);
     return undefined;
   }
 
@@ -69,5 +80,11 @@ export class WarmCache<T> {
 
   public unset(key: string): void {
     delete this.store[key];
+  }
+}
+
+export class WarmProviderCache extends WarmCache<Provider> {
+  async fetchFromRemote(key: string) {
+    return await getProvider(key);
   }
 }
