@@ -174,7 +174,7 @@ export const validateProvider = async (
   if (!provider && isCloudStacReq) {
     next(
       new ItemNotFound(
-        `Provider [${providerId}] not found or is does not have any visible cloud hosted collections.`
+        `Provider [${providerId}] not found or does not have any visible cloud hosted collections.`
       )
     );
   } else if (!provider) {
@@ -258,7 +258,7 @@ const validBbox = (bbox: string | number[]) => {
   );
 };
 
-const validateStacOrThrow = (query: StacQuery) => {
+const validateQueryTerms = (query: StacQuery) => {
   const { bbox, intersects, datetime, limit: strLimit } = query;
 
   const limit = Number.isNaN(Number(strLimit)) ? null : Number(strLimit);
@@ -303,5 +303,5 @@ export const validateStacQuery = (
   }
 
   const query = mergeMaybe(req.query, req.body);
-  next(validateStacOrThrow(query));
+  next(validateQueryTerms(query));
 };

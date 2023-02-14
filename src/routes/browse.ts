@@ -86,7 +86,6 @@ export const collectionsHandler = async (
 
 /**
  * Returns a STACCollection as the body.
- *
  */
 export const collectionHandler = async (
   req: Request,
