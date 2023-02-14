@@ -6,8 +6,6 @@ interface Cache<T> {
 /**
  * An in-memory cache that will live for the life of a warm lambda instance.
  * An optional TTL in seconds value may be used to expire items sooner.
- *
- *
  */
 export class WarmCache<T> {
   ttl: number;
@@ -21,7 +19,7 @@ export class WarmCache<T> {
     if (this.ttl <= 0) return;
 
     for (const key in this.store) {
-      if (this.store[key].data < new Date().getTime()) {
+      if (this.store[key].expiration < new Date().getTime()) {
         delete this.store[key];
       }
     }
