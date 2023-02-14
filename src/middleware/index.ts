@@ -115,7 +115,7 @@ export const refreshProviderCache = async (
   _res: Response,
   next: NextFunction
 ) => {
-  const isCloudStacReq = req.headers["cloud-hosted"] === "true";
+  const isCloudStacReq = req.headers["cloud-stac"] === "true";
 
   if (
     cachedProviders.isEmpty() ||
