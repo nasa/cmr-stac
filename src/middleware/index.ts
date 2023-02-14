@@ -164,7 +164,7 @@ export const validateProvider = async (
   }
 
   const { providerId } = req.params;
-  const isCloudStacReq = req.headers["cloud-hosted"] === "true";
+  const isCloudStacReq = req.headers["cloud-stac"] === "true";
 
   const provider = isCloudStacReq
     ? await req.cache?.cloudProviders.get(providerId)
