@@ -1,103 +1,95 @@
 import { Request } from "express";
 import { flattenDeep } from "lodash";
+import { request } from "graphql-request";
 
 import { GeoJSONGeometry } from "../@types/StacItem";
 import { InvalidParameterError } from "../models/errors";
-import { GranulesInput } from "../models/GraphQLModels";
+import { CollectionsInput, GranulesInput } from "../models/GraphQLModels";
 import { getCollectionIds } from "./collections";
-import { flattenTree, mergeMaybe, isPlainObject } from "../utils";
-import { convertDateTime } from "../utils/datetime";
+import {
+  flattenTree,
+  mergeMaybe,
+  isPlainObject,
+  buildClientId,
+  scrubTokens,
+} from "../utils";
+import { dateTimeToRange } from "../utils/datetime";
 
-export const DEFAULT_LIMIT = 250;
-export const CMR_QUERY_MAX = 2000;
+type OptionalString = string | null;
 
-export const geoJsonToQuery = (geoJson: string | string[]) => {
-  const geometryStrings = Array.isArray(geoJson) ? geoJson : [geoJson];
-
-  const [polygons, lines, points] = geometryStrings.map(stringToGeoJSON).reduce(
-    ([polygons, lines, points], geometry: GeoJSONGeometry) => {
-      const flattened = flattenDeep(geometry.coordinates).join(",");
-
-      switch (geometry.type.toLowerCase()) {
-        case "point":
-        case "multipoint":
-          return [[...polygons], [...lines], [...points, flattened]];
-
-        case "linestring":
-          return [[...polygons], [...lines, flattened], [...points]];
-        case "multilinestring":
-          console.warn(
-            "Gaps in linestrings are not supported for intersects yet"
-          );
-          return [[...polygons], [...lines, flattened], [...points]];
-        case "polygon":
-        case "multipolygon":
-          console.warn(
-            "Holes in polygons are not supported for intersects yet"
-          );
-          return [[...polygons, flattened], [...lines], [...points]];
-        default:
-          throw new InvalidParameterError(
-            "Invalid intersects parameter detected. Please verify all intersects are a valid GeoJSON geometry."
-          );
+type GraphQLHandlerResponse =
+  | [error: string, data: null]
+  | [
+      error: null,
+      data: {
+        count: number;
+        cursor: OptionalString;
+        items: any[];
       }
-    },
-    [[] as string[], [] as string[], [] as string[]]
-  );
+    ];
 
-  return { polygons, lines, points };
+export type GraphQLHandler = (response: any) => GraphQLHandlerResponse;
+
+export type GraphQLResults = {
+  count: number;
+  items: any[];
+  cursor: OptionalString;
 };
 
-export const stringToGeoJSON = (geometry: string): GeoJSONGeometry => {
-  try {
-    const geoJson = JSON.parse(geometry);
-    if (!geoJson.type) {
-      console.info(`Missing 'type' from GeoJSON geometry [${geometry}]`);
-      throw new InvalidParameterError(
-        "Invalid intersects parameter detected. Please verify all intersects are a valid GeoJSON geometry."
-      );
-    }
+const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013";
+export const CMR_QUERY_MAX = 500;
+export const MAX_SIGNED_INTEGER = Math.pow(2, 31) - 1;
 
-    if (!geoJson.coordinates) {
-      console.info(`Missing 'coordinates' from GeoJSON geometry [${geometry}]`);
-      throw new InvalidParameterError(
-        "Invalid intersects parameter detected. Please verify all intersects are a valid GeoJSON geometry."
-      );
-    }
-    return geoJson as GeoJSONGeometry;
-  } catch (err) {
-    console.info(
-      `Failed to parse geoJSON [${geometry}] : ${(err as Error).message}`
+export const geoJsonToQuery = (geoJson: object | object[]) => {
+  const geometries = Array.isArray(geoJson) ? geoJson : [geoJson];
+
+  const [polygon, line, point] = geometries
+    .map((geometry: any) =>
+      typeof geometry === "string" ? JSON.parse(geometry) : geometry
+    )
+    .reduce(
+      ([polygon, line, point], geometry: GeoJSONGeometry) => {
+        const flattened = flattenDeep(geometry.coordinates).join(",");
+
+        switch (geometry.type.toLowerCase()) {
+          case "point":
+          case "multipoint":
+            return [[...polygon], [...line], [...point, flattened]];
+          case "linestring":
+            return [[...polygon], [...line, flattened], [...point]];
+          case "multilinestring":
+            return [[...polygon], [...line, flattened], [...point]];
+          case "polygon":
+          case "multipolygon":
+            return [[...polygon, flattened], [...line], [...point]];
+          default:
+            throw new InvalidParameterError(
+              "Invalid intersects parameter detected. Please verify all intersects are a valid GeoJSON geometry."
+            );
+        }
+      },
+      [[] as string[], [] as string[], [] as string[]]
     );
-    throw new InvalidParameterError(
-      "Invalid intersects parameter detected. Please verify it is a valid GeoJSON geometry."
-    );
-  }
+
+  return { polygon, line, point };
 };
 
 /**
  * Return an intersects query object.
  */
-const intersectsQuery = (query: any) => {
+const intersectsQuery = (_req: Request, query: any) => {
   const { intersects } = query;
   if (!intersects) return;
 
-  const { polygons, lines, points } = geoJsonToQuery(intersects.toString());
-
-  return mergeMaybe(
-    {},
-    {
-      polygon: polygons,
-      line: lines,
-      point: points,
-    }
-  );
+  return geoJsonToQuery(intersects);
 };
+
+const propertyQuery = (_req: Request, _query: any) => ({});
 
 /**
  * Return a cloudCover property query object.
  */
-const cloudCoverQuery = (query: any) => {
+const cloudCoverQuery = (_req: Request, query: any) => {
   if (!query || !query["query"] || !query["query"]["eo:cloud_cover"]) return;
 
   const { lt, lte, gt, gte } = query["query"]["eo:cloud_cover"];
@@ -116,6 +108,19 @@ const cloudCoverQuery = (query: any) => {
 
   return { cloudCover };
 };
+
+const limitQuery = (_req: Request, query: any) => ({
+  limit: Number.isNaN(Number(query.limit)) ? null : Number(query.limit),
+});
+
+const temporalQuery = (_req: Request, query: any) => ({
+  temporal: encodeURIComponent(dateTimeToRange(query.datetime) ?? ""),
+});
+
+const bboxQuery = (_req: Request, query: any) => ({
+  boundingBox: bboxToBoundingBox(query),
+});
+
 /**
  * Returns a list of sortKeys from the sortBy property
  */
@@ -137,63 +142,138 @@ export const sortByToSortKeys = (sortBys?: string | string[]): string[] => {
   }, [] as string[]);
 };
 
-export const buildQuery = async (req: Request | any) => {
-  const { providerId, collectionId } = req.params;
-  const query = mergeMaybe(req.query, req.body);
+const sortKeyQuery = (_req: Request, query: any) => ({
+  sortKey: sortByToSortKeys(query.sortBy),
+});
 
-  const limit = Number.isNaN(Number(query.limit)) ? null : Number(query.limit);
+const idsQuery = (req: Request, query: any) => {
+  const {
+    params: { itemId },
+  } = req;
 
-  const sortKey = sortByToSortKeys(query.sortBy);
+  let itemIds: string[] = [];
+  if (itemId) {
+    itemIds.push(itemId);
+  } else {
+    itemIds = Array.isArray(query.ids)
+      ? query.ids.flatMap((id: string) => id.split(","))
+      : query.ids?.split(",") ?? [];
+  }
 
-  const cloudHosted = req.headers["cloud-stac"] === "true";
+  return { conceptId: itemIds };
+};
 
-  let gqlQuery: GranulesInput = mergeMaybe(
-    { provider: providerId, limit },
-    {
-      sortKey,
-      collectionConceptIds: collectionId ? [collectionId] : [],
-      temporal: convertDateTime(query.datetime),
-    }
-  );
+const cursorQuery = (query: any) => ({ cursor: query.cursor });
 
-  const granuleIds = (
-    Array.isArray(query.ids) ? [...query.ids] : [query.ids]
-  ).filter((id) => id);
+/**
+ * Convert bbox STAC query term to GraphQL query term.
+ */
+const bboxToBoundingBox = (query: any) => {
+  const { bbox: bboxInput } = query;
+  if (!bboxInput) return;
 
-  gqlQuery = mergeMaybe(gqlQuery, {
-    cursor: query.cursor,
-    boundingBox: Array.isArray(query.bbox) ? query.bbox.join(",") : query.bbox,
-    conceptId: granuleIds,
-  });
+  const bbox = Array.isArray(bboxInput)
+    ? bboxInput
+    : bboxInput.split(",").map((coord: string) => coord.trim());
 
-  const queryBuilders = [intersectsQuery, cloudCoverQuery];
+  let swLon, swLat, neLon, neLat;
+  if (bbox && bbox.length === 4) {
+    // 2d bounding box
+    swLon = bbox[0];
+    swLat = bbox[1];
+    neLon = bbox[2];
+    neLat = bbox[3];
+  } else if (bbox && bbox.length === 6) {
+    // 3d bounding box passed in, but CMR only supports 2d,
+    // drop the elevations for query
 
-  gqlQuery = queryBuilders.reduce(
-    (acc, bldr) => mergeMaybe(acc, bldr(query)),
-    gqlQuery
-  );
+    swLon = bbox[0];
+    swLat = bbox[1];
+    // swEle = bbox[2]; // placeholder
 
-  if (cloudHosted || req.query?.collections || req.body?.collections) {
-    // have to search by collectionConceptIds and not provider to filter on 'cloudHosted'
+    neLon = bbox[3];
+    neLat = bbox[4];
+    // neEle = bbox[5]; // placeholder
+  }
+
+  if (swLon == null) return;
+  return [swLon, swLat, neLon, neLat].join(",");
+};
+
+const collectionsQuery = async (req: Request, query: any) => {
+  const {
+    headers,
+    params: { providerId: provider, collectionId },
+  } = req;
+  const cloudHosted = headers["cloud-stac"] === "true";
+
+  let collectionConceptIds: string[] = [];
+  if (collectionId) {
+    collectionConceptIds.push(collectionId);
+  } else {
+    collectionConceptIds = Array.isArray(query.collections)
+      ? query.collections.flatMap((id: string) => id.split(","))
+      : query.collections?.split(",") ?? [];
+  }
+
+  if (cloudHosted) {
     const cloudHostedQuery = cloudHosted ? { cloudHosted: true } : {};
-    const { conceptIds } = await getCollectionIds(
+    const { items: cloudHostedConcepts } = await getCollectionIds(
       mergeMaybe(
         {
-          provider: providerId,
+          provider,
           hasGranules: true,
           limit: CMR_QUERY_MAX,
         },
         cloudHostedQuery
       ),
-      { headers: req.headers }
+      { headers }
     );
 
-    gqlQuery = {
-      ...gqlQuery,
-      collectionConceptIds: conceptIds,
-    } as GranulesInput;
+    const searchableCollections = collectionConceptIds.length
+      ? cloudHostedConcepts.filter(({ conceptId }) =>
+          collectionConceptIds.find((queriedId) => queriedId === conceptId)
+        )
+      : cloudHostedConcepts;
+
+    return {
+      collectionConceptIds: searchableCollections,
+    };
   }
-  return gqlQuery;
+
+  return { collectionConceptIds };
+};
+
+/**
+ * Merge the query params and body into a single query object and return the GraphQL query.
+ *
+ * Defaults to POST body when conflicting keys are passed.
+ */
+export const buildQuery = async (req: Request) => {
+  const {
+    params: { providerId: provider },
+  } = req;
+
+  const query = mergeMaybe(req.query, req.body);
+
+  const queryBuilders = [
+    idsQuery,
+    collectionsQuery,
+    bboxQuery,
+    intersectsQuery,
+    propertyQuery,
+    cloudCoverQuery,
+    limitQuery,
+    temporalQuery,
+    sortKeyQuery,
+    cursorQuery,
+  ];
+
+  return await queryBuilders.reduce(
+    async (partialQuery, bldr) =>
+      mergeMaybe(await partialQuery, await bldr(req, query)),
+    Promise.resolve({ provider } as GranulesInput)
+  );
 };
 
 /**
@@ -218,4 +298,82 @@ export const stringifyQuery = (input: any) => {
   });
 
   return queryParams.toString();
+};
+
+export const paginateQuery = async (
+  gqlQuery: string,
+  params: GranulesInput | CollectionsInput,
+  opts: any,
+  handler: GraphQLHandler,
+  prevResults: any[] = []
+): Promise<GraphQLResults> => {
+  const paginatedParams = { ...params };
+
+  if (paginatedParams.limit != null) {
+    paginatedParams.limit = Math.min(paginatedParams.limit, CMR_QUERY_MAX);
+  }
+  const variables = { params: { ...paginatedParams } };
+
+  let userClientId, authorization;
+  const { headers } = opts;
+  if (headers) {
+    userClientId = buildClientId(headers["client-id"]);
+    authorization = headers.authorization;
+  }
+
+  const requestHeaders = mergeMaybe(
+    { "client-id": userClientId },
+    { authorization }
+  );
+
+  const timingMessage = `Outbound GQL query => ${JSON.stringify(
+    paginatedParams,
+    null,
+    2
+  )} ${JSON.stringify(scrubTokens(headers), null, 2)}`;
+
+  try {
+    console.info(timingMessage);
+    const response = await request(
+      GRAPHQL_URL,
+      gqlQuery,
+      variables,
+      requestHeaders
+    );
+
+    // use the passed in results handler
+    const [errors, data] = handler(response);
+
+    if (errors) throw new Error(errors);
+    const { count, cursor, items } = data!;
+
+    const totalResults = [...prevResults, ...items];
+    const moreResultsAvailable =
+      totalResults.length !== count && cursor != null;
+    const foundEnough = totalResults.length >= (params.limit ?? -1);
+
+    if (moreResultsAvailable && !foundEnough) {
+      console.debug(
+        `Retrieved ${totalResults.length} of ${
+          params.limit
+        } for ${JSON.stringify(params, null, 2)}`
+      );
+      const nextParams = mergeMaybe({ ...params }, { cursor });
+      return await paginateQuery(
+        gqlQuery,
+        nextParams,
+        opts,
+        handler,
+        totalResults
+      );
+    }
+
+    return { items: totalResults, count, cursor };
+  } catch (err: any) {
+    if (err.response?.status === 200) {
+      console.info(`GraphQL returned a non-items response.`, err);
+      return { items: [], count: 0, cursor: null };
+    }
+    throw err;
+  }
 };

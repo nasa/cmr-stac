@@ -34,7 +34,7 @@ custom:
 functions:
   stac:
     handler: src/lambda.handler
-    timeout: 60
+    timeout: 180
     events:
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}

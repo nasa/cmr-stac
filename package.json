@@ -8,7 +8,7 @@
     "test": "cross-env TS_NODE_FILES=true IS_LOCAL=true LOG_LEVEL=OFF mocha",
     "test:coverage": "cross-env TS_NODE_FILES=true IS_LOCAL=true LOG_LEVEL=OFF nyc --reporter=html --reporter=text mocha",
     "test:watch": "cross-env TS_NODE_FILES=true IS_LOCAL=true LOG_LEVEL=OFF mocha --watch",
-    "dev": "serverless offline start --reloadHandler --config serverless.dev.yml --stage dev",
+    "dev": "cross-env SLS_DEBUG=* serverless offline start --reloadHandler --config serverless.dev.yml --stage dev",
     "deploy": "sls deploy",
     "remove": "sls remove"
   },

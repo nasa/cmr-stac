@@ -1,15 +1,12 @@
-import { gql, request } from "graphql-request";
+import { gql } from "graphql-request";
 import { Extents, AssetLinks, STACCollection } from "../@types/StacCollection";
-import {
-  Collection,
-  CollectionsInput,
-  FacetGroup,
-} from "../models/GraphQLModels";
-import { mergeMaybe, buildClientId, scrubTokens } from "../utils";
+import { Collection, CollectionsInput } from "../models/GraphQLModels";
 import { cmrSpatialToExtent } from "./bounding-box";
+import { mergeMaybe } from "../utils";
+import { MAX_SIGNED_INTEGER, paginateQuery, GraphQLHandler } from "./stacQuery";
 
 const CMR_ROOT = process.env.CMR_URL;
-const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013/api";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
 const collectionsQuery = gql`
   query getCollections($params: CollectionsInput!) {
@@ -42,12 +39,13 @@ const collectionsQuery = gql`
 `;
 
 const collectionIdsQuery = gql`
-  query getCollections($params: CollectionsInput!) {
+  query getCollectionsIds($params: CollectionsInput!) {
     collections(params: $params) {
       count
       cursor
       items {
         conceptId
+        title
       }
     }
   }
@@ -151,6 +149,23 @@ const extractAssets = (
   );
 };
 
+const extractLicense = (collection: any) => {
+  // See https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#license
+  // license *should* be a SPDX string see https://spdx.org/licenses/ to be valid for STAC
+  const spdxLicenseRx = /^[\w\-\.\+]+$/gi;
+
+  let licenseLink = {
+    rel: "license",
+    href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+    title: "EOSDIS Data Use Policy",
+    type: "text/html",
+  };
+  const license = "proprietary";
+
+  // TODO this misses valid licenses
+  return { license, licenseLink };
+};
+
 /**
  * Convert a GraphQL collection item into a STACCollection.
  */
@@ -174,6 +189,18 @@ export const collectionToStac = (collection: any): STACCollection => {
     },
     {
       rel: "via",
+      href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.native`,
+      title: "Native metadata for collection",
+      type: "application/xml",
+    },
+    {
+      rel: "via",
+      href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.echo10`,
+      title: "ECHO10 metadata for collection",
+      type: "application/echo10+xml",
+    },
+    {
+      rel: "via",
       href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.json`,
       title: "CMR JSON metadata for collection",
       type: "application/json",
@@ -186,65 +213,88 @@ export const collectionToStac = (collection: any): STACCollection => {
     },
   ];
 
+  const provider = [
+    {
+      name: collection.conceptId?.split("-")[1] ?? "CMR",
+      roles: collection.conceptId ? ["producer"] : ["host"],
+    },
+  ];
+
+  const { license, licenseLink } = extractLicense(collection);
+
+  links.push(licenseLink);
+
   return {
     type: "Collection",
     id: collection.conceptId,
     title: collection.title,
     description: collection["abstract"],
-    license: collection.useConstraints?.description ?? "not-provided",
-    stac_version: "1.0.0",
+    stac_version: STAC_VERSION,
     extent,
     assets,
+    provider,
     links,
-  };
+    license,
+  } as STACCollection;
+};
+
+const collectionHandler: GraphQLHandler = (response: any) => {
+  try {
+    const {
+      collections: { count, items, cursor },
+    } = response;
+
+    return [
+      null,
+      {
+        count,
+        cursor,
+        items: items.map(collectionToStac),
+      },
+    ];
+  } catch (err) {
+    return [(err as Error).message, null];
+  }
 };
 
 export const getCollections = async (
-  query: CollectionsInput,
+  params: CollectionsInput,
   opts: {
     headers?: { "client-id"?: string; [key: string]: any };
     [key: string]: any;
   } = {}
 ): Promise<{
   count: number;
-  facets: FacetGroup | null;
   cursor: string | null;
   items: STACCollection[];
 }> => {
-  const { headers = {} } = opts;
+  return await paginateQuery(collectionsQuery, params, opts, collectionHandler);
+};
 
-  const clientId = buildClientId(headers["client-id"]);
-  const authorization = headers.authorization;
+const collectionIdsHandler: GraphQLHandler = (response: any) => {
+  try {
+    const {
+      collections: { count, items, cursor },
+    } = response;
 
-  const requestHeaders = mergeMaybe(
-    { "client-id": clientId },
-    { authorization }
-  );
-
-  const timingMessage = `Outbound GQL collections query => ${JSON.stringify(
-    query,
-    null,
-    2
-  )} ${JSON.stringify(scrubTokens(requestHeaders), null, 2)}`;
-  console.time(timingMessage);
-  const {
-    collections: { count, cursor, items, facets },
-  } = await request({
-    url: GRAPHQL_URL,
-    document: collectionsQuery,
-    variables: { params: query },
-    requestHeaders,
-  });
-  console.timeEnd(timingMessage);
-
-  return { count, cursor, facets, items: items.map(collectionToStac) };
+    return [
+      null,
+      {
+        count,
+        cursor,
+        items,
+      },
+    ];
+  } catch (err) {
+    return [(err as Error).message, null];
+  }
 };
 
 /**
  * Fetches only collectionIds.
  */
 export const getCollectionIds = async (
-  query: CollectionsInput,
+  params: CollectionsInput,
   opts: {
     headers?: { "client-id"?: string; [key: string]: any };
     [key: string]: any;
@@ -252,39 +302,27 @@ export const getCollectionIds = async (
 ): Promise<{
   count: number;
   cursor: string | null;
-  conceptIds: string[];
+  items: { conceptId: string; title: string }[];
 }> => {
-  let userClientId = "cmr-stac";
-  let authorization;
-
-  const { headers } = opts;
-  if (headers) {
-    userClientId = buildClientId(headers["client-id"]);
-    authorization = headers.authorization;
-  }
-
-  const requestHeaders = mergeMaybe(
-    { "client-id": userClientId },
-    { authorization }
+  return await paginateQuery(
+    collectionIdsQuery,
+    params,
+    opts,
+    collectionIdsHandler
   );
+};
 
-  const timingMessage = `Outbound GQL collectionIds query => ${JSON.stringify(
-    query,
-    null,
-    2
-  )} ${JSON.stringify(scrubTokens(requestHeaders), null, 2)}`;
-  console.time(timingMessage);
-  const {
-    collections: { count, cursor, items },
-  } = await request({
-    url: GRAPHQL_URL,
-    document: collectionIdsQuery,
-    variables: { params: query },
-    requestHeaders,
-  });
-  console.timeEnd(timingMessage);
-
-  const conceptIds = items.map((coll: { conceptId: string }) => coll.conceptId);
-
-  return { count, cursor, conceptIds };
+export const getAllCollectionIds = async (
+  params: CollectionsInput,
+  opts: {
+    headers?: { "client-id"?: string; [key: string]: any };
+    [key: string]: any;
+  } = {}
+): Promise<{
+  count: number;
+  cursor: string | null;
+  items: { conceptId: string; title: string }[];
+}> => {
+  params.limit = MAX_SIGNED_INTEGER;
+  return await getCollectionIds(params, opts);
 };

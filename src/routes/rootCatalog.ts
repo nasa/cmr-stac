@@ -1,82 +1,76 @@
 import { Request, Response } from "express";
 import { Link, STACCatalog } from "../@types/StacCatalog";
-import {
-  getCloudProviders,
-  getProviders,
-  conformance,
-} from "../domains/providers";
-import { Provider as CmrProvider } from "../models/CmrModels";
-import { buildRootUrl, ERRORS } from "../utils";
+
+import { conformance } from "../domains/providers";
+import { Provider } from "../models/CmrModels";
+import { stacContext } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
-const selfLinks = (root: string): Link[] => {
-  const id = "STAC";
+const selfLinks = (req: Request): Link[] => {
+  const { stacRoot, id } = stacContext(req);
 
   return [
     {
       rel: "self",
-      href: root,
-      title: `NASA CMR-${id} Root Catalog`,
+      href: stacRoot,
       type: "application/json",
+      title: `NASA CMR-${id} Root Catalog`,
     },
     {
       rel: "root",
-      href: root,
+      href: stacRoot,
       title: `NASA CMR-${id} Root Catalog`,
-      type: "application/json",
+      type: "application/geo+json",
     },
     {
-      rel: "about",
+      rel: "service-desc",
+      href: `${stacRoot}/docs/swagger.json`,
+      title: "OpenAI Documentation",
+      type: "application/vnd.oai.openapi+json;version=3.0",
+    },
+    {
+      rel: "service-doc",
       href: "https://wiki.earthdata.nasa.gov/display/ED/CMR+SpatioTemporal+Asset+Catalog+%28CMR-STAC%29+Documentation",
       title: `NASA CMR-${id} Documentation`,
-      type: "application/json",
+      type: "text/html",
     },
   ];
 };
 
-const providerLinks = (root: string, providers: CmrProvider[]): Link[] => {
-  return providers.map((provider) => {
-    return {
+const providerLinks = (req: Request, providers: Provider[]): Link[] => {
+  const { self } = stacContext(req);
+
+  return providers.map(
+    ({ "short-name": title, "provider-id": providerId }) => ({
       rel: "child",
-      title: provider["short-name"],
+      title,
       type: "application/json",
-      href: `${root}/${provider["provider-id"]}`,
-    };
-  });
+      href: `${self}/${providerId}`,
+    })
+  );
 };
 
-export const conformanceHandler = (_: Request, res: Response): any =>
-  res.json(conformance);
-
-export const rootCatalogHandler = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
+export const rootCatalogHandler = async (req: Request, res: Response) => {
   const isCloudStac = req.headers["cloud-stac"] === "true";
   const id = isCloudStac ? "CMR-CLOUDSTAC" : "CMR-STAC";
 
-  let providers: CmrProvider[] = [];
-  try {
-    providers = isCloudStac ? await getCloudProviders() : await getProviders();
-  } catch (err) {
-    console.error("A problem occurred getting providers", err);
-    return res.status(503).json(ERRORS.serviceUnavailable);
-  }
+  const providers = isCloudStac
+    ? req.cache?.cloudProviders.getAll()
+    : req.cache?.providers.getAll();
 
-  const appRoot = buildRootUrl(req);
-  const _selfLinks = selfLinks(appRoot);
-  const _providerLinks = providerLinks(appRoot, providers);
+  const _selfLinks = selfLinks(req);
+  const _providerLinks = providerLinks(req, providers ?? []);
 
   const rootCatalog = {
     type: "Catalog",
     id,
     stac_version: STAC_VERSION,
+    conformsTo: conformance,
     links: [..._selfLinks, ..._providerLinks],
-    stac_extensions: [],
-    title: `NASA' Common Metadata Repository ${id} API`,
-    description: `This is the landing page for CMR-${id}. Each provider link contains a STAC endpoint.`,
+    title: `NASA Common Metadata Repository ${id} API`,
+    description: `This is the landing page for ${id}. Each provider link contains a STAC endpoint.`,
   } as STACCatalog;
 
-  return res.json(rootCatalog);
+  res.json(rootCatalog);
 };

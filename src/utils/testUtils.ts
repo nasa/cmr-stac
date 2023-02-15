@@ -8,10 +8,11 @@ export const generateSTACCollections = (quantity: number) => {
   for (let i = 0; i < quantity; i++) {
     mockCollections.push({
       id: `mock_collection_${i}.v1`,
+      title: `mock collection ${i} title`,
       stac_version: "1.0.0",
       type: "Collection",
       description: "a description",
-      license: "NASA_OPEN_SOURCE_AGREEMENT",
+      license: "proprietary",
       extent: {
         spatial: {
           bbox: [[-180, -90, 180, 90]],
@@ -35,7 +36,7 @@ export const generateSTACItems = (
   const mockItems: STACItem[] = [];
 
   const offset = opts.offset ?? 0;
-  const provider = opts.provider ?? "TEST_PROV";
+  const provider = opts.provider ?? "TEST";
   const root = (opts.root = "https://test/stac/");
 
   for (let i = 0; i < quantity; i++) {
@@ -160,7 +161,7 @@ export const generateCollections = (
       timeStart: "2020-01-01T00:00:00.000Z",
       timeEnd: "2021-01-01T00:00:00.000Z",
       useConstraints: {
-        description: "not-provided",
+        description: "proprietary",
       },
       relatedUrls: [],
     } as Collection);

@@ -187,9 +187,10 @@ export const parseOrdinateString = (ordString: string) => {
  * @returns An array of coordinates
  */
 export const pointStringToPoints = (latLonPoints: string) => {
-  return chunk(parseOrdinateString(latLonPoints), 2).map(([lat, lon]) => {
-    return { lat, lon };
-  });
+  return chunk(parseOrdinateString(latLonPoints), 2).map(([lat, lon]) => ({
+    lat,
+    lon,
+  }));
 };
 
 export const cmrSpatialToExtent = (

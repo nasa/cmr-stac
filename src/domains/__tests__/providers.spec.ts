@@ -44,16 +44,10 @@ describe("getCloudProviders", () => {
           {
             "provider-id": "PROV1",
             "short-name": "PROV1",
-            "cmr-only": false,
-            small: false,
-            consortiums: ["EOSDIS FEDEO"],
           },
           {
             "provider-id": "PROV2",
             "short-name": "PROV2",
-            "cmr-only": false,
-            small: false,
-            consortiums: ["CWIC"],
           },
         ],
       })
@@ -62,7 +56,9 @@ describe("getCloudProviders", () => {
       .onThirdCall()
       .resolves({ status: 200, headers: { "cmr-hits": "1" } });
 
-    const providers = await getCloudProviders();
+    const [, providers] = await getCloudProviders();
+    // the calls happen in parallel and async, so we don't know which may resolve first
+    // but we know we have only a single provider with cloud holdings.
     expect(providers).to.have.length(1);
   });
 });

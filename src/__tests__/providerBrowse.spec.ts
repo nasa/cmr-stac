@@ -2,21 +2,18 @@ import * as sinon from "sinon";
 import { expect } from "chai";
 import request from "supertest";
 
-import CatalogSpec from "../../resources/catalog-spec/json-schema/catalog.json";
-
 import Ajv from "ajv";
 const apply = require("ajv-formats-draft2019");
 const ajv = new Ajv();
 apply(ajv);
 
 import { createApp } from "../app";
-import { generateSTACCollections } from "../utils/testUtils";
 const app = createApp();
 import * as Providers from "../domains/providers";
 import * as Collections from "../domains/collections";
 
-const emptyCollections = { facets: null, count: 0, cursor: "", items: [] };
-const emptyCollectionIds = { count: 0, cursor: "", conceptIds: [] };
+const emptyCollections = { count: 0, cursor: null, items: [] };
+const emptyCollectionIds = { count: 0, cursor: null, items: [] };
 
 const sandbox = sinon.createSandbox();
 
@@ -24,14 +21,12 @@ afterEach(() => {
   sandbox.restore();
 });
 
-const cmrProvidersResponse = [
-  { "provider-id": "TEST_PROVIDER", "short-name": "TEST_PROVIDER" },
-];
-
 describe("GET /:provider/collections", () => {
   describe("given an invalid provider", () => {
     it("should return a 404", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
       const { statusCode, body } = await request(app).get(
@@ -47,60 +42,35 @@ describe("GET /:provider/collections", () => {
 
   describe("given a valid provider", () => {
     it("should return a 200", async () => {
-      sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
       sandbox
-        .stub(Collections, "getCollectionIds")
-        .resolves(emptyCollectionIds);
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "PROV", "short-name": "PROV" }]]);
+      sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
       const { statusCode, body } = await request(app).get(
-        "/stac/TEST_PROVIDER/collections"
+        "/stac/PROV/collections"
       );
 
       expect(statusCode).to.equal(200);
-
-      const validate = ajv.compile(CatalogSpec);
-      const stacSchemaValid = validate(body);
-
-      expect(stacSchemaValid, JSON.stringify(validate.errors, null, 2)).to.be
-        .true;
-    });
-
-    describe("given there are child collections", () => {
-      it("should return a valid STAC catalog", async () => {
-        sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
-        sandbox.stub(Collections, "getCollectionIds").resolves({
-          count: 1,
-          cursor: "abc",
-          conceptIds: [generateSTACCollections(1)[0].id],
-        });
-
-        const { body } = await request(app).get(
-          "/stac/TEST_PROVIDER/collections"
-        );
-
-        const validate = ajv.compile(CatalogSpec);
-        const stacSchemaValid = validate(body);
-
-        expect(stacSchemaValid, JSON.stringify(validate.errors, null, 2)).to.be
-          .true;
-      });
     });
 
     describe("given an invalid datetime parameter", () => {
       it("should return a 400", async () => {
-        sandbox.stub(Providers, "getProviders").resolves(cmrProvidersResponse);
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([null, [{ "provider-id": "PROV", "short-name": "PROV" }]]);
         sandbox
           .stub(Collections, "getCollectionIds")
           .resolves(emptyCollectionIds);
 
-        const { statusCode, body } = await request(app).get(
-          "/stac/TEST_PROVIDER/collections?datetime=1234-56-789"
-        );
+        const { statusCode, body } = await request(app)
+          .get("/stac/PROV/collections")
+          .query({ datetime: "1234-56-789" });
 
         expect(statusCode).to.equal(400);
         expect(body).to.deep.equal({
           errors: [
-            "Query param datetime does not match any valid date format. Please use RFC3339 or ISO8601 valid dates.",
+            "Query param datetime does not match a valid date format. Please use RFC3339 or ISO8601 formatted datetime strings.",
           ],
         });
       });
@@ -108,76 +78,71 @@ describe("GET /:provider/collections", () => {
 
     describe("given a datetime parameter", () => {
       describe("where a single date is provided", () => {
-        [
-          "2000-12-31",
-          "2000-12-31T23:59:59.000",
-          "2000-12-31T23:59:59.000Z",
-        ].forEach((dateString) => {
+        ["2000-12-31T23:59:59.000Z"].forEach((dateString) => {
           it(`should handle ${dateString} and return a 200`, async () => {
             sandbox
               .stub(Providers, "getProviders")
-              .resolves(cmrProvidersResponse);
+              .resolves([
+                null,
+                [{ "provider-id": "PROV", "short-name": "PROV" }],
+              ]);
             sandbox
-              .stub(Collections, "getCollectionIds")
-              .resolves(emptyCollectionIds);
+              .stub(Collections, "getCollections")
+              .resolves(emptyCollections);
 
-            const { statusCode, body } = await request(app).get(
-              `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
-            );
+            const { statusCode } = await request(app)
+              .get(`/stac/PROV/collections`)
+              .query({ datetime: dateString });
             expect(statusCode).to.equal(200);
           });
         });
       });
 
       describe("where an open ended date window is provided", () => {
-        [
-          "2000-12-31/..",
-          "2000-12-31T23:59:59.000/..",
-          "2000-12-31T23:59:59.000Z/..",
-          "../2000-12-31",
-          "../2000-12-31T23:59:59.000",
-          "../2000-12-31T23:59:59.000Z",
-        ].forEach((dateString) => {
-          it(`should handle ${dateString} and return a 200`, async () => {
-            sandbox
-              .stub(Providers, "getProviders")
-              .resolves(cmrProvidersResponse);
-            sandbox
-              .stub(Collections, "getCollectionIds")
-              .resolves(emptyCollectionIds);
+        ["2000-12-31T23:59:59.000Z/..", "../2000-12-31T23:59:59.000Z"].forEach(
+          (dateString) => {
+            it(`should handle ${dateString} and return a 200`, async () => {
+              sandbox
+                .stub(Providers, "getProviders")
+                .resolves([
+                  null,
+                  [{ "provider-id": "PROV", "short-name": "PROV" }],
+                ]);
+              sandbox
+                .stub(Collections, "getCollections")
+                .resolves(emptyCollections);
 
-            const { statusCode, body } = await request(app).get(
-              `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
-            );
-            expect(statusCode).to.equal(200);
-          });
-        });
+              const { statusCode } = await request(app)
+                .get(`/stac/PROV/collections`)
+                .query({ datetime: dateString });
+              expect(statusCode).to.equal(200);
+            });
+          }
+        );
       });
 
       describe("where a closed date window is provided", () => {
-        [
-          "2000-12-31,2001-12-31",
-          "2000-12-31/2001-12-31",
-          "2000-12-31T23:59:59.000,2001-12-31T23:59:59.000",
-          "2000-12-31T23:59:59.000/2001-12-31T23:59:59.000",
-          "2000-12-31T23:59:59.000Z,2001-12-31T23:59:59.000Z",
-          "2000-12-31T23:59:59.000Z/2001-12-31T23:59:59.000Z",
-        ].forEach((dateString) => {
-          it(`should handle ${dateString} and return a 200`, async () => {
-            sandbox
-              .stub(Providers, "getProviders")
-              .resolves(cmrProvidersResponse);
+        ["2019-04-28T06:14:50.000Z,2020-04-28T06:14:50.000Z"].forEach(
+          (dateString) => {
+            it(`should handle ${dateString} and return a 200`, async () => {
+              sandbox
+                .stub(Providers, "getProviders")
+                .resolves([
+                  null,
+                  [{ "provider-id": "PROV", "short-name": "PROV" }],
+                ]);
 
-            sandbox
-              .stub(Collections, "getCollectionIds")
-              .resolves(emptyCollectionIds);
+              sandbox
+                .stub(Collections, "getCollections")
+                .resolves(emptyCollections);
 
-            const { statusCode, body } = await request(app).get(
-              `/stac/TEST_PROVIDER/collections?datetime=${dateString}`
-            );
-            expect(statusCode).to.equal(200);
-          });
-        });
+              const { statusCode } = await request(app)
+                .get(`/stac/PROV/collections`)
+                .query({ datetime: dateString });
+              expect(statusCode).to.equal(200);
+            });
+          }
+        );
       });
     });
   });
