@@ -50,7 +50,7 @@ export const stacContext = (req: Request) => {
   const root = buildRootUrl(req);
   const stac = isCloudStac ? "cloudstac" : "stac";
   // default to empty string so `undefined` isn't printed
-  const path = originalUrl.split("?").at(0) ?? "";
+  const path = originalUrl.split("?")[0] ?? "";
 
   return {
     id: isCloudStac ? "CLOUD-STAC" : "STAC",
