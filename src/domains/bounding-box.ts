@@ -205,11 +205,13 @@ export const cmrSpatialToExtent = (
       .reduce(addPointsToBbox, null);
   }
 
-  if (points)
+  if (points) {
     return points.map(pointStringToPoints).reduce(addPointsToBbox, null);
+  }
 
-  if (lines)
+  if (lines) {
     return lines.flatMap(pointStringToPoints).reduce(addPointsToBbox, null);
+  }
 
   if (boxes) {
     return boxes

@@ -1,7 +1,6 @@
 import * as sinon from "sinon";
 import { expect } from "chai";
 import request from "supertest";
-import CatalogSpec from "../../resources/catalog-spec/json-schema/catalog.json";
 
 import Ajv from "ajv";
 const apply = require("ajv-formats-draft2019");
@@ -9,7 +8,6 @@ const ajv = new Ajv();
 apply(ajv);
 
 import { createApp } from "../app";
-import { generateSTACCollections } from "../utils/testUtils";
 const app = createApp();
 import * as Providers from "../domains/providers";
 import * as Collections from "../domains/collections";

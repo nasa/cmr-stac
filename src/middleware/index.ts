@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 
-import { Provider } from "../models/CmrModels";
 import { StacQuery } from "../models/StacModels";
 import {
   InvalidParameterError,
@@ -56,7 +55,7 @@ export const cacheMiddleware = (
     cloudProviders: cachedCloudProviders,
   };
 
-  if (process.env.IS_LOCAL === "true") {
+  if (process.env.IS_LOCAL === "true" || process.env.CI) {
     req.on("end", () => {
       req.cache?.providers.clear();
       req.cache?.cloudProviders.clear();
