@@ -80,12 +80,9 @@ export const getCloudProviders = async (
   await Promise.all(
     candidates!.map(async (provider) => {
       try {
-        const start = new Date();
         const { headers } = await axios.get(CMR_LB_SEARCH_COLLECTIONS, {
-          params: mergeMaybe(
-            { provider: provider["short-name"], cloud_hosted: true },
-            { authorization }
-          ),
+          headers: mergeMaybe({}, { authorization }),
+          params: { provider: provider["short-name"], cloud_hosted: true },
         });
 
         if (headers["cmr-hits"] === "0") {
