@@ -10,7 +10,6 @@ const collectionLinks = (req: Request, nextCursor: string | null): Links => {
   const { stacRoot, self, path } = stacContext(req);
 
   const parent = self.split("/").slice(0, -1).join("/");
-  self.split("?")[0];
 
   const links = [
     {
