@@ -235,6 +235,7 @@ export const collectionToStac = (collection: any): STACCollection => {
     provider,
     links,
     license,
+    summaries: {},
   } as STACCollection;
 };
 

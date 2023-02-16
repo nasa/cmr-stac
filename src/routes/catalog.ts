@@ -16,13 +16,13 @@ const generateSelfLinks = (req: Request): Links => {
     {
       rel: "self",
       href: self,
-      type: "application/json",
+      type: "application/geo+json",
       title: "Provider Catalog",
     },
     {
       rel: "root",
       href: stacRoot,
-      type: "application/json",
+      type: "application/geo+json",
       title: `Root Catalog`,
     },
     {

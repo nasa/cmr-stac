@@ -67,7 +67,7 @@ describe("GET /:provider", () => {
 
       const link: Link = catalog.links.find((l: Link) => l.rel === "root");
       expect(link).to.have.property("rel", "root");
-      expect(link).to.have.property("type", "application/json");
+      expect(link).to.have.property("type", "application/geo+json");
       expect(link).to.have.property("title", "Root Catalog");
     });
 
@@ -83,7 +83,7 @@ describe("GET /:provider", () => {
 
       const link: Link = catalog.links.find((l: Link) => l.rel === "self");
       expect(link).to.have.property("rel", "self");
-      expect(link).to.have.property("type", "application/json");
+      expect(link).to.have.property("type", "application/geo+json");
       expect(link.href).to.match(/^https?:\/\/.*\/TEST$/);
       expect(link).to.have.property("title", "Provider Catalog");
     });
