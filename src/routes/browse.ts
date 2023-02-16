@@ -7,9 +7,10 @@ import { buildQuery, stringifyQuery } from "../domains/stacQuery";
 import { buildRootUrl, mergeMaybe, stacContext } from "../utils";
 
 const collectionLinks = (req: Request, nextCursor: string | null): Links => {
-  const { stacRoot, self } = stacContext(req);
+  const { stacRoot, self, path } = stacContext(req);
 
   const parent = self.split("/").slice(0, -1).join("/");
+  self.split("?")[0];
 
   const links = [
     {
@@ -28,6 +29,12 @@ const collectionLinks = (req: Request, nextCursor: string | null): Links => {
       href: parent,
       type: "application/json",
       title: "Provider Collections",
+    },
+    {
+      rel: "items",
+      href: `${path}/items`,
+      type: "application/geo+json",
+      title: "Collection Items",
     },
   ];
 
