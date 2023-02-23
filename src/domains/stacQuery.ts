@@ -11,41 +11,38 @@ import { convertDateTime } from "../utils/datetime";
 export const DEFAULT_LIMIT = 250;
 export const CMR_QUERY_MAX = 2000;
 
-export const geoJsonToQuery = (geoJson: string | string[]) => {
-  const geometryStrings = Array.isArray(geoJson) ? geoJson : [geoJson];
+export const geoJsonToQuery = (geoJson: object | object[]) => {
+  const geometries = Array.isArray(geoJson) ? geoJson : [geoJson];
 
-  const [polygons, lines, points] = geometryStrings.map(stringToGeoJSON).reduce(
-    ([polygons, lines, points], geometry: GeoJSONGeometry) => {
-      const flattened = flattenDeep(geometry.coordinates).join(",");
+  const [polygon, line, point] = geometries
+    .map((geometry: any) =>
+      typeof geometry === "string" ? JSON.parse(geometry) : geometry
+    )
+    .reduce(
+      ([polygon, line, point], geometry: GeoJSONGeometry) => {
+        const flattened = flattenDeep(geometry.coordinates).join(",");
 
-      switch (geometry.type.toLowerCase()) {
-        case "point":
-        case "multipoint":
-          return [[...polygons], [...lines], [...points, flattened]];
+        switch (geometry.type.toLowerCase()) {
+          case "point":
+          case "multipoint":
+            return [[...polygon], [...line], [...point, flattened]];
+          case "linestring":
+            return [[...polygon], [...line, flattened], [...point]];
+          case "multilinestring":
+            return [[...polygon], [...line, flattened], [...point]];
+          case "polygon":
+          case "multipolygon":
+            return [[...polygon, flattened], [...line], [...point]];
+          default:
+            throw new InvalidParameterError(
+              "Invalid intersects parameter detected. Please verify all intersects are a valid GeoJSON geometry."
+            );
+        }
+      },
+      [[] as string[], [] as string[], [] as string[]]
+    );
 
-        case "linestring":
-          return [[...polygons], [...lines, flattened], [...points]];
-        case "multilinestring":
-          console.warn(
-            "Gaps in linestrings are not supported for intersects yet"
-          );
-          return [[...polygons], [...lines, flattened], [...points]];
-        case "polygon":
-        case "multipolygon":
-          console.warn(
-            "Holes in polygons are not supported for intersects yet"
-          );
-          return [[...polygons, flattened], [...lines], [...points]];
-        default:
-          throw new InvalidParameterError(
-            "Invalid intersects parameter detected. Please verify all intersects are a valid GeoJSON geometry."
-          );
-      }
-    },
-    [[] as string[], [] as string[], [] as string[]]
-  );
-
-  return { polygons, lines, points };
+  return { polygon, line, point };
 };
 
 export const stringToGeoJSON = (geometry: string): GeoJSONGeometry => {
@@ -82,14 +79,14 @@ const intersectsQuery = (query: any) => {
   const { intersects } = query;
   if (!intersects) return;
 
-  const { polygons, lines, points } = geoJsonToQuery(intersects.toString());
+  const { polygon, line, point } = geoJsonToQuery(intersects);
 
   return mergeMaybe(
     {},
     {
-      polygon: polygons,
-      line: lines,
-      point: points,
+      polygon,
+      line,
+      point,
     }
   );
 };
