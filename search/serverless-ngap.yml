@@ -11,7 +11,7 @@ provider:
   vpc:
     securityGroupIds:
       - ${cf:${opt:stage}.servicesSecurityGroupId}
-    subnetIds: !Split [ ",", '${cf:${opt:stage}.subnetIds}' ]
+    subnetIds: !Split [",", "${cf:${opt:stage}.subnetIds}"]
 
 custom:
   cmrStacName: ${param:cmr-stac-name}
@@ -26,17 +26,21 @@ custom:
     prod: ""
   assets:
     targets:
-    - bucket:
-        Ref: cmrStacDocsBucket
-      empty: true
-      prefix: docs
-      files:
-      - source: ./docs/
-        globs: '**/index.html'
+      - bucket:
+          Ref: cmrStacDocsBucket
+        empty: true
+        prefix: docs
+        files:
+          - source: ./docs/
+            globs: "**/index.html"
 
 package:
   patterns:
     - lib/**
+    - "!node_modules/serverless/**"
+    - "!node_modules/serverless-offline/**"
+    - "!node_modules/serverless-s3-deploy/**"
+    - "!node_modules/serverless-dynamodb-local/**"
 
 functions:
   stac-api:
