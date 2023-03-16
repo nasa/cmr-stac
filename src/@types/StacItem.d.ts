@@ -113,12 +113,7 @@ export type Mission = string;
 export type GroundSampleDistance = number;
 export type OrganizationName = string;
 export type OrganizationDescription = string;
-export type OrganizationRoles = (
-  | "producer"
-  | "licensor"
-  | "processor"
-  | "host"
-)[];
+export type OrganizationRoles = ("producer" | "licensor" | "processor" | "host")[];
 export type OrganizationHomepage = string;
 export type Providers = {
   name: OrganizationName;
@@ -128,7 +123,7 @@ export type Providers = {
   [k: string]: unknown;
 }[];
 
-export interface GeoJSONFeature {
+export type GeoJSONFeature = {
   type: "Feature";
   id?: number | string;
   properties: null | {
@@ -148,8 +143,8 @@ export interface GeoJSONFeature {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONPoint {
+};
+export type GeoJSONPoint = {
   type: "Point";
   /**
    * @minItems 2
@@ -160,8 +155,8 @@ export interface GeoJSONPoint {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONLineString {
+};
+export type GeoJSONLineString = {
   type: "LineString";
   /**
    * @minItems 2
@@ -176,8 +171,8 @@ export interface GeoJSONLineString {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONPolygon {
+};
+export type GeoJSONPolygon = {
   type: "Polygon";
   coordinates: [
     [number, number, ...number[]],
@@ -191,8 +186,8 @@ export interface GeoJSONPolygon {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiPoint {
+};
+export type GeoJSONMultiPoint = {
   type: "MultiPoint";
   coordinates: [number, number, ...number[]][];
   /**
@@ -200,8 +195,8 @@ export interface GeoJSONMultiPoint {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiLineString {
+};
+export type GeoJSONMultiLineString = {
   type: "MultiLineString";
   coordinates: [
     [number, number, ...number[]],
@@ -213,8 +208,8 @@ export interface GeoJSONMultiLineString {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiPolygon {
+};
+export type GeoJSONMultiPolygon = {
   type: "MultiPolygon";
   coordinates: [
     [number, number, ...number[]],
@@ -228,8 +223,8 @@ export interface GeoJSONMultiPolygon {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONGeometryCollection {
+};
+export type GeoJSONGeometryCollection = {
   type: "GeometryCollection";
   geometries: (
     | GeoJSONPoint1
@@ -244,8 +239,8 @@ export interface GeoJSONGeometryCollection {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONPoint1 {
+};
+export type GeoJSONPoint1 = {
   type: "Point";
   /**
    * @minItems 2
@@ -256,8 +251,8 @@ export interface GeoJSONPoint1 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONLineString1 {
+};
+export type GeoJSONLineString1 = {
   type: "LineString";
   /**
    * @minItems 2
@@ -272,8 +267,8 @@ export interface GeoJSONLineString1 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONPolygon1 {
+};
+export type GeoJSONPolygon1 = {
   type: "Polygon";
   coordinates: [
     [number, number, ...number[]],
@@ -287,8 +282,8 @@ export interface GeoJSONPolygon1 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiPoint1 {
+};
+export type GeoJSONMultiPoint1 = {
   type: "MultiPoint";
   coordinates: [number, number, ...number[]][];
   /**
@@ -296,8 +291,8 @@ export interface GeoJSONMultiPoint1 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiLineString1 {
+};
+export type GeoJSONMultiLineString1 = {
   type: "MultiLineString";
   coordinates: [
     [number, number, ...number[]],
@@ -309,8 +304,8 @@ export interface GeoJSONMultiLineString1 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiPolygon1 {
+};
+export type GeoJSONMultiPolygon1 = {
   type: "MultiPolygon";
   coordinates: [
     [number, number, ...number[]],
@@ -324,8 +319,8 @@ export interface GeoJSONMultiPolygon1 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONPoint2 {
+};
+export type GeoJSONPoint2 = {
   type: "Point";
   /**
    * @minItems 2
@@ -336,8 +331,8 @@ export interface GeoJSONPoint2 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONLineString2 {
+};
+export type GeoJSONLineString2 = {
   type: "LineString";
   /**
    * @minItems 2
@@ -352,8 +347,8 @@ export interface GeoJSONLineString2 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONPolygon2 {
+};
+export type GeoJSONPolygon2 = {
   type: "Polygon";
   coordinates: [
     [number, number, ...number[]],
@@ -367,8 +362,8 @@ export interface GeoJSONPolygon2 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiPoint2 {
+};
+export type GeoJSONMultiPoint2 = {
   type: "MultiPoint";
   coordinates: [number, number, ...number[]][];
   /**
@@ -376,8 +371,8 @@ export interface GeoJSONMultiPoint2 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiLineString2 {
+};
+export type GeoJSONMultiLineString2 = {
   type: "MultiLineString";
   coordinates: [
     [number, number, ...number[]],
@@ -389,8 +384,8 @@ export interface GeoJSONMultiLineString2 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface GeoJSONMultiPolygon2 {
+};
+export type GeoJSONMultiPolygon2 = {
   type: "MultiPolygon";
   coordinates: [
     [number, number, ...number[]],
@@ -404,46 +399,46 @@ export interface GeoJSONMultiPolygon2 {
    */
   bbox?: [number, number, number, number, ...number[]];
   [k: string]: unknown;
-}
-export interface Link {
+};
+export type Link = {
   href: LinkReference;
   rel: LinkRelationType;
   type?: LinkType;
   title?: LinkTitle;
   [k: string]: unknown;
-}
+};
 /**
  * Links to assets
  */
-export interface AssetLinks {
+export type AssetLinks = {
   [k: string]: Asset;
-}
-export interface BasicDescriptiveFields {
+};
+export type BasicDescriptiveFields = {
   title?: ItemTitle;
   description?: ItemDescription;
   [k: string]: unknown;
-}
-export interface DateAndTimeFields {
+};
+export type DateAndTimeFields = {
   datetime?: DateAndTime;
   start_datetime?: StartDateAndTime;
   end_datetime?: EndDateAndTime;
   created?: CreationTime;
   updated?: LastUpdateTime;
   [k: string]: unknown;
-}
-export interface InstrumentFields {
+};
+export type InstrumentFields = {
   platform?: Platform;
   instruments?: Instruments;
   constellation?: Constellation;
   mission?: Mission;
   gsd?: GroundSampleDistance;
   [k: string]: unknown;
-}
-export interface LicensingFields {
+};
+export type LicensingFields = {
   license?: string;
   [k: string]: unknown;
-}
-export interface ProviderFields {
+};
+export type ProviderFields = {
   providers?: Providers;
   [k: string]: unknown;
-}
+};

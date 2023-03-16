@@ -8,7 +8,8 @@ import { StacExtension, StacExtensions } from "../models/StacModels";
 import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, stacContext } from "../utils";
-import { paginateQuery, GraphQLHandler } from "./stacQuery";
+import { extractAssets, paginateQuery, GraphQLHandler } from "./stac";
+import { collectionToId } from "./collections";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 const CMR_URL = process.env.CMR_URL;
@@ -21,7 +22,12 @@ const granulesQuery = gql`
       items {
         title
         conceptId
-        collectionConceptId
+        collection {
+          conceptId
+          shortName
+          version
+          title
+        }
         cloudCover
         lines
         boxes
@@ -30,6 +36,7 @@ const granulesQuery = gql`
         links
         timeStart
         timeEnd
+        relatedUrls
       }
     }
   }
@@ -42,13 +49,13 @@ const granuleIdsQuery = gql`
       cursor
       items {
         conceptId
+        title
       }
     }
   }
 `;
 
-const filterUnique = (val: string, idx: number, arr: string[]) =>
-  arr.indexOf(val) === idx;
+const filterUnique = (val: string, idx: number, arr: string[]) => arr.indexOf(val) === idx;
 
 /**
  * Return the cloudCover extension schema and properties for a granule.
@@ -153,7 +160,11 @@ const deriveExtensions = (
  * Convert a granule to a STAC Item.
  */
 export const granuleToStac = (granule: Granule): STACItem => {
-  const { extensions, properties: extProps } = deriveExtensions(granule, [
+  if (!granule.collection) {
+    throw new Error(`Cannot have a granule without a collection, [${granule.conceptId}]`);
+  }
+
+  const { extensions, properties: extensionProperties } = deriveExtensions(granule, [
     cloudCoverExtension,
   ]);
 
@@ -161,7 +172,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
     {},
     {
       datetime: granule.timeStart,
-      ...extProps,
+      ...extensionProperties,
     }
   );
 
@@ -173,35 +184,12 @@ export const granuleToStac = (granule: Granule): STACItem => {
 
   const geometry = cmrSpatialToGeoJSONGeometry(granule);
   const bbox = cmrSpatialToExtent(granule);
-
-  let assets: AssetLinks = {};
-
-  const dataLink = granule.links?.find(
-    (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/data#"
-  );
-  if (dataLink) {
-    assets = mergeMaybe(assets, {
-      data: { href: dataLink.href, title: "Direct Download" },
-    });
-  }
-
-  const metadataLink = granule.links?.find(
-    (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/metadata#"
-  );
-
-  if (metadataLink) {
-    assets = mergeMaybe(assets, {
-      provider_metadata: {
-        href: metadataLink.href,
-        title: "Provider Metadata",
-      },
-    });
-  }
+  const assets: AssetLinks = extractAssets(granule);
 
   // core STACItem
   const item = {
     type: "Feature",
-    id: granule.conceptId,
+    id: granule.title,
     stac_version: STAC_VERSION,
     stac_extensions: extensions,
     properties,
@@ -210,7 +198,10 @@ export const granuleToStac = (granule: Granule): STACItem => {
     assets,
   } as STACItem;
 
-  return { ...item, collection: granule.collectionConceptId };
+  return {
+    ...item,
+    collection: collectionToId(granule.collection),
+  };
 };
 
 const granulesQueryHandler: GraphQLHandler = (response: any) => {
@@ -238,7 +229,7 @@ const granulesQueryHandler: GraphQLHandler = (response: any) => {
 export const getItems = async (
   params: GranulesInput,
   opts: {
-    headers?: { "client-id"?: string; [key: string]: any };
+    headers?: { "client-id"?: string; authorization?: string };
     [key: string]: any;
   } = {}
 ): Promise<{
@@ -250,7 +241,7 @@ export const getItems = async (
 const granuleIdsQueryHandler: GraphQLHandler = (response: any) => {
   try {
     const {
-      granules: { count, conceptIds, cursor },
+      granules: { count, items, cursor },
     } = response;
 
     return [
@@ -258,7 +249,7 @@ const granuleIdsQueryHandler: GraphQLHandler = (response: any) => {
       {
         count,
         cursor,
-        items: conceptIds,
+        items,
       },
     ];
   } catch (err) {
@@ -272,26 +263,21 @@ const granuleIdsQueryHandler: GraphQLHandler = (response: any) => {
 export const getItemIds = async (
   params: GranulesInput,
   opts: {
-    headers?: { [key: string]: any };
-    [key: string]: any;
+    headers?: { "client-id"?: string; authorization?: string };
   } = {}
 ): Promise<{
   count: number;
   cursor: string | null;
-  conceptIds: string[];
+  ids: string[];
 }> => {
-  const {
-    count,
-    cursor,
-    items: conceptIds,
-  } = await paginateQuery(
+  const { count, cursor, items } = await paginateQuery(
     granuleIdsQuery,
     params,
     opts,
     granuleIdsQueryHandler
   );
 
-  return { count, cursor, conceptIds };
+  return { count, cursor, ids: items };
 };
 
 /**
@@ -300,13 +286,11 @@ export const getItemIds = async (
 export const addProviderLinks = (req: Request, item: STACItem): STACItem => {
   const providerLinks = selfLinks(req, item);
 
-  item.links = Array.isArray(item.links)
-    ? [...item.links, ...providerLinks]
-    : providerLinks;
+  item.links = Array.isArray(item.links) ? [...item.links, ...providerLinks] : providerLinks;
 
   item.assets = mergeMaybe(item.assets, {
     metadata: {
-      href: `${CMR_URL}/search/concepts/${item.id}.json`,
+      href: `${CMR_URL}/search/concepts/${encodeURI(item.id)}.json`,
       title: "Metadata",
       type: "application/json",
     },

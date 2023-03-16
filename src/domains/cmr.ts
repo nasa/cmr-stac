@@ -1,14 +1,14 @@
+import { IncomingHttpHeaders } from "http";
+
 /**
- * Return request headers
+ * Return request headers.
+ * Can be used for GraphQL or CMR requests.
  */
-export const cmrRequestHeaders = (
-  headers: any,
-  opts?: { [key: string]: string }
-) => {
+export const cmrRequestHeaders = (headers: IncomingHttpHeaders) => {
   const defaultHeaders = {
-    "Client-Id": headers["client-id"] ?? "cmr-stac",
+    "client-id": headers["client-id"] ?? "cmr-stac",
     via: "cmr-stac",
   };
 
-  return { ...defaultHeaders, ...opts };
+  return { ...headers, ...defaultHeaders };
 };

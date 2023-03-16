@@ -76,10 +76,7 @@ export const addPointsToBbox = (
  * @param box2 - A bounding-box array of floats in the `[W, S, E, N]` format
  * @returns SpatialExtent - A single combined bounding-box in the `[W, S, E, N]` format
  */
-export const mergeBoxes = (
-  box1: SpatialExtent,
-  box2: SpatialExtent
-): SpatialExtent => {
+export const mergeBoxes = (box1: SpatialExtent, box2: SpatialExtent): SpatialExtent => {
   if ((!box1 || box1.length < 4) && (!box2 || box2.length < 4)) {
     return null;
   }
@@ -193,10 +190,12 @@ export const pointStringToPoints = (latLonPoints: string) => {
   }));
 };
 
-export const cmrSpatialToExtent = (
-  cmrData: Collection | Granule
-): SpatialExtent => {
-  const { polygons, lines, points, boxes } = cmrData;
+/**
+ * Extract a spatial extent from a CMR concept.
+ * The returned geometry type is mutually exclusive.
+ */
+export const cmrSpatialToExtent = (concept: Collection | Granule): SpatialExtent => {
+  const { polygons, lines, points, boxes } = concept;
 
   if (polygons) {
     return polygons
@@ -214,7 +213,7 @@ export const cmrSpatialToExtent = (
   }
 
   if (boxes) {
-    return boxes
+    return (boxes as any)
       .map(parseOrdinateString)
       .map(reorderBoxValues) // CMR returns box coordinates in lon/lat
       .reduce(mergeBoxes, null);

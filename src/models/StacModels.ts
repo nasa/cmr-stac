@@ -1,3 +1,11 @@
+export type PropertyQuery = {
+  lt?: number;
+  lte?: number;
+  gt?: number;
+  gte?: number;
+  // TODO: Add full support for STAC property query extension, see CMR-9010
+};
+
 export type StacQuery = {
   cursor?: string;
   sortby?: string;
@@ -7,6 +15,9 @@ export type StacQuery = {
   intersects?: string[];
   ids?: string[];
   collections?: string[];
+  query?: {
+    [key: string]: PropertyQuery;
+  };
 };
 
 export type StacExtension = {

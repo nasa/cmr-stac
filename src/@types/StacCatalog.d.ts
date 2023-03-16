@@ -22,7 +22,7 @@ export type LinkType = string;
 export type LinkTitle = string;
 export type Links = Link[];
 
-export interface STACCatalog {
+export type STACCatalog = {
   stac_version: STACVersion;
   stac_extensions?: STACExtensions;
   type: TypeOfSTACEntity;
@@ -31,11 +31,11 @@ export interface STACCatalog {
   description: Description;
   links: Links;
   [k: string]: unknown;
-}
-export interface Link {
+};
+export type Link = {
   href: LinkReference;
   rel: LinkRelationType;
   type?: LinkType;
   title?: LinkTitle;
   [k: string]: unknown;
-}
+};

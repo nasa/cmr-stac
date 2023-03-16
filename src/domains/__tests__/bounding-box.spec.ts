@@ -23,9 +23,7 @@ describe("reorderBoxValues", () => {
 
   describe("given a 3d bounding box", () => {
     it("should return a 2d bounding box", () => {
-      expect(reorderBoxValues([1, 2, 0, 4, 5, 99])).to.be.deep.equal([
-        2, 1, 5, 4,
-      ]);
+      expect(reorderBoxValues([1, 2, 0, 4, 5, 99])).to.be.deep.equal([2, 1, 5, 4]);
     });
   });
 });
@@ -45,9 +43,7 @@ describe("bbox", () => {
 
   describe("addPointsToBbox", () => {
     it("should create the largest bbox", () => {
-      expect(addPointsToBbox([...testBbox], points)).to.deep.equal([
-        -10, -10, 100, 20,
-      ]);
+      expect(addPointsToBbox([...testBbox], points)).to.deep.equal([-10, -10, 100, 20]);
     });
 
     it("should return the largest box possible from points", () => {
@@ -55,9 +51,7 @@ describe("bbox", () => {
     });
 
     it("should return the biggest box possible from lotsOfPoints", () => {
-      expect(addPointsToBbox(null, lotsOfPoints)).to.deep.equal([
-        -40, -5, 100, 73,
-      ]);
+      expect(addPointsToBbox(null, lotsOfPoints)).to.deep.equal([-40, -5, 100, 73]);
     });
 
     it("should return the largest box possible from points", () => {
@@ -65,21 +59,17 @@ describe("bbox", () => {
     });
 
     it("should return the biggest box possible from lotsOfPoints", () => {
-      expect(addPointsToBbox(null, lotsOfPoints)).to.deep.equal([
-        -40, -5, 100, 73,
-      ]);
+      expect(addPointsToBbox(null, lotsOfPoints)).to.deep.equal([-40, -5, 100, 73]);
     });
 
     it("should return the largest box", () => {
-      expect(addPointsToBbox(testBbox, lotsOfPoints)).to.deep.equal([
-        -40, -10, 100, 73,
-      ]);
+      expect(addPointsToBbox(testBbox, lotsOfPoints)).to.deep.equal([-40, -10, 100, 73]);
     });
 
     it("should return the WHOLE_WORLD_BOX", () => {
-      expect(
-        addPointsToBbox(WHOLE_WORLD_BBOX_STAC, lotsOfPoints)
-      ).to.deep.equal(WHOLE_WORLD_BBOX_STAC);
+      expect(addPointsToBbox(WHOLE_WORLD_BBOX_STAC, lotsOfPoints)).to.deep.equal(
+        WHOLE_WORLD_BBOX_STAC
+      );
     });
 
     it("should merge the boxes", () => {
@@ -115,15 +105,11 @@ describe("bbox", () => {
     });
 
     it("should return the WHOLE_WORLD_BBOX", () => {
-      expect(mergeBoxes(testBbox, WHOLE_WORLD_BBOX_STAC)).to.deep.equal(
-        WHOLE_WORLD_BBOX_STAC
-      );
+      expect(mergeBoxes(testBbox, WHOLE_WORLD_BBOX_STAC)).to.deep.equal(WHOLE_WORLD_BBOX_STAC);
     });
 
     it("should return a mix of the two testBoxes, making the largest possible box", () => {
-      expect(mergeBoxes(testBbox, testBbox2)).to.have.ordered.members([
-        -20, -10, 44, 10,
-      ]);
+      expect(mergeBoxes(testBbox, testBbox2)).to.have.ordered.members([-20, -10, 44, 10]);
     });
   });
 

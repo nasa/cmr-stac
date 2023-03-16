@@ -63,9 +63,7 @@ describe("GET /:provider/search", () => {
         .query({ bbox: "-180,-90,180,90" });
 
       const selfLink = data.links.find((l: Link) => l.rel === "self");
-      const resourceRoute = `/stac/TEST/search?bbox=${encodeURIComponent(
-        "-180,-90,180,90"
-      )}`;
+      const resourceRoute = `/stac/TEST/search?bbox=${encodeURIComponent("-180,-90,180,90")}`;
 
       expect(selfLink).to.have.property("href");
       expect(selfLink.href).to.have.string(resourceRoute);
@@ -104,17 +102,12 @@ describe("GET /:provider/search", () => {
     describe("given there are items found", () => {
       it("should have the corresponding features returned", async () => {
         const mockAItems = generateSTACItems("mock_collection_a", 5);
-        const mockBItems = generateSTACItems("mock_collection_b", 5, {
-          offset: 10,
-        });
+        const mockBItems = generateSTACItems("mock_collection_b", 5);
         const mockItems = [...mockAItems, ...mockBItems];
 
         sandbox
           .stub(Providers, "getProviders")
-          .resolves([
-            null,
-            [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
-          ]);
+          .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
         sandbox.stub(Collections, "getCollections").resolves({
           count: 2,
           cursor: "cursor",
@@ -134,9 +127,7 @@ describe("GET /:provider/search", () => {
           .query({ providerId: "PROVIDER", bbox: "-180,-90,180,90" });
 
         mockItems.forEach((expectedItem: STACItem) => {
-          const feature = data.features.find(
-            (item: STACItem) => item.id === expectedItem.id
-          );
+          const feature = data.features.find((item: STACItem) => item.id === expectedItem.id);
           expect(feature).to.have.property("id", expectedItem.id);
         });
       });
@@ -145,17 +136,12 @@ describe("GET /:provider/search", () => {
     describe("given there are more results found than the page size", () => {
       it("should have a next link", async () => {
         const mockAItems = generateSTACItems("mock_collection_a", 5);
-        const mockBItems = generateSTACItems("mock_collection_b", 5, {
-          offset: 10,
-        });
+        const mockBItems = generateSTACItems("mock_collection_b", 5);
         const mockItems = [...mockAItems, ...mockBItems];
 
         sandbox
           .stub(Providers, "getProviders")
-          .resolves([
-            null,
-            [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
-          ]);
+          .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
         sandbox.stub(Collections, "getCollections").resolves({
           count: 2,
           cursor: "cursor",
@@ -190,18 +176,11 @@ describe("GET /:provider/search", () => {
         it(`it should return status ${expected}`, async () => {
           sandbox
             .stub(Providers, "getProviders")
-            .resolves([
-              null,
-              [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
-            ]);
-          sandbox
-            .stub(Collections, "getCollections")
-            .resolves(emptyCollections);
+            .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
+          sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
           sandbox.stub(Items, "getItems").resolves(emptyItems);
 
-          const { statusCode } = await request(app)
-            .get("/stac/PROVIDER/search")
-            .query({ limit });
+          const { statusCode } = await request(app).get("/stac/PROVIDER/search").query({ limit });
 
           expect(statusCode).to.equal(expected);
         });
@@ -239,10 +218,7 @@ describe("Query validation", () => {
         it(`should handle case ${variation}`, async () => {
           sandbox
             .stub(Providers, "getProviders")
-            .resolves([
-              null,
-              [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
-            ]);
+            .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
           sandbox.stub(Items, "getItems").resolves(emptyItems);
 
           const { statusCode } = await request(app).get(
@@ -258,10 +234,7 @@ describe("Query validation", () => {
     it("should return 400", async () => {
       sandbox
         .stub(Providers, "getProviders")
-        .resolves([
-          null,
-          [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
-        ]);
+        .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
       sandbox.stub(Items, "getItems").resolves(emptyItems);
 
       const { statusCode, body } = await request(app).get(
@@ -289,14 +262,9 @@ describe("Query validation", () => {
         it("should return 200", async () => {
           sandbox
             .stub(Providers, "getProviders")
-            .resolves([
-              null,
-              [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
-            ]);
+            .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
 
-          const getItemsSpy = sandbox
-            .stub(Items, "getItems")
-            .resolves(emptyItems);
+          const getItemsSpy = sandbox.stub(Items, "getItems").resolves(emptyItems);
 
           const { statusCode, body } = await request(app)
             .get(`/stac/PROVIDER/search`)
@@ -313,10 +281,7 @@ describe("Query validation", () => {
       it(`should return handle ${label}`, async () => {
         sandbox
           .stub(Providers, "getProviders")
-          .resolves([
-            null,
-            [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
-          ]);
+          .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
         sandbox.stub(Items, "getItems").resolves(emptyItems);
 
         const { statusCode, body } = await request(app)
@@ -331,12 +296,9 @@ describe("Query validation", () => {
     it("should return 400", async () => {
       sandbox
         .stub(Providers, "getProviders")
-        .resolves([
-          null,
-          [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }],
-        ]);
+        .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
 
-      const { statusCode, body } = await request(app).get(
+      const { statusCode } = await request(app).get(
         `/stac/PROVIDER/search?bbox=0,0,0,0&intersects=${JSON.stringify(point)}`
       );
       expect(statusCode).to.equal(400);

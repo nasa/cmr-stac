@@ -32,12 +32,7 @@ export const dateTimeToRange = (dateTime?: string) => {
   const dateTimeArray = splitOnDelimiters(dateTime, [",", "/"]);
 
   if (dateTimeArray.length === 1) {
-    if (
-      dateTimeArray[0].substring(
-        dateTimeArray[0].length - 2,
-        dateTimeArray[0].length
-      ) === ".."
-    ) {
+    if (dateTimeArray[0].substring(dateTimeArray[0].length - 2, dateTimeArray[0].length) === "..") {
       return dateTimeArray[0].substring(0, dateTimeArray[0].length - 2);
     } else {
       return `${dateTimeArray[0]}/${dateTimeArray[0]}`;
@@ -69,14 +64,10 @@ const isValidRange = (dates: string[]) => {
 
 export const validDateTime = (dateTimeString?: string) => {
   if (!dateTimeString) return;
-  if (invalidUnboundRanges.find((invalid) => invalid === dateTimeString))
-    return false;
+  if (invalidUnboundRanges.find((invalid) => invalid === dateTimeString)) return false;
 
   const dates = splitOnDelimiters(dateTimeString, [",", "/"]);
   if (dates.length > 2) return false;
 
-  return (
-    dates.reduce((validAcc, d) => validAcc && isValidDate(d), true) &&
-    isValidRange(dates)
-  );
+  return dates.reduce((validAcc, d) => validAcc && isValidDate(d), true) && isValidRange(dates);
 };

@@ -29,9 +29,7 @@ describe("GET /:provider/collections", () => {
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
-      const { statusCode, body } = await request(app).get(
-        "/stac/BAD_PROVIDER/collections"
-      );
+      const { statusCode, body } = await request(app).get("/stac/BAD_PROVIDER/collections");
 
       expect(statusCode).to.equal(404);
       expect(body).to.deep.equal({
@@ -47,9 +45,7 @@ describe("GET /:provider/collections", () => {
         .resolves([null, [{ "provider-id": "PROV", "short-name": "PROV" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
-      const { statusCode, body } = await request(app).get(
-        "/stac/PROV/collections"
-      );
+      const { statusCode, body } = await request(app).get("/stac/PROV/collections");
 
       expect(statusCode).to.equal(200);
     });
@@ -59,9 +55,7 @@ describe("GET /:provider/collections", () => {
         sandbox
           .stub(Providers, "getProviders")
           .resolves([null, [{ "provider-id": "PROV", "short-name": "PROV" }]]);
-        sandbox
-          .stub(Collections, "getCollectionIds")
-          .resolves(emptyCollectionIds);
+        sandbox.stub(Collections, "getCollectionIds").resolves(emptyCollectionIds);
 
         const { statusCode, body } = await request(app)
           .get("/stac/PROV/collections")
@@ -82,13 +76,8 @@ describe("GET /:provider/collections", () => {
           it(`should handle ${dateString} and return a 200`, async () => {
             sandbox
               .stub(Providers, "getProviders")
-              .resolves([
-                null,
-                [{ "provider-id": "PROV", "short-name": "PROV" }],
-              ]);
-            sandbox
-              .stub(Collections, "getCollections")
-              .resolves(emptyCollections);
+              .resolves([null, [{ "provider-id": "PROV", "short-name": "PROV" }]]);
+            sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
             const { statusCode } = await request(app)
               .get(`/stac/PROV/collections`)
@@ -99,50 +88,36 @@ describe("GET /:provider/collections", () => {
       });
 
       describe("where an open ended date window is provided", () => {
-        ["2000-12-31T23:59:59.000Z/..", "../2000-12-31T23:59:59.000Z"].forEach(
-          (dateString) => {
-            it(`should handle ${dateString} and return a 200`, async () => {
-              sandbox
-                .stub(Providers, "getProviders")
-                .resolves([
-                  null,
-                  [{ "provider-id": "PROV", "short-name": "PROV" }],
-                ]);
-              sandbox
-                .stub(Collections, "getCollections")
-                .resolves(emptyCollections);
+        ["2000-12-31T23:59:59.000Z/..", "../2000-12-31T23:59:59.000Z"].forEach((dateString) => {
+          it(`should handle ${dateString} and return a 200`, async () => {
+            sandbox
+              .stub(Providers, "getProviders")
+              .resolves([null, [{ "provider-id": "PROV", "short-name": "PROV" }]]);
+            sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
-              const { statusCode } = await request(app)
-                .get(`/stac/PROV/collections`)
-                .query({ datetime: dateString });
-              expect(statusCode).to.equal(200);
-            });
-          }
-        );
+            const { statusCode } = await request(app)
+              .get(`/stac/PROV/collections`)
+              .query({ datetime: dateString });
+            expect(statusCode).to.equal(200);
+          });
+        });
       });
 
       describe("where a closed date window is provided", () => {
-        ["2019-04-28T06:14:50.000Z,2020-04-28T06:14:50.000Z"].forEach(
-          (dateString) => {
-            it(`should handle ${dateString} and return a 200`, async () => {
-              sandbox
-                .stub(Providers, "getProviders")
-                .resolves([
-                  null,
-                  [{ "provider-id": "PROV", "short-name": "PROV" }],
-                ]);
+        ["2019-04-28T06:14:50.000Z,2020-04-28T06:14:50.000Z"].forEach((dateString) => {
+          it(`should handle ${dateString} and return a 200`, async () => {
+            sandbox
+              .stub(Providers, "getProviders")
+              .resolves([null, [{ "provider-id": "PROV", "short-name": "PROV" }]]);
 
-              sandbox
-                .stub(Collections, "getCollections")
-                .resolves(emptyCollections);
+            sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
-              const { statusCode } = await request(app)
-                .get(`/stac/PROV/collections`)
-                .query({ datetime: dateString });
-              expect(statusCode).to.equal(200);
-            });
-          }
-        );
+            const { statusCode } = await request(app)
+              .get(`/stac/PROV/collections`)
+              .query({ datetime: dateString });
+            expect(statusCode).to.equal(200);
+          });
+        });
       });
     });
   });

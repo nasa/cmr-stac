@@ -21,9 +21,8 @@ const createApp = () => {
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  if (!process.env.CI || process.env.LOG_LEVEL !== "OFF") {
-    const logger =
-      process.env.IS_LOCAL === "true" ? morgan("dev") : morgan("combined");
+  if (!process.env.CI) {
+    const logger = process.env.IS_LOCAL === "true" ? morgan("dev") : morgan("combined");
     app.use(logger);
   }
 

@@ -1,4 +1,7 @@
 import { Request, Response, NextFunction } from "express";
+import { isPlainObject } from "lodash";
+
+export type OptionalString = string | null;
 
 export const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -15,21 +18,15 @@ export const ERRORS = {
 export const buildRootUrl = (req: Request): string => {
   const { headers } = req;
 
-  const protocol =
-    headers["cloudfront-forwarded-proto"] ??
-    headers["x-forwarded-proto"] ??
-    "http";
+  const protocol = headers["cloudfront-forwarded-proto"] ?? headers["x-forwarded-proto"] ?? "http";
 
-  const host =
-    headers["x-forwarded-host"] ?? headers["host"] ?? "localhost:3000";
+  const host = headers["x-forwarded-host"] ?? headers["host"] ?? "localhost:3000";
 
   return `${protocol}://${host}`;
 };
 
-export const buildClientId = (clientId?: string): string => {
-  if (clientId) return `${clientId}-cmr-stac`;
-  return "cmr-stac";
-};
+export const buildClientId = (clientId?: string): string =>
+  clientId ? `${clientId}-cmr-stac` : "cmr-stac";
 
 /**
  * Wrap express handler with async error handling.
@@ -53,7 +50,7 @@ export const stacContext = (req: Request) => {
   const path = originalUrl.split("?")[0] ?? "";
 
   return {
-    id: isCloudStac ? "CLOUD-STAC" : "STAC",
+    id: isCloudStac ? "CLOUDSTAC" : "STAC",
     root,
     stacRoot: `${root}/${stac}`,
     path: `${root}${path}`,
@@ -66,6 +63,7 @@ export const stacContext = (req: Request) => {
  * Filters out
  * - null
  * - undefined
+ * - NaN
  * - empty arrays
  * - empty strings
  */
@@ -84,12 +82,13 @@ export const mergeMaybe = (
     if (maybeMap[key] == null) return nextMap;
 
     // skip emptyStrings
-    if (typeof maybeMap[key] === "string" && maybeMap[key].trim() === "")
-      return nextMap;
+    if (typeof maybeMap[key] === "string" && maybeMap[key].trim() === "") return nextMap;
+
+    // skip NaNs
+    if (Number.isNaN(maybeMap[key])) return nextMap;
 
     // don't bother with empty arrays
-    if (Array.isArray(maybeMap[key]) && maybeMap[key].length === 0)
-      return nextMap;
+    if (Array.isArray(maybeMap[key]) && maybeMap[key].length === 0) return nextMap;
 
     const keyPair: { [k: string]: any } = {};
     keyPair[key] = maybeMap[key];
@@ -105,10 +104,6 @@ export const scrubTokens = (headers: any) => {
     };
   }
   return headers;
-};
-
-export const isPlainObject = (input: any) => {
-  return input && !Array.isArray(input) && typeof input === "object";
 };
 
 /**
@@ -133,5 +128,47 @@ export const flattenTree = (
     } else {
       return { key: [...nodes, key], value: tree[key] };
     }
+  });
+};
+
+/**
+ * Return all versions of an ID where a separator could be substituted.
+ *
+ * In the case of a collection ID containing the legacy separator we may be
+ * incorrectly guessing which separator to replace when converting to entry_id.
+ * Therefore we need to search using all possible variations.
+ *
+ * @example
+ * ambiguateCollectionId("abc.v1.v2.1999", ".v", "_") =>
+ * ["abc_1.v2.1999", "abc.v1_2.1999", "abc.v1.v2.1999"]
+ */
+export const generatePossibleCollectionIds = (id: string, separator: string, replacement: string) =>
+  id.split(separator).map((currentToken, idx, tokens) => {
+    if (idx + 1 >= tokens.length) {
+      return tokens.join(separator);
+    }
+
+    const mergedToken = currentToken + replacement + [idx + 1];
+    // splice mutates the original so use a copy
+    const tokensCopy = [...tokens];
+    // splice returns the replaced objects, not the resulting array
+    tokensCopy.splice(idx, 2, mergedToken);
+
+    return tokensCopy.join(separator);
+  });
+
+/**
+ * Mixin helper
+ * see https://www.digitalocean.com/community/tutorials/typescript-mixins
+ */
+export const applyMixins = (derivedCtor: any, constructors: any[]) => {
+  constructors.forEach((baseCtor) => {
+    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+      Object.defineProperty(
+        derivedCtor.prototype,
+        name,
+        Object.getOwnPropertyDescriptor(baseCtor.prototype, name) || Object.create(null)
+      );
+    });
   });
 };

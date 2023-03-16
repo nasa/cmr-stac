@@ -18,16 +18,12 @@ export const cmrPolygonToGeoJsonCoordinates = (polygons: string[]) => {
 /**
  * Convert a 2D bbox string into GeoJSON Polygon coordinates format.
  */
-export const cmrBoxToGeoJsonPolygonCoordinates = (
-  box: string
-): number[][][] => {
+export const cmrBoxToGeoJsonPolygonCoordinates = (box: string): number[][][] => {
   const coordinates = parseOrdinateString(box) as SpatialExtent;
 
   if (!coordinates || coordinates.length !== 4)
     // a 6 coordinate box is technically valid if elevation is included but CMR only supports 2d boxes
-    throw new Error(
-      `Invalid bbox [${box}], exactly 4 coordinates are required.`
-    );
+    throw new Error(`Invalid bbox [${box}], exactly 4 coordinates are required.`);
 
   const [s, w, n, e] = coordinates;
   return [
@@ -44,9 +40,7 @@ export const cmrBoxToGeoJsonPolygonCoordinates = (
 /**
  * Convert an array of polygon strings into a GeoJSON geometry.
  */
-export const polygonToGeoJSON = (
-  polygons: string[][]
-): GeoJSONGeometry | null => {
+export const polygonToGeoJSON = (polygons: string[][]): GeoJSONGeometry | null => {
   const geometries = polygons.map(cmrPolygonToGeoJsonCoordinates);
 
   if (geometries.length > 1) {
@@ -155,9 +149,7 @@ export const stringToGeoJSON = (geometry: string): GeoJSONGeometry => {
     }
     return geoJson as GeoJSONGeometry;
   } catch (err) {
-    console.info(
-      `Failed to parse GeoJSON [${geometry}] : ${(err as Error).message}`
-    );
+    console.info(`Failed to parse GeoJSON [${geometry}] : ${(err as Error).message}`);
     throw new InvalidParameterError(
       "Invalid intersects parameter detected. Unable to parse. Please verify it is a valid GeoJSON geometry."
     );

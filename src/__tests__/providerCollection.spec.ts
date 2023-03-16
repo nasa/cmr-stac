@@ -44,9 +44,7 @@ describe("GET /:provider/collections/:collectionId", () => {
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
-      const { statusCode, body } = await request(app).get(
-        "/stac/BAD_PROVIDER/collections/foo"
-      );
+      const { statusCode, body } = await request(app).get("/stac/BAD_PROVIDER/collections/foo");
 
       expect(statusCode).to.equal(404);
       expect(body).to.deep.equal({
@@ -62,9 +60,7 @@ describe("GET /:provider/collections/:collectionId", () => {
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
-      const { statusCode, body } = await request(app).get(
-        "/stac/TEST/collections/MISSING"
-      );
+      const { statusCode, body } = await request(app).get("/stac/TEST/collections/MISSING");
 
       expect(statusCode).to.equal(404);
       expect(body).to.deep.equal({

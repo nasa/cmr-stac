@@ -1,9 +1,10 @@
 import { gql } from "graphql-request";
-import { Extents, AssetLinks, STACCollection } from "../@types/StacCollection";
+import { IncomingHttpHeaders } from "http";
+
+import { Extents, STACCollection } from "../@types/StacCollection";
 import { Collection, CollectionsInput } from "../models/GraphQLModels";
 import { cmrSpatialToExtent } from "./bounding-box";
-import { mergeMaybe } from "../utils";
-import { MAX_SIGNED_INTEGER, paginateQuery, GraphQLHandler } from "./stacQuery";
+import { extractAssets, MAX_SIGNED_INTEGER, paginateQuery, GraphQLHandler } from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -18,7 +19,7 @@ const collectionsQuery = gql`
         provider
         shortName
         title
-        abstract
+        description: abstract
         version
 
         polygons
@@ -31,7 +32,6 @@ const collectionsQuery = gql`
 
         useConstraints
         relatedUrls
-
         directDistributionInformation
       }
     }
@@ -46,6 +46,8 @@ const collectionIdsQuery = gql`
       items {
         conceptId
         title
+        shortName
+        version
       }
     }
   }
@@ -66,95 +68,14 @@ const createExtent = (collection: Collection): Extents => {
 };
 
 /**
- * Return a download asset if present.
+ * Return a license string and license link for a collection;
  */
-const downloadAsset = (collection: any) => {
-  const dataLink = collection.relatedUrls?.find(
-    (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/data#"
-  );
-
-  if (dataLink) {
-    return {
-      data: { href: dataLink.href, title: "Direct Download" },
-    };
-  }
-};
-
-/**
- * Return a metadata asset if present.
- */
-const metadataAsset = (collection: any) => {
-  const metadataLink = collection.links?.find(
-    (link: any) => link.rel === "http://esipfed.org/ns/fedsearch/1.1/metadata#"
-  );
-
-  if (metadataLink) {
-    return {
-      provider_metadata: {
-        href: metadataLink.href,
-        title: "Provider Metadata",
-      },
-    };
-  }
-};
-
-/**
- * Return a thumbnail asset if present.
- */
-const thumbnailAsset = (collection: any) => {
-  const thumbnail = collection.relatedUrls?.find(
-    (link: { type: string; url: string; [key: string]: any }) =>
-      link.type === "GET RELATED VISUALIZATION"
-  );
-
-  if (thumbnail) {
-    return {
-      thumbnail: {
-        href: thumbnail.url,
-        title: "Thumbnail",
-        roles: ["thumbnail"],
-      },
-    };
-  }
-};
-
-/**
- * Return a map of S3 links as assets if present.
- */
-const s3Assets = (collection: any) => {
-  const s3Info =
-    collection.directDistributionInformation?.s3BucketAndObjectPrefixNames ??
-    [];
-
-  return s3Info
-    .flatMap((s3Link: string) => s3Link.split(","))
-    .map((s3Link: string) => s3Link.trim())
-    .filter((s3Link: string) => s3Link !== "")
-    .reduce((acc: AssetLinks, href: string) => {
-      const assetTitle = href.replace("s3://", "").replace(/[/\-:.]/gi, "_");
-      const newAsset: AssetLinks = {};
-      const s3Link = href.startsWith("s3://") ? href : `s3://${href}`;
-      newAsset[`s3_${assetTitle}`] = { href: s3Link, roles: ["data"] };
-      return { ...acc, ...newAsset };
-    }, {});
-};
-
-const extractAssets = (
-  collection: any,
-  assetExtractors: ((c: any) => AssetLinks)[]
-): AssetLinks => {
-  return assetExtractors.reduce(
-    (accAssets, extract) => mergeMaybe(accAssets, extract(collection)),
-    {} as AssetLinks
-  );
-};
-
-const extractLicense = (collection: any) => {
+const extractLicense = (_collection: Collection) => {
   // See https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#license
   // license *should* be a SPDX string see https://spdx.org/licenses/ to be valid for STAC
-  const spdxLicenseRx = /^[\w\-\.\+]+$/gi;
+  // const spdxLicenseRx = /^[\w\-\.\+]+$/gi;
 
-  let licenseLink = {
+  const licenseLink = {
     rel: "license",
     href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
     title: "EOSDIS Data Use Policy",
@@ -162,25 +83,12 @@ const extractLicense = (collection: any) => {
   };
   const license = "proprietary";
 
-  // TODO this misses valid licenses
   return { license, licenseLink };
 };
 
-/**
- * Convert a GraphQL collection item into a STACCollection.
- */
-export const collectionToStac = (collection: any): STACCollection => {
-  const assetExtractors = [
-    downloadAsset,
-    metadataAsset,
-    thumbnailAsset,
-    s3Assets,
-  ];
-
-  const extent = createExtent(collection);
-  const assets = extractAssets(collection, assetExtractors);
-
-  const links = [
+const generateCollectionLinks = (collection: Collection, links: any[]) => {
+  return [
+    ...links,
     {
       rel: "about",
       href: `${CMR_ROOT}/search/concepts/${collection.conceptId}.html`,
@@ -212,33 +120,50 @@ export const collectionToStac = (collection: any): STACCollection => {
       type: "application/vnd.nasa.cmr.umm+json",
     },
   ];
+};
 
-  const provider = [
-    {
-      name: collection.conceptId?.split("-")[1] ?? "CMR",
-      roles: collection.conceptId ? ["producer"] : ["host"],
-    },
-  ];
+const generateProviders = (collection: Collection) => [
+  {
+    name: collection.provider,
+    roles: ["producer"],
+  },
+  {
+    name: "NASA EOSDIS",
+    roles: ["host"],
+  },
+];
 
+/**
+ * Convert a GraphQL collection item into a STACCollection.
+ */
+export const collectionToStac = (collection: Collection): STACCollection => {
+  const { title, description } = collection;
+
+  const id = collectionToId(collection);
+  const extent = createExtent(collection);
+  const assets = extractAssets(collection);
   const { license, licenseLink } = extractLicense(collection);
-
-  links.push(licenseLink);
+  const links = generateCollectionLinks(collection, [licenseLink]);
+  const provider = generateProviders(collection);
 
   return {
     type: "Collection",
-    id: collection.conceptId,
-    title: collection.title,
-    description: collection["abstract"],
+    id,
+    title,
+    description,
     stac_version: STAC_VERSION,
     extent,
     assets,
     provider,
     links,
     license,
-    summaries: {},
+    // TODO: summaries
   } as STACCollection;
 };
 
+/**
+ * Handler for collection queries.
+ */
 const collectionHandler: GraphQLHandler = (response: any) => {
   try {
     const {
@@ -258,34 +183,43 @@ const collectionHandler: GraphQLHandler = (response: any) => {
   }
 };
 
+/**
+ * Get collections matching the params.
+ */
 export const getCollections = async (
   params: CollectionsInput,
-  opts: {
-    headers?: { "client-id"?: string; [key: string]: any };
-    [key: string]: any;
-  } = {}
+  opts: { headers?: IncomingHttpHeaders } = {}
 ): Promise<{
   count: number;
   cursor: string | null;
   items: STACCollection[];
-}> => {
-  return await paginateQuery(collectionsQuery, params, opts, collectionHandler);
+}> => await paginateQuery(collectionsQuery, params, opts, collectionHandler);
+
+/**
+ * Return a STAC ID for a given collection.
+ * STAC ID should correspond to a CMR entry_id
+ * TODO: handle this type of situation ~> 10.3334/cdiac/otg.vos_alligatorhope_1999-2001_Not applicable as entry_id
+ */
+export const collectionToId = (collection: { shortName: string; version?: string | null }) => {
+  const { shortName, version } = collection;
+  return version ? `${shortName}_${version}` : shortName;
 };
 
+const attachId = (collection: { shortName: string; version?: string | null }) => ({
+  ...collection,
+  id: collectionToId(collection),
+});
+
+/**
+ * Handler for collectionId queries to GraphQL.
+ */
 const collectionIdsHandler: GraphQLHandler = (response: any) => {
   try {
     const {
       collections: { count, items, cursor },
     } = response;
 
-    return [
-      null,
-      {
-        count,
-        cursor,
-        items,
-      },
-    ];
+    return [null, { count, cursor, items: items.map(attachId) }];
   } catch (err) {
     return [(err as Error).message, null];
   }
@@ -297,32 +231,27 @@ const collectionIdsHandler: GraphQLHandler = (response: any) => {
 export const getCollectionIds = async (
   params: CollectionsInput,
   opts: {
-    headers?: { "client-id"?: string; [key: string]: any };
-    [key: string]: any;
+    headers?: IncomingHttpHeaders;
   } = {}
 ): Promise<{
   count: number;
   cursor: string | null;
-  items: { conceptId: string; title: string }[];
-}> => {
-  return await paginateQuery(
-    collectionIdsQuery,
-    params,
-    opts,
-    collectionIdsHandler
-  );
-};
+  items: { id: string; title: string }[];
+}> => await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
 
+/**
+ * Retrieves all collection ids.
+ * @deprecated by CMR-8996
+ */
 export const getAllCollectionIds = async (
   params: CollectionsInput,
   opts: {
-    headers?: { "client-id"?: string; [key: string]: any };
-    [key: string]: any;
+    headers?: IncomingHttpHeaders;
   } = {}
 ): Promise<{
   count: number;
   cursor: string | null;
-  items: { conceptId: string; title: string }[];
+  items: { id: string; title: string }[];
 }> => {
   params.limit = MAX_SIGNED_INTEGER;
   return await getCollectionIds(params, opts);

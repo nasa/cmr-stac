@@ -1,9 +1,31 @@
 import chai from "chai";
 const { expect } = chai;
 
-import { buildQuery, sortByToSortKeys, stringifyQuery } from "../stacQuery";
+import { buildQuery, sortByToSortKeys, stringifyQuery } from "../stac";
 
 describe("buildQuery", () => {
+  describe("given a intersects query polygon", () => {
+    it("parses the string correctly", async () => {
+      const query = await buildQuery({
+        method: "POST",
+        body: {
+          intersects: {
+            type: "Polygon",
+            coordinates: "100,0,101,0,101,1,100,1,100,0",
+          },
+        },
+        params: { providerId: "TEST_PROV" },
+        headers: {},
+        query: {},
+      } as any);
+
+      expect(query).to.deep.equal({
+        provider: "TEST_PROV",
+        polygon: ["100,0,101,0,101,1,100,1,100,0"],
+      });
+    });
+  });
+
   describe("given a bounding box", () => {
     [
       { label: "as 2d array", bbox: [-121, 38, -119, 40] },
@@ -127,15 +149,105 @@ describe("stringifyQuery", () => {
       },
       {
         query: { query: { "eo:cloud_cover": { gt: 50, lt: 95 } } },
-        queryString:
-          "query[eo:cloud_cover][gt]=50&query[eo:cloud_cover][lt]=95",
+        queryString: "query[eo:cloud_cover][gt]=50&query[eo:cloud_cover][lt]=95",
       },
     ].forEach(({ query, queryString }) => {
       describe(`given query of ${JSON.stringify(query)}`, () => {
         it(`should return ${queryString}`, () => {
-          expect(decodeURIComponent(stringifyQuery(query))).to.equal(
-            queryString
-          );
+          expect(decodeURIComponent(stringifyQuery(query))).to.equal(queryString);
+        });
+      });
+    });
+  });
+});
+
+describe("conversions to GraphQL", () => {
+  describe("collections", () => {
+    describe("given cmr-stac 1.0 style collection identifiers", () => {
+      it("should attempt to convert them to entry_id query", async () => {
+        expect(
+          await buildQuery({
+            method: "GET",
+            url: "/stac/PROV/search",
+            headers: {},
+            params: { providerId: "PROV" },
+            provider: {
+              "provider-id": "PROV",
+              "short-name": "PROV",
+            },
+            query: { collections: ["coll.v1"] },
+          } as any)
+        ).to.deep.equal({
+          provider: "PROV",
+          entryId: ["coll_1", "coll.v1"],
+        });
+      });
+    });
+
+    describe("given cmr entry_id style collection identifiers", () => {
+      it("should not modify them", async () => {
+        expect(
+          await buildQuery({
+            method: "GET",
+            url: "/stac/PROV/search",
+            headers: {},
+            params: { providerId: "PROV" },
+            provider: {
+              "provider-id": "PROV",
+              "short-name": "PROV",
+            },
+            query: { collections: ["coll_v1"] },
+          } as any)
+        ).to.deep.equal({
+          provider: "PROV",
+          entryId: ["coll_v1"],
+        });
+      });
+    });
+
+    describe("given an id as part of the path", () => {
+      it("should not modify them", async () => {
+        expect(
+          await buildQuery({
+            method: "GET",
+            url: "/stac/PROV/collections/testCollection_v123",
+            headers: {},
+            params: { providerId: "PROV", collectionId: "testCollection_v123" },
+            provider: {
+              "provider-id": "PROV",
+              "short-name": "PROV",
+            },
+            query: {},
+          } as any)
+        ).to.deep.equal({
+          provider: "PROV",
+          entryId: ["testCollection_v123"],
+        });
+      });
+    });
+
+    describe("given an id as part of the path using the deprecated style", () => {
+      it("creates a query term for all combinations ", async () => {
+        expect(
+          await buildQuery({
+            method: "GET",
+            url: "/stac/PROV/collections/testCollection.v1.v2.v3",
+            headers: {},
+            params: { providerId: "PROV", collectionId: "testCollection.v1.v2.v3" },
+            provider: {
+              "provider-id": "PROV",
+              "short-name": "PROV",
+            },
+            query: {},
+          } as any)
+        ).to.deep.equal({
+          provider: "PROV",
+          entryId: [
+            "testCollection_1.v2.v3",
+            "testCollection.v1_2.v3",
+            "testCollection.v1.v2_3",
+            "testCollection.v1.v2.v3",
+          ],
         });
       });
     });

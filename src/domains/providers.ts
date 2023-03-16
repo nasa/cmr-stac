@@ -25,9 +25,7 @@ export const conformance = [
 /**
  * Return an array of providers found in CMR.
  */
-export const getProviders = async (): Promise<
-  [string, null] | [null, Provider[]]
-> => {
+export const getProviders = async (): Promise<[string, null] | [null, Provider[]]> => {
   try {
     const { data: providers } = await axios.get(`${CMR_LB_INGEST}/providers`);
     return [null, providers];
@@ -49,11 +47,7 @@ export const getProvider = async (
     return [errs as string, null];
   }
 
-  return [
-    null,
-    providers!.find((provider) => provider["provider-id"] === providerId) ??
-      null,
-  ];
+  return [null, providers!.find((provider) => provider["provider-id"] === providerId) ?? null];
 };
 
 /**
@@ -64,9 +58,7 @@ export const getCloudProviders = async (
   providerCandidates?: Provider[],
   opts: { [key: string]: any } = {}
 ): Promise<[null | string[], Provider[]]> => {
-  const [err, candidates] = providerCandidates
-    ? [null, providerCandidates]
-    : await getProviders();
+  const [err, candidates] = providerCandidates ? [null, providerCandidates] : await getProviders();
 
   if (err) {
     return [[err], []];
