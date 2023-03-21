@@ -47,7 +47,10 @@ export const getProvider = async (
     return [errs as string, null];
   }
 
-  return [null, providers!.find((provider) => provider["provider-id"] === providerId) ?? null];
+  return [
+    null,
+    (providers ?? []).find((provider) => provider["provider-id"] === providerId) ?? null,
+  ];
 };
 
 /**
@@ -56,7 +59,7 @@ export const getProvider = async (
  */
 export const getCloudProviders = async (
   providerCandidates?: Provider[],
-  opts: { [key: string]: any } = {}
+  opts: { [key: string]: unknown } = {}
 ): Promise<[null | string[], Provider[]]> => {
   const [err, candidates] = providerCandidates ? [null, providerCandidates] : await getProviders();
 
@@ -70,7 +73,7 @@ export const getCloudProviders = async (
   const cloudProviders: Provider[] = [];
 
   await Promise.all(
-    candidates!.map(async (provider) => {
+    (candidates ?? []).map(async (provider) => {
       try {
         const { headers } = await axios.get(CMR_LB_SEARCH_COLLECTIONS, {
           headers: mergeMaybe({}, { authorization }),

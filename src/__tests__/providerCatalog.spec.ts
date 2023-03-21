@@ -1,6 +1,7 @@
 import * as sinon from "sinon";
 import { expect } from "chai";
 import request from "supertest";
+import { faker } from "@faker-js/faker";
 
 import Ajv from "ajv";
 const apply = require("ajv-formats-draft2019");
@@ -140,7 +141,7 @@ describe("GET /:provider", () => {
             cursor: "foundCursor",
             items: mockCollections.map((coll) => ({
               id: `${coll.shortName}_${coll.version}`,
-              title: coll.title!,
+              title: coll.title ?? faker.random.words(4),
             })),
           });
 

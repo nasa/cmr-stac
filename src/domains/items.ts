@@ -1,14 +1,15 @@
 import { Request } from "express";
+import { IncomingHttpHeaders } from "http";
 import { gql } from "graphql-request";
 
 import { AssetLinks, STACItem } from "../@types/StacItem";
-import { Granule, GranulesInput } from "../models/GraphQLModels";
+import { Granule, GranulesInput, GraphQLHandler, GraphQLResults } from "../models/GraphQLModels";
 import { StacExtension, StacExtensions } from "../models/StacModels";
 
 import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, stacContext } from "../utils";
-import { extractAssets, paginateQuery, GraphQLHandler } from "./stac";
+import { extractAssets, paginateQuery } from "./stac";
 import { collectionToId } from "./collections";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -78,7 +79,7 @@ const cloudCoverExtension = (granule: Granule) => {
  */
 const selfLinks = (req: Request, item: STACItem) => {
   const { provider } = req;
-  const { stacRoot, self } = stacContext(req);
+  const { stacRoot } = stacContext(req);
 
   return [
     {
@@ -204,18 +205,18 @@ export const granuleToStac = (granule: Granule): STACItem => {
   };
 };
 
-const granulesQueryHandler: GraphQLHandler = (response: any) => {
+const granulesQueryHandler: GraphQLHandler = (response: unknown) => {
   try {
     const {
       granules: { count, items, cursor },
-    } = response;
+    } = response as { granules: GraphQLResults };
 
     return [
       null,
       {
         count,
         cursor,
-        items: items.map(granuleToStac),
+        items: (items as Granule[]).map(granuleToStac),
       },
     ];
   } catch (err) {
@@ -229,27 +230,34 @@ const granulesQueryHandler: GraphQLHandler = (response: any) => {
 export const getItems = async (
   params: GranulesInput,
   opts: {
-    headers?: { "client-id"?: string; authorization?: string };
-    [key: string]: any;
+    headers?: IncomingHttpHeaders;
   } = {}
 ): Promise<{
   count: number;
   cursor: string | null;
   items: STACItem[];
-}> => await paginateQuery(granulesQuery, params, opts, granulesQueryHandler);
+}> => {
+  const { count, cursor, items } = await paginateQuery(
+    granulesQuery,
+    params,
+    opts,
+    granulesQueryHandler
+  );
+  return { count, cursor, items: items as STACItem[] };
+};
 
-const granuleIdsQueryHandler: GraphQLHandler = (response: any) => {
+const granuleIdsQueryHandler: GraphQLHandler = (response: unknown) => {
   try {
     const {
       granules: { count, items, cursor },
-    } = response;
+    } = response as { granules: GraphQLResults };
 
     return [
       null,
       {
         count,
         cursor,
-        items,
+        items: items as Granule[],
       },
     ];
   } catch (err) {
@@ -277,7 +285,7 @@ export const getItemIds = async (
     granuleIdsQueryHandler
   );
 
-  return { count, cursor, ids: items };
+  return { count, cursor, ids: items as string[] };
 };
 
 /**

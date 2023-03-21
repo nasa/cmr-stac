@@ -1,10 +1,16 @@
 import { gql } from "graphql-request";
 import { IncomingHttpHeaders } from "http";
 
-import { Extents, STACCollection } from "../@types/StacCollection";
-import { Collection, CollectionsInput } from "../models/GraphQLModels";
+import { Extents, STACCollection, Links } from "../@types/StacCollection";
+import {
+  Collection,
+  CollectionBase,
+  CollectionsInput,
+  GraphQLHandler,
+  GraphQLResults,
+} from "../models/GraphQLModels";
 import { cmrSpatialToExtent } from "./bounding-box";
-import { extractAssets, MAX_SIGNED_INTEGER, paginateQuery, GraphQLHandler } from "./stac";
+import { extractAssets, paginateQuery, MAX_SIGNED_INTEGER } from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -86,7 +92,7 @@ const extractLicense = (_collection: Collection) => {
   return { license, licenseLink };
 };
 
-const generateCollectionLinks = (collection: Collection, links: any[]) => {
+const generateCollectionLinks = (collection: Collection, links: Links) => {
   return [
     ...links,
     {
@@ -164,18 +170,18 @@ export const collectionToStac = (collection: Collection): STACCollection => {
 /**
  * Handler for collection queries.
  */
-const collectionHandler: GraphQLHandler = (response: any) => {
+const collectionHandler: GraphQLHandler = (response: unknown) => {
   try {
     const {
       collections: { count, items, cursor },
-    } = response;
+    } = response as { collections: GraphQLResults };
 
     return [
       null,
       {
         count,
         cursor,
-        items: items.map(collectionToStac),
+        items: (items as Collection[]).map(collectionToStac),
       },
     ];
   } catch (err) {
@@ -193,7 +199,14 @@ export const getCollections = async (
   count: number;
   cursor: string | null;
   items: STACCollection[];
-}> => await paginateQuery(collectionsQuery, params, opts, collectionHandler);
+}> => {
+  const {
+    cursor,
+    count,
+    items: collections,
+  } = await paginateQuery(collectionsQuery, params, opts, collectionHandler);
+  return { cursor, count, items: collections as STACCollection[] };
+};
 
 /**
  * Return a STAC ID for a given collection.
@@ -213,13 +226,13 @@ const attachId = (collection: { shortName: string; version?: string | null }) =>
 /**
  * Handler for collectionId queries to GraphQL.
  */
-const collectionIdsHandler: GraphQLHandler = (response: any) => {
+const collectionIdsHandler: GraphQLHandler = (response: unknown) => {
   try {
     const {
       collections: { count, items, cursor },
-    } = response;
+    } = response as { collections: GraphQLResults };
 
-    return [null, { count, cursor, items: items.map(attachId) }];
+    return [null, { count, cursor, items: (items as CollectionBase[]).map(attachId) }];
   } catch (err) {
     return [(err as Error).message, null];
   }
@@ -237,7 +250,14 @@ export const getCollectionIds = async (
   count: number;
   cursor: string | null;
   items: { id: string; title: string }[];
-}> => await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
+}> => {
+  const {
+    cursor,
+    count,
+    items: collectionIds,
+  } = await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
+  return { cursor, count, items: collectionIds as { id: string; title: string }[] };
+};
 
 /**
  * Retrieves all collection ids.

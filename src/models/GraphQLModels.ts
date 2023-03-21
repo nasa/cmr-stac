@@ -109,10 +109,9 @@ export type RelatedUrls = {
   description: string;
   urlContentType: UrlContentType;
   url: string;
-  subtype?: string;
-  // need to manually in the app check for "type" because it shadows a reserved keyword
-  /** _type: RelatedUrlType; */
-  [key: string]: any;
+  subtype?: RelatedUrlSubType | string;
+  type?: RelatedUrlType | string;
+  [key: string]: unknown;
   getData?: {
     format: string;
     mimeType: string;
@@ -179,4 +178,23 @@ export type Granule = GranuleBase & {
   timeStart: string | null;
   timeEnd: string | null;
   relatedUrls: RelatedUrls | null;
+};
+
+export type GraphQLHandlerResponse =
+  | [error: string, data: null]
+  | [
+      error: null,
+      data: {
+        count: number;
+        cursor: string | null;
+        items: object[];
+      }
+    ];
+
+export type GraphQLHandler = (response: unknown) => GraphQLHandlerResponse;
+
+export type GraphQLResults = {
+  count: number;
+  items: unknown[];
+  cursor: string | null;
 };

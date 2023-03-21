@@ -8,13 +8,13 @@ export type PropertyQuery = {
 
 export type StacQuery = {
   cursor?: string;
-  sortby?: string;
+  sortBy?: string | string[];
   limit?: string;
   bbox?: string;
   datetime?: string;
   intersects?: string[];
-  ids?: string[];
-  collections?: string[];
+  ids?: string | string[];
+  collections?: string | string[];
   query?: {
     [key: string]: PropertyQuery;
   };
@@ -22,10 +22,10 @@ export type StacQuery = {
 
 export type StacExtension = {
   extension: string;
-  properties: { [key: string]: any };
+  properties: { [key: string]: unknown };
 };
 
 export type StacExtensions = {
   extensions: string[];
-  properties: { [key: string]: any };
+  properties: { [key: string]: unknown };
 };

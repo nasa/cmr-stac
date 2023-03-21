@@ -65,7 +65,14 @@ export const multiItemHandler = async (req: Request, res: Response) => {
   const {
     query: { cursor },
     collection,
+    params: { collectionId, providerId },
   } = req;
+
+  if (!collection) {
+    throw new ItemNotFound(
+      `Could not find parent collection [${collectionId}] in provider [${providerId}]`
+    );
+  }
 
   const itemQuery = await buildQuery(req);
 
@@ -83,8 +90,7 @@ export const multiItemHandler = async (req: Request, res: Response) => {
   const originalQuery = mergeMaybe(req.query, req.body);
 
   if (cursor && req.cookies[`prev-${cursor}`]) {
-    const prevResultsQuery = { ...originalQuery };
-    prevResultsQuery.cursor = req.cookies[`prev-${cursor}`];
+    const prevResultsQuery = { ...originalQuery, cursor: req.cookies[`prev-${cursor}`] };
 
     links.push({
       rel: "prev",
@@ -94,8 +100,7 @@ export const multiItemHandler = async (req: Request, res: Response) => {
   }
 
   if (nextCursor && nextCursor !== cursor) {
-    const nextResultsQuery = { ...originalQuery };
-    nextResultsQuery.cursor = nextCursor;
+    const nextResultsQuery = { ...originalQuery, cursor: nextCursor };
 
     links.push({
       rel: "next",
@@ -104,7 +109,7 @@ export const multiItemHandler = async (req: Request, res: Response) => {
     });
   }
 
-  if (cursor && nextCursor && nextCursor !== cursor) {
+  if (cursor && nextCursor && "cursor" in originalQuery && nextCursor !== cursor) {
     res.cookie(`prev-${nextCursor}`, originalQuery.cursor, {
       maxAge: WEEK_IN_MS,
     });

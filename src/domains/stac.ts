@@ -5,7 +5,12 @@ import { request } from "graphql-request";
 
 import { GeoJSONGeometry } from "../@types/StacItem";
 import { InvalidParameterError } from "../models/errors";
-import { CollectionsInput, GranulesInput } from "../models/GraphQLModels";
+import {
+  CollectionsInput,
+  GranulesInput,
+  GraphQLHandler,
+  GraphQLResults,
+} from "../models/GraphQLModels";
 import { StacQuery } from "../models/StacModels";
 import { getAllCollectionIds } from "./collections";
 import {
@@ -145,26 +150,6 @@ export const extractAssets = (
     (assets, extractAssetsFn) => mergeMaybe(assets, extractAssetsFn(collection)),
     {} as AssetLinks
   );
-
-type GraphQLHandlerResponse =
-  | [error: string, data: null]
-  | [
-      error: null,
-      data: {
-        count: number;
-        cursor: string | null;
-        items: any[];
-      }
-    ];
-
-export type GraphQLHandler = (response: any) => GraphQLHandlerResponse;
-
-export type GraphQLResults = {
-  count: number;
-  items: any[];
-  cursor: string | null;
-};
-
 const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013";
 export const CMR_QUERY_MAX = 2000;
 export const MAX_SIGNED_INTEGER = 2 ** 31 - 1;
@@ -173,7 +158,9 @@ export const geoJsonToQuery = (geoJson: object | object[]) => {
   const geometries = Array.isArray(geoJson) ? geoJson : [geoJson];
 
   const [polygon, line, point] = geometries
-    .map((geometry: any) => (typeof geometry === "string" ? JSON.parse(geometry) : geometry))
+    .map((geometry: object | string) =>
+      typeof geometry === "string" ? JSON.parse(geometry) : geometry
+    )
     .reduce(
       ([polygon, line, point], geometry: GeoJSONGeometry) => {
         const flattened =
@@ -236,15 +223,15 @@ const cloudCoverQuery = (_req: Request, query: StacQuery) => {
   return { cloudCover };
 };
 
-const limitQuery = (_req: Request, query: any) => ({
+const limitQuery = (_req: Request, query: StacQuery) => ({
   limit: Number.isNaN(Number(query.limit)) ? null : Number(query.limit),
 });
 
-const temporalQuery = (_req: Request, query: any) => ({
+const temporalQuery = (_req: Request, query: StacQuery) => ({
   temporal: encodeURIComponent(dateTimeToRange(query.datetime) ?? ""),
 });
 
-const bboxQuery = (_req: Request, query: any) => ({
+const bboxQuery = (_req: Request, query: StacQuery) => ({
   boundingBox: bboxToBoundingBox(query),
 });
 
@@ -266,11 +253,11 @@ export const sortByToSortKeys = (sortBys?: string | string[]): string[] => {
   }, [] as string[]);
 };
 
-const sortKeyQuery = (_req: Request, query: any) => ({
+const sortKeyQuery = (_req: Request, query: StacQuery) => ({
   sortKey: sortByToSortKeys(query.sortBy),
 });
 
-const idsQuery = (req: Request, query: any) => {
+const idsQuery = (req: Request, query: StacQuery) => {
   const {
     params: { itemId },
   } = req;
@@ -287,12 +274,12 @@ const idsQuery = (req: Request, query: any) => {
   return { conceptId: itemIds };
 };
 
-const cursorQuery = (query: any) => ({ cursor: query.cursor });
+const cursorQuery = (_req: Request, query: StacQuery) => ({ cursor: query.cursor });
 
 /**
  * Convert bbox STAC query term to GraphQL query term.
  */
-const bboxToBoundingBox = (query: { bbox?: any }): string | null => {
+const bboxToBoundingBox = (query: StacQuery): string | null => {
   const { bbox: bboxInput } = query;
   if (!bboxInput) return null;
 
@@ -410,6 +397,7 @@ export const buildQuery = async (req: Request) => {
   );
 };
 
+export type SimpleMap = { [key: string]: unknown };
 /**
  * Convert a JSON query structure to an array style query string.
  *
@@ -417,17 +405,17 @@ export const buildQuery = async (req: Request) => {
  * stringifyQuery({provider:"my_prov", query:{"eo:cloud_cover": {"gt": 60}}})
  * => "provider=my_prov&query[eo:cloud_cover][gt]=60"
  */
-export const stringifyQuery = (input: any) => {
+export const stringifyQuery = (input: { [key: string]: unknown }) => {
   const queryParams = new URLSearchParams();
 
   Object.keys(input).forEach((key) => {
     if (isPlainObject(input[key])) {
-      flattenTree(input[key]).forEach((leaf: any) => {
+      flattenTree(input[key] as SimpleMap).forEach((leaf: { key: string[]; value: unknown }) => {
         const deepKeys = leaf.key.map((k: string) => `[${k}]`).join("");
-        queryParams.set(`${key}${deepKeys}`, leaf.value);
+        queryParams.set(`${key}${deepKeys}`, leaf.value as string);
       });
     } else {
-      queryParams.set(key, input[key]);
+      queryParams.set(key, input[key] as string);
     }
   });
 
@@ -445,7 +433,7 @@ export const paginateQuery = async (
     headers?: IncomingHttpHeaders;
   },
   handler: GraphQLHandler,
-  prevResults: any[] = []
+  prevResults: unknown[] = []
 ): Promise<GraphQLResults> => {
   const paginatedParams = { ...params };
 
@@ -468,7 +456,7 @@ export const paginateQuery = async (
     paginatedParams,
     null,
     2
-  )} ${JSON.stringify(scrubTokens(headers), null, 2)}`;
+  )} ${JSON.stringify(scrubTokens(headers as IncomingHttpHeaders), null, 2)}`;
 
   try {
     console.info(timingMessage);
@@ -494,8 +482,11 @@ export const paginateQuery = async (
     }
 
     return { items: totalResults, count, cursor };
-  } catch (err: any) {
-    if (err.response?.status === 200) {
+  } catch (err: unknown) {
+    if (
+      !(err instanceof Error) &&
+      (err as { response: { status: number } }).response.status === 200
+    ) {
       console.info(`GraphQL returned a non-items response.`, err);
       return { items: [], count: 0, cursor: null };
     }

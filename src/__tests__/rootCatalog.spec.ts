@@ -56,7 +56,7 @@ describe("GET /stac", () => {
     before(() => {
       sandbox
         .stub(Providers, "getProviders")
-        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]!);
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
     });
 
     it("should have an entry for each provider in the links", async () => {

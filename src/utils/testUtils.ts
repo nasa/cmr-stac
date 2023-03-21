@@ -6,7 +6,7 @@ import { Granule, Collection, RelatedUrlType, UrlContentType } from "../models/G
 export const generateSTACCollections = (quantity: number) => {
   return Array(quantity)
     .fill(undefined)
-    .map((_current) => {
+    .map(() => {
       const shortName = faker.commerce.product();
       const version = `v${Math.random() * 100}`;
       const id = `${shortName}_${version}`;
@@ -58,7 +58,7 @@ export const generateSTACItems = (
 
   return Array(quantity)
     .fill(undefined)
-    .map((_item) => {
+    .map(() => {
       const id = faker.random.words(5).replace(/\s+/gi, "_");
       return {
         id,
@@ -110,17 +110,16 @@ const baseGranule: Granule = {
       urlContentType: UrlContentType.DISTRIBUTION_URL,
       url: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hd",
       description: "the data",
+      type: RelatedUrlType.GET_DATA,
     },
     {
       urlContentType: UrlContentType.PUBLICATION_URL,
       url: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
       description: "metadata",
+      type: RelatedUrlType.DATA_SET_LANDING_PAGE,
     },
   ],
 };
-
-baseGranule.relatedUrls![0]["type"] = RelatedUrlType.GET_DATA;
-baseGranule.relatedUrls![1]["type"] = RelatedUrlType.DATA_SET_LANDING_PAGE;
 
 export const generateGranules = (
   quantity: number,

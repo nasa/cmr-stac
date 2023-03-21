@@ -1,0 +1,46 @@
+name: Linting
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  Lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: [18]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Linter (check only)
+        run: npm run lint
+
+  Prettier:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: [18]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Prettier (check only)
+        run: npm run prettier

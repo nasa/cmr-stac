@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 
 import { StacQuery } from "../models/StacModels";
-import { InvalidParameterError, ServiceUnavailableError, ItemNotFound } from "../models/errors";
+import {
+  ErrorHandler,
+  InvalidParameterError,
+  ServiceUnavailableError,
+  ItemNotFound,
+} from "../models/errors";
 
 import { WarmProviderCache } from "../domains/cache";
 import { getCollections } from "../domains/collections";
@@ -68,13 +73,14 @@ export const notFoundHandler = (_req: Request, res: Response) =>
  * Top level error handler
  * This *MUST* contain all 4 parameters
  */
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  if ("handle" in err) {
-    err.handle(err, req, res, next);
+export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
+  if ("handle" in (err as ErrorHandler)) {
+    // use mixin applied error handler if it's a custom error type
+    (err as ErrorHandler).handle(err as Error, req, res, next);
   } else {
     // handle any other top level error
     console.error("A fatal error occurred", err);
-    res.status(err.status ?? 500).json({ errors: [ERRORS.internalServerError] });
+    res.status(500).json({ errors: [ERRORS.internalServerError] });
   }
 };
 

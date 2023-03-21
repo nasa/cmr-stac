@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { IncomingHttpHeaders } from "http";
 import { isPlainObject } from "lodash";
 
 export type OptionalString = string | null;
@@ -31,7 +32,7 @@ export const buildClientId = (clientId?: string): string =>
 /**
  * Wrap express handler with async error handling.
  */
-export const wrapErrorHandler = (fn: (rq: Request, rs: Response) => any) => {
+export const wrapErrorHandler = (fn: (rq: Request, rs: Response) => Promise<void>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await fn(req, res);
@@ -67,43 +68,46 @@ export const stacContext = (req: Request) => {
  * - empty arrays
  * - empty strings
  */
-export const mergeMaybe = (
-  map: { [key: string]: any } | any,
-  maybeMap?: { [key: string]: any }
-) => {
+export const mergeMaybe = (map: object, maybeMap?: unknown) => {
   const baseMap = map ?? {};
-  if (!maybeMap) return baseMap;
+  if (!maybeMap || !isPlainObject(maybeMap)) return baseMap;
 
-  return Object.keys(maybeMap).reduce((nextMap, key) => {
-    // JS safety
-    if (!Object.prototype.hasOwnProperty.call(maybeMap, key)) return nextMap;
+  const coerced: { [key: string]: unknown } = { ...maybeMap };
 
-    // skip null or undefined, purposely not using ===
-    if (maybeMap[key] == null) return nextMap;
+  return Object.keys(coerced).reduce(
+    (nextMap, key) => {
+      // JS safety
+      if (!Object.prototype.hasOwnProperty.call(coerced, key)) return nextMap;
 
-    // skip emptyStrings
-    if (typeof maybeMap[key] === "string" && maybeMap[key].trim() === "") return nextMap;
+      // skip null or undefined, purposely not using ===
+      if (coerced[key] == null) return nextMap;
 
-    // skip NaNs
-    if (Number.isNaN(maybeMap[key])) return nextMap;
+      // skip emptyStrings
+      if (typeof coerced[key] === "string" && (coerced[key] as string).trim() === "")
+        return nextMap;
 
-    // don't bother with empty arrays
-    if (Array.isArray(maybeMap[key]) && maybeMap[key].length === 0) return nextMap;
+      // skip NaNs
+      if (Number.isNaN(coerced[key])) return nextMap;
 
-    const keyPair: { [k: string]: any } = {};
-    keyPair[key] = maybeMap[key];
-    return { ...nextMap, ...keyPair };
-  }, baseMap);
+      // don't bother with empty arrays
+      if (Array.isArray(coerced[key]) && (coerced[key] as Array<unknown>).length === 0)
+        return nextMap;
+
+      const keyPair: { [key: string]: unknown } = {};
+      keyPair[key] = coerced[key];
+      return { ...nextMap, ...keyPair };
+    },
+    { ...baseMap }
+  );
 };
 
-export const scrubTokens = (headers: any) => {
-  if (headers && headers["authorization"]) {
-    return {
-      ...headers,
-      authorization: `${headers.authorization.substring(0, 12)}... REDACTED`,
-    };
-  }
-  return headers;
+export const scrubTokens = (headers: IncomingHttpHeaders) => {
+  if (!("authorization" in headers)) return headers;
+  const { authorization } = headers;
+  return {
+    ...headers,
+    authorization: `${(authorization as string).substring(0, 12)}... REDACTED`,
+  };
 };
 
 /**
@@ -119,12 +123,12 @@ export const scrubTokens = (headers: any) => {
  *                        {key: [a,c]}, value: y} ]
  */
 export const flattenTree = (
-  tree: { [key: string]: any },
+  tree: { [key: string]: unknown },
   nodes: string[] = []
-): { key: string[]; value: any }[] => {
+): { key: string[]; value: unknown }[] => {
   return Object.keys(tree).flatMap((key: string) => {
     if (isPlainObject(tree[key])) {
-      return flattenTree(tree[key], [...nodes, key]);
+      return flattenTree(tree[key] as { [key: string]: unknown }, [...nodes, key]);
     } else {
       return { key: [...nodes, key], value: tree[key] };
     }
@@ -156,19 +160,3 @@ export const generatePossibleCollectionIds = (id: string, separator: string, rep
 
     return tokensCopy.join(separator);
   });
-
-/**
- * Mixin helper
- * see https://www.digitalocean.com/community/tutorials/typescript-mixins
- */
-export const applyMixins = (derivedCtor: any, constructors: any[]) => {
-  constructors.forEach((baseCtor) => {
-    Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
-      Object.defineProperty(
-        derivedCtor.prototype,
-        name,
-        Object.getOwnPropertyDescriptor(baseCtor.prototype, name) || Object.create(null)
-      );
-    });
-  });
-};

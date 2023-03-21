@@ -45,7 +45,7 @@ describe("GET /:provider/collections", () => {
         .resolves([null, [{ "provider-id": "PROV", "short-name": "PROV" }]]);
       sandbox.stub(Collections, "getCollections").resolves(emptyCollections);
 
-      const { statusCode, body } = await request(app).get("/stac/PROV/collections");
+      const { statusCode } = await request(app).get("/stac/PROV/collections");
 
       expect(statusCode).to.equal(200);
     });

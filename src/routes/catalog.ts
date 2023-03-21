@@ -105,9 +105,9 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
   const providerCatalog = {
     type: "Catalog",
     id: provider["provider-id"],
-    title: `${provider!["short-name"]} STAC Catalog`,
+    title: `${provider["provider-id"]} STAC Catalog`,
     stac_version: STAC_VERSION,
-    description: `Root STAC catalog for ${provider!["short-name"]}`,
+    description: `Root STAC catalog for ${provider["provider-id"]}`,
     conformsTo: conformance,
     links: [...selfLinks, ...childLinks],
   } as STACCatalog;

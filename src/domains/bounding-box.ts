@@ -77,15 +77,19 @@ export const addPointsToBbox = (
  * @returns SpatialExtent - A single combined bounding-box in the `[W, S, E, N]` format
  */
 export const mergeBoxes = (box1: SpatialExtent, box2: SpatialExtent): SpatialExtent => {
-  if ((!box1 || box1.length < 4) && (!box2 || box2.length < 4)) {
+  if ((!box1 || box1.length !== 4) && (!box2 || box2.length !== 4)) {
     return null;
   }
-  if (!box1 || box1.length < 4) {
+
+  // only merge 2d bboxes
+  if (!box1 || box1.length !== 4) {
     return box2;
   }
-  if (!box2 || box2.length < 4) {
+
+  if (!box2 || box2.length !== 4) {
     return box1;
   }
+
   let w;
   let e;
   if (crossesAntimeridian(box1) && crossesAntimeridian(box2)) {
@@ -213,10 +217,13 @@ export const cmrSpatialToExtent = (concept: Collection | Granule): SpatialExtent
   }
 
   if (boxes) {
-    return (boxes as any)
+    return boxes
       .map(parseOrdinateString)
-      .map(reorderBoxValues) // CMR returns box coordinates in lon/lat
-      .reduce(mergeBoxes, null);
+      .map((box) => reorderBoxValues(box as SpatialExtent)) // CMR returns box coordinates in lon/lat
+      .reduce(
+        (merged, current) => mergeBoxes(merged as SpatialExtent, current as SpatialExtent),
+        null
+      ) as SpatialExtent;
   }
 
   return WHOLE_WORLD_BBOX_STAC as SpatialExtent;

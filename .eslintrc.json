@@ -7,9 +7,16 @@
   "plugins": ["@typescript-eslint"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
     "@typescript-eslint/consistent-type-definitions": ["error", "type"]
   },
+  "ignorePatterns": ["**/*.spec.ts"],
   "env": {
     "browser": false,
     "es2021": true,
