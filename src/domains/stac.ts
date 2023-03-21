@@ -23,7 +23,7 @@ import {
 import { dateTimeToRange } from "../utils/datetime";
 
 import { AssetLinks } from "../@types/StacCollection";
-import { Collection, Granule, RelatedUrlType } from "../models/GraphQlModels";
+import { Collection, Granule, RelatedUrlType } from "../models/GraphQLModels";
 
 /**
  * Return download assets if present.
