@@ -42,6 +42,20 @@ describe("granuleToStac", () => {
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
         collection: "short_1",
+        links: [
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.json",
+            rel: "via",
+            title: "CMR JSON metadata for item",
+            type: "application/json",
+          },
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.umm_json",
+            rel: "via",
+            title: "CMR UMM_JSON metadata for item",
+            type: "application/vnd.nasa.cmr.umm+json",
+          },
+        ],
         assets: {
           download: {
             description: "the data",
@@ -92,6 +106,20 @@ describe("granuleToStac", () => {
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
         collection: "short_1",
+        links: [
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.json",
+            rel: "via",
+            title: "CMR JSON metadata for item",
+            type: "application/json",
+          },
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.umm_json",
+            rel: "via",
+            title: "CMR UMM_JSON metadata for item",
+            type: "application/vnd.nasa.cmr.umm+json",
+          },
+        ],
         assets: {
           download: {
             description: "the data",
@@ -137,6 +165,20 @@ describe("granuleToStac", () => {
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
         collection: "short_1",
+        links: [
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.json",
+            rel: "via",
+            title: "CMR JSON metadata for item",
+            type: "application/json",
+          },
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.umm_json",
+            rel: "via",
+            title: "CMR UMM_JSON metadata for item",
+            type: "application/vnd.nasa.cmr.umm+json",
+          },
+        ],
         assets: {
           download: {
             description: "the data",

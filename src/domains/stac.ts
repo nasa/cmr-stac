@@ -271,7 +271,7 @@ const idsQuery = (req: Request, query: StacQuery) => {
       : query.ids?.split(",") ?? [];
   }
 
-  return { conceptId: itemIds };
+  return { readableGranuleName: itemIds };
 };
 
 const cursorQuery = (_req: Request, query: StacQuery) => ({ cursor: query.cursor });

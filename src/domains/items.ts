@@ -107,18 +107,6 @@ const selfLinks = (req: Request, item: STACItem) => {
       href: `${stacRoot}/${provider?.["provider-id"]}`,
       type: "application/json",
     },
-    {
-      rel: "via",
-      href: `${CMR_URL}/search/concepts/${item.id}.json`,
-      title: "CMR JSON metadata for item",
-      type: "application/json",
-    },
-    {
-      rel: "via",
-      href: `${CMR_URL}/search/concepts/${item.id}.umm_json`,
-      title: "CMR UMM_JSON metadata for item",
-      type: "application/vnd.nasa.cmr.umm+json",
-    },
   ];
 };
 
@@ -187,6 +175,21 @@ export const granuleToStac = (granule: Granule): STACItem => {
   const bbox = cmrSpatialToExtent(granule);
   const assets: AssetLinks = extractAssets(granule);
 
+  const links = [
+    {
+      rel: "via",
+      href: `${CMR_URL}/search/concepts/${granule.conceptId}.json`,
+      title: "CMR JSON metadata for item",
+      type: "application/json",
+    },
+    {
+      rel: "via",
+      href: `${CMR_URL}/search/concepts/${granule.conceptId}.umm_json`,
+      title: "CMR UMM_JSON metadata for item",
+      type: "application/vnd.nasa.cmr.umm+json",
+    },
+  ];
+
   // core STACItem
   const item = {
     type: "Feature",
@@ -197,6 +200,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
     geometry,
     bbox,
     assets,
+    links,
   } as STACItem;
 
   return {
@@ -294,15 +298,7 @@ export const getItemIds = async (
 export const addProviderLinks = (req: Request, item: STACItem): STACItem => {
   const providerLinks = selfLinks(req, item);
 
-  item.links = Array.isArray(item.links) ? [...item.links, ...providerLinks] : providerLinks;
-
-  item.assets = mergeMaybe(item.assets, {
-    metadata: {
-      href: `${CMR_URL}/search/concepts/${encodeURI(item.id)}.json`,
-      title: "Metadata",
-      type: "application/json",
-    },
-  });
+  item.links = [...providerLinks, ...(item.links ?? [])];
 
   return item;
 };
