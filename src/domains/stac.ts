@@ -3,7 +3,15 @@ import { IncomingHttpHeaders } from "http";
 import { flattenDeep, isPlainObject } from "lodash";
 import { request } from "graphql-request";
 
-import { GeoJSONGeometry } from "../@types/StacItem";
+import {
+  GeoJSONGeometry,
+  GeoJSONMultiPolygon,
+  GeoJSONPolygon,
+  GeoJSONMultiLineString,
+  GeoJSONLineString,
+  GeoJSONMultiPoint,
+  GeoJSONPoint,
+} from "../@types/StacItem";
 import { InvalidParameterError } from "../models/errors";
 import {
   CollectionsInput,
@@ -154,6 +162,28 @@ const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013";
 export const CMR_QUERY_MAX = 2000;
 export const MAX_SIGNED_INTEGER = 2 ** 31 - 1;
 
+const pointToQuery = (point: GeoJSONPoint) => point.coordinates.join(",");
+
+const multiPointToQuery = (multiPoint: GeoJSONMultiPoint) =>
+  multiPoint.coordinates.map((point) => flattenDeep(point).join(","));
+
+const lineStringToQuery = (lineString: GeoJSONLineString) =>
+  flattenDeep(lineString.coordinates).join(",");
+
+const multiLineStringToQuery = (multiLine: GeoJSONMultiLineString) =>
+  multiLine.coordinates.map((childLine) => flattenDeep(childLine).join(","));
+
+const polygonToQuery = (polygon: GeoJSONPolygon) =>
+  // outer polygon only, exclude holes
+  flattenDeep(polygon.coordinates.at(0)).join(",");
+
+const multiPolygonToQuery = (multiPolygon: GeoJSONMultiPolygon) =>
+  multiPolygon.coordinates.map((childPolygon) => {
+    // ignore holes, they are not supported yet
+    const [outerChildPolygon] = childPolygon;
+    return flattenDeep(outerChildPolygon).join(",");
+  });
+
 export const geoJsonToQuery = (geoJson: object | object[]) => {
   const geometries = Array.isArray(geoJson) ? geoJson : [geoJson];
 
@@ -163,21 +193,27 @@ export const geoJsonToQuery = (geoJson: object | object[]) => {
     )
     .reduce(
       ([polygon, line, point], geometry: GeoJSONGeometry) => {
-        const flattened =
-          typeof geometry.coordinates === "string"
-            ? geometry.coordinates
-            : flattenDeep(geometry.coordinates).join(",");
-
         switch (geometry.type.toLowerCase()) {
           case "point":
+            return [polygon, line, [...point, pointToQuery(geometry as GeoJSONPoint)]];
           case "multipoint":
-            return [[...polygon], [...line], [...point, flattened]];
+            return [polygon, line, [...point, ...multiPointToQuery(geometry as GeoJSONMultiPoint)]];
           case "linestring":
+            return [polygon, [...line, lineStringToQuery(geometry as GeoJSONLineString)], point];
           case "multilinestring":
-            return [[...polygon], [...line, flattened], [...point]];
+            return [
+              polygon,
+              [...line, ...multiLineStringToQuery(geometry as GeoJSONMultiLineString)],
+              point,
+            ];
           case "polygon":
+            return [[...polygon, polygonToQuery(geometry as GeoJSONPolygon)], line, point];
           case "multipolygon":
-            return [[...polygon, flattened], [...line], [...point]];
+            return [
+              [...polygon, ...multiPolygonToQuery(geometry as GeoJSONMultiPolygon)],
+              line,
+              point,
+            ];
           default:
             throw new InvalidParameterError(
               "Invalid intersects parameter detected. Please verify all intersects are a valid GeoJSON geometry."

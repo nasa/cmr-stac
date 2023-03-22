@@ -4,24 +4,279 @@ const { expect } = chai;
 import { buildQuery, sortByToSortKeys, stringifyQuery } from "../stac";
 
 describe("buildQuery", () => {
-  describe("given a intersects query polygon", () => {
-    it("parses the string correctly", async () => {
-      const query = await buildQuery({
-        method: "POST",
-        body: {
-          intersects: {
-            type: "Polygon",
-            coordinates: "100,0,101,0,101,1,100,1,100,0",
+  describe("given a intersects query", () => {
+    describe("given a GeoJSON Polygon", () => {
+      it("converts the polygon to a flat string", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [100, 0],
+                  [101, 0],
+                  [101, 1],
+                  [100, 1],
+                  [100, 0],
+                ],
+              ],
+            },
           },
-        },
-        params: { providerId: "TEST_PROV" },
-        headers: {},
-        query: {},
-      } as any);
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
 
-      expect(query).to.deep.equal({
-        provider: "TEST_PROV",
-        polygon: ["100,0,101,0,101,1,100,1,100,0"],
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          polygon: ["100,0,101,0,101,1,100,1,100,0"],
+        });
+      });
+    });
+
+    describe("given a GeoJSON Polygon with holes", () => {
+      it("excludes the holes", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [100.0, 0.0],
+                  [101.0, 0.0],
+                  [101.0, 1.0],
+                  [100.0, 1.0],
+                  [100.0, 0.0],
+                ],
+                [
+                  [100.8, 0.8],
+                  [100.8, 0.2],
+                  [100.2, 0.2],
+                  [100.2, 0.8],
+                  [100.8, 0.8],
+                ],
+                [
+                  [100.9, 0.7],
+                  [100.9, 0.1],
+                  [100.3, 0.1],
+                  [100.3, 0.7],
+                  [100.9, 0.7],
+                ],
+              ],
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          polygon: ["100,0,101,0,101,1,100,1,100,0"],
+        });
+      });
+    });
+
+    describe("given a GeoJSON MultiPolygon", () => {
+      it("converts the polygon to a string with multiple entries", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "MultiPolygon",
+              coordinates: [
+                [
+                  [
+                    [100, 0],
+                    [101, 0],
+                    [101, 1],
+                    [100, 1],
+                    [100, 0],
+                  ],
+                ],
+                [
+                  [
+                    [10, 0],
+                    [11, 0],
+                    [11, 1],
+                    [10, 1],
+                    [10, 0],
+                  ],
+                ],
+              ],
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          polygon: ["100,0,101,0,101,1,100,1,100,0", "10,0,11,0,11,1,10,1,10,0"],
+        });
+      });
+    });
+
+    describe("given a GeoJSON MultiPolygon with holes in the polygons", () => {
+      it("excludes the holes", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "MultiPolygon",
+              coordinates: [
+                [
+                  [
+                    [100, 0],
+                    [101, 0],
+                    [101, 1],
+                    [100, 1],
+                    [100, 0],
+                  ],
+                  // hole
+                  [
+                    [100.8, 0.8],
+                    [100.8, 0.2],
+                    [100.2, 0.2],
+                    [100.2, 0.8],
+                    [100.8, 0.8],
+                  ],
+                ],
+                [
+                  [
+                    [10, 0],
+                    [11, 0],
+                    [11, 1],
+                    [10, 1],
+                    [10, 0],
+                  ],
+                  // hole
+                  [
+                    [10.8, 0.8],
+                    [10.8, 0.2],
+                    [10.2, 0.2],
+                    [10.2, 0.8],
+                    [10.8, 0.8],
+                  ],
+                ],
+              ],
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          polygon: ["100,0,101,0,101,1,100,1,100,0", "10,0,11,0,11,1,10,1,10,0"],
+        });
+      });
+    });
+
+    describe("given a GeoJSON Linestring", () => {
+      it("converts the linestring to a string", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "LineString",
+              coordinates: [
+                [101.0, 0.0],
+                [102.0, 1.0],
+              ],
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          line: ["101,0,102,1"],
+        });
+      });
+    });
+
+    describe("given a GeoJSON MultiLinestring", () => {
+      it("converts the linestrings to a string array with multiple entries", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "MultiLineString",
+              coordinates: [
+                [
+                  [100.0, 0.0],
+                  [101.0, 1.0],
+                ],
+                [
+                  [102.0, 2.0],
+                  [103.0, 3.0],
+                ],
+              ],
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          line: ["100,0,101,1", "102,2,103,3"],
+        });
+      });
+    });
+
+    describe("given a GeoJSON Point", () => {
+      it("converts the point to a string array", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "Point",
+              coordinates: [100.0, 0.0],
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          point: ["100,0"],
+        });
+      });
+    });
+
+    describe("given a GeoJSON MultiPoint", () => {
+      it("converts the multi points to a string array with multiple entries", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "MultiPoint",
+              coordinates: [
+                [100.0, 0.0],
+                [101.0, 1.0],
+              ],
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          point: ["100,0", "101,1"],
+        });
       });
     });
   });
