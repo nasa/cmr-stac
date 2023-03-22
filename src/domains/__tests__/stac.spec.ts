@@ -35,6 +35,28 @@ describe("buildQuery", () => {
       });
     });
 
+    describe("given a GeoJSON Polygon with already flattened string coordinates", () => {
+      it("returns the flat coordinates", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "Polygon",
+              coordinates: "100,0,101,0,101,1,100,1,100,0",
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          polygon: ["100,0,101,0,101,1,100,1,100,0"],
+        });
+      });
+    });
+
     describe("given a GeoJSON Polygon with holes", () => {
       it("excludes the holes", async () => {
         const query = await buildQuery({
@@ -276,6 +298,38 @@ describe("buildQuery", () => {
         expect(query).to.deep.equal({
           provider: "TEST_PROV",
           point: ["100,0", "101,1"],
+        });
+      });
+    });
+
+    describe("given a GeoJSONGeometryCollection", () => {
+      it("converts all included geometries", async () => {
+        const query = await buildQuery({
+          method: "POST",
+          body: {
+            intersects: {
+              type: "GeometryCollection",
+              geometries: [
+                { type: "Point", coordinates: [100.0, 0.0] },
+                {
+                  type: "LineString",
+                  coordinates: [
+                    [101.0, 0.0],
+                    [102.0, 1.0],
+                  ],
+                },
+              ],
+            },
+          },
+          params: { providerId: "TEST_PROV" },
+          headers: {},
+          query: {},
+        } as any);
+
+        expect(query).to.deep.equal({
+          provider: "TEST_PROV",
+          point: ["100,0"],
+          line: ["101,0,102,1"],
         });
       });
     });

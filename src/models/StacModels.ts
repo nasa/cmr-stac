@@ -1,3 +1,5 @@
+import { GeoJSONGeometry, GeoJSONGeometryCollection } from "../@types/StacItem";
+
 export type PropertyQuery = {
   lt?: number;
   lte?: number;
@@ -12,7 +14,7 @@ export type StacQuery = {
   limit?: string;
   bbox?: string;
   datetime?: string;
-  intersects?: string[];
+  intersects?: GeoJSONGeometry | GeoJSONGeometryCollection | string | string[];
   ids?: string | string[];
   collections?: string | string[];
   query?: {

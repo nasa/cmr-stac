@@ -11,6 +11,7 @@ import {
   GeoJSONLineString,
   GeoJSONMultiPoint,
   GeoJSONPoint,
+  GeoJSONGeometryCollection,
 } from "../@types/StacItem";
 import { InvalidParameterError } from "../models/errors";
 import {
@@ -174,8 +175,10 @@ const multiLineStringToQuery = (multiLine: GeoJSONMultiLineString) =>
   multiLine.coordinates.map((childLine) => flattenDeep(childLine).join(","));
 
 const polygonToQuery = (polygon: GeoJSONPolygon) =>
-  // outer polygon only, exclude holes
-  flattenDeep(polygon.coordinates.at(0)).join(",");
+  typeof polygon.coordinates === "string"
+    ? polygon.coordinates
+    : // outer polygon only, exclude holes
+      flattenDeep(polygon.coordinates.at(0)).join(",");
 
 const multiPolygonToQuery = (multiPolygon: GeoJSONMultiPolygon) =>
   multiPolygon.coordinates.map((childPolygon) => {
@@ -184,7 +187,9 @@ const multiPolygonToQuery = (multiPolygon: GeoJSONMultiPolygon) =>
     return flattenDeep(outerChildPolygon).join(",");
   });
 
-export const geoJsonToQuery = (geoJson: object | object[]) => {
+export const geoJsonToQuery = (
+  geoJson: GeoJSONGeometryCollection | GeoJSONGeometry | string | string[]
+): { polygon: string[]; line: string[]; point: string[] } => {
   const geometries = Array.isArray(geoJson) ? geoJson : [geoJson];
 
   const [polygon, line, point] = geometries
@@ -192,7 +197,7 @@ export const geoJsonToQuery = (geoJson: object | object[]) => {
       typeof geometry === "string" ? JSON.parse(geometry) : geometry
     )
     .reduce(
-      ([polygon, line, point], geometry: GeoJSONGeometry) => {
+      ([polygon, line, point], geometry: GeoJSONGeometry | GeoJSONGeometryCollection) => {
         switch (geometry.type.toLowerCase()) {
           case "point":
             return [polygon, line, [...point, pointToQuery(geometry as GeoJSONPoint)]];
@@ -214,6 +219,23 @@ export const geoJsonToQuery = (geoJson: object | object[]) => {
               line,
               point,
             ];
+          case "geometrycollection":
+            return (geometry as GeoJSONGeometryCollection).geometries.reduce(
+              ([accPolygons, accLines, accPoints], subGeometry) => {
+                const {
+                  polygon: subPolygons,
+                  line: subLines,
+                  point: subPoints,
+                } = geoJsonToQuery(subGeometry);
+
+                return [
+                  [...accPolygons, ...subPolygons],
+                  [...accLines, ...subLines],
+                  [...accPoints, ...subPoints],
+                ];
+              },
+              [polygon, line, point]
+            );
           default:
             throw new InvalidParameterError(
               "Invalid intersects parameter detected. Please verify all intersects are a valid GeoJSON geometry."
