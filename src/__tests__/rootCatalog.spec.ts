@@ -15,10 +15,7 @@ const app = createApp();
 
 import * as Providers from "../domains/providers";
 
-const cmrProvidersResponse = [
-  null,
-  [{ "provider-id": "TEST", "short-name": "TEST" }],
-];
+const cmrProvidersResponse = [null, [{ "provider-id": "TEST", "short-name": "TEST" }]];
 
 const sandbox = sinon.createSandbox();
 
@@ -49,16 +46,17 @@ describe("GET /stac", () => {
       "title",
       `NASA CMR-STAC Root Catalog`
     );
-    expect(
-      body.links.find((l: Link) => l.rel === "service-doc")
-    ).to.have.property("title", `NASA CMR-STAC Documentation`);
+    expect(body.links.find((l: Link) => l.rel === "service-doc")).to.have.property(
+      "title",
+      `NASA CMR-STAC Documentation`
+    );
   });
 
   describe("given CMR responds with providers", () => {
     before(() => {
       sandbox
         .stub(Providers, "getProviders")
-        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]!);
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
     });
 
     it("should have an entry for each provider in the links", async () => {
@@ -68,9 +66,7 @@ describe("GET /stac", () => {
       const [, expectedProviders] = cmrProvidersResponse;
 
       expectedProviders!.forEach((provider) => {
-        const providerLink = body.links.find((l: Link) =>
-          l.href.includes(provider["provider-id"])
-        );
+        const providerLink = body.links.find((l: Link) => l.href.includes(provider["provider-id"]));
 
         expect(providerLink.href).to.match(/^(http)s?:\/\/.*\w+/);
         expect(providerLink.rel).to.equal("child");
@@ -82,9 +78,7 @@ describe("GET /stac", () => {
 
   describe("given CMR providers endpoint responds with an error", () => {
     it("should return a 503 response", async () => {
-      sandbox
-        .stub(Providers, "getProviders")
-        .resolves(["No upstream connection", null]);
+      sandbox.stub(Providers, "getProviders").resolves(["No upstream connection", null]);
 
       const { statusCode, body } = await request(app).get("/stac");
 

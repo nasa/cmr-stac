@@ -45,18 +45,8 @@ router.get(
 
 router
   .route("/:providerId/search")
-  .get(
-    refreshProviderCache,
-    validateProvider,
-    validateStacQuery,
-    wrapErrorHandler(searchHandler)
-  )
-  .post(
-    refreshProviderCache,
-    validateProvider,
-    validateStacQuery,
-    wrapErrorHandler(searchHandler)
-  );
+  .get(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler))
+  .post(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler));
 
 router.get(
   "/:providerId/collections",

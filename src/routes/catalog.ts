@@ -66,22 +66,17 @@ const generateSelfLinks = (req: Request): Links => {
   ];
 };
 
-const providerCollections = async (req: Request) => {
+const providerCollections = async (
+  req: Request
+): Promise<[null, { id: string; title: string }[]] | [string, null]> => {
   const { headers, provider } = req;
 
-  const cloudOnly =
-    headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
+  const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
 
-  const query = mergeMaybe(
-    { provider: provider?.["provider-id"] },
-    { ...cloudOnly }
-  );
+  const query = mergeMaybe({ provider: provider?.["provider-id"] }, { ...cloudOnly });
 
   try {
-    const { items } = await getAllCollectionIds(query, {
-      headers,
-    });
-
+    const { items } = await getAllCollectionIds(query, { headers });
     return [null, items];
   } catch (err) {
     console.error("A problem occurred querying for collections.", err);
@@ -91,6 +86,7 @@ const providerCollections = async (req: Request) => {
 
 export const providerCatalogHandler = async (req: Request, res: Response) => {
   const { provider } = req;
+  if (!provider) throw new ServiceUnavailableError("Could not retrieve provider information");
 
   const [err, collections] = await providerCollections(req);
 
@@ -99,21 +95,19 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
   const { self } = stacContext(req);
 
   const selfLinks = generateSelfLinks(req);
-  const childLinks = (
-    collections as { conceptId: string; title: string }[]
-  ).map(({ conceptId, title }) => ({
+  const childLinks = (collections ?? []).map(({ id, title }) => ({
     rel: "child",
-    href: `${self}/collections/${conceptId}`,
+    href: `${self}/collections/${encodeURIComponent(id)}`,
     title,
     type: "application/json",
   }));
 
   const providerCatalog = {
     type: "Catalog",
-    id: provider!["provider-id"],
-    title: `${provider!["short-name"]} STAC Catalog`,
+    id: provider["provider-id"],
+    title: `${provider["provider-id"]} STAC Catalog`,
     stac_version: STAC_VERSION,
-    description: `Root STAC catalog for ${provider!["short-name"]}`,
+    description: `Root STAC catalog for ${provider["provider-id"]}`,
     conformsTo: conformance,
     links: [...selfLinks, ...childLinks],
   } as STACCatalog;

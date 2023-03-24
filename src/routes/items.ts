@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { addProviderLinks, getItems } from "../domains/items";
-import { buildQuery, stringifyQuery } from "../domains/stacQuery";
+import { buildQuery, stringifyQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { mergeMaybe, stacContext, WEEK_IN_MS } from "../utils/index";
 
@@ -13,7 +13,7 @@ const generateLinks = (req: Request) => {
   return [
     {
       rel: "self",
-      href: self,
+      href: encodeURI(self),
       type: "application/geo+json",
     },
     {
@@ -23,7 +23,7 @@ const generateLinks = (req: Request) => {
     },
     {
       rel: "parent",
-      href: self.split("/").slice(0, -1).join("/"),
+      href: encodeURI(self.split("/").slice(0, -1).join("/")),
       type: "application/json",
     },
   ];
@@ -65,7 +65,14 @@ export const multiItemHandler = async (req: Request, res: Response) => {
   const {
     query: { cursor },
     collection,
+    params: { collectionId, providerId },
   } = req;
+
+  if (!collection) {
+    throw new ItemNotFound(
+      `Could not find parent collection [${collectionId}] in provider [${providerId}]`
+    );
+  }
 
   const itemQuery = await buildQuery(req);
 
@@ -83,28 +90,26 @@ export const multiItemHandler = async (req: Request, res: Response) => {
   const originalQuery = mergeMaybe(req.query, req.body);
 
   if (cursor && req.cookies[`prev-${cursor}`]) {
-    const prevResultsQuery = { ...originalQuery };
-    prevResultsQuery.cursor = req.cookies[`prev-${cursor}`];
+    const prevResultsQuery = { ...originalQuery, cursor: req.cookies[`prev-${cursor}`] };
 
     links.push({
       rel: "prev",
-      href: `${stacRoot}${req.path}?${stringifyQuery(prevResultsQuery)}`,
+      href: encodeURI(`${stacRoot}${req.path}`) + `?${stringifyQuery(prevResultsQuery)}`,
       type: "application/geo+json",
     });
   }
 
   if (nextCursor && nextCursor !== cursor) {
-    const nextResultsQuery = { ...originalQuery };
-    nextResultsQuery.cursor = nextCursor;
+    const nextResultsQuery = { ...originalQuery, cursor: nextCursor };
 
     links.push({
       rel: "next",
-      href: `${stacRoot}${req.path}?${stringifyQuery(nextResultsQuery)}`,
+      href: encodeURI(`${stacRoot}${req.path}`) + `?${stringifyQuery(nextResultsQuery)}`,
       type: "application/geo+json",
     });
   }
 
-  if (cursor && nextCursor && nextCursor !== cursor) {
+  if (cursor && nextCursor && "cursor" in originalQuery && nextCursor !== cursor) {
     res.cookie(`prev-${nextCursor}`, originalQuery.cursor, {
       maxAge: WEEK_IN_MS,
     });
@@ -125,7 +130,7 @@ export const multiItemHandler = async (req: Request, res: Response) => {
       item.links = [
         {
           rel: "self",
-          href: `${self}/${item.id}`,
+          href: encodeURI(`${self}/${item.id}`),
           type: "application/geo+json",
           title: item.id,
         },

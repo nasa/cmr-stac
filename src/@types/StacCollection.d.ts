@@ -20,12 +20,7 @@ export type Keywords = string[];
 export type CollectionLicenseName = string;
 export type OrganizationName = string;
 export type OrganizationDescription = string;
-export type OrganizationRoles = (
-  | "producer"
-  | "licensor"
-  | "processor"
-  | "host"
-)[];
+export type OrganizationRoles = ("producer" | "licensor" | "processor" | "host")[];
 export type OrganizationHomepage = string;
 /**
  * @minItems 1
@@ -78,12 +73,7 @@ export type Mission = string;
 export type GroundSampleDistance = number;
 export type OrganizationName1 = string;
 export type OrganizationDescription1 = string;
-export type OrganizationRoles1 = (
-  | "producer"
-  | "licensor"
-  | "processor"
-  | "host"
-)[];
+export type OrganizationRoles1 = ("producer" | "licensor" | "processor" | "host")[];
 export type OrganizationHomepage1 = string;
 export type Providers = {
   name: OrganizationName1;
@@ -98,8 +88,7 @@ export type LinkType = string;
 export type LinkTitle = string;
 export type Links = Link[];
 export type JSONSchema = CoreSchemaMetaSchema;
-export type CoreSchemaMetaSchema = CoreSchemaMetaSchema1 &
-  CoreSchemaMetaSchema2;
+export type CoreSchemaMetaSchema = CoreSchemaMetaSchema1 & CoreSchemaMetaSchema2;
 export type CoreSchemaMetaSchema2 =
   | {
       $id?: string;
@@ -149,34 +138,10 @@ export type CoreSchemaMetaSchema2 =
        */
       enum?: [true, ...unknown[]];
       type?:
-        | (
-            | "array"
-            | "boolean"
-            | "integer"
-            | "null"
-            | "number"
-            | "object"
-            | "string"
-          )
+        | ("array" | "boolean" | "integer" | "null" | "number" | "object" | "string")
         | [
-            (
-              | "array"
-              | "boolean"
-              | "integer"
-              | "null"
-              | "number"
-              | "object"
-              | "string"
-            ),
-            ...(
-              | "array"
-              | "boolean"
-              | "integer"
-              | "null"
-              | "number"
-              | "object"
-              | "string"
-            )[]
+            "array" | "boolean" | "integer" | "null" | "number" | "object" | "string",
+            ...("array" | "boolean" | "integer" | "null" | "number" | "object" | "string")[]
           ];
       format?: string;
       contentMediaType?: string;
@@ -213,7 +178,7 @@ export type SetOfValues = [
 /**
  * These are the fields specific to a STAC Collection. All other fields are inherited from STAC Catalog.
  */
-export interface STACCollection {
+export type STACCollection = {
   stac_version: STACVersion;
   stac_extensions?: STACExtensions;
   type: TypeOfSTACEntity;
@@ -234,24 +199,24 @@ export interface STACCollection {
   links: Links;
   summaries?: Summaries;
   [k: string]: unknown;
-}
-export interface Extents {
+};
+export type Extents = {
   spatial: SpatialExtentObject;
   temporal: TemporalExtentObject;
   [k: string]: unknown;
-}
-export interface SpatialExtentObject {
+};
+export type SpatialExtentObject = {
   bbox: SpatialExtents;
   [k: string]: unknown;
-}
-export interface TemporalExtentObject {
+};
+export type TemporalExtentObject = {
   interval: TemporalExtents;
   [k: string]: unknown;
-}
+};
 /**
  * Links to assets
  */
-export interface AssetLinks {
+export type AssetLinks = {
   [k: string]: {
     href: AssetReference;
     title?: AssetTitle;
@@ -264,47 +229,47 @@ export interface AssetLinks {
     InstrumentFields &
     LicensingFields &
     ProviderFields);
-}
-export interface BasicDescriptiveFields {
+};
+export type BasicDescriptiveFields = {
   title?: ItemTitle;
   description?: ItemDescription;
   [k: string]: unknown;
-}
-export interface DateAndTimeFields {
+};
+export type DateAndTimeFields = {
   datetime?: DateAndTime;
   start_datetime?: StartDateAndTime;
   end_datetime?: EndDateAndTime;
   created?: CreationTime;
   updated?: LastUpdateTime;
   [k: string]: unknown;
-}
-export interface InstrumentFields {
+};
+export type InstrumentFields = {
   platform?: Platform;
   instruments?: Instruments;
   constellation?: Constellation;
   mission?: Mission;
   gsd?: GroundSampleDistance;
   [k: string]: unknown;
-}
-export interface LicensingFields {
+};
+export type LicensingFields = {
   license?: string;
   [k: string]: unknown;
-}
-export interface ProviderFields {
+};
+export type ProviderFields = {
   providers?: Providers;
   [k: string]: unknown;
-}
-export interface Link {
+};
+export type Link = {
   href: LinkReference;
   rel: LinkRelationType;
   type?: LinkType;
   title?: LinkTitle;
   [k: string]: unknown;
-}
-export interface Summaries {
+};
+export type Summaries = {
   [k: string]: JSONSchema | Range | SetOfValues;
-}
-export interface CoreSchemaMetaSchema1 {
+};
+export type CoreSchemaMetaSchema1 = {
   $id?: string;
   $schema?: string;
   $ref?: string;
@@ -352,34 +317,10 @@ export interface CoreSchemaMetaSchema1 {
    */
   enum?: [true, ...unknown[]];
   type?:
-    | (
-        | "array"
-        | "boolean"
-        | "integer"
-        | "null"
-        | "number"
-        | "object"
-        | "string"
-      )
+    | ("array" | "boolean" | "integer" | "null" | "number" | "object" | "string")
     | [
-        (
-          | "array"
-          | "boolean"
-          | "integer"
-          | "null"
-          | "number"
-          | "object"
-          | "string"
-        ),
-        ...(
-          | "array"
-          | "boolean"
-          | "integer"
-          | "null"
-          | "number"
-          | "object"
-          | "string"
-        )[]
+        "array" | "boolean" | "integer" | "null" | "number" | "object" | "string",
+        ...("array" | "boolean" | "integer" | "null" | "number" | "object" | "string")[]
       ];
   format?: string;
   contentMediaType?: string;
@@ -392,9 +333,9 @@ export interface CoreSchemaMetaSchema1 {
   oneOf?: SchemaArray;
   not?: CoreSchemaMetaSchema2;
   [k: string]: unknown;
-}
-export interface Range {
+};
+export type Range = {
   minimum: MinimumValue;
   maximum: MaximumValue;
   [k: string]: unknown;
-}
+};

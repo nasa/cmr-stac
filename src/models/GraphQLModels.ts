@@ -38,9 +38,9 @@ export type GranulesInput = GraphQLInput & {
 
 export type CollectionsInput = GraphQLInput & {
   // filtering
-  provider?: string;
   providers?: string[];
   conceptIds?: string[];
+  entryId?: string[];
   cloudHosted?: boolean;
   hasGranules?: boolean;
   includeFacets?: string;
@@ -66,36 +66,135 @@ export type FacetGroup = {
   children: FacetFilter[] | FacetGroup[];
 };
 
-export type Collection = {
-  shortName: string;
-  provider: string;
-  version: string;
-  conceptId: string;
-  cloudHosted: boolean | null;
+export enum RelatedUrlType {
+  DATA_SET_LANDING_PAGE = "DATA SET LANDING PAGE",
+  VIEW_RELATED_INFORMATION = "VIEW RELATED INFORMATION",
+  GET_DATA = "GET DATA",
+  GET_SERVICE = "GET SERVICE",
+  GET_RELATED_VISUALIZATION = "GET RELATED VISUALIZATION",
+  PROJECT_HOME_PAGE = "PROJECT HOME PAGE",
+  GET_CAPABILITIES = "GET CAPABILITIES",
+  EXTENDED_METADATA = "EXTENDED METADATA",
+  THUMBNAIL = "Thumbnail",
+}
+
+export enum UrlContentType {
+  VISUALIZATION_URL = "VisualizationURL",
+  DISTRIBUTION_URL = "DistributionURL",
+  PUBLICATION_URL = "PublicationURL",
+  COLLECTION_URL = "CollectionURL",
+}
+
+export enum RelatedUrlSubType {
+  HOW_TO = "HOW-TO",
+  GENERAL_DOCUMENTATION = "GENERAL DOCUMENTATION",
+  DATA_TREE = "DATA TREE",
+  EARTHDATA_SEARCH = "Earthdata Search",
+  GIOVANNI = "GIOVANNI",
+}
+
+export type UseConstraints =
+  | { description: string; licenseUrl?: string; freeAndOpenData?: boolean }
+  | { licenseText: string }
+  | {
+      licenseUrl: {
+        linkage: string;
+        name: string;
+        description: string;
+        mimeType: string;
+      };
+    };
+
+export type RelatedUrls = {
   description: string;
-  title: string;
+  urlContentType: UrlContentType;
+  url: string;
+  subtype?: RelatedUrlSubType | string;
+  type?: RelatedUrlType | string;
+  [key: string]: unknown;
+  getData?: {
+    format: string;
+    mimeType: string;
+    size: number;
+    unit: string;
+    checksum?: string;
+    fees?: string;
+  };
+  getService?: {
+    format: string;
+    mimeType: string;
+    protocol: string;
+    fullName: string;
+    dataId: string;
+    dataType: string;
+    uri: string[];
+  };
+}[];
 
-  polygons: any | null;
-  lines: any | null;
-  boxes: any | null;
-  points: any | null;
-
-  timeStart: string;
-  timeEnd: string | null;
-  useConstraints: { description: string } | null;
-  relatedUrls: any[];
+export type DirectDistributionInformation = {
+  region: string;
+  s3BucketAndObjectPrefixNames: string[];
+  s3CredentialsApiEndpoint: string;
+  s3CredentialsApiDocumentationUrl: string;
 };
 
-export type Granule = {
-  title: string | null;
-  conceptId: string | null;
-  collectionConceptId: string | null;
-  cloudCover: number | null;
+export type CollectionBase = {
+  conceptId: string;
+  version: string;
+  shortName: string;
+  title: string;
+};
+
+export type Collection = CollectionBase & {
+  provider: string;
+  description: string;
+
+  polygons: string[][] | null;
   lines: string[] | null;
   boxes: string[] | null;
-  polygons: string[][] | null;
   points: string[] | null;
-  links: any[] | null;
+
   timeStart: string | null;
   timeEnd: string | null;
+  useConstraints: UseConstraints | null;
+  relatedUrls: RelatedUrls | null;
+  directDistributionInformation: DirectDistributionInformation | null;
+};
+
+export type GranuleBase = {
+  title: string | null;
+  conceptId: string | null;
+};
+
+export type Granule = GranuleBase & {
+  collection: CollectionBase | null;
+  cloudCover: number | null;
+
+  polygons: string[][] | null;
+  lines: string[] | null;
+  points: string[] | null;
+  boxes: string[] | null;
+
+  timeStart: string | null;
+  timeEnd: string | null;
+  relatedUrls: RelatedUrls | null;
+};
+
+export type GraphQLHandlerResponse =
+  | [error: string, data: null]
+  | [
+      error: null,
+      data: {
+        count: number;
+        cursor: string | null;
+        items: object[];
+      }
+    ];
+
+export type GraphQLHandler = (response: unknown) => GraphQLHandlerResponse;
+
+export type GraphQLResults = {
+  count: number;
+  items: unknown[];
+  cursor: string | null;
 };

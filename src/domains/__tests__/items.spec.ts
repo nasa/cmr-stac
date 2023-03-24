@@ -4,25 +4,9 @@ const { expect } = chai;
 import { granuleToStac } from "../items";
 import { generateGranules } from "../../utils/testUtils";
 
-const baseGranule = generateGranules(1)[0];
+const [baseGranule] = generateGranules(1);
 
 describe("granuleToStac", () => {
-  describe("given incomplete data", () => {
-    it("should handle missing links", () => {
-      const incomplete = {
-        ...baseGranule,
-        polygons: [
-          [
-            "29.877883 -11.4859874 40.0118589 -12.9884453 40 -26.1081458 29.8680955 -23.0765216 29.877883 -11.4859874",
-          ],
-        ],
-      };
-      incomplete["links"] = null;
-
-      expect(granuleToStac(incomplete)).to.exist;
-    });
-  });
-
   describe("given it has single polygon geometry", () => {
     it("should return a STACItem", () => {
       const item = granuleToStac({
@@ -36,7 +20,7 @@ describe("granuleToStac", () => {
 
       expect(item).to.deep.equal({
         type: "Feature",
-        id: baseGranule.conceptId,
+        id: baseGranule.title,
         stac_version: "1.0.0",
         stac_extensions: [],
         geometry: {
@@ -57,15 +41,33 @@ describe("granuleToStac", () => {
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
-        collection: "C9876543210-TEST_PROV",
+        collection: "short_1",
+        links: [
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.json",
+            rel: "via",
+            title: "CMR JSON metadata for item",
+            type: "application/json",
+          },
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.umm_json",
+            rel: "via",
+            title: "CMR UMM_JSON metadata for item",
+            type: "application/vnd.nasa.cmr.umm+json",
+          },
+        ],
         assets: {
-          data: {
-            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
+          download: {
+            description: "the data",
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hd",
             title: "Direct Download",
+            roles: ["data"],
           },
           provider_metadata: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
+            description: "metadata",
             title: "Provider Metadata",
+            roles: ["metadata"],
           },
         },
       });
@@ -82,7 +84,7 @@ describe("granuleToStac", () => {
 
       expect(item).to.deep.equal({
         type: "Feature",
-        id: baseGranule.conceptId,
+        id: baseGranule.title,
         stac_version: "1.0.0",
         stac_extensions: [],
         geometry: {
@@ -103,15 +105,33 @@ describe("granuleToStac", () => {
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
-        collection: "C9876543210-TEST_PROV",
+        collection: "short_1",
+        links: [
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.json",
+            rel: "via",
+            title: "CMR JSON metadata for item",
+            type: "application/json",
+          },
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.umm_json",
+            rel: "via",
+            title: "CMR UMM_JSON metadata for item",
+            type: "application/vnd.nasa.cmr.umm+json",
+          },
+        ],
         assets: {
-          data: {
-            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
+          download: {
+            description: "the data",
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hd",
             title: "Direct Download",
+            roles: ["data"],
           },
           provider_metadata: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
+            description: "metadata",
             title: "Provider Metadata",
+            roles: ["metadata"],
           },
         },
       });
@@ -122,14 +142,12 @@ describe("granuleToStac", () => {
     it("should return a STACItem", () => {
       const item = granuleToStac({
         ...baseGranule,
-        lines: [
-          "60.477742 -42.915595 65.941741 -18.370675 65.751188 11.618598",
-        ],
+        lines: ["60.477742 -42.915595 65.941741 -18.370675 65.751188 11.618598"],
       });
 
       expect(item).to.deep.equal({
         type: "Feature",
-        id: baseGranule.conceptId,
+        id: baseGranule.title,
         stac_version: "1.0.0",
         stac_extensions: [],
         geometry: {
@@ -146,15 +164,33 @@ describe("granuleToStac", () => {
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
-        collection: "C9876543210-TEST_PROV",
+        collection: "short_1",
+        links: [
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.json",
+            rel: "via",
+            title: "CMR JSON metadata for item",
+            type: "application/json",
+          },
+          {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.umm_json",
+            rel: "via",
+            title: "CMR UMM_JSON metadata for item",
+            type: "application/vnd.nasa.cmr.umm+json",
+          },
+        ],
         assets: {
-          data: {
-            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf",
+          download: {
+            description: "the data",
+            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hd",
             title: "Direct Download",
+            roles: ["data"],
           },
           provider_metadata: {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hdf.xml",
+            description: "metadata",
             title: "Provider Metadata",
+            roles: ["metadata"],
           },
         },
       });

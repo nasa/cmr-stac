@@ -1,4 +1,8 @@
 import { Request, Response, NextFunction } from "express";
+import { IncomingHttpHeaders } from "http";
+import { isPlainObject } from "lodash";
+
+export type OptionalString = string | null;
 
 export const WEEK_IN_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -15,26 +19,20 @@ export const ERRORS = {
 export const buildRootUrl = (req: Request): string => {
   const { headers } = req;
 
-  const protocol =
-    headers["cloudfront-forwarded-proto"] ??
-    headers["x-forwarded-proto"] ??
-    "http";
+  const protocol = headers["cloudfront-forwarded-proto"] ?? headers["x-forwarded-proto"] ?? "http";
 
-  const host =
-    headers["x-forwarded-host"] ?? headers["host"] ?? "localhost:3000";
+  const host = headers["x-forwarded-host"] ?? headers["host"] ?? "localhost:3000";
 
   return `${protocol}://${host}`;
 };
 
-export const buildClientId = (clientId?: string): string => {
-  if (clientId) return `${clientId}-cmr-stac`;
-  return "cmr-stac";
-};
+export const buildClientId = (clientId?: string): string =>
+  clientId ? `${clientId}-cmr-stac` : "cmr-stac";
 
 /**
  * Wrap express handler with async error handling.
  */
-export const wrapErrorHandler = (fn: (rq: Request, rs: Response) => any) => {
+export const wrapErrorHandler = (fn: (rq: Request, rs: Response) => Promise<void>) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await fn(req, res);
@@ -53,7 +51,7 @@ export const stacContext = (req: Request) => {
   const path = originalUrl.split("?")[0] ?? "";
 
   return {
-    id: isCloudStac ? "CLOUD-STAC" : "STAC",
+    id: isCloudStac ? "CLOUDSTAC" : "STAC",
     root,
     stacRoot: `${root}/${stac}`,
     path: `${root}${path}`,
@@ -66,49 +64,50 @@ export const stacContext = (req: Request) => {
  * Filters out
  * - null
  * - undefined
+ * - NaN
  * - empty arrays
  * - empty strings
  */
-export const mergeMaybe = (
-  map: { [key: string]: any } | any,
-  maybeMap?: { [key: string]: any }
-) => {
+export const mergeMaybe = (map: object, maybeMap?: unknown) => {
   const baseMap = map ?? {};
-  if (!maybeMap) return baseMap;
+  if (!maybeMap || !isPlainObject(maybeMap)) return baseMap;
 
-  return Object.keys(maybeMap).reduce((nextMap, key) => {
-    // JS safety
-    if (!Object.prototype.hasOwnProperty.call(maybeMap, key)) return nextMap;
+  const coerced: { [key: string]: unknown } = { ...maybeMap };
 
-    // skip null or undefined, purposely not using ===
-    if (maybeMap[key] == null) return nextMap;
+  return Object.keys(coerced).reduce(
+    (nextMap, key) => {
+      // JS safety
+      if (!Object.prototype.hasOwnProperty.call(coerced, key)) return nextMap;
 
-    // skip emptyStrings
-    if (typeof maybeMap[key] === "string" && maybeMap[key].trim() === "")
-      return nextMap;
+      // skip null or undefined, purposely not using ===
+      if (coerced[key] == null) return nextMap;
 
-    // don't bother with empty arrays
-    if (Array.isArray(maybeMap[key]) && maybeMap[key].length === 0)
-      return nextMap;
+      // skip emptyStrings
+      if (typeof coerced[key] === "string" && (coerced[key] as string).trim() === "")
+        return nextMap;
 
-    const keyPair: { [k: string]: any } = {};
-    keyPair[key] = maybeMap[key];
-    return { ...nextMap, ...keyPair };
-  }, baseMap);
+      // skip NaNs
+      if (Number.isNaN(coerced[key])) return nextMap;
+
+      // don't bother with empty arrays
+      if (Array.isArray(coerced[key]) && (coerced[key] as Array<unknown>).length === 0)
+        return nextMap;
+
+      const keyPair: { [key: string]: unknown } = {};
+      keyPair[key] = coerced[key];
+      return { ...nextMap, ...keyPair };
+    },
+    { ...baseMap }
+  );
 };
 
-export const scrubTokens = (headers: any) => {
-  if (headers && headers["authorization"]) {
-    return {
-      ...headers,
-      authorization: `${headers.authorization.substring(0, 12)}... REDACTED`,
-    };
-  }
-  return headers;
-};
-
-export const isPlainObject = (input: any) => {
-  return input && !Array.isArray(input) && typeof input === "object";
+export const scrubTokens = (headers: IncomingHttpHeaders) => {
+  if (!("authorization" in headers)) return headers;
+  const { authorization } = headers;
+  return {
+    ...headers,
+    authorization: `${(authorization as string).substring(0, 12)}... REDACTED`,
+  };
 };
 
 /**
@@ -124,14 +123,40 @@ export const isPlainObject = (input: any) => {
  *                        {key: [a,c]}, value: y} ]
  */
 export const flattenTree = (
-  tree: { [key: string]: any },
+  tree: { [key: string]: unknown },
   nodes: string[] = []
-): { key: string[]; value: any }[] => {
+): { key: string[]; value: unknown }[] => {
   return Object.keys(tree).flatMap((key: string) => {
     if (isPlainObject(tree[key])) {
-      return flattenTree(tree[key], [...nodes, key]);
+      return flattenTree(tree[key] as { [key: string]: unknown }, [...nodes, key]);
     } else {
       return { key: [...nodes, key], value: tree[key] };
     }
   });
 };
+
+/**
+ * Return all versions of an ID where a separator could be substituted.
+ *
+ * In the case of a collection ID containing the legacy separator we may be
+ * incorrectly guessing which separator to replace when converting to entry_id.
+ * Therefore we need to search using all possible variations.
+ *
+ * @example
+ * ambiguateCollectionId("abc.v1.v2.1999", ".v", "_") =>
+ * ["abc_1.v2.1999", "abc.v1_2.1999", "abc.v1.v2.1999"]
+ */
+export const generatePossibleCollectionIds = (id: string, separator: string, replacement: string) =>
+  id.split(separator).map((currentToken, idx, tokens) => {
+    if (idx + 1 >= tokens.length) {
+      return tokens.join(separator);
+    }
+
+    const mergedToken = currentToken + replacement + [idx + 1];
+    // splice mutates the original so use a copy
+    const tokensCopy = [...tokens];
+    // splice returns the replaced objects, not the resulting array
+    tokensCopy.splice(idx, 2, mergedToken);
+
+    return tokensCopy.join(separator);
+  });

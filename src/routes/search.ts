@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { Link, STACItem } from "../@types/StacItem";
 
 import { addProviderLinks, getItems } from "../domains/items";
-import { buildQuery, stringifyQuery } from "../domains/stacQuery";
+import { buildQuery, stringifyQuery } from "../domains/stac";
 import { mergeMaybe, stacContext } from "../utils";
 
 const searchLinks = (req: Request, nextCursor: string | null): Link[] => {
@@ -14,8 +14,8 @@ const searchLinks = (req: Request, nextCursor: string | null): Link[] => {
   const { stacRoot, self } = stacContext(req);
   const currentQuery = mergeMaybe(req.query, req.body);
 
-  const firstQuery = { ...currentQuery };
-  delete firstQuery["cursor"];
+  const firstPageQuery = { ...currentQuery };
+  if ("cursor" in firstPageQuery) delete firstPageQuery["cursor"];
 
   let links = [
     {
@@ -38,21 +38,19 @@ const searchLinks = (req: Request, nextCursor: string | null): Link[] => {
     },
     {
       rel: "first",
-      href: `${stacRoot}/${providerId}/search?${stringifyQuery(firstQuery)}`,
+      href: `${stacRoot}/${providerId}/search?${stringifyQuery(firstPageQuery)}`,
       type: "application/geo+json",
       title: "First page of results",
     },
   ];
 
   if (nextCursor) {
-    const nextQuery = { ...currentQuery };
-    nextQuery["cursor"] = nextCursor;
-
+    const nextPageQuery = { ...currentQuery, cursor: nextCursor };
     links = [
       ...links,
       {
         rel: "next",
-        href: `${stacRoot}/${providerId}/search?${stringifyQuery(nextQuery)}`,
+        href: `${stacRoot}/${providerId}/search?${stringifyQuery(nextPageQuery)}`,
         type: "application/geo+json",
         title: "Next page of results",
       },
@@ -62,10 +60,7 @@ const searchLinks = (req: Request, nextCursor: string | null): Link[] => {
   return links;
 };
 
-export const searchHandler = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
+export const searchHandler = async (req: Request, res: Response): Promise<void> => {
   const { headers } = req;
   const gqlQuery = await buildQuery(req);
 

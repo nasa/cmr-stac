@@ -48,18 +48,9 @@ describe("validDateTime", () => {
       ["unbounded slash and dots", "../.."],
       ["unbounded slash and future dots", "/.."],
       ["unbounded past and slash", "../"],
-      [
-        "extra delimiter front",
-        "/1984-04-12T23:20:50.52Z/1985-04-12T23:20:50.52Z",
-      ],
-      [
-        "extra delimiter end",
-        "1984-04-12T23:20:50.52Z/1985-04-12T23:20:50.52Z/",
-      ],
-      [
-        "extra delimiter front and end",
-        "/1984-04-12T23:20:50.52Z/1985-04-12T23:20:50.52Z/",
-      ],
+      ["extra delimiter front", "/1984-04-12T23:20:50.52Z/1985-04-12T23:20:50.52Z"],
+      ["extra delimiter end", "1984-04-12T23:20:50.52Z/1985-04-12T23:20:50.52Z/"],
+      ["extra delimiter front and end", "/1984-04-12T23:20:50.52Z/1985-04-12T23:20:50.52Z/"],
       ["date only", "1985-04-12"],
       ["invalid TZ format", "1937-01-01T12:00:27.87+0100"],
       ["invalid year", "37-01-01T12:00:27.87Z"],
@@ -74,10 +65,7 @@ describe("validDateTime", () => {
       ["franctional sec but no value, comma", "1985-04-12T23:20:50,Z"],
       ["second out of range without fractional", "1990-12-31T23:59:61Z"],
       ["end before start", "1986-04-12T23:20:50.52Z/1985-04-12T23:20:50.52Z"],
-      [
-        "comma as frac sec sep allowed in ISO8601 but not RFC3339",
-        "1985-04-12T23:20:50,52Z",
-      ],
+      ["comma as frac sec sep allowed in ISO8601 but not RFC3339", "1985-04-12T23:20:50,52Z"],
     ].forEach(([label, input]) => {
       it(`${label} [${input}] should return false`, () => {
         expect(validDateTime(input)).to.be.false;
