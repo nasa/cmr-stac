@@ -535,19 +535,17 @@ describe("conversions to GraphQL", () => {
       });
     });
 
-    describe("given an id as part of the path using the deprecated style", () => {
+    describe("given single collection ID alone", () => {
       it("creates a query term for all combinations ", async () => {
         expect(
           await buildQuery({
-            method: "GET",
-            url: "/stac/PROV/collections/testCollection.v1.v2.v3",
+            method: "POST",
+            url: "/stac/PROV/search",
             headers: {},
-            params: { providerId: "PROV", collectionId: "testCollection.v1.v2.v3" },
-            provider: {
-              "provider-id": "PROV",
-              "short-name": "PROV",
-            },
+            params: { providerId: "PROV" },
+            provider: { "provider-id": "PROV" },
             query: {},
+            body: { collections: "testCollection.v1.v2.v3" },
           } as any)
         ).to.deep.equal({
           provider: "PROV",
@@ -556,6 +554,83 @@ describe("conversions to GraphQL", () => {
             "testCollection.v1_2.v3",
             "testCollection.v1.v2_3",
             "testCollection.v1.v2.v3",
+          ],
+        });
+      });
+    });
+
+    describe("given a single collection ID ", () => {
+      it("creates a query term for all combinations ", async () => {
+        expect(
+          await buildQuery({
+            method: "POST",
+            url: "/stac/PROV/search",
+            headers: {},
+            params: { providerId: "PROV" },
+            provider: { "provider-id": "PROV" },
+            query: {},
+            body: { collections: ["testCollection.v1.v2.v3"] },
+          } as any)
+        ).to.deep.equal({
+          provider: "PROV",
+          entryId: [
+            "testCollection_1.v2.v3",
+            "testCollection.v1_2.v3",
+            "testCollection.v1.v2_3",
+            "testCollection.v1.v2.v3",
+          ],
+        });
+      });
+    });
+
+    describe("given mutiple collections", () => {
+      it("creates a query term for all combinations ", async () => {
+        expect(
+          await buildQuery({
+            method: "POST",
+            url: "/stac/PROV/search",
+            headers: {},
+            params: { providerId: "PROV" },
+            provider: { "provider-id": "PROV" },
+            query: {},
+            body: { collections: ["AIRX3STD.v006", "testCollection.v1.v2.v3"] },
+          } as any)
+        ).to.deep.equal({
+          provider: "PROV",
+          entryId: [
+            "AIRX3STD_006",
+            "AIRX3STD.v006",
+            "testCollection_1.v2.v3",
+            "testCollection.v1_2.v3",
+            "testCollection.v1.v2_3",
+            "testCollection.v1.v2.v3",
+          ],
+        });
+      });
+    });
+
+    describe("given mutiple collections with mixed syntax", () => {
+      it("creates a query term for all combinations ", async () => {
+        expect(
+          await buildQuery({
+            method: "POST",
+            url: "/stac/PROV/search",
+            headers: {},
+            params: { providerId: "PROV" },
+            provider: { "provider-id": "PROV" },
+            query: {},
+            body: { collections: ["AIRX3STD.v006", "testCollection.v1.v2.v3", "entry_id"] },
+          } as any)
+        ).to.deep.equal({
+          provider: "PROV",
+          entryId: [
+            "AIRX3STD_006",
+            "AIRX3STD.v006",
+            "testCollection_1.v2.v3",
+            "testCollection.v1_2.v3",
+            "testCollection.v1.v2_3",
+            "testCollection.v1.v2.v3",
+            "entry_id",
           ],
         });
       });

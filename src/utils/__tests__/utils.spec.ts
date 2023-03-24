@@ -125,4 +125,25 @@ describe("stacContext", () => {
       });
     });
   });
+
+  describe("given a stac provider collections path ending in a trailing slash", () => {
+    it("strips the trailing slash", () => {
+      const mockRequest = {
+        method: "GET",
+        headers: {
+          "cloud-stac": "true",
+          "cloudfront-forwarded-proto": "https",
+          host: "example.api",
+        } as IncomingHttpHeaders,
+        originalUrl: "/cloudstac/TEST_PROV/collections/",
+      } as Request;
+      expect(stacContext(mockRequest)).to.deep.equal({
+        id: "CLOUDSTAC",
+        root: "https://example.api",
+        stacRoot: "https://example.api/cloudstac",
+        path: "https://example.api/cloudstac/TEST_PROV/collections",
+        self: "https://example.api/cloudstac/TEST_PROV/collections",
+      });
+    });
+  });
 });
