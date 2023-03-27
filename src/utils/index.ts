@@ -54,8 +54,8 @@ export const stacContext = (req: Request) => {
     id: isCloudStac ? "CLOUDSTAC" : "STAC",
     root,
     stacRoot: `${root}/${stac}`,
-    path: `${root}${path}`,
-    self: `${root}${originalUrl}`,
+    path: `${root}${path}`.replace(/\/$/, ""),
+    self: `${root}${originalUrl}`.replace(/\/$/, ""),
   };
 };
 
@@ -152,7 +152,7 @@ export const generatePossibleCollectionIds = (id: string, separator: string, rep
       return tokens.join(separator);
     }
 
-    const mergedToken = currentToken + replacement + [idx + 1];
+    const mergedToken = currentToken + replacement + tokens[idx + 1];
     // splice mutates the original so use a copy
     const tokensCopy = [...tokens];
     // splice returns the replaced objects, not the resulting array

@@ -399,10 +399,7 @@ const filterCloudHosted = async (req: Request, ids: string[]): Promise<string[]>
  *
  * NOTE: CloudSTAC requests need ALL collection ids when none are provided.
  */
-const collectionsQuery = async (
-  req: Request,
-  query: { collections?: string[] }
-): Promise<{ entryId: string[] }> => {
+const collectionsQuery = async (req: Request, query: StacQuery): Promise<{ entryId: string[] }> => {
   const {
     headers,
     params: { collectionId },

@@ -66,14 +66,21 @@ export const searchHandler = async (req: Request, res: Response): Promise<void> 
 
   const itemsResponse = await getItems(gqlQuery, { headers });
 
-  const { cursor, items } = itemsResponse;
+  const { count, cursor, items } = itemsResponse;
   const features = items.map((item: STACItem) => addProviderLinks(req, item));
 
   const links = searchLinks(req, cursor);
+
+  const context = {
+    returned: items.length,
+    limit: gqlQuery.limit,
+    matched: count,
+  };
 
   res.contentType("application/geo+json").json({
     type: "FeatureCollection",
     features,
     links,
+    context,
   });
 };
