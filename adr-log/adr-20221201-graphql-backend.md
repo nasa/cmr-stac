@@ -28,4 +28,4 @@ Replace the logic in CMR-STAC to query GraphQL for data instead of querying dire
 * There is now an extra layer between STAC users and CMR, resulting in possible additional latency for calls.
 * GraphQL is now a direct dependency of STAC.
   * Any new queries must be supported by GraphQL first.
-* CMR does not support queries for Producrs, leaving at least one direct call to CMR in place.
+* GraphQL via CMR search does not support queries for Producrs, leaving at least one direct call to CMR in place.

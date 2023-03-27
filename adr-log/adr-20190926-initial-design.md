@@ -12,7 +12,7 @@ __Accepted__
 
 ## Context
 
-There is a community desire to be able to use the Spatio-Temporal Asset Catalog specification to browse data holdings within NASA's Common Metadata Repository.
+There is a community desire to be able to use the [Spatio-Temporal Asset Catalog](https://stacspec.org/) specification to browse data holdings within NASA's Common Metadata Repository.
 
 ## Decision
 

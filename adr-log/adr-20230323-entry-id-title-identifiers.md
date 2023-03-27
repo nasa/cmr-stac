@@ -13,7 +13,7 @@ __Accepted__
 
 ## Context
 
-The initial implementation of [CMR-STAC using GraphQL](./adr-20221201-graphql-backend.md "graphql-backend") had converted the collection and granule identifiers to useing CMR conceptIds. This resulted in breaking the functionality of many CMR-STAC community users workflows, scripts, and tools.
+The initial implementation of [CMR-STAC using GraphQL](./adr-20221201-graphql-backend.md "graphql-backend") had converted the collection and granule identifiers to using CMR conceptIds. This resulted in breaking the functionality of many CMR-STAC community users workflows, scripts, and tools.
 
 ## Decision
 
@@ -35,7 +35,7 @@ This fixes ambiguousness of separators, and this currently affects the existing 
 By switching to the `entry_id` syntax no parsing or guessing is needed to retrieve the correct collection.
 
 ### Searches
-Searches using collections with a `.v` separator will continue to work, but with the consequence of added uncertantainty.
+Searches using collections with a `.v` separator will continue to work, but with the consequence of added uncertentainty.
 Collections created without a version or set with an ambiguous version will need to have the appropriate placeholder appended. Examples of such non-versions are  `Not applicable`, `Not provided` and `None`.
 Such an example of a collection would be `10.3334/cdiac/otg.vos_alligatorhope_1999-2001_Not applicable`.
 
@@ -44,6 +44,6 @@ The unencoded URL would be `/stac/NOAA_NCEI/collections/10.3334/cdiac/otg.vos_al
 The encoded `entry_id` would be transformed into `/stac/NOAA_NCEI/collections/10.3334%2Fcdiac%2Fotg.vos_alligatorhope_1999-2001_Not+applicable` which would yield the correct collection.
 
 ### URI Encoding
-Beacuse CMR shortNames can contain characters that would break URLs, it is recommended that the collection ID and item IDs be URI encoded.
+Because CMR shortNames can contain characters that would break URLs, it is recommended that the collection ID and item IDs be URI encoded.
 * If browsing or searching using CMR-STAC the values returned will be automatically encoded.
-* If manually entering values containing special characters, they must be manually URI encoced. 
+* If manually entering values containing special characters, they must be manually URI encoded. 
