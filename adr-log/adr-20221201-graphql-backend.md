@@ -21,11 +21,11 @@ Replace the logic in CMR-STAC to query GraphQL for data instead of querying dire
 ## Consequences
 
 ### Pros
-+ Constructing STAC responses requires far fewer calls to generate the same responses.
-+ Calls to GraphQL return only what is is needed, and can be aliased resulting in simplified query logic.
+* Constructing STAC responses requires far fewer calls to generate the same responses.
+* Calls to GraphQL return only what is is needed, and can be aliased resulting in simplified query logic.
 
 ### Cons
-+ There is now an extra layer between STAC users and CMR, resulting in possible additional latency for calls.
-+ GraphQL is now a direct dependency of STAC.
-  + Any new queries must be supported by GraphQL first.
-+ CMR does not support queries for Producrs, leaving at least one direct call to CMR in place.
+* There is now an extra layer between STAC users and CMR, resulting in possible additional latency for calls.
+* GraphQL is now a direct dependency of STAC.
+  * Any new queries must be supported by GraphQL first.
+* CMR does not support queries for Producrs, leaving at least one direct call to CMR in place.

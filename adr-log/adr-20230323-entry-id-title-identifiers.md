@@ -27,8 +27,8 @@ There is ambiguousness regarding collections when the shortName contains a ".v" 
 
 Bookmarked collection pages will need to be updated to change the ".v" to "_":
 
-- INCORRECT `/stac/provider/collections/myCollection.v1`
-- CORRECT   `/stac/provider/collections/myCollection_1`
+* INCORRECT `/stac/provider/collections/myCollection.v1`
+* CORRECT   `/stac/provider/collections/myCollection_1`
 
 This fixes ambiguousness of separators, and this currently affects the existing deployed PROD STAC, and has since the initial implementation of CMR-STAC. If there was a collection called `myColl.volume` with a version of `2` it would be listed as `myColl.volume.v2` which CMR-STAC incorrectly would convert to the equivalent `{shortName: "myColl", version: "olume.v2"}` because it only split on the first instance of the `.v` separator. This issue has affected all versions of CMR-STAC.
 
@@ -45,5 +45,5 @@ The encoded `entry_id` would be transformed into `/stac/NOAA_NCEI/collections/10
 
 ### URI Encoding
 Beacuse CMR shortNames can contain characters that would break URLs, it is recommended that the collection ID and item IDs be URI encoded.
-- If browsing or searching using CMR-STAC the values returned will be automatically encoded.
-- If manually entering values containing special characters, they must be manually URI encoced. 
+* If browsing or searching using CMR-STAC the values returned will be automatically encoded.
+* If manually entering values containing special characters, they must be manually URI encoced. 
