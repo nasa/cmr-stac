@@ -105,8 +105,7 @@ export const refreshProviderCache = async (req: Request, _res: Response, next: N
       if (searchErrs) return next(new ServiceUnavailableError(ERRORS.serviceUnavailable));
 
       cloudProvs.forEach((cloudProv) =>
-        cachedCloudProviders.set(cloudProv["provider-id"], cloudProv)
-      );
+        cachedCloudProviders.set(cloudProv["provider-id"], cloudProv));
     }
   }
 
