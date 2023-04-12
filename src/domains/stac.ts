@@ -83,7 +83,8 @@ const thumbnailAssets = (concept: Collection | Granule) => {
   ];
   return (concept.relatedUrls ?? [])
     .filter((relatedUrl) =>
-      thumbnailTypes.find((thumbnailType) => thumbnailType === relatedUrl["type"]))
+      thumbnailTypes.find((thumbnailType) => thumbnailType === relatedUrl["type"])
+    )
     .reduce((metadataAssets, relatedUrl, idx, available) => {
       const [entry, display] = available.length > 1 ? [`_${idx}`, ` [${idx}]`] : ["", ""];
 
@@ -193,7 +194,8 @@ export const geoJsonToQuery = (
 
   const [polygon, line, point] = geometries
     .map((geometry: object | string) =>
-      typeof geometry === "string" ? JSON.parse(geometry) : geometry)
+      typeof geometry === "string" ? JSON.parse(geometry) : geometry
+    )
     .reduce(
       ([polygon, line, point], geometry: GeoJSONGeometry | GeoJSONGeometryCollection) => {
         switch (geometry.type.toLowerCase()) {

@@ -29,7 +29,7 @@
 
     // Allow extraneous dependencies
     "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
-    
+
     // Allow named default exports
     "import/no-named-as-default": "off",
 
@@ -37,10 +37,7 @@
     "import/prefer-default-export": "off",
 
     // Allowing cyclic dependencies
-    "import/no-cycle": "off",
-
-    // Allow parentheses parameters on new lines, with 'consistent' config
-    "function-paren-newline": ["error", "consistent"]
+    "import/no-cycle": "off"
   },
   "ignorePatterns": ["**/*.spec.ts"],
   "env": {
