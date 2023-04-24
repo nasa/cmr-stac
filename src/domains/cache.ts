@@ -21,8 +21,9 @@ export abstract class WarmCache<T> {
   private expireItems(): void {
     if (this.ttl <= 0) return;
 
+    const now = new Date().getTime();
     for (const key in this.store) {
-      if (this.store[key].expiration < new Date().getTime()) {
+      if (this.store[key].expiration < now) {
         delete this.store[key];
       }
     }

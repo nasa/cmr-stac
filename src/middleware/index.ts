@@ -56,7 +56,7 @@ export const cacheMiddleware = (req: Request, _res: Response, next: NextFunction
 };
 
 export const cloudStacMiddleware = (req: Request, _res: Response, next: NextFunction) => {
-  const cloudStacRx = /\/cloudstac\//gi;
+  const cloudStacRx = /^\/cloudstac.*/gi;
   if (cloudStacRx.test(req.originalUrl)) {
     req.headers["cloud-stac"] = "true";
   }

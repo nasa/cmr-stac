@@ -25,7 +25,7 @@ Most users will be interested in the deployed versions of CMR_STAC:
 
 - [CMR-STAC](https://cmr.earthdata.nasa.gov/stac): The entire catalog of NASA CMR data, organized by provider.
 - [CMR-CLOUDSTAC](https://cmr.earthdata.nasa.gov/cloudstac): Also organized by provider, this API only contains
-STAC Collections where the Item Assets are available "in the cloud" (i.e., on s3).
+STAC Collections where the Item Assets are available "in the cloud" (i.e. in an S3 bucket).
 
 See the [Usage documentation](docs/usage.md) for how to use available STAC software to browse and use the API.
 
