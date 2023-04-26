@@ -28,7 +28,7 @@ custom:
   docsBucket: cmr-stac-static-bucket-${opt:stage}
   s3Sync:
     - bucketName: cmr-stac-static-bucket-${opt:stage}
-      localDir: docs
+      localDir: docs/index
       bucketPrefix: docs/
 
 functions:

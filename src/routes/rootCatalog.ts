@@ -25,7 +25,7 @@ const selfLinks = (req: Request): Link[] => {
     },
     {
       rel: "service-desc",
-      href: `${stacRoot}/docs/swagger.json`,
+      href: `${stacRoot}/resources/swagger.json`,
       title: "OpenAI Documentation",
       type: "application/vnd.oai.openapi+json;version=3.0",
     },
