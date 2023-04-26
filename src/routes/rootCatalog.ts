@@ -41,14 +41,12 @@ const selfLinks = (req: Request): Link[] => {
 const providerLinks = (req: Request, providers: Provider[]): Link[] => {
   const { self } = stacContext(req);
 
-  return providers.map(
-    ({ "short-name": title, "provider-id": providerId }) => ({
-      rel: "child",
-      title,
-      type: "application/json",
-      href: `${self}/${providerId}`,
-    })
-  );
+  return providers.map(({ "short-name": title, "provider-id": providerId }) => ({
+    rel: "child",
+    title,
+    type: "application/json",
+    href: `${self}/${providerId}`,
+  }));
 };
 
 export const rootCatalogHandler = async (req: Request, res: Response) => {

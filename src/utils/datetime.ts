@@ -1,5 +1,5 @@
 const ISO_8601_DATE_RX =
-  /^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[\,.]\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/i;
+  /^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d[,.]\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/i;
 
 const RFC_3339_RX = /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d+)Z$/i;
 
@@ -32,12 +32,7 @@ export const dateTimeToRange = (dateTime?: string) => {
   const dateTimeArray = splitOnDelimiters(dateTime, [",", "/"]);
 
   if (dateTimeArray.length === 1) {
-    if (
-      dateTimeArray[0].substring(
-        dateTimeArray[0].length - 2,
-        dateTimeArray[0].length
-      ) === ".."
-    ) {
+    if (dateTimeArray[0].substring(dateTimeArray[0].length - 2, dateTimeArray[0].length) === "..") {
       return dateTimeArray[0].substring(0, dateTimeArray[0].length - 2);
     } else {
       return `${dateTimeArray[0]}/${dateTimeArray[0]}`;
@@ -69,14 +64,10 @@ const isValidRange = (dates: string[]) => {
 
 export const validDateTime = (dateTimeString?: string) => {
   if (!dateTimeString) return;
-  if (invalidUnboundRanges.find((invalid) => invalid === dateTimeString))
-    return false;
+  if (invalidUnboundRanges.find((invalid) => invalid === dateTimeString)) return false;
 
   const dates = splitOnDelimiters(dateTimeString, [",", "/"]);
   if (dates.length > 2) return false;
 
-  return (
-    dates.reduce((validAcc, d) => validAcc && isValidDate(d), true) &&
-    isValidRange(dates)
-  );
+  return dates.reduce((validAcc, d) => validAcc && isValidDate(d), true) && isValidRange(dates);
 };

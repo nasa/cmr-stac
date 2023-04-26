@@ -1,10 +1,10 @@
 import { Provider } from "../models/CmrModels";
 import { getProvider } from "../domains/providers";
 
-interface Cache<T> {
+type Cache<T> = {
   data: T;
   expiration: number;
-}
+};
 
 /**
  * An in-memory cache that will live for the life of a warm lambda instance.
@@ -14,23 +14,22 @@ export abstract class WarmCache<T> {
   ttl: number;
   store: { [key: string]: Cache<T> } = {};
 
-  constructor(ttlInSeconds: number = -1) {
+  constructor(ttlInSeconds = -1) {
     this.ttl = ttlInSeconds;
   }
 
   private expireItems(): void {
     if (this.ttl <= 0) return;
 
+    const now = new Date().getTime();
     for (const key in this.store) {
-      if (this.store[key].expiration < new Date().getTime()) {
+      if (this.store[key].expiration < now) {
         delete this.store[key];
       }
     }
   }
 
-  abstract fetchFromRemote(
-    key: string
-  ): Promise<[string, null] | [null, T | null]>;
+  abstract fetchFromRemote(key: string): Promise<[string, null] | [null, T | null]>;
 
   public size(): number {
     this.expireItems();
@@ -58,10 +57,7 @@ export abstract class WarmCache<T> {
   public getAll(): T[] {
     this.expireItems();
 
-    return Object.keys(this.store).reduce(
-      (acc, key) => [...acc, this.store[key].data],
-      [] as T[]
-    );
+    return Object.keys(this.store).reduce((acc, key) => [...acc, this.store[key].data], [] as T[]);
   }
 
   public set(key: string, data: T): T {

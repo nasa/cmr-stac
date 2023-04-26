@@ -25,9 +25,7 @@ export const conformance = [
 /**
  * Return an array of providers found in CMR.
  */
-export const getProviders = async (): Promise<
-  [string, null] | [null, Provider[]]
-> => {
+export const getProviders = async (): Promise<[string, null] | [null, Provider[]]> => {
   try {
     const { data: providers } = await axios.get(`${CMR_LB_INGEST}/providers`);
     return [null, providers];
@@ -51,8 +49,7 @@ export const getProvider = async (
 
   return [
     null,
-    providers!.find((provider) => provider["provider-id"] === providerId) ??
-      null,
+    (providers ?? []).find((provider) => provider["provider-id"] === providerId) ?? null,
   ];
 };
 
@@ -62,11 +59,9 @@ export const getProvider = async (
  */
 export const getCloudProviders = async (
   providerCandidates?: Provider[],
-  opts: { [key: string]: any } = {}
+  opts: { [key: string]: unknown } = {}
 ): Promise<[null | string[], Provider[]]> => {
-  const [err, candidates] = providerCandidates
-    ? [null, providerCandidates]
-    : await getProviders();
+  const [err, candidates] = providerCandidates ? [null, providerCandidates] : await getProviders();
 
   if (err) {
     return [[err], []];
@@ -78,14 +73,14 @@ export const getCloudProviders = async (
   const cloudProviders: Provider[] = [];
 
   await Promise.all(
-    candidates!.map(async (provider) => {
+    (candidates ?? []).map(async (provider) => {
       try {
         const { headers } = await axios.get(CMR_LB_SEARCH_COLLECTIONS, {
           headers: mergeMaybe({}, { authorization }),
           params: { provider: provider["short-name"], cloud_hosted: true },
         });
 
-        if (headers["cmr-hits"] === "0") {
+        if (headers["cmr-hits"] !== "0") {
           cloudProviders.push(provider);
         }
       } catch (e) {

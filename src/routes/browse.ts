@@ -3,10 +3,11 @@ import { Request, Response } from "express";
 import { Links } from "../@types/StacCatalog";
 
 import { getCollections } from "../domains/collections";
-import { buildQuery, stringifyQuery } from "../domains/stacQuery";
+import { buildQuery, stringifyQuery } from "../domains/stac";
+import { ItemNotFound } from "../models/errors";
 import { buildRootUrl, mergeMaybe, stacContext } from "../utils";
 
-const collectionLinks = (req: Request, nextCursor: string | null): Links => {
+const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
   const { stacRoot, self, path } = stacContext(req);
 
   const parent = self.split("/").slice(0, -1).join("/");
@@ -41,8 +42,7 @@ const collectionLinks = (req: Request, nextCursor: string | null): Links => {
   const originalQuery = mergeMaybe(req.query, req.body);
 
   if (nextCursor) {
-    const nextResultsQuery = { ...originalQuery };
-    nextResultsQuery.cursor = nextCursor;
+    const nextResultsQuery = { ...originalQuery, cursor: nextCursor };
 
     links.push({
       rel: "next",
@@ -54,10 +54,7 @@ const collectionLinks = (req: Request, nextCursor: string | null): Links => {
   return links;
 };
 
-export const collectionsHandler = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
+export const collectionsHandler = async (req: Request, res: Response): Promise<void> => {
   const { headers } = req;
 
   const query = await buildQuery(req);
@@ -70,12 +67,12 @@ export const collectionsHandler = async (
   collections.forEach((collection) => {
     collection.links.push({
       rel: "self",
-      href: `${self}/${collection.id}`,
+      href: `${self}/${encodeURIComponent(collection.id)}`,
       type: "application/json",
     });
     collection.links.push({
       rel: "root",
-      href: stacRoot,
+      href: encodeURI(stacRoot),
       type: "application/json",
     });
   });
@@ -93,15 +90,21 @@ export const collectionsHandler = async (
 /**
  * Returns a STACCollection as the body.
  */
-export const collectionHandler = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
-  const { collection } = req;
+export const collectionHandler = async (req: Request, res: Response): Promise<void> => {
+  const {
+    collection,
+    params: { collectionId, providerId },
+  } = req;
 
-  // middleware handles this for us
+  if (!collection) {
+    throw new ItemNotFound(
+      `Could not find collection [${collectionId}] in provider [${providerId}]`
+    );
+  }
+
   collection.links = collection.links
-    ? [...collectionLinks(req, null), ...collection.links]
-    : [...collectionLinks(req, null)];
+    ? [...collectionLinks(req), ...(collection.links ?? [])]
+    : [...collectionLinks(req)];
+
   res.json(collection);
 };

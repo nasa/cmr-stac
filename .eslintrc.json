@@ -1,0 +1,48 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "import"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+
+    // Allow shadow declarations
+    "@typescript-eslint/no-shadow": "off",
+
+    // Require spacing in object literals
+    "@typescript-eslint/object-curly-spacing": ["error", "always"],
+
+    // Allow class methods that dont use 'this'
+    "class-methods-use-this": "off",
+
+    // Allow console log messages
+    "no-console": "off",
+
+    // Allow extraneous dependencies
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+
+    // Allow named default exports
+    "import/no-named-as-default": "off",
+
+    // Allow files with no default export
+    "import/prefer-default-export": "off",
+
+    // Allowing cyclic dependencies
+    "import/no-cycle": "off"
+  },
+  "ignorePatterns": ["**/*.spec.ts"],
+  "env": {
+    "browser": false,
+    "es2021": true,
+    "mocha": true
+  }
+}
