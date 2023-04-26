@@ -2,6 +2,8 @@ import request from "supertest";
 import * as sinon from "sinon";
 import { expect } from "chai";
 
+import axios, { AxiosRequestConfig } from "axios";
+
 import CatalogSpec from "../../resources/catalog-spec/json-schema/catalog.json";
 import { Link } from "../@types/StacCatalog";
 
@@ -85,5 +87,49 @@ describe("GET /stac", () => {
       expect(statusCode, JSON.stringify(body, null, 2)).to.equal(503);
       expect(body).to.have.property("errors");
     });
+  });
+});
+
+describe("/cloudstac", () => {
+  let mockCmrHits: (s: string, c: AxiosRequestConfig<any> | undefined) => Promise<any>;
+
+  before(() => {
+    sandbox.stub(Providers, "getProviders").resolves([
+      null,
+      [
+        { "short-name": "CLOUD_PROV", "provider-id": "CLOUD_PROV" },
+        { "short-name": "NOT_CLOUD", "provider-id": "NOT_CLOUD" },
+      ],
+    ]);
+
+    mockCmrHits = sandbox
+      .stub(axios, "get")
+      .callsFake(async (_url: string, config: AxiosRequestConfig<any> | undefined) =>
+        config!.params!.provider!.startsWith("CLOUD")
+          ? Promise.resolve({ headers: { "cmr-hits": "99" } })
+          : Promise.resolve({ headers: { "cmr-hits": "0" } })
+      );
+  });
+
+  it("only lists providers with cloud holdings", async () => {
+    const { statusCode, body } = await request(app).get("/cloudstac");
+
+    expect(statusCode).to.equal(200);
+    expect(body.links.find((l: { title: string }) => l.title === "CLOUD_PROV")).have.property(
+      "title",
+      "CLOUD_PROV"
+    );
+    expect(body.links.find((l: { title: string }) => l.title === "CLOUD_PROV")).have.property(
+      "rel",
+      "child"
+    );
+    expect(body.links.find((l: { title: string }) => l.title === "CLOUD_PROV")).have.property(
+      "type",
+      "application/json"
+    );
+
+    expect(body.links.find((l: { title: string }) => l.title === "NOT_CLOUD")).to.be.undefined;
+
+    expect(mockCmrHits).to.have.been.calledTwice;
   });
 });

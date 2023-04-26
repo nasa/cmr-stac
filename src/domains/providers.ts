@@ -80,7 +80,7 @@ export const getCloudProviders = async (
           params: { provider: provider["short-name"], cloud_hosted: true },
         });
 
-        if (headers["cmr-hits"] === "0") {
+        if (headers["cmr-hits"] !== "0") {
           cloudProviders.push(provider);
         }
       } catch (e) {
