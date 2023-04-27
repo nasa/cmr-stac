@@ -2,13 +2,13 @@
 
 CMR-STAC is a Node.js application built on the [Express.js framework](https://expressjs.com/) and deployed as an AWS serverless application using API Gateway + Lambda. This README is intended for developers who want to contribute to CMR-STAC, or set up a development environment for it.
 
-The remainder of this README is documentation for developing, testing, and deploying CMR-STAC. See the [Usage documentation](../usage/usage.md) if you are interested in using the CMR-STAC API.
+The remainder of this README is documentation for developing, testing, and deploying CMR-STAC. See the [Usage documentation](../docs/usage/usage.md) if you are interested in using the CMR-STAC API.
 
 ### Repository Structure
 
 | Directory            | Description  |
 | -------------------- | ------------ |
-| [docs](../search/docs)  | is where the combined specification document made from the STAC and WFS3 specification documents is held. Paths and component schemas are defined here. The generated STAC documentation file is also located in this directory. |
+| docs  | The `docs` directory is where the combined specification document made from the STAC and WFS3 specification documents is held. Paths and component schemas are defined here. The generated STAC documentation file is also located in this directory. |
 | [src](../src)    | The `src` directory contains the main logic of the application. It is broken down into modules pertaining to areas of responsibility.
 | [scripts](../scripts) | Utility (Python) scripts for validating and crawling CMR-STAC |
 | [usage](../docs/usage/usage.md)       | Documentation on usage of the CMR-STAC endpoint(s) |
@@ -16,7 +16,7 @@ The remainder of this README is documentation for developing, testing, and deplo
 ## Getting Started
 ### Setup
 
-Set the correct NodeJS version (specified in [.nvmrc](./.nvmrc) required
+Set the correct NodeJS version (specified in [.nvmrc](../.nvmrc) required
 by CMR-STAC with [`nvm`](https://github.com/nvm-sh/nvm) (recommended for managing NodeJS versions):
 
 ```bash
