@@ -30,9 +30,8 @@ const generateLinks = (req: Request) => {
 };
 
 /**
- * Handle requests for a collection' items.
- *
- * Returns a FeatureCollection as response
+ * Handle requests for a collection's items.
+ * Return a FeatureCollection as response.
  */
 export const singleItemHandler = async (req: Request, res: Response) => {
   const {
@@ -115,7 +114,7 @@ export const multiItemHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const { self } = stacContext(req);
+  const { path } = stacContext(req);
 
   const itemsResponse = {
     type: "FeatureCollection",
@@ -130,7 +129,7 @@ export const multiItemHandler = async (req: Request, res: Response) => {
       item.links = [
         {
           rel: "self",
-          href: encodeURI(`${self}/${item.id}`),
+          href: encodeURI(`${path}/${item.id}`),
           type: "application/geo+json",
           title: item.id,
         },
