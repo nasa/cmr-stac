@@ -83,7 +83,7 @@ const selfLinks = (req: Request, item: STACItem) => {
   const { stacRoot } = stacContext(req);
 
   if (!provider) {
-    throw new ItemNotFound("No provided detected in path.");
+    throw new ItemNotFound("No provider detected in path.");
   }
 
   const { id, collection } = item;
