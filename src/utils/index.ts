@@ -82,7 +82,7 @@ export const mergeMaybe = (map: object, maybeMap?: unknown) => {
       // skip null or undefined, purposely not using ===
       if (coerced[key] == null) return nextMap;
 
-      // skip emptyStrings
+      // skip empty strings
       if (typeof coerced[key] === "string" && (coerced[key] as string).trim() === "")
         return nextMap;
 
@@ -101,6 +101,10 @@ export const mergeMaybe = (map: object, maybeMap?: unknown) => {
   );
 };
 
+/**
+ * Scrub the `authorization` header when present and return updated.
+ * This should only be used for logging purposes as it destroys the token.
+ */
 export const scrubTokens = (headers: IncomingHttpHeaders) => {
   if (!("authorization" in headers)) return headers;
   const { authorization } = headers;

@@ -11,6 +11,7 @@ import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, stacContext } from "../utils";
 import { extractAssets, paginateQuery } from "./stac";
 import { collectionToId } from "./collections";
+import { ItemNotFound } from "../models/errors";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 const CMR_URL = process.env.CMR_URL;
@@ -81,20 +82,30 @@ const selfLinks = (req: Request, item: STACItem) => {
   const { provider } = req;
   const { stacRoot } = stacContext(req);
 
+  if (!provider) {
+    throw new ItemNotFound("No provided detected in path.");
+  }
+
+  const { id, collection } = item;
+
+  const providerId = provider["provider-id"];
+  const itemId = encodeURIComponent(id);
+  const collectionId = encodeURIComponent(collection as string);
+
   return [
     {
       rel: "self",
-      href: `${stacRoot}/${provider?.["provider-id"]}/collections/${item.collection}/items/${item.id}`,
+      href: `${stacRoot}/${providerId}/collections/${collectionId}/items/${itemId}`,
       type: "application/geo+json",
     },
     {
       rel: "parent",
-      href: `${stacRoot}/${provider?.["provider-id"]}/collections/${item.collection}/`,
+      href: `${stacRoot}/${providerId}/collections/${collectionId}/`,
       type: "application/geo+json",
     },
     {
       rel: "collection",
-      href: `${stacRoot}/${provider?.["provider-id"]}/collections/${item.collection}/`,
+      href: `${stacRoot}/${providerId}/collections/${collectionId}/`,
       type: "application/geo+json",
     },
     {
@@ -104,7 +115,7 @@ const selfLinks = (req: Request, item: STACItem) => {
     },
     {
       rel: "provider",
-      href: `${stacRoot}/${provider?.["provider-id"]}`,
+      href: `${stacRoot}/${providerId}`,
       type: "application/json",
     },
   ];

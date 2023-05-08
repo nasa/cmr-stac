@@ -46,4 +46,4 @@ The encoded `entry_id` would be transformed into `/stac/NOAA_NCEI/collections/10
 ### URI Encoding
 Because CMR shortNames can contain characters that would break URLs, it is recommended that the collection ID and item IDs be URI encoded.
 * If browsing or searching using CMR-STAC the values returned will be automatically encoded.
-* If manually entering values containing special characters, they must be manually URI encoded. 
+* If manually entering values containing special characters, they must be manually URI encoded.
