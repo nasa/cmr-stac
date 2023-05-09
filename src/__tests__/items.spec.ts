@@ -1,8 +1,10 @@
 import request from "supertest";
 import * as sinon from "sinon";
 import chai from "chai";
+import chaiString from "chai-string";
 import sinonChai from "sinon-chai";
 
+chai.use(chaiString);
 chai.use(sinonChai);
 
 const { expect } = chai;
@@ -20,6 +22,7 @@ import * as Collections from "../domains/collections";
 import * as Items from "../domains/items";
 import { STACCollection } from "../@types/StacCollection";
 import { STACItem } from "../@types/StacItem";
+import { Link } from "../@types/StacCatalog";
 
 const cmrCollectionsResponse = {
   items: [
@@ -33,7 +36,7 @@ const cmrCollectionsResponse = {
 const cmrItemsResponse = {
   items: [
     {
-      id: "TEST_ITEM",
+      id: "TEST ITEM",
     } as STACItem,
   ],
   cursor: "TEST_GRAN_CURSOR",
@@ -73,6 +76,28 @@ describe("GET /PROVIDER/collections/COLLECTION/items", () => {
     it("should return 200", async () => {
       const { statusCode, body } = await request(app).get("/stac/TEST/collections/TEST_COLL/items");
       expect(statusCode, JSON.stringify(body, null, 2)).to.equal(200);
+    });
+  });
+
+  describe("given there are query parameters on the path", () => {
+    it("excludes query parameters", async () => {
+      const { statusCode, body } = await request(app).get(
+        "/stac/TEST/collections/TEST_COLL/items?cursor=pageonemillion"
+      );
+      expect(statusCode, JSON.stringify(body, null, 2)).to.equal(200);
+
+      const selfLink = body.features[0].links.find((lnk: Link) => lnk.rel === "self");
+      expect(selfLink.href).endsWith("/stac/TEST/collections/TEST_COLL/items/TEST%20ITEM");
+    });
+
+    it("URI encodes names", async () => {
+      const { statusCode, body } = await request(app).get(
+        "/stac/TEST/collections/TEST_COLL/items?cursor=pageonemillion"
+      );
+      expect(statusCode, JSON.stringify(body, null, 2)).to.equal(200);
+
+      const selfLink = body.features[0].links.find((lnk: Link) => lnk.rel === "self");
+      expect(selfLink.href).endsWith("/stac/TEST/collections/TEST_COLL/items/TEST%20ITEM");
     });
   });
 });
