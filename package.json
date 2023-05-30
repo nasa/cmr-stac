@@ -62,7 +62,7 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@vendia/serverless-express": "^4.10.1",
+    "@vendia/serverless-express": "^4.10.3",
     "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1359.0",
     "axios": "^1.3.5",
