@@ -75,7 +75,7 @@
     "express": "^4.18.2",
     "graphql": "^16.6.0",
     "graphql-request": "^5.2.0",
-    "helmet": "^6.1.5",
+    "helmet": "^6.2.0",
     "lodash": "^4.17.21",
     "morgan": "^1.10.0",
     "source-map-support": "^0.5.21"
