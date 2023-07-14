@@ -35,7 +35,7 @@ While CMR-STAC provides some advantages over the CMR, there are some limitations
 - Limited metadata availability: CMR-STAC only provides metadata that follows the STAC specification. While this metadata is very rich and comprehensive, it may not provide all of the information that you need for your specific use case.
 
 ## For Developers
-[Developer README](src/README.md)
+[Developer README](docs/README.md)
 
 ## License
 NASA Open Source Agreement v1.3 (NASA-1.3)
