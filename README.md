@@ -22,9 +22,7 @@ CMR-STAC follows the STAC API 1.0.0-beta.1 specification, see the
 ## Usage
 ### Endpoints
 - [CMR-STAC](https://cmr.earthdata.nasa.gov/stac): The entire catalog of NASA CMR data, organized by provider.
-- [CMR-CLOUDSTAC](https://cmr.earthdata.nasa.gov/cloudstac): Also organized by provider, this API only contains
-
-STAC Collections where the Item Assets are available "in the cloud" (i.e., on S3).
+- [CMR-CLOUDSTAC](https://cmr.earthdata.nasa.gov/cloudstac): Also organized by provider, this API only contains STAC Collections where the Item Assets are available "in the cloud" (i.e., on S3).
 
 ### Navigating
 CMR-STAC can be navigated manually using the endpoints provided above, or you can utilize available STAC software to browse and use the API.  
