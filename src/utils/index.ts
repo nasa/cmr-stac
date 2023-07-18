@@ -43,14 +43,14 @@ export const wrapErrorHandler = (fn: (rq: Request, rs: Response) => Promise<void
 };
 
 /**
- * Returns second to last value in a relatedUrl 
+ * Returns second to last value in a relatedUrl
  * to be used as a key for thumbnail assets link.
  * Defaults to string 'key' in the case of an unexpected URL format.
  */
 export const extractAssetMapKey = (relatedUrl: string) => {
-  const urlArray = relatedUrl.split('.');
-  return urlArray[urlArray.length - 2] ? urlArray[urlArray.length - 2] : 'key';
-}
+  const urlArray = relatedUrl.split(".");
+  return urlArray[urlArray.length - 2] ? urlArray[urlArray.length - 2] : "key";
+};
 
 export const stacContext = (req: Request) => {
   const { headers, originalUrl } = req;
