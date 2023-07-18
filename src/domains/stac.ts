@@ -26,6 +26,7 @@ import {
   flattenTree,
   mergeMaybe,
   buildClientId,
+  extractAssetMapKey,
   scrubTokens,
   generatePossibleCollectionIds,
 } from "../utils";
@@ -87,12 +88,13 @@ const thumbnailAssets = (concept: Collection | Granule) => {
     )
     .reduce((metadataAssets, relatedUrl, idx, available) => {
       const [entry, display] = available.length > 1 ? [`_${idx}`, ` [${idx}]`] : ["", ""];
-
+      const relatedUrlKey = extractAssetMapKey(relatedUrl.url);
       const thumbnailAsset: AssetLinks = {};
       thumbnailAsset[`thumbnail${entry}`] = {
         href: relatedUrl.url,
         title: `Thumbnail${display}`,
         description: relatedUrl.description,
+        [relatedUrlKey]: relatedUrl.url,
         roles: ["thumbnail"],
       };
       return { ...metadataAssets, ...thumbnailAsset };
