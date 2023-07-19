@@ -124,6 +124,12 @@ const baseGranule: Granule = {
       description: "Browse image for Earthdata Search",
       type: RelatedUrlType.THUMBNAIL,
     },
+    {
+      urlContentType: UrlContentType.VISUALIZATION_URL,
+      url: "ftp://e4ftl012/ExampleBadUrl",
+      description: "Browse image for Earthdata Search",
+      type: RelatedUrlType.THUMBNAIL,
+    },
   ],
 };
 
