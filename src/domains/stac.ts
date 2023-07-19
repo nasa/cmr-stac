@@ -80,7 +80,7 @@ const metadataAssets = (concept: Collection | Granule) => {
  */
 const thumbnailAssets = (concept: Collection | Granule) => {
   const thumbnailTypes = [
-    RelatedUrlType.GET_RELATED_VISUALIZATION /* , RelatedUrlType.THUMBNAIL */,
+    RelatedUrlType.THUMBNAIL,
   ];
   return (concept.relatedUrls ?? [])
     .filter((relatedUrl) =>
