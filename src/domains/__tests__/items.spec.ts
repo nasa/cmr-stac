@@ -5,10 +5,6 @@ import { granuleToStac } from "../items";
 import { generateGranules } from "../../utils/testUtils";
 
 const [baseGranule] = generateGranules(1);
-const testItem = granuleToStac({
-  ...baseGranule,
-  lines: ["60.477742 -42.915595 65.941741 -18.370675 65.751188 11.618598"],
-});
 
 describe("granuleToStac", () => {
   describe("given it has single polygon geometry", () => {
