@@ -79,7 +79,7 @@ const metadataAssets = (concept: Collection | Granule) => {
  * Return thumbnail assets if present.
  */
 const thumbnailAssets = (concept: Collection | Granule) => {
-  const thumbnailTypes = [RelatedUrlType.THUMBNAIL];
+  const thumbnailTypes = [RelatedUrlType.THUMBNAIL, RelatedUrlType.GET_RELATED_VISUALIZATION];
   return (concept.relatedUrls ?? [])
     .filter((relatedUrl) =>
       thumbnailTypes.find((thumbnailType) => thumbnailType === relatedUrl["type"])
