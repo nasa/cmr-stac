@@ -118,6 +118,18 @@ const baseGranule: Granule = {
       description: "metadata",
       type: RelatedUrlType.DATA_SET_LANDING_PAGE,
     },
+    {
+      urlContentType: UrlContentType.VISUALIZATION_URL,
+      url: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.vinr.img",
+      description: "Browse image for Earthdata Search",
+      type: RelatedUrlType.THUMBNAIL,
+    },
+    {
+      urlContentType: UrlContentType.VISUALIZATION_URL,
+      url: "ftp://e4ftl012/ExampleBadUrl",
+      description: "Browse image for Earthdata Search",
+      type: RelatedUrlType.THUMBNAIL,
+    },
   ],
 };
 

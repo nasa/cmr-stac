@@ -1468,7 +1468,8 @@
             "thumbnail": {
               "title": "Thumbnail",
               "href": "http://cool-sat.com/catalog/collections/cs/items/CS3-20160503_132130_04/thumb.png",
-              "type": "image/png"
+              "type": "image/png",
+              "key": "http://cool-sat.com/catalog/collections/cs/items/CS3-20160503_132130_04/thumb.png"
             }
           }
         }
