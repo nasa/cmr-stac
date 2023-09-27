@@ -57,10 +57,16 @@ describe("granuleToStac", () => {
           },
         ],
         assets: {
-          download: {
-            description: "the data",
-            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hd",
-            title: "Direct Download",
+          B09: {
+            description: "Browse image for Earthdata Search",
+            href: "ftp://e4ftl014.cr.usgs.gov/MODIS_Composites/MOTA/.B09.tif",
+            title: "Direct Download [0]",
+            roles: ["data"],
+          },
+          asset_key: {
+            description: "Example of bad url data",
+            href: "ftp://e4ftl015/ExampleBadUrl",
+            title: "Direct Download [1]",
             roles: ["data"],
           },
           provider_metadata: {
@@ -73,14 +79,12 @@ describe("granuleToStac", () => {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.vinr.img",
             title: "Thumbnail [0]",
             description: "Browse image for Earthdata Search",
-            vinr: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.vinr.img",
             roles: ["thumbnail"],
           },
           thumbnail_1: {
             href: "ftp://e4ftl012/ExampleBadUrl",
             title: "Thumbnail [1]",
             description: "Browse image for Earthdata Search",
-            key: "ftp://e4ftl012/ExampleBadUrl",
             roles: ["thumbnail"],
           },
         },
@@ -135,10 +139,16 @@ describe("granuleToStac", () => {
           },
         ],
         assets: {
-          download: {
-            description: "the data",
-            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hd",
-            title: "Direct Download",
+          B09: {
+            description: "Browse image for Earthdata Search",
+            href: "ftp://e4ftl014.cr.usgs.gov/MODIS_Composites/MOTA/.B09.tif",
+            title: "Direct Download [0]",
+            roles: ["data"],
+          },
+          asset_key: {
+            description: "Example of bad url data",
+            href: "ftp://e4ftl015/ExampleBadUrl",
+            title: "Direct Download [1]",
             roles: ["data"],
           },
           provider_metadata: {
@@ -151,14 +161,12 @@ describe("granuleToStac", () => {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.vinr.img",
             title: "Thumbnail [0]",
             description: "Browse image for Earthdata Search",
-            vinr: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.vinr.img",
             roles: ["thumbnail"],
           },
           thumbnail_1: {
             href: "ftp://e4ftl012/ExampleBadUrl",
             title: "Thumbnail [1]",
             description: "Browse image for Earthdata Search",
-            key: "ftp://e4ftl012/ExampleBadUrl",
             roles: ["thumbnail"],
           },
         },
@@ -208,10 +216,16 @@ describe("granuleToStac", () => {
           },
         ],
         assets: {
-          download: {
-            description: "the data",
-            href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hd",
-            title: "Direct Download",
+          B09: {
+            description: "Browse image for Earthdata Search",
+            href: "ftp://e4ftl014.cr.usgs.gov/MODIS_Composites/MOTA/.B09.tif",
+            title: "Direct Download [0]",
+            roles: ["data"],
+          },
+          asset_key: {
+            description: "Example of bad url data",
+            href: "ftp://e4ftl015/ExampleBadUrl",
+            title: "Direct Download [1]",
             roles: ["data"],
           },
           provider_metadata: {
@@ -224,14 +238,12 @@ describe("granuleToStac", () => {
             href: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.vinr.img",
             title: "Thumbnail [0]",
             description: "Browse image for Earthdata Search",
-            vinr: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.vinr.img",
             roles: ["thumbnail"],
           },
           thumbnail_1: {
             href: "ftp://e4ftl012/ExampleBadUrl",
             title: "Thumbnail [1]",
             description: "Browse image for Earthdata Search",
-            key: "ftp://e4ftl012/ExampleBadUrl",
             roles: ["thumbnail"],
           },
         },

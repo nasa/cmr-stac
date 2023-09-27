@@ -108,8 +108,14 @@ const baseGranule: Granule = {
   relatedUrls: [
     {
       urlContentType: UrlContentType.DISTRIBUTION_URL,
-      url: "ftp://e4ftl01.cr.usgs.gov/MODIS_Composites/MOTA/MCD43A4.005/2009.09.14/MCD43A4.A2009257.h29v03.005.2009276045828.hd",
-      description: "the data",
+      url: "ftp://e4ftl014.cr.usgs.gov/MODIS_Composites/MOTA/.B09.tif",
+      description: "Browse image for Earthdata Search",
+      type: RelatedUrlType.GET_DATA,
+    },
+    {
+      urlContentType: UrlContentType.DISTRIBUTION_URL,
+      url: "ftp://e4ftl015/ExampleBadUrl",
+      description: "Example of bad url data",
       type: RelatedUrlType.GET_DATA,
     },
     {
