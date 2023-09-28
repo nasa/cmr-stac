@@ -42,7 +42,7 @@ const downloadAssets = (concept: Collection | Granule) => {
   return (concept.relatedUrls ?? [])
     .filter((relatedUrl) => relatedUrl["type"] === RelatedUrlType.GET_DATA)
     .reduce((downloadAssets, relatedUrl, idx, available) => {
-      const display = available.length > 1 ? ` [${idx}]` : "";
+      const display = available.length > 1 ? `[${idx}]` : "";
       const relatedUrlKey = extractAssetMapKey(relatedUrl.url);
       const downloadAsset: AssetLinks = {};
       downloadAsset[`${relatedUrlKey}`] = {
