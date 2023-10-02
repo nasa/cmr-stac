@@ -49,7 +49,7 @@ export const wrapErrorHandler = (fn: (rq: Request, rs: Response) => Promise<void
  */
 export const extractAssetMapKey = (relatedUrl: string) => {
   const urlArray = relatedUrl.split(".");
-  return urlArray[urlArray.length - 2] ? urlArray[urlArray.length - 2] : "key";
+  return urlArray[urlArray.length - 2] ? urlArray[urlArray.length - 2] : "asset_key";
 };
 
 export const stacContext = (req: Request) => {

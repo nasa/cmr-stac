@@ -42,10 +42,10 @@ const downloadAssets = (concept: Collection | Granule) => {
   return (concept.relatedUrls ?? [])
     .filter((relatedUrl) => relatedUrl["type"] === RelatedUrlType.GET_DATA)
     .reduce((downloadAssets, relatedUrl, idx, available) => {
-      const [entry, display] = available.length > 1 ? [`_${idx}`, ` [${idx}]`] : ["", ""];
-
+      const display = available.length > 1 ? ` [${idx}]` : "";
+      const relatedUrlKey = extractAssetMapKey(relatedUrl.url);
       const downloadAsset: AssetLinks = {};
-      downloadAsset[`download${entry}`] = {
+      downloadAsset[`${relatedUrlKey}`] = {
         href: relatedUrl.url,
         title: `Direct Download${display}`,
         description: relatedUrl.description,
@@ -86,13 +86,11 @@ const thumbnailAssets = (concept: Collection | Granule) => {
     )
     .reduce((metadataAssets, relatedUrl, idx, available) => {
       const [entry, display] = available.length > 1 ? [`_${idx}`, ` [${idx}]`] : ["", ""];
-      const relatedUrlKey = extractAssetMapKey(relatedUrl.url);
       const thumbnailAsset: AssetLinks = {};
       thumbnailAsset[`thumbnail${entry}`] = {
         href: relatedUrl.url,
         title: `Thumbnail${display}`,
         description: relatedUrl.description,
-        [relatedUrlKey]: relatedUrl.url,
         roles: ["thumbnail"],
       };
       return { ...metadataAssets, ...thumbnailAsset };
