@@ -5,7 +5,7 @@ import { Links } from "../@types/StacCatalog";
 import { getCollections } from "../domains/collections";
 import { buildQuery, stringifyQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
-import { buildRootUrl, mergeMaybe, stacContext } from "../utils";
+import { mergeMaybe, stacContext } from "../utils";
 
 const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
   const { stacRoot, self, path } = stacContext(req);
@@ -38,7 +38,6 @@ const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
     },
   ];
 
-  const root = buildRootUrl(req);
   const originalQuery = mergeMaybe(req.query, req.body);
 
   if (nextCursor) {
@@ -46,7 +45,7 @@ const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
 
     links.push({
       rel: "next",
-      href: `${root}${req.path}?${stringifyQuery(nextResultsQuery)}`,
+      href: `${stacRoot}${req.path}?${stringifyQuery(nextResultsQuery)}`,
       type: "application/geo+json",
     });
   }
@@ -80,6 +79,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
   const links = collectionLinks(req, cursor);
 
   const collectionsResponse = {
+    description: `All collections provided by ${self.split("/").at(-2)}`,
     links,
     collections,
   };

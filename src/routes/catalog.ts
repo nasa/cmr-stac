@@ -26,7 +26,7 @@ const generateSelfLinks = (req: Request): Links => {
       title: `Root Catalog`,
     },
     {
-      rel: "data",
+      rel: "collections",
       href: `${path}/collections`,
       type: "application/json",
       title: "Provider Collections",
