@@ -108,7 +108,7 @@ const browseAssets = (concept: Collection | Granule) => {
         (browseType) => browseType === relatedUrl["type"] && relatedUrl.url.startsWith("http")
       )
     )
-    .reduce((metadataAssets, relatedUrl, idx, available) => {
+    .reduce((metadataAssets, relatedUrl) => {
       const browseAsset: AssetLinks = {};
       browseAsset[`browse`] = {
         href: relatedUrl.url,
