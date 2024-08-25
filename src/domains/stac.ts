@@ -101,22 +101,24 @@ const thumbnailAssets = (concept: Collection | Granule) => {
  * Return browse assets if present.
  */
 const browseAssets = (concept: Collection | Granule) => {
-    const browseTypes = [RelatedUrlType.GET_RELATED_VISUALIZATION];
-    return (concept.relatedUrls ?? [])
-      .filter((relatedUrl) =>
-        browseTypes.find((browseType) => (browseType === relatedUrl["type"] && relatedUrl.url.startsWith("http")))
+  const browseTypes = [RelatedUrlType.GET_RELATED_VISUALIZATION];
+  return (concept.relatedUrls ?? [])
+    .filter((relatedUrl) =>
+      browseTypes.find(
+        (browseType) => browseType === relatedUrl["type"] && relatedUrl.url.startsWith("http")
       )
-      .reduce((metadataAssets, relatedUrl, idx, available) => {
-        const browseAsset: AssetLinks = {};
-        browseAsset[`browse`] = {
-          href: relatedUrl.url,
-          title: `Download ${relatedUrl.url.split("/").at(-1)}`,
-          type: "image/jpeg",
-          roles: ["browse"],
-        };
-        return { ...metadataAssets, ...browseAsset };
-      }, {} as AssetLinks);
-  };
+    )
+    .reduce((metadataAssets, relatedUrl, idx, available) => {
+      const browseAsset: AssetLinks = {};
+      browseAsset[`browse`] = {
+        href: relatedUrl.url,
+        title: `Download ${relatedUrl.url.split("/").at(-1)}`,
+        type: "image/jpeg",
+        roles: ["browse"],
+      };
+      return { ...metadataAssets, ...browseAsset };
+    }, {} as AssetLinks);
+};
 
 /**
  * Reducer for s3 buckets.

@@ -78,7 +78,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       rel: "items",
       href: `${self}/${encodeURIComponent(collection.id)}/items`,
       type: "application/json",
-      });
+    });
   });
 
   const links = collectionLinks(req, cursor);
