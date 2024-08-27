@@ -98,6 +98,29 @@ const thumbnailAssets = (concept: Collection | Granule) => {
 };
 
 /**
+ * Return browse assets if present.
+ */
+export const browseAssets = (concept: Collection | Granule) => {
+  const browseTypes = [RelatedUrlType.GET_RELATED_VISUALIZATION];
+  return (concept.relatedUrls ?? [])
+    .filter((relatedUrl) =>
+      browseTypes.find(
+        (browseType) => browseType === relatedUrl["type"] && relatedUrl.url.startsWith("http")
+      )
+    )
+    .reduce((metadataAssets, relatedUrl) => {
+      const browseAsset: AssetLinks = {};
+      browseAsset[`browse`] = {
+        href: relatedUrl.url,
+        title: `Download ${relatedUrl.url.split("/").at(-1)}`,
+        type: "image/jpeg",
+        roles: ["browse"],
+      };
+      return { ...metadataAssets, ...browseAsset };
+    }, {} as AssetLinks);
+};
+
+/**
  * Reducer for s3 buckets.
  */
 const s3BucketToAsset = (assets: AssetLinks, s3Bucket: string) => {
@@ -144,7 +167,7 @@ const s3Assets = (concept: Collection | Granule) => {
   return s3Assets;
 };
 
-const defaultExtractors = [thumbnailAssets, downloadAssets, metadataAssets, s3Assets];
+const defaultExtractors = [browseAssets, thumbnailAssets, downloadAssets, metadataAssets, s3Assets];
 
 /**
  * Given a concept and a list of asset extractors return available assets.

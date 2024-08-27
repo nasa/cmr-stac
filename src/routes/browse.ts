@@ -74,6 +74,11 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
+    collection.links.push({
+      rel: "items",
+      href: `${self}/${encodeURIComponent(collection.id)}/items`,
+      type: "application/json",
+    });
   });
 
   const links = collectionLinks(req, cursor);
