@@ -43,7 +43,7 @@ Navigating to a provider yields a STAC Catalog, but one that has some additional
 | conformance | /{provider-id}/conformance | returns a list of conformance classes, identical to the list of classes in the `conformsTo` field |
 | service-desc | [STAC API desc](https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml) | CMR-STAC currently doesn't provide its own OpenAPI doc, it complies to the STAC API Spec published OpenAPI |
 | service-docs | [STAC API doc](https://api.stacspec.org/v1.0.0-beta.1/openapi.html) | Same as `service-desc` except this is an html render of the OpenAPI doc |
-| child | /{providerId}/{collectionId} | A single STAC Collection | 
+| child | /{providerId}/{collectionId} | A single STAC Collection, collectionId is the entryId of a collection, which is effectively the shortname_versionId of the collection | 
 | prev, next | /{providerId}?page=X | Pagination links if there are more than 10 collections within this provider |
 
 ## Catalog Structure
@@ -64,9 +64,9 @@ For example, if a user wanted to get all the collections under the ASF provider,
 
 https://cmr.earthdata.nasa.gov/stac/ASF/collections
 
-If the user wanted to query all items in the C1758588261-LARC_ASDC collection under the LARC_ASDC provider, the user would hit:
+If the user wanted to query all items in the ACEPOL_AircraftRemoteSensing_AirHARP_Data_1 collection under the LARC_ASDC provider, the user would hit:
 
-https://cmr.earthdata.nasa.gov/stac/LARC_ASDC/collections/C1758588261-LARC_ASDC/items
+https://cmr.earthdata.nasa.gov/stac/LARC_ASDC/collections/ACEPOL_AircraftRemoteSensing_AirHARP_Data_1/items
 
 Each Collection returned from CMR-STAC includes a series of links for navigation within the catalog ("hierarchical link")
 as well as other related links, summarized here:
@@ -124,7 +124,7 @@ If a user is trying to get all granules from the year 2001 in the collection C10
 
 GET:
 
-http://localhost:3000/cmr-stac/LARC_ASDC/search?collections=C1000000701-LARC_ASDC&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z
+http://localhost:3000/stac/LARC_ASDC/search?collections=GloSSAC_1.1&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z
 
 POST:
 
@@ -134,7 +134,7 @@ JSON Body:
 ```json
 {
     "datetime": "2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
-    "collections": "C1000000701-LARC_ASDC"
+    "collections": "GloSSAC_1.1"
 }
 ```
 
@@ -182,7 +182,7 @@ $ stac-client search --intersects aoi.json --datetime 2021-01/2021-05 | stacterm
 Search by a specific collection with the `-c` switch, or make queries against Item properties such as `eo:cloud_cover`
 
 ```
-$ stac-client search -c HLSS30.v1.5 --intersects aoi.json --datetime 2021-01/2021-05 | stacterm cal
+$ stac-client search -c HLSS30_1.5 --intersects aoi.json --datetime 2021-01/2021-05 | stacterm cal
 ```
 
 ![](./images/cmr-stac-cal2.png)
@@ -190,7 +190,7 @@ $ stac-client search -c HLSS30.v1.5 --intersects aoi.json --datetime 2021-01/202
 The `table` command of `stacterm` can be used to generate Markdown tables of specified fields:
 
 ```
-$ stac-client search -c HLSS30.v1.5 --intersects aoi.json --datetime 2021-01/2021-05 | stacterm table --fields collection date eo:cloud_cover
+$ stac-client search -c HLSS30_1.5 --intersects aoi.json --datetime 2021-01/2021-05 | stacterm table --fields collection date eo:cloud_cover
 ```
 
 ![](./images/cmr-stac-table.png)
@@ -199,5 +199,5 @@ The results of a search can also be saved as a GeoJSON FeatureCollection file, a
 to visualize where the found Items are located.
 
 ```
-$ stac-client search -c HLSS30.v1.5 --intersects aoi.json --datetime 2021-01/2021-05 --save myresults.json
+$ stac-client search -c HLSS30_1.5 --intersects aoi.json --datetime 2021-01/2021-05 --save myresults.json
 ```
