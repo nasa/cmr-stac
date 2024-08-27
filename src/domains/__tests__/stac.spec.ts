@@ -1,7 +1,8 @@
 import chai from "chai";
 const { expect } = chai;
 
-import { buildQuery, sortByToSortKeys, stringifyQuery } from "../stac";
+import { buildQuery, sortByToSortKeys, stringifyQuery, browseAssets } from "../stac";
+import { RelatedUrlType, UrlContentType } from "../../models/GraphQLModels";
 
 describe("buildQuery", () => {
   describe("given a intersects query", () => {
@@ -466,6 +467,48 @@ describe("stringifyQuery", () => {
           expect(decodeURIComponent(stringifyQuery(query))).to.equal(queryString);
         });
       });
+    });
+  });
+});
+
+describe("browseAssets", () => {
+  const granule = {
+    title: "test_title",
+    conceptId: "G123456789-TEST_PROV",
+    collection: null,
+    cloudCover: null,
+    lines: null,
+    boxes: null,
+    polygons: null,
+    points: null,
+    timeStart: "2009-09-14T00:00:00.000Z",
+    timeEnd: "2010-09-14T00:00:00.000Z",
+    relatedUrls: [
+      {
+        urlContentType: UrlContentType.VISUALIZATION_URL,
+        url: "https://data.lpdaac.uat.earthdatacloud.nasa.gov/lp-uat-public/HLSL30.020/HLS.L30.T54SVF.2020001T010928.v2.0/HLS.L30.T54SVF.2020001T010928.v2.0.jpg",
+        description: "Download HLS.L30.T54SVF.2020001T010928.v2.0.jpg",
+        type: RelatedUrlType.GET_RELATED_VISUALIZATION,
+      },
+      {
+        urlContentType: UrlContentType.VISUALIZATION_URL,
+        url: "s3://lp-uat-public/HLSL30.020/HLS.L30.T54SVF.2020001T010928.v2.0/HLS.L30.T54SVF.2020001T010928.v2.0.jpg",
+        description: "This link provides direct download access via S3 to the granule",
+        type: RelatedUrlType.GET_RELATED_VISUALIZATION,
+      },
+    ],
+  };
+  const browseAsset = {
+    browse: {
+      href: "https://data.lpdaac.uat.earthdatacloud.nasa.gov/lp-uat-public/HLSL30.020/HLS.L30.T54SVF.2020001T010928.v2.0/HLS.L30.T54SVF.2020001T010928.v2.0.jpg",
+      title: "Download HLS.L30.T54SVF.2020001T010928.v2.0.jpg",
+      type: "image/jpeg",
+      roles: ["browse"],
+    },
+  };
+  describe(`given granule=${JSON.stringify(granule)}`, () => {
+    it("should return the corresponding browseAsset", () => {
+      expect(browseAssets(granule)).to.deep.equal(browseAsset);
     });
   });
 });

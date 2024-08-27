@@ -100,7 +100,7 @@ const thumbnailAssets = (concept: Collection | Granule) => {
 /**
  * Return browse assets if present.
  */
-const browseAssets = (concept: Collection | Granule) => {
+export const browseAssets = (concept: Collection | Granule) => {
   const browseTypes = [RelatedUrlType.GET_RELATED_VISUALIZATION];
   return (concept.relatedUrls ?? [])
     .filter((relatedUrl) =>
