@@ -1,6 +1,5 @@
 import express from "express";
 
-
 import { collectionHandler, collectionsHandler } from "./browse";
 import { healthcheckHandler } from "./healthcheck";
 import { multiItemHandler, singleItemHandler } from "./items";
@@ -49,8 +48,18 @@ router
 
 router
   .route("/:providerId/collections")
-  .get(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(collectionsHandler))
-  .post(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(collectionsHandler));
+  .get(
+    refreshProviderCache,
+    validateProvider,
+    validateStacQuery,
+    wrapErrorHandler(collectionsHandler)
+  )
+  .post(
+    refreshProviderCache,
+    validateProvider,
+    validateStacQuery,
+    wrapErrorHandler(collectionsHandler)
+  );
 
 router.get(
   "/:providerId/collections/:collectionId",

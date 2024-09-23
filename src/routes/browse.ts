@@ -65,8 +65,8 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
   const { stacRoot, self } = stacContext(req);
 
   // Remove query parameters from the URL, keeping only the base path
-  const baseUrl = self.replace(/\?.*$/, '');
-  
+  const baseUrl = self.replace(/\?.*$/, "");
+
   collections.forEach((collection) => {
     collection.links.push({
       rel: "self",

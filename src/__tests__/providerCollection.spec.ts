@@ -36,8 +36,8 @@ afterEach(() => {
   sandbox.restore();
 });
 
-describe('GET /:provider/collections', () => { 
-  describe('given a valid provider', () => {
+describe("GET /:provider/collections", () => {
+  describe("given a valid provider", () => {
     it("returns status 200", async () => {
       sandbox
         .stub(Providers, "getProviders")
@@ -46,12 +46,12 @@ describe('GET /:provider/collections', () => {
       const { statusCode } = await request(app).get("/stac/TEST/collections");
 
       expect(statusCode).to.equal(200);
-    }) 
-   })
-  describe('bbox parameter', () => {
+    });
+  });
+  describe("bbox parameter", () => {
     it("should return list of collections within specified bounding box", async () => {
       const mockCollections = generateSTACCollections(3);
-      
+
       mockCollections[0].extent.spatial.bbox = [[-10, -10, 10, 10]];
       mockCollections[1].extent.spatial.bbox = [[-5, -5, 5, 5]];
       mockCollections[2].extent.spatial.bbox = [[20, 20, 30, 30]]; // This one should not be returned
@@ -60,21 +60,21 @@ describe('GET /:provider/collections', () => {
         .stub(Providers, "getProviders")
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
 
-        sandbox.stub(Collections, "getCollections").resolves({
-          count: 2,
-          cursor: null,
-          items: mockCollections.slice(0, 2)
-        });
+      sandbox.stub(Collections, "getCollections").resolves({
+        count: 2,
+        cursor: null,
+        items: mockCollections.slice(0, 2),
+      });
 
-        const { statusCode, body } = await request(app)
-          .get("/stac/TEST/collections")
-          .query({ bbox: "-15,-15,15,15" });
+      const { statusCode, body } = await request(app)
+        .get("/stac/TEST/collections")
+        .query({ bbox: "-15,-15,15,15" });
 
-        expect(statusCode).to.equal(200);
-        expect(body.collections).to.have.lengthOf(2);
-        expect(body.collections[0].id).to.equal(mockCollections[0].id);
-        expect(body.collections[1].id).to.equal(mockCollections[1].id);
-    })
+      expect(statusCode).to.equal(200);
+      expect(body.collections).to.have.lengthOf(2);
+      expect(body.collections[0].id).to.equal(mockCollections[0].id);
+      expect(body.collections[1].id).to.equal(mockCollections[1].id);
+    });
     it("should return 400 for invalid bbox format", async () => {
       sandbox
         .stub(Providers, "getProviders")
@@ -92,7 +92,7 @@ describe('GET /:provider/collections', () => {
         ],
       });
     });
-  })
+  });
 
   describe("datetime parameter", () => {
     it("should return collections within the specified datetime range", async () => {
@@ -101,10 +101,16 @@ describe('GET /:provider/collections', () => {
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
 
       const mockCollections = generateSTACCollections(3);
-      
-      mockCollections[0].extent.temporal.interval = [["2020-01-01T00:00:00Z", "2020-12-31T23:59:59Z"]];
-      mockCollections[1].extent.temporal.interval = [["2021-01-01T00:00:00Z", "2021-12-31T23:59:59Z"]];
-      mockCollections[2].extent.temporal.interval = [["2022-01-01T00:00:00Z", "2022-12-31T23:59:59Z"]];
+
+      mockCollections[0].extent.temporal.interval = [
+        ["2020-01-01T00:00:00Z", "2020-12-31T23:59:59Z"],
+      ];
+      mockCollections[1].extent.temporal.interval = [
+        ["2021-01-01T00:00:00Z", "2021-12-31T23:59:59Z"],
+      ];
+      mockCollections[2].extent.temporal.interval = [
+        ["2022-01-01T00:00:00Z", "2022-12-31T23:59:59Z"],
+      ];
 
       sandbox.stub(Collections, "getCollections").resolves({
         count: 2,
@@ -123,7 +129,6 @@ describe('GET /:provider/collections', () => {
     });
   });
 });
-
 
 describe("GET /:provider/collections/:collectionId", () => {
   describe("given an invalid provider", () => {
