@@ -47,13 +47,10 @@ router
   .get(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler))
   .post(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler));
 
-router.get(
-  "/:providerId/collections",
-  refreshProviderCache,
-  validateProvider,
-  validateStacQuery,
-  wrapErrorHandler(collectionsHandler)
-);
+router
+  .route("/:providerId/collections")
+  .get(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(collectionsHandler))
+  .post(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(collectionsHandler));
 
 router.get(
   "/:providerId/collections/:collectionId",
