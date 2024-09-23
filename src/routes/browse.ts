@@ -63,10 +63,14 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
   });
 
   const { stacRoot, self } = stacContext(req);
+
+  // Remove query parameters from the URL, keeping only the base path
+  const baseUrl = self.replace(/\?.*$/, '');
+  
   collections.forEach((collection) => {
     collection.links.push({
       rel: "self",
-      href: `${self}/${encodeURIComponent(collection.id)}`,
+      href: `${baseUrl}/${encodeURIComponent(collection.id)}`,
       type: "application/json",
     });
     collection.links.push({
@@ -76,7 +80,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
     });
     collection.links.push({
       rel: "items",
-      href: `${self}/${encodeURIComponent(collection.id)}/items`,
+      href: `${baseUrl}/${encodeURIComponent(collection.id)}/items`,
       type: "application/json",
     });
   });
