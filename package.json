@@ -6,7 +6,7 @@
   "license": "NASA-1.3",
   "scripts": {
     "test": "cross-env TS_NODE_FILES=true IS_LOCAL=true mocha",
-    "test:coverage": "cross-env TS_NODE_FILES=true IS_LOCAL=true nyc --reporter=html --reporter=text mocha",
+    "test:coverage": "cross-env TS_NODE_FILES=true IS_LOCAL=true nyc --reporter=html --reporter=json --reporter=text mocha",
     "test:watch": "cross-env TS_NODE_FILES=true IS_LOCAL=true mocha --watch",
     "dev": "cross-env SLS_DEBUG=* IS_LOCAL=true serverless offline start --reloadHandler --config serverless.dev.yml --stage dev",
     "deploy": "sls deploy",
