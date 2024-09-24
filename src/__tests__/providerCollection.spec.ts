@@ -130,6 +130,62 @@ describe("GET /:provider/collections", () => {
   });
 });
 
+describe("POST /:provider/collections", () => {
+  it("should return collections matching the POST body parameters", async () => {
+    const mockCollections = generateSTACCollections(2);
+
+    mockCollections[0].extent.spatial.bbox = [[-10, -10, 10, 10]];
+    mockCollections[0].extent.temporal.interval = [
+      ["2020-01-01T00:00:00Z", "2020-12-31T23:59:59Z"],
+    ];
+    mockCollections[1].extent.spatial.bbox = [[-5, -5, 5, 5]];
+    mockCollections[1].extent.temporal.interval = [
+      ["2021-01-01T00:00:00Z", "2021-12-31T23:59:59Z"],
+    ];
+
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+    sandbox.stub(Collections, "getCollections").resolves({
+      count: 2,
+      cursor: null,
+      items: mockCollections,
+    });
+
+    const { statusCode, body } = await request(app)
+      .post("/stac/TEST/collections")
+      .send({
+        bbox: [-15, -15, 15, 15],
+        datetime: "2020-01-01T00:00:00Z/2021-12-31T23:59:59Z",
+        limit: 10,
+      });
+
+    expect(statusCode).to.equal(200);
+    expect(body.collections).to.have.lengthOf(2);
+    expect(body.collections[0].id).to.equal(mockCollections[0].id);
+    expect(body.collections[1].id).to.equal(mockCollections[1].id);
+  });
+
+  it("should return 400 for invalid POST body", async () => {
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+    const { statusCode, body } = await request(app).post("/stac/TEST/collections").send({
+      bbox: "invalid bbox",
+    });
+
+    // Assertions
+    expect(statusCode).to.equal(400);
+    expect(body).to.have.property("errors");
+
+    expect(body.errors).to.include.members([
+      "BBOX must be in the form of 'bbox=swLon,swLat,neLon,neLat' with valid latitude and longitude.",
+    ]);
+  });
+});
+
 describe("GET /:provider/collections/:collectionId", () => {
   describe("given an invalid provider", () => {
     it("should return a 404", async () => {
