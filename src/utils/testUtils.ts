@@ -195,6 +195,20 @@ export const generateCollections = (
         useConstraints: null,
         directDistributionInformation: null,
         relatedUrls: [],
+        platforms: [
+          {
+            type: faker.random.words(),
+            shortName: faker.random.words(4),
+            longName: faker.random.words(4),
+            instruments: [
+              {
+                shortName: faker.random.words(4),
+                longName: faker.random.words(4),
+              },
+            ],
+          },
+        ],
+        scienceKeywords: Array.from({ length: 4 }, () => faker.lorem.word()),
       } as Collection;
     });
 };

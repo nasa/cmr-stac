@@ -128,4 +128,29 @@ describe("collectionsToStac", () => {
       expect(collectionToStac(base)).to.have.deep.property("assets", {});
     });
   });
+
+  describe("given a valid collection result", () => {
+    it("should return all fields correctly", () => {
+      const [mockCollection] = generateCollections(1);
+
+      const stacCollection = collectionToStac(mockCollection);
+
+      // Check if all expected fields are present and correctly populated
+      expect(stacCollection).to.have.property("type", "Collection");
+      expect(stacCollection).to.have.property("id");
+      expect(stacCollection).to.have.property("title", mockCollection.title);
+      expect(stacCollection).to.have.property("description", mockCollection.description);
+      expect(stacCollection).to.have.property("stac_version");
+      expect(stacCollection).to.have.property("license");
+      expect(stacCollection).to.have.property("extent");
+      expect(stacCollection.extent).to.have.property("spatial");
+      expect(stacCollection.extent).to.have.property("temporal");
+      expect(stacCollection).to.have.property("assets");
+      expect(stacCollection).to.have.property("links");
+      expect(stacCollection).to.have.property("keywords");
+      expect(stacCollection).to.have.property("summaries");
+      expect(stacCollection.summaries).to.have.property("platform");
+      expect(stacCollection.summaries).to.have.property("instruments");
+    });
+  });
 });
