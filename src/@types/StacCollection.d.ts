@@ -267,7 +267,8 @@ export type Link = {
   [k: string]: unknown;
 };
 export type Summaries = {
-  [k: string]: JSONSchema | Range | SetOfValues;
+  platform: string[];
+  instruments: string[];
 };
 export type CoreSchemaMetaSchema1 = {
   $id?: string;

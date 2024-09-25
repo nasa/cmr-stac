@@ -131,6 +131,18 @@ export type RelatedUrls = {
   };
 }[];
 
+export type Instrument = {
+  shortName: string;
+  longName: string;
+};
+
+export type Platform = {
+  type: string;
+  shortName: string;
+  longName: string;
+  instruments: Instrument[];
+};
+
 export type DirectDistributionInformation = {
   region: string;
   s3BucketAndObjectPrefixNames: string[];
@@ -159,6 +171,9 @@ export type Collection = CollectionBase & {
   useConstraints: UseConstraints | null;
   relatedUrls: RelatedUrls | null;
   directDistributionInformation: DirectDistributionInformation | null;
+
+  scienceKeywords: string[];
+  platforms: Platform[];
 };
 
 export type GranuleBase = {

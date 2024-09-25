@@ -1,7 +1,9 @@
 import { gql } from "graphql-request";
+
 import { IncomingHttpHeaders } from "http";
 
-import { Extents, STACCollection, Links } from "../@types/StacCollection";
+import { Extents, Keywords, Links, STACCollection, Summaries } from "../@types/StacCollection";
+
 import {
   Collection,
   CollectionBase,
@@ -9,8 +11,10 @@ import {
   GraphQLHandler,
   GraphQLResults,
 } from "../models/GraphQLModels";
+
 import { cmrSpatialToExtent } from "./bounding-box";
-import { extractAssets, paginateQuery, MAX_SIGNED_INTEGER } from "./stac";
+
+import { extractAssets, MAX_SIGNED_INTEGER, paginateQuery } from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -21,24 +25,23 @@ const collectionsQuery = gql`
       count
       cursor
       items {
-        conceptId
-        provider
-        shortName
-        title
-        description: abstract
-        version
-
-        polygons
-        points
-        lines
         boxes
-
-        timeStart
-        timeEnd
-
-        useConstraints
-        relatedUrls
+        conceptId
+        description: abstract
         directDistributionInformation
+        lines
+        points
+        polygons
+        platforms
+        provider
+        relatedUrls
+        scienceKeywords
+        shortName
+        timeEnd
+        timeStart
+        title
+        useConstraints
+        version
       }
     }
   }
@@ -51,8 +54,8 @@ const collectionIdsQuery = gql`
       cursor
       items {
         conceptId
-        title
         shortName
+        title
         version
       }
     }
@@ -128,6 +131,47 @@ const generateCollectionLinks = (collection: Collection, links: Links) => {
   ];
 };
 
+const createKeywords = (collection: Collection): Keywords => {
+  const { scienceKeywords } = collection;
+  const keywordsArr: string[] = [];
+
+  // Iterate though each scienceKeywords and add the
+  // value to keywordArr if it's not already present
+  scienceKeywords.forEach((keywords) => {
+    Object.values(keywords).forEach((value) => {
+      if (!keywordsArr.includes(value)) {
+        keywordsArr.push(value);
+      }
+    });
+  });
+
+  return keywordsArr;
+};
+
+const createSummaries = (collection: Collection): Summaries => {
+  const { platforms } = collection;
+
+  const platformArr: string[] = [];
+  const instrumentArr: string[] = [];
+
+  // Extract platform and instrument shortNames from the platforms array
+  platforms.forEach((platform) => {
+    const { shortName, instruments } = platform;
+
+    platformArr.push(shortName);
+
+    instruments.forEach((instrument) => {
+      const { shortName } = instrument;
+      instrumentArr.push(shortName);
+    });
+  });
+
+  return {
+    platform: platformArr,
+    instruments: instrumentArr,
+  };
+};
+
 const generateProviders = (collection: Collection) => [
   {
     name: collection.provider,
@@ -143,14 +187,17 @@ const generateProviders = (collection: Collection) => [
  * Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: Collection): STACCollection => {
-  const { title, description } = collection;
+  const { description, title } = collection;
 
-  const id = collectionToId(collection);
-  const extent = createExtent(collection);
-  const assets = extractAssets(collection);
   const { license, licenseLink } = extractLicense(collection);
+
+  const assets = extractAssets(collection);
+  const extent = createExtent(collection);
+  const id = collectionToId(collection);
+  const keywords = createKeywords(collection);
   const links = generateCollectionLinks(collection, [licenseLink]);
   const provider = generateProviders(collection);
+  const summaries = createSummaries(collection);
 
   return {
     type: "Collection",
@@ -163,7 +210,8 @@ export const collectionToStac = (collection: Collection): STACCollection => {
     provider,
     links,
     license,
-    // TODO: summaries
+    keywords,
+    summaries,
   } as STACCollection;
 };
 
