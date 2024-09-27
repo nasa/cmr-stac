@@ -143,6 +143,16 @@ export type Platform = {
   instruments: Instrument[];
 };
 
+export type ScienceKeywords = {
+  category: string;
+  topic: string;
+  term: string;
+  variableLevel1?: string;
+  variableLevel2?: string;
+  variableLevel3?: string;
+  detailedVariable?: string;
+};
+
 export type DirectDistributionInformation = {
   region: string;
   s3BucketAndObjectPrefixNames: string[];
@@ -172,7 +182,7 @@ export type Collection = CollectionBase & {
   relatedUrls: RelatedUrls | null;
   directDistributionInformation: DirectDistributionInformation | null;
 
-  scienceKeywords: string[];
+  scienceKeywords: ScienceKeywords[];
   platforms: Platform[];
 };
 

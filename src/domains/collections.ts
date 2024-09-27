@@ -133,43 +133,37 @@ const generateCollectionLinks = (collection: Collection, links: Links) => {
 
 const createKeywords = (collection: Collection): Keywords => {
   const { scienceKeywords } = collection;
-  const keywordsArr: string[] = [];
 
-  // Iterate though each scienceKeywords and add the
-  // value to keywordArr if it's not already present
-  scienceKeywords.forEach((keywords) => {
-    Object.values(keywords).forEach((value) => {
-      if (!keywordsArr.includes(value)) {
-        keywordsArr.push(value);
-      }
-    });
-  });
-
-  return keywordsArr;
+  return scienceKeywords.reduce((keywordsArr: string[], scienceKeyword) => {
+    return [
+      ...keywordsArr,
+      ...Object.values(scienceKeyword).filter((keyword) => !keywordsArr.includes(keyword)),
+    ];
+  }, []);
 };
 
 const createSummaries = (collection: Collection): Summaries => {
   const { platforms } = collection;
+  interface Summaries {
+    platform: string[];
+    instruments: string[];
+  }
 
-  const platformArr: string[] = [];
-  const instrumentArr: string[] = [];
+  return platforms.reduce<Summaries>(
+    (summaries, platform) => {
+      const { platform: currPlatforms, instruments: currInstruments } = summaries;
+      const { instruments, shortName } = platform;
 
-  // Extract platform and instrument shortNames from the platforms array
-  platforms.forEach((platform) => {
-    const { shortName, instruments } = platform;
-
-    platformArr.push(shortName);
-
-    instruments.forEach((instrument) => {
-      const { shortName } = instrument;
-      instrumentArr.push(shortName);
-    });
-  });
-
-  return {
-    platform: platformArr,
-    instruments: instrumentArr,
-  };
+      return {
+        platform: [...currPlatforms, shortName],
+        instruments: [
+          ...currInstruments,
+          ...instruments.map(({ shortName: instrumentShortName }) => instrumentShortName),
+        ],
+      };
+    },
+    { platform: [], instruments: [] }
+  );
 };
 
 const generateProviders = (collection: Collection) => [

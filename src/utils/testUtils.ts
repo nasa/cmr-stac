@@ -208,7 +208,14 @@ export const generateCollections = (
             ],
           },
         ],
-        scienceKeywords: Array.from({ length: 4 }, () => faker.lorem.word()),
+        scienceKeywords: [
+          {
+            category: "EARTH SCIENCE",
+            topic: "LAND SURFACE",
+            term: "TOPOGRAPHY",
+            variableLevel1: "TERRAIN ELEVATION",
+          },
+        ],
       } as Collection;
     });
 };
