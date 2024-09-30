@@ -21,6 +21,7 @@ export const conformance = [
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson",
   "https://api.stacspec.org/v1.0.0-rc.2/collection-search",
+  "https://api.stacspec.org/v1.0.0-rc.2/collection-search#free-text",
   "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/simple-query",
 ];
 

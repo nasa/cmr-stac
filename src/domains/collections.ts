@@ -247,6 +247,7 @@ export const getCollections = async (
     count,
     items: collections,
   } = await paginateQuery(collectionsQuery, params, opts, collectionHandler);
+
   return { cursor, count, items: collections as STACCollection[] };
 };
 
@@ -257,6 +258,7 @@ export const getCollections = async (
  */
 export const collectionToId = (collection: { shortName: string; version?: string | null }) => {
   const { shortName, version } = collection;
+
   return version ? `${shortName}_${version}` : shortName;
 };
 
@@ -298,6 +300,7 @@ export const getCollectionIds = async (
     count,
     items: collectionIds,
   } = await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
+  
   return { cursor, count, items: collectionIds as { id: string; title: string }[] };
 };
 
@@ -316,5 +319,6 @@ export const getAllCollectionIds = async (
   items: { id: string; title: string }[];
 }> => {
   params.limit = MAX_SIGNED_INTEGER;
+
   return await getCollectionIds(params, opts);
 };

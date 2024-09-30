@@ -128,6 +128,55 @@ describe("GET /:provider/collections", () => {
       expect(body.collections[1].id).to.equal(mockCollections[1].id);
     });
   });
+
+  describe('Free text parameter', () => {
+    describe('given a matching free text query', () => { 
+      it("should return collections matching the free text search", async () => {
+        const mockCollections = generateSTACCollections(3);
+        mockCollections[0].title = "Landsat 8 Collection";
+        mockCollections[1].title = "Sentinel-2 Collection";
+        mockCollections[2].title = "MODIS Collection";
+  
+        sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+  
+        sandbox.stub(Collections, "getCollections").resolves({
+          count: 1,
+          cursor: null,
+          items: [mockCollections[0]], // Only return the Landsat collection
+        });
+  
+        const { statusCode, body } = await request(app)
+        .get("/stac/TEST/collections")
+        .query({ q: "Landsat" });
+  
+        expect(statusCode).to.equal(200);
+        expect(body.collections).to.have.lengthOf(1);
+        expect(body.collections[0].title).to.equal("Landsat 8 Collection");
+      })
+     })
+    describe('given a free text query without matching collection', () => { 
+      it('should return an empty result for non-matching free text search', async() => {
+        sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        sandbox.stub(Collections, "getCollections").resolves({
+          count: 0,
+          cursor: null,
+          items: [],
+        });
+
+        const { statusCode, body } = await request(app)
+          .get("/stac/TEST/collections")
+          .query({ q: "NonExistentCollection" });
+
+        expect(statusCode).to.equal(200);
+        expect(body.collections).to.have.lengthOf(0);
+      })
+     })    
+   })
 });
 
 describe("POST /:provider/collections", () => {

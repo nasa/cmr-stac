@@ -20,6 +20,7 @@ export type StacQuery = {
   query?: {
     [key: string]: PropertyQuery;
   };
+  q?: string; //query for free text search
 };
 
 export type StacExtension = {
