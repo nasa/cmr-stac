@@ -300,7 +300,7 @@ export const getCollectionIds = async (
     count,
     items: collectionIds,
   } = await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
-  
+
   return { cursor, count, items: collectionIds as { id: string; title: string }[] };
 };
 

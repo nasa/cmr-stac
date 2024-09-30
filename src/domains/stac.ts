@@ -355,7 +355,7 @@ const idsQuery = (req: Request, query: StacQuery) => {
 
 const cursorQuery = (_req: Request, query: StacQuery) => ({ cursor: query.cursor });
 
-const freeTextQuery = (_req: Request, query: StacQuery) => ({ keyword: query.q })
+const freeTextQuery = (_req: Request, query: StacQuery) => ({ keyword: query.q });
 /**
  * Convert bbox STAC query term to GraphQL query term.
  */
