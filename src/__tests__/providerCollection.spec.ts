@@ -178,6 +178,33 @@ describe("GET /:provider/collections", () => {
       });
     });
 
+    describe("given a matching keyword phrase", () => {
+      it("should return collections matching the keyword phrase", async () => {
+        const mockCollections = generateSTACCollections(3);
+        mockCollections[0].title = "Landsat 8 Collection";
+        mockCollections[1].title = "Sentinel-2 Collection";
+        mockCollections[2].title = "MODIS Collection";
+
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        sandbox.stub(Collections, "getCollections").resolves({
+          count: 1,
+          cursor: null,
+          items: [mockCollections[0]], // Only return the Landsat collection
+        });
+
+        const { statusCode, body } = await request(app)
+          .get("/stac/TEST/collections")
+          .query({ q: '"Landsat 8 Collection"' });
+
+        expect(statusCode).to.equal(200);
+        expect(body.collections).to.have.lengthOf(1);
+        expect(body.collections[0].title).to.equal("Landsat 8 Collection");
+      });
+    });
+    
     describe("given a free text query with a keyword and keyword phrase", () => {
       it("should return 400 for invalid free text query", async () => {
         sandbox
