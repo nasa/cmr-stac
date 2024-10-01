@@ -66,6 +66,12 @@ describe("collectionsToStac", () => {
             roles: ["metadata"],
             title: "S3 credentials API endpoint documentation",
           },
+          metadata: {
+            href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
+            roles: ["metadata"],
+            title: "CMR XML metadata for C00000000-TEST_PROV",
+            type: "application/xml"
+          },
         });
       });
     });
@@ -107,25 +113,45 @@ describe("collectionsToStac", () => {
             roles: ["metadata"],
             title: "S3 credentials API endpoint documentation",
           },
+          metadata: {
+            href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
+            roles: ["metadata"],
+            title: "CMR XML metadata for C00000000-TEST_PROV",
+            type: "application/xml"
+          },
         });
       });
     });
   });
 
   describe("given a collection without direct distribution information", () => {
-    it("should return a STAC collection with empty assets", () => {
+    it("should return a STAC collection with only the xml metadata asset", () => {
       const [base] = generateCollections(1);
       const malformed: any = { ...base, directDistributionInformation: {} };
 
-      expect(collectionToStac(malformed as any)).to.have.deep.property("assets", {});
+      expect(collectionToStac(malformed as any)).to.have.deep.property("assets", {
+        metadata: {
+          href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
+          roles: ["metadata"],
+          title: "CMR XML metadata for C00000000-TEST_PROV",
+          type: "application/xml"
+        }
+      });
     });
   });
 
   describe("given a collection with null direct distribution information", () => {
-    it("should return a STAC collection with empty assets", () => {
+    it("should return a STAC collection with only the xml metadata asset", () => {
       const [base] = generateCollections(1);
       base.directDistributionInformation = null;
-      expect(collectionToStac(base)).to.have.deep.property("assets", {});
+      expect(collectionToStac(base)).to.have.deep.property("assets", {
+        metadata: {
+          href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
+          roles: ["metadata"],
+          title: "CMR XML metadata for C00000000-TEST_PROV",
+          type: "application/xml"
+        }
+      });
     });
   });
 

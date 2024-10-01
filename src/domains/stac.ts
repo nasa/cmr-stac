@@ -35,6 +35,8 @@ import { dateTimeToRange } from "../utils/datetime";
 import { AssetLinks } from "../@types/StacCollection";
 import { Collection, Granule, RelatedUrlType } from "../models/GraphQLModels";
 
+const CMR_ROOT = process.env.CMR_URL;
+
 /**
  * Return download assets if present.
  */
@@ -73,6 +75,20 @@ const metadataAssets = (concept: Collection | Granule) => {
       };
       return { ...metadataAssets, ...metadataAsset };
     }, {} as AssetLinks);
+};
+
+/**
+ * Return the xml metadata asset.
+ */
+const xmlMetadataAssets = (concept: Collection | Granule) => {
+  const xmlMetadataAsset: AssetLinks = {};
+  xmlMetadataAsset[`metadata`] = {
+    href: `${CMR_ROOT}/search/concepts/${concept.conceptId}.xml`,
+    title: `CMR XML metadata for ${concept.conceptId}`,
+    type: "application/xml",
+    roles: ["metadata"],
+  };
+  return { ...metadataAssets, ...xmlMetadataAsset } as AssetLinks;
 };
 
 /**
@@ -167,7 +183,7 @@ const s3Assets = (concept: Collection | Granule) => {
   return s3Assets;
 };
 
-const defaultExtractors = [browseAssets, thumbnailAssets, downloadAssets, metadataAssets, s3Assets];
+const defaultExtractors = [browseAssets, thumbnailAssets, downloadAssets, metadataAssets, s3Assets, xmlMetadataAssets];
 
 /**
  * Given a concept and a list of asset extractors return available assets.
