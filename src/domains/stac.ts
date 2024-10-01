@@ -183,7 +183,14 @@ const s3Assets = (concept: Collection | Granule) => {
   return s3Assets;
 };
 
-const defaultExtractors = [browseAssets, thumbnailAssets, downloadAssets, metadataAssets, s3Assets, xmlMetadataAssets];
+const defaultExtractors = [
+  browseAssets,
+  thumbnailAssets,
+  downloadAssets,
+  metadataAssets,
+  s3Assets,
+  xmlMetadataAssets,
+];
 
 /**
  * Given a concept and a list of asset extractors return available assets.

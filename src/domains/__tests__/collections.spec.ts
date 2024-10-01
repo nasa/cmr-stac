@@ -70,7 +70,7 @@ describe("collectionsToStac", () => {
             href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
             roles: ["metadata"],
             title: "CMR XML metadata for C00000000-TEST_PROV",
-            type: "application/xml"
+            type: "application/xml",
           },
         });
       });
@@ -117,7 +117,7 @@ describe("collectionsToStac", () => {
             href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
             roles: ["metadata"],
             title: "CMR XML metadata for C00000000-TEST_PROV",
-            type: "application/xml"
+            type: "application/xml",
           },
         });
       });
@@ -134,8 +134,8 @@ describe("collectionsToStac", () => {
           href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
           roles: ["metadata"],
           title: "CMR XML metadata for C00000000-TEST_PROV",
-          type: "application/xml"
-        }
+          type: "application/xml",
+        },
       });
     });
   });
@@ -149,8 +149,8 @@ describe("collectionsToStac", () => {
           href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
           roles: ["metadata"],
           title: "CMR XML metadata for C00000000-TEST_PROV",
-          type: "application/xml"
-        }
+          type: "application/xml",
+        },
       });
     });
   });

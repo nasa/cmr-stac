@@ -91,7 +91,7 @@ describe("granuleToStac", () => {
             href: "undefined/search/concepts/G000000000-TEST_PROV.xml",
             roles: ["metadata"],
             title: "CMR XML metadata for G000000000-TEST_PROV",
-            type: "application/xml"
+            type: "application/xml",
           },
         },
       });
@@ -179,7 +179,7 @@ describe("granuleToStac", () => {
             href: "undefined/search/concepts/G000000000-TEST_PROV.xml",
             roles: ["metadata"],
             title: "CMR XML metadata for G000000000-TEST_PROV",
-            type: "application/xml"
+            type: "application/xml",
           },
         },
       });
@@ -262,7 +262,7 @@ describe("granuleToStac", () => {
             href: "undefined/search/concepts/G000000000-TEST_PROV.xml",
             roles: ["metadata"],
             title: "CMR XML metadata for G000000000-TEST_PROV",
-            type: "application/xml"
+            type: "application/xml",
           },
         },
       });
