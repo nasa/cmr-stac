@@ -210,8 +210,24 @@ const validBbox = (bbox: string | number[]) => {
   );
 };
 
+const validFreeText = (freeText: string) => {
+  // Check if it's a single keyword or multiple keywords separated by spaces
+  // This allows for queries like "alpha beta" or "alpha%20beta"
+  if (/^[^\s"]+(\s+[^\s"]+)*$/.test(freeText)) {
+    return true;
+  }
+
+  // Check if it's a properly formatted phrase (enclosed in quotes)
+  if (/^"[^""]+"$/.test(freeText)) {
+    return true;
+  }
+
+  // If it doesn't match either pattern, it's invalid
+  return false;
+};
+
 const validateQueryTerms = (query: StacQuery) => {
-  const { bbox, intersects, datetime, limit: strLimit } = query;
+  const { bbox, intersects, datetime, limit: strLimit, q: freeText } = query;
 
   const limit = Number.isNaN(Number(strLimit)) ? null : Number(strLimit);
 
@@ -236,6 +252,12 @@ const validateQueryTerms = (query: StacQuery) => {
   if (datetime && !validDateTime(datetime)) {
     return new InvalidParameterError(
       "Query param datetime does not match a valid date format. Please use RFC3339 or ISO8601 formatted datetime strings."
+    );
+  }
+
+  if (freeText && !validFreeText(freeText)) {
+    return new InvalidParameterError(
+      "Search query must be either a single keyword or a single phrase enclosed in double quotes."
     );
   }
 };

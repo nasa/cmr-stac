@@ -156,6 +156,7 @@ describe("GET /:provider/collections", () => {
         expect(body.collections[0].title).to.equal("Landsat 8 Collection");
       });
     });
+
     describe("given a free text query without matching collection", () => {
       it("should return an empty result for non-matching free text search", async () => {
         sandbox
@@ -174,6 +175,60 @@ describe("GET /:provider/collections", () => {
 
         expect(statusCode).to.equal(200);
         expect(body.collections).to.have.lengthOf(0);
+      });
+    });
+
+    describe("given a free text query with a keyword and keyword phrase", () => {
+      it("should return 400 for invalid free text query", async () => {
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        const { statusCode, body } = await request(app)
+          .get("/stac/TEST/collections")
+          .query({ q: '"Earth Science" Climate' });
+
+        expect(statusCode).to.equal(400);
+        expect(body).to.have.property("errors");
+        expect(body.errors).to.include(
+          "Search query must be either a single keyword or a single phrase enclosed in double quotes."
+        );
+      });
+    });
+
+    describe("given a free text query with unmatched quotes", () => {
+      it("should return 400 for invalid free text query", async () => {
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        const { statusCode, body } = await request(app)
+          .get("/stac/TEST/collections")
+          .query({ q: '"Earth Science' });
+
+        expect(statusCode).to.equal(400);
+        expect(body).to.have.property("errors");
+        expect(body.errors).to.include(
+          "Search query must be either a single keyword or a single phrase enclosed in double quotes."
+        );
+      });
+    });
+
+    describe("given a free text query with multiple ", () => {
+      it("should return 400 for invalid free text query", async () => {
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        const { statusCode, body } = await request(app)
+          .get("/stac/TEST/collections")
+          .query({ q: '"Earth Science" "Climate Change"' });
+
+        expect(statusCode).to.equal(400);
+        expect(body).to.have.property("errors");
+        expect(body.errors).to.include(
+          "Search query must be either a single keyword or a single phrase enclosed in double quotes."
+        );
       });
     });
   });
