@@ -204,7 +204,7 @@ describe("GET /:provider/collections", () => {
         expect(body.collections[0].title).to.equal("Landsat 8 Collection");
       });
     });
-    
+
     describe("given a free text query with a keyword and keyword phrase", () => {
       it("should return 400 for invalid free text query", async () => {
         sandbox
