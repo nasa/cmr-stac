@@ -241,7 +241,7 @@ describe("GET /:provider/collections", () => {
       });
     });
 
-    describe("given a free text query with multiple ", () => {
+    describe("given a free text query with multiple keyword phrases", () => {
       it("should return 400 for invalid free text query", async () => {
         sandbox
           .stub(Providers, "getProviders")
