@@ -87,6 +87,12 @@ describe("granuleToStac", () => {
             description: "Browse image for Earthdata Search",
             roles: ["thumbnail"],
           },
+          metadata: {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.xml",
+            roles: ["metadata"],
+            title: "CMR XML metadata for G000000000-TEST_PROV",
+            type: "application/xml",
+          },
         },
       });
     });
@@ -169,6 +175,12 @@ describe("granuleToStac", () => {
             description: "Browse image for Earthdata Search",
             roles: ["thumbnail"],
           },
+          metadata: {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.xml",
+            roles: ["metadata"],
+            title: "CMR XML metadata for G000000000-TEST_PROV",
+            type: "application/xml",
+          },
         },
       });
     });
@@ -245,6 +257,12 @@ describe("granuleToStac", () => {
             title: "Thumbnail [1]",
             description: "Browse image for Earthdata Search",
             roles: ["thumbnail"],
+          },
+          metadata: {
+            href: "undefined/search/concepts/G000000000-TEST_PROV.xml",
+            roles: ["metadata"],
+            title: "CMR XML metadata for G000000000-TEST_PROV",
+            type: "application/xml",
           },
         },
       });
