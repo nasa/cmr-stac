@@ -38,12 +38,13 @@ export type GranulesInput = GraphQLInput & {
 
 export type CollectionsInput = GraphQLInput & {
   // filtering
-  providers?: string[];
+  cloudHosted?: boolean;
   conceptIds?: string[];
   entryId?: string[];
-  cloudHosted?: boolean;
   hasGranules?: boolean;
   includeFacets?: string;
+  keyword?: string;
+  providers?: string[];
 };
 
 export type FacetFilter = {
