@@ -378,6 +378,7 @@ const idsQuery = (req: Request, query: StacQuery) => {
 
 const cursorQuery = (_req: Request, query: StacQuery) => ({ cursor: query.cursor });
 
+const freeTextQuery = (_req: Request, query: StacQuery) => ({ keyword: query.q });
 /**
  * Convert bbox STAC query term to GraphQL query term.
  */
@@ -478,15 +479,16 @@ export const buildQuery = async (req: Request) => {
   const query = mergeMaybe(req.query, req.body);
 
   const queryBuilders = [
-    idsQuery,
-    collectionsQuery,
     bboxQuery,
-    intersectsQuery,
     cloudCoverQuery,
-    limitQuery,
-    temporalQuery,
-    sortKeyQuery,
+    collectionsQuery,
     cursorQuery,
+    freeTextQuery,
+    idsQuery,
+    intersectsQuery,
+    limitQuery,
+    sortKeyQuery,
+    temporalQuery,
   ];
 
   return await queryBuilders.reduce(
