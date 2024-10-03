@@ -138,6 +138,44 @@ JSON Body:
 }
 ```
 
+## Searching Collections
+Similar to searching for Items, CMR-STAC provides endpoints to search for Collections. Both GET and POST requests are supported for collection searches.
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| bbox      | [number] | Requested bounding box. Represented using 2D geometries. The length of the array must be 4: [west, south, east, north]. |
+| datetime  | string | Single date+time, or a range ('/' separator), formatted to RFC 3339, section 5.6. Use double dots .. for open date ranges. |
+| keyword   | string | Free text search through collection metadata. |
+| sortby    | string or [object] | Sort the results by one or more fields. For GET requests, use a comma-separated list of field names, optionally preceded by a '-' for descending order. For POST requests, use an array of objects with 'field' and 'direction' properties. Fields supported for sort are `startDate`, `endDate`, `id` and `title`|
+
+**Examples**
+
+GET:
+
+
+https://localhost:3000/stac/LARC_ASDC/collections?bbox=-180,-90,180,90&datetime=2000-01-01T00:00:00Z/2022-01-01T00:00:00Z&keyword=atmosphere
+
+**To sort the results:**
+https://localhost:3000/stac/LARC_ASDC/collections?keyword=climate&sortby=-id,title
+
+This will sort the results first by id in descending order, then by title in ascending order.
+
+POST:
+`https://localhost:3000/stac/LARC_ASDC/collections`
+
+JSON Body:
+```json
+{
+    "bbox": [-180, -90, 180, 90],
+    "datetime": "2000-01-01T00:00:00Z/2022-01-01T00:00:00Z",
+    "keyword": "atmosphere",
+    "sortby": [
+        {"field": "id", "direction": "desc"},
+        {"field": "title", "direction": "asc"}
+    ]
+} 
+```
+
 ## Searching via CLI
 
 The Python library [pystac-client] provides a Command Line Interface (CLI) to search any STAC API.
