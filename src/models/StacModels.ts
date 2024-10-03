@@ -8,9 +8,14 @@ export type PropertyQuery = {
   // TODO: Add full support for STAC property query extension, see CMR-9010
 };
 
+export type SortObject = {
+  field: string;
+  direction: "asc" | "desc";
+};
+
 export type StacQuery = {
   cursor?: string;
-  sortBy?: string | string[];
+  sortby?: string | SortObject[];
   limit?: string;
   bbox?: string;
   datetime?: string;

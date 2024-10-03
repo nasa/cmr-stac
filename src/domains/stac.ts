@@ -20,7 +20,7 @@ import {
   GraphQLHandler,
   GraphQLResults,
 } from "../models/GraphQLModels";
-import { StacQuery } from "../models/StacModels";
+import { SortObject, StacQuery } from "../models/StacModels";
 import { getAllCollectionIds } from "./collections";
 import {
   flattenTree,
@@ -34,6 +34,7 @@ import { dateTimeToRange } from "../utils/datetime";
 
 import { AssetLinks } from "../@types/StacCollection";
 import { Collection, Granule, RelatedUrlType } from "../models/GraphQLModels";
+import { parseSortFields } from "../utils/sort";
 
 const CMR_ROOT = process.env.CMR_URL;
 
@@ -340,23 +341,36 @@ const bboxQuery = (_req: Request, query: StacQuery) => ({
 /**
  * Returns a list of sortKeys from the sortBy property
  */
-export const sortByToSortKeys = (sortBys?: string | string[]): string[] => {
+export const sortByToSortKeys = (sortBys?: string | SortObject[]): string[] => {
   if (!sortBys) return [];
 
-  const baseSortKeys = Array.isArray(sortBys) ? [...sortBys] : [sortBys];
+  const baseSortKeys: string[] = parseSortFields(sortBys);
 
   return baseSortKeys.reduce((sortKeys, sortBy) => {
     if (!sortBy || sortBy.trim() === "") return sortKeys;
-    if (sortBy.match(/(properties\.)?eo:cloud_cover$/gi)) {
-      return [...sortKeys, sortBy.startsWith("-") ? "-cloudCover" : "cloudCover"];
+
+    const isDescending = sortBy.startsWith("-");
+    const cleanSortBy = isDescending ? sortBy.slice(1) : sortBy;
+    const fieldName = cleanSortBy.replace(/^properties\./, "");
+
+    let mappedField;
+
+    if (fieldName.match(/^eo:cloud_cover$/i)) {
+      mappedField = "cloudCover";
+    } else if (fieldName.match(/^id$/i)) {
+      mappedField = "shortName";
+    } else if (fieldName.match(/^title$/i)) {
+      mappedField = "entryTitle";
+    } else {
+      mappedField = fieldName;
     }
 
-    return [...sortKeys, sortBy];
+    return [...sortKeys, isDescending ? `-${mappedField}` : mappedField];
   }, [] as string[]);
 };
 
 const sortKeyQuery = (_req: Request, query: StacQuery) => ({
-  sortKey: sortByToSortKeys(query.sortBy),
+  sortKey: sortByToSortKeys(query.sortby),
 });
 
 const idsQuery = (req: Request, query: StacQuery) => {
@@ -562,7 +576,6 @@ export const paginateQuery = async (
   try {
     console.info(timingMessage);
     const response = await request(GRAPHQL_URL, gqlQuery, variables, requestHeaders);
-
     // use the passed in results handler
     const [errors, data] = handler(response);
 
