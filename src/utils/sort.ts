@@ -20,16 +20,20 @@ import { SortObject } from "../models/StacModels";
  * @returns An array of strings, each representing a sort field. 
  *          Fields for descending sort are prefixed with '-'.
  */
-export const parseSortFields = (sortBys?: string | SortObject[]): string[] => {
-  if (!sortBys) return [];
+export const parseSortFields = (sortBys?: string | string[] | SortObject[]): string[] => {
+  if (Array.isArray(sortBys)) {
+    if (sortBys.length === 0) return [];
 
-  if (Array.isArray(sortBys) && typeof sortBys[0] === "object") {
-    // Handle object-based sorting (POST)
-    return (sortBys as SortObject[]).map(
-      (sort) => `${sort.direction === "desc" ? "-" : ""}${sort.field}`
-    );
-  }
-  if (typeof sortBys === "string") {
+    if (typeof sortBys[0] === "object") {
+      // Handle object-based sorting (POST)
+      return (sortBys as SortObject[]).map(
+        (sort) => `${sort.direction === "desc" ? "-" : ""}${sort.field}`
+      );
+    } else {
+      // Handle array of strings
+      return sortBys.map((item) => (typeof item === "string" ? item.trim() : ""));
+    }
+  } else if (typeof sortBys === "string") {
     // Handle string-based sorting (GET)
     return sortBys.split(",").map((key) => key.trim());
   }

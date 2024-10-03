@@ -341,9 +341,7 @@ const bboxQuery = (_req: Request, query: StacQuery) => ({
 /**
  * Returns a list of sortKeys from the sortBy property
  */
-export const sortByToSortKeys = (sortBys?: string | SortObject[]): string[] => {
-  if (!sortBys) return [];
-
+export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[]): string[] => {
   const baseSortKeys: string[] = parseSortFields(sortBys);
 
   return baseSortKeys.reduce((sortKeys, sortBy) => {

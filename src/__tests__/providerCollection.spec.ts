@@ -259,6 +259,47 @@ describe("GET /:provider/collections", () => {
       });
     });
   });
+
+  describe("sortby parameter", () => {
+    describe("given a valid sortby field", () => {
+      it("should return sorted result", async () => {
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        const mockCollections = generateSTACCollections(2);
+        sandbox.stub(Collections, "getCollections").resolves({
+          count: 2,
+          cursor: null,
+          items: mockCollections,
+        });
+
+        const { statusCode } = await request(app)
+          .get("/stac/TEST/collections")
+          .query({ sortby: "-endDate" });
+
+        expect(statusCode).to.equal(200);
+      });
+    });
+
+    describe("given a invalid sortby field", () => {
+      it("should return an Invalid sort field(s) error", async () => {
+        sandbox
+          .stub(Providers, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        const { statusCode, body } = await request(app)
+          .get("/stac/TEST/collections")
+          .query({ sortby: "invalid_field" });
+
+        expect(statusCode).to.equal(400);
+        expect(body).to.have.property("errors");
+        expect(body.errors[0]).to.include(
+          "Invalid sort field(s). Valid fields are: startDate, endDate, id, title, eo:cloud_cover"
+        );
+      });
+    });
+  });
 });
 
 describe("POST /:provider/collections", () => {

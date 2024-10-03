@@ -229,7 +229,7 @@ const validFreeText = (freeText: string) => {
 
 const VALID_SORT_FIELDS = ["startDate", "endDate", "id", "title", "eo:cloud_cover"];
 
-const validSortBy = (sortBy: string | SortObject[]) => {
+const validSortBy = (sortBy: string | string[] | SortObject[]) => {
   const fields: string[] = parseSortFields(sortBy);
 
   return fields.every((value) => {
