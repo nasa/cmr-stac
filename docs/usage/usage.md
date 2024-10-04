@@ -145,7 +145,7 @@ Similar to searching for Items, CMR-STAC provides endpoints to search for Collec
 | --------- | ---- | ----------- |
 | bbox      | [number] | Requested bounding box. Represented using 2D geometries. The length of the array must be 4: [west, south, east, north]. |
 | datetime  | string | Single date+time, or a range ('/' separator), formatted to RFC 3339, section 5.6. Use double dots .. for open date ranges. |
-| keyword   | string | Free text search through collection metadata. |
+| q   | string | Free text search through collection metadata. |
 | sortby    | string or [object] | Sort the results by one or more fields. For GET requests, use a comma-separated list of field names, optionally preceded by a '-' for descending order. For POST requests, use an array of objects with 'field' and 'direction' properties. Fields supported for sort are `startDate`, `endDate`, `id` and `title`|
 
 **Examples**
