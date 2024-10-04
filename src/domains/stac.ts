@@ -368,6 +368,7 @@ export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[]): st
 };
 
 const sortKeyQuery = (_req: Request, query: StacQuery) => ({
+  // Use the sortByToSortKeys function to convert STAC sortby to CMR sortKey
   sortKey: sortByToSortKeys(query.sortby),
 });
 
