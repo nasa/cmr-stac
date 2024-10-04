@@ -235,7 +235,7 @@ const validSortBy = (sortBy: string | string[] | SortObject[]) => {
   return fields.every((value) => {
     const isDescending = value.startsWith("-");
     const cleanSortBy = isDescending ? value.slice(1) : value;
-     // Allow for `properties` prefix
+    // Allow for `properties` prefix
     const fieldName = cleanSortBy.replace(/^properties\./, "");
 
     return VALID_SORT_FIELDS.includes(fieldName);

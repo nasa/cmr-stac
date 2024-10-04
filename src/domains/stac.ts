@@ -349,7 +349,7 @@ export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[]): st
 
     const isDescending = sortBy.startsWith("-");
     const cleanSortBy = isDescending ? sortBy.slice(1) : sortBy;
-     // Allow for `properties` prefix
+    // Allow for `properties` prefix
     const fieldName = cleanSortBy.replace(/^properties\./, "");
 
     let mappedField;
