@@ -3,6 +3,7 @@ const { expect } = chai;
 
 import { buildQuery, sortByToSortKeys, stringifyQuery, browseAssets } from "../stac";
 import { RelatedUrlType, UrlContentType } from "../../models/GraphQLModels";
+import { SortObject } from "../../models/StacModels";
 
 describe("buildQuery", () => {
   describe("given a intersects query", () => {
@@ -412,6 +413,12 @@ describe("sortByToSortKeys", () => {
   [
     { input: "properties.eo:cloud_cover", output: ["cloudCover"] },
     { input: "-properties.eo:cloud_cover", output: ["-cloudCover"] },
+    { input: "id", output: ["shortName"] },
+    { input: "-id", output: ["-shortName"] },
+    { input: "title", output: ["entryTitle"] },
+    { input: "-title", output: ["-entryTitle"] },
+    { input: "someOtherField", output: ["someOtherField"] },
+    { input: "-someOtherField", output: ["-someOtherField"] },
     {
       input: ["properties.eo:cloud_cover", "conceptId"],
       output: ["cloudCover", "conceptId"],
@@ -421,9 +428,18 @@ describe("sortByToSortKeys", () => {
       output: ["-cloudCover", "conceptId"],
     },
   ].forEach(({ input, output }) => {
-    describe(`given sortBy=${input}`, () => {
+    describe(`given sortby=${input}`, () => {
       it("should return the corresponding sortKey", () => {
         expect(sortByToSortKeys(input)).to.deep.equal(output);
+      });
+
+      it("should handle object-based sort specifications", () => {
+        const input: SortObject[] = [
+          { field: "properties.eo:cloud_cover", direction: "desc" },
+          { field: "id", direction: "asc" },
+          { field: "title", direction: "desc" },
+        ];
+        expect(sortByToSortKeys(input)).to.deep.equal(["-cloudCover", "shortName", "-entryTitle"]);
       });
     });
   });

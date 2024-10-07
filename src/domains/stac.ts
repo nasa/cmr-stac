@@ -20,7 +20,7 @@ import {
   GraphQLHandler,
   GraphQLResults,
 } from "../models/GraphQLModels";
-import { StacQuery } from "../models/StacModels";
+import { SortObject, StacQuery } from "../models/StacModels";
 import { getAllCollectionIds } from "./collections";
 import {
   flattenTree,
@@ -34,6 +34,9 @@ import { dateTimeToRange } from "../utils/datetime";
 
 import { AssetLinks } from "../@types/StacCollection";
 import { Collection, Granule, RelatedUrlType } from "../models/GraphQLModels";
+import { parseSortFields } from "../utils/sort";
+
+const CMR_ROOT = process.env.CMR_URL;
 
 /**
  * Return download assets if present.
@@ -73,6 +76,20 @@ const metadataAssets = (concept: Collection | Granule) => {
       };
       return { ...metadataAssets, ...metadataAsset };
     }, {} as AssetLinks);
+};
+
+/**
+ * Return the xml metadata asset.
+ */
+const xmlMetadataAssets = (concept: Collection | Granule) => {
+  const xmlMetadataAsset: AssetLinks = {};
+  xmlMetadataAsset[`metadata`] = {
+    href: `${CMR_ROOT}/search/concepts/${concept.conceptId}.xml`,
+    title: `CMR XML metadata for ${concept.conceptId}`,
+    type: "application/xml",
+    roles: ["metadata"],
+  };
+  return { ...metadataAssets, ...xmlMetadataAsset } as AssetLinks;
 };
 
 /**
@@ -167,7 +184,14 @@ const s3Assets = (concept: Collection | Granule) => {
   return s3Assets;
 };
 
-const defaultExtractors = [browseAssets, thumbnailAssets, downloadAssets, metadataAssets, s3Assets];
+const defaultExtractors = [
+  browseAssets,
+  thumbnailAssets,
+  downloadAssets,
+  metadataAssets,
+  s3Assets,
+  xmlMetadataAssets,
+];
 
 /**
  * Given a concept and a list of asset extractors return available assets.
@@ -317,23 +341,36 @@ const bboxQuery = (_req: Request, query: StacQuery) => ({
 /**
  * Returns a list of sortKeys from the sortBy property
  */
-export const sortByToSortKeys = (sortBys?: string | string[]): string[] => {
-  if (!sortBys) return [];
-
-  const baseSortKeys = Array.isArray(sortBys) ? [...sortBys] : [sortBys];
+export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[]): string[] => {
+  const baseSortKeys: string[] = parseSortFields(sortBys);
 
   return baseSortKeys.reduce((sortKeys, sortBy) => {
     if (!sortBy || sortBy.trim() === "") return sortKeys;
-    if (sortBy.match(/(properties\.)?eo:cloud_cover$/gi)) {
-      return [...sortKeys, sortBy.startsWith("-") ? "-cloudCover" : "cloudCover"];
+
+    const isDescending = sortBy.startsWith("-");
+    const cleanSortBy = isDescending ? sortBy.slice(1) : sortBy;
+    // Allow for `properties` prefix
+    const fieldName = cleanSortBy.replace(/^properties\./, "");
+
+    let mappedField;
+
+    if (fieldName.match(/^eo:cloud_cover$/i)) {
+      mappedField = "cloudCover";
+    } else if (fieldName.match(/^id$/i)) {
+      mappedField = "shortName";
+    } else if (fieldName.match(/^title$/i)) {
+      mappedField = "entryTitle";
+    } else {
+      mappedField = fieldName;
     }
 
-    return [...sortKeys, sortBy];
+    return [...sortKeys, isDescending ? `-${mappedField}` : mappedField];
   }, [] as string[]);
 };
 
 const sortKeyQuery = (_req: Request, query: StacQuery) => ({
-  sortKey: sortByToSortKeys(query.sortBy),
+  // Use the sortByToSortKeys function to convert STAC sortby to CMR sortKey
+  sortKey: sortByToSortKeys(query.sortby),
 });
 
 const idsQuery = (req: Request, query: StacQuery) => {
@@ -355,6 +392,7 @@ const idsQuery = (req: Request, query: StacQuery) => {
 
 const cursorQuery = (_req: Request, query: StacQuery) => ({ cursor: query.cursor });
 
+const freeTextQuery = (_req: Request, query: StacQuery) => ({ keyword: query.q });
 /**
  * Convert bbox STAC query term to GraphQL query term.
  */
@@ -455,15 +493,16 @@ export const buildQuery = async (req: Request) => {
   const query = mergeMaybe(req.query, req.body);
 
   const queryBuilders = [
-    idsQuery,
-    collectionsQuery,
     bboxQuery,
-    intersectsQuery,
     cloudCoverQuery,
-    limitQuery,
-    temporalQuery,
-    sortKeyQuery,
+    collectionsQuery,
     cursorQuery,
+    freeTextQuery,
+    idsQuery,
+    intersectsQuery,
+    limitQuery,
+    sortKeyQuery,
+    temporalQuery,
   ];
 
   return await queryBuilders.reduce(
@@ -537,7 +576,6 @@ export const paginateQuery = async (
   try {
     console.info(timingMessage);
     const response = await request(GRAPHQL_URL, gqlQuery, variables, requestHeaders);
-
     // use the passed in results handler
     const [errors, data] = handler(response);
 

@@ -66,6 +66,12 @@ describe("collectionsToStac", () => {
             roles: ["metadata"],
             title: "S3 credentials API endpoint documentation",
           },
+          metadata: {
+            href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
+            roles: ["metadata"],
+            title: "CMR XML metadata for C00000000-TEST_PROV",
+            type: "application/xml",
+          },
         });
       });
     });
@@ -107,25 +113,95 @@ describe("collectionsToStac", () => {
             roles: ["metadata"],
             title: "S3 credentials API endpoint documentation",
           },
+          metadata: {
+            href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
+            roles: ["metadata"],
+            title: "CMR XML metadata for C00000000-TEST_PROV",
+            type: "application/xml",
+          },
         });
       });
     });
   });
 
   describe("given a collection without direct distribution information", () => {
-    it("should return a STAC collection with empty assets", () => {
+    it("should return a STAC collection with only the xml metadata asset", () => {
       const [base] = generateCollections(1);
       const malformed: any = { ...base, directDistributionInformation: {} };
 
-      expect(collectionToStac(malformed as any)).to.have.deep.property("assets", {});
+      expect(collectionToStac(malformed as any)).to.have.deep.property("assets", {
+        metadata: {
+          href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
+          roles: ["metadata"],
+          title: "CMR XML metadata for C00000000-TEST_PROV",
+          type: "application/xml",
+        },
+      });
     });
   });
 
   describe("given a collection with null direct distribution information", () => {
-    it("should return a STAC collection with empty assets", () => {
+    it("should return a STAC collection with only the xml metadata asset", () => {
       const [base] = generateCollections(1);
       base.directDistributionInformation = null;
-      expect(collectionToStac(base)).to.have.deep.property("assets", {});
+      expect(collectionToStac(base)).to.have.deep.property("assets", {
+        metadata: {
+          href: "undefined/search/concepts/C00000000-TEST_PROV.xml",
+          roles: ["metadata"],
+          title: "CMR XML metadata for C00000000-TEST_PROV",
+          type: "application/xml",
+        },
+      });
+    });
+  });
+
+  describe("when given a valid collection", () => {
+    it("should return a STAC collection with all fields correctly populated", () => {
+      const [mockCollection] = generateCollections(1);
+
+      const stacCollection = collectionToStac(mockCollection);
+
+      // Check if all expected fields are present and correctly populated
+      expect(stacCollection).to.have.property("type", "Collection");
+      expect(stacCollection).to.have.property(
+        "id",
+        `${mockCollection.shortName}_${mockCollection.version}`
+      );
+      expect(stacCollection).to.have.property("title", mockCollection.title);
+      expect(stacCollection).to.have.property("description", mockCollection.description);
+      expect(stacCollection).to.have.property("stac_version", "1.0.0");
+      expect(stacCollection).to.have.property("license", "proprietary");
+
+      expect(stacCollection).to.have.property("extent");
+
+      expect(stacCollection.extent).to.have.property("spatial");
+      expect(stacCollection.extent.spatial).to.deep.equal({ bbox: [[-180, -90, 180, 90]] });
+
+      expect(stacCollection.extent).to.have.property("temporal");
+      expect(stacCollection.extent.temporal).to.deep.equal({
+        interval: [[mockCollection.timeStart, mockCollection.timeEnd]],
+      });
+
+      expect(stacCollection).to.have.property("assets");
+      expect(stacCollection).to.have.property("links");
+
+      expect(stacCollection).to.have.property("keywords");
+      expect(stacCollection.keywords).to.deep.equal([
+        "EARTH SCIENCE",
+        "LAND SURFACE",
+        "TOPOGRAPHY",
+        "TERRAIN ELEVATION",
+      ]);
+
+      expect(stacCollection).to.have.property("summaries");
+      expect(stacCollection.summaries).to.have.property("platform");
+      expect(stacCollection.summaries?.platform).to.deep.equal([
+        mockCollection.platforms[0].shortName,
+      ]);
+      expect(stacCollection.summaries).to.have.property("instruments");
+      expect(stacCollection.summaries?.instruments).to.deep.equal([
+        mockCollection.platforms[0].instruments[0].shortName,
+      ]);
     });
   });
 });

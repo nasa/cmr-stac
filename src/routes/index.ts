@@ -1,26 +1,24 @@
 import express from "express";
 
+import { collectionHandler, collectionsHandler } from "./browse";
+import { healthcheckHandler } from "./healthcheck";
+import { multiItemHandler, singleItemHandler } from "./items";
+import { providerCatalogHandler } from "./catalog";
+import { providerConformanceHandler } from "./providerConformance";
 import { rootCatalogHandler } from "./rootCatalog";
 import { rootConformanceHandler } from "./conformance";
-import { healthcheckHandler } from "./healthcheck";
-
 import { searchHandler } from "./search";
-import { providerCatalogHandler } from "./catalog";
-import { collectionHandler, collectionsHandler } from "./browse";
-import { multiItemHandler, singleItemHandler } from "./items";
+import { wrapErrorHandler } from "../utils";
 
 import {
+  cacheMiddleware,
+  cloudStacMiddleware,
+  logFullRequestMiddleware,
   refreshProviderCache,
+  validateCollection,
   validateProvider,
   validateStacQuery,
-  logFullRequestMiddleware,
-  cloudStacMiddleware,
-  cacheMiddleware,
-  validateCollection,
 } from "../middleware";
-
-import { wrapErrorHandler } from "../utils";
-import { providerConformanceHandler } from "./providerConformance";
 
 const router = express.Router();
 
@@ -48,13 +46,20 @@ router
   .get(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler))
   .post(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler));
 
-router.get(
-  "/:providerId/collections",
-  refreshProviderCache,
-  validateProvider,
-  validateStacQuery,
-  wrapErrorHandler(collectionsHandler)
-);
+router
+  .route("/:providerId/collections")
+  .get(
+    refreshProviderCache,
+    validateProvider,
+    validateStacQuery,
+    wrapErrorHandler(collectionsHandler)
+  )
+  .post(
+    refreshProviderCache,
+    validateProvider,
+    validateStacQuery,
+    wrapErrorHandler(collectionsHandler)
+  );
 
 router.get(
   "/:providerId/collections/:collectionId",

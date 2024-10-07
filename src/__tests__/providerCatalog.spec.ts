@@ -70,8 +70,8 @@ describe("GET /:provider", () => {
     it("has a collections link", async () => {
       const { body: catalog } = await request(stacApp).get("/stac/TEST");
 
-      const link: Link = catalog.links.find((l: Link) => l.rel === "collections");
-      expect(link).to.have.property("rel", "collections");
+      const link: Link = catalog.links.find((l: Link) => l.rel === "data");
+      expect(link).to.have.property("rel", "data");
       expect(link).to.have.property("type", "application/json");
       expect(link.href).to.match(/^https?:\/\/.*\/TEST\/collections$/);
       expect(link).to.have.property("title", "Provider Collections");

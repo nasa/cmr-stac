@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import { StacQuery } from "../models/StacModels";
+import { SortObject, StacQuery } from "../models/StacModels";
 import {
   ErrorHandler,
   InvalidParameterError,
@@ -15,6 +15,7 @@ import { getProviders, getCloudProviders } from "../domains/providers";
 
 import { scrubTokens, mergeMaybe, ERRORS } from "../utils";
 import { validDateTime } from "../utils/datetime";
+import { parseSortFields } from "../utils/sort";
 
 const STAC_QUERY_MAX = 5000;
 
@@ -210,8 +211,39 @@ const validBbox = (bbox: string | number[]) => {
   );
 };
 
+const validFreeText = (freeText: string) => {
+  // Check if it's a single keyword or multiple keywords separated by spaces
+  // This allows for queries like "alpha beta" or "alpha%20beta"
+  if (/^[^\s"]+(\s+[^\s"]+)*$/.test(freeText)) {
+    return true;
+  }
+
+  // Check if it's a properly formatted phrase (enclosed in quotes)
+  if (/^"[^""]+"$/.test(freeText)) {
+    return true;
+  }
+
+  // If it doesn't match either pattern, it's invalid
+  return false;
+};
+
+const VALID_SORT_FIELDS = ["startDate", "endDate", "id", "title", "eo:cloud_cover"];
+
+const validSortBy = (sortBy: string | string[] | SortObject[]) => {
+  const fields: string[] = parseSortFields(sortBy);
+
+  return fields.every((value) => {
+    const isDescending = value.startsWith("-");
+    const cleanSortBy = isDescending ? value.slice(1) : value;
+    // Allow for `properties` prefix
+    const fieldName = cleanSortBy.replace(/^properties\./, "");
+
+    return VALID_SORT_FIELDS.includes(fieldName);
+  });
+};
+
 const validateQueryTerms = (query: StacQuery) => {
-  const { bbox, intersects, datetime, limit: strLimit } = query;
+  const { bbox, datetime, intersects, limit: strLimit, q: freeText, sortby } = query;
 
   const limit = Number.isNaN(Number(strLimit)) ? null : Number(strLimit);
 
@@ -236,6 +268,18 @@ const validateQueryTerms = (query: StacQuery) => {
   if (datetime && !validDateTime(datetime)) {
     return new InvalidParameterError(
       "Query param datetime does not match a valid date format. Please use RFC3339 or ISO8601 formatted datetime strings."
+    );
+  }
+
+  if (freeText && !validFreeText(freeText)) {
+    return new InvalidParameterError(
+      "Search query must be either a single keyword or a single phrase enclosed in double quotes."
+    );
+  }
+
+  if (sortby && !validSortBy(sortby)) {
+    return new InvalidParameterError(
+      `Invalid sort field(s). Valid fields are: ${VALID_SORT_FIELDS.join(", ")}`
     );
   }
 };

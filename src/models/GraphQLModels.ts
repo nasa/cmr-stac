@@ -38,12 +38,13 @@ export type GranulesInput = GraphQLInput & {
 
 export type CollectionsInput = GraphQLInput & {
   // filtering
-  providers?: string[];
+  cloudHosted?: boolean;
   conceptIds?: string[];
   entryId?: string[];
-  cloudHosted?: boolean;
   hasGranules?: boolean;
   includeFacets?: string;
+  keyword?: string;
+  providers?: string[];
 };
 
 export type FacetFilter = {
@@ -131,6 +132,28 @@ export type RelatedUrls = {
   };
 }[];
 
+export type Instrument = {
+  shortName: string;
+  longName: string;
+};
+
+export type Platform = {
+  type: string;
+  shortName: string;
+  longName: string;
+  instruments: Instrument[];
+};
+
+export type ScienceKeywords = {
+  category: string;
+  topic: string;
+  term: string;
+  variableLevel1?: string;
+  variableLevel2?: string;
+  variableLevel3?: string;
+  detailedVariable?: string;
+};
+
 export type DirectDistributionInformation = {
   region: string;
   s3BucketAndObjectPrefixNames: string[];
@@ -159,6 +182,9 @@ export type Collection = CollectionBase & {
   useConstraints: UseConstraints | null;
   relatedUrls: RelatedUrls | null;
   directDistributionInformation: DirectDistributionInformation | null;
+
+  scienceKeywords: ScienceKeywords[];
+  platforms: Platform[];
 };
 
 export type GranuleBase = {

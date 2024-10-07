@@ -195,6 +195,27 @@ export const generateCollections = (
         useConstraints: null,
         directDistributionInformation: null,
         relatedUrls: [],
+        platforms: [
+          {
+            type: faker.random.words(),
+            shortName: faker.random.words(4),
+            longName: faker.random.words(4),
+            instruments: [
+              {
+                shortName: faker.random.words(4),
+                longName: faker.random.words(4),
+              },
+            ],
+          },
+        ],
+        scienceKeywords: [
+          {
+            category: "EARTH SCIENCE",
+            topic: "LAND SURFACE",
+            term: "TOPOGRAPHY",
+            variableLevel1: "TERRAIN ELEVATION",
+          },
+        ],
       } as Collection;
     });
 };

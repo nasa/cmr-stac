@@ -1,7 +1,9 @@
 import { gql } from "graphql-request";
+
 import { IncomingHttpHeaders } from "http";
 
-import { Extents, STACCollection, Links } from "../@types/StacCollection";
+import { Extents, Keywords, Links, STACCollection, Summaries } from "../@types/StacCollection";
+
 import {
   Collection,
   CollectionBase,
@@ -9,8 +11,10 @@ import {
   GraphQLHandler,
   GraphQLResults,
 } from "../models/GraphQLModels";
+
 import { cmrSpatialToExtent } from "./bounding-box";
-import { extractAssets, paginateQuery, MAX_SIGNED_INTEGER } from "./stac";
+
+import { extractAssets, MAX_SIGNED_INTEGER, paginateQuery } from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -21,24 +25,23 @@ const collectionsQuery = gql`
       count
       cursor
       items {
-        conceptId
-        provider
-        shortName
-        title
-        description: abstract
-        version
-
-        polygons
-        points
-        lines
         boxes
-
-        timeStart
-        timeEnd
-
-        useConstraints
-        relatedUrls
+        conceptId
+        description: abstract
         directDistributionInformation
+        lines
+        points
+        polygons
+        platforms
+        provider
+        relatedUrls
+        scienceKeywords
+        shortName
+        timeEnd
+        timeStart
+        title
+        useConstraints
+        version
       }
     }
   }
@@ -51,8 +54,8 @@ const collectionIdsQuery = gql`
       cursor
       items {
         conceptId
-        title
         shortName
+        title
         version
       }
     }
@@ -128,6 +131,41 @@ const generateCollectionLinks = (collection: Collection, links: Links) => {
   ];
 };
 
+const createKeywords = (collection: Collection): Keywords => {
+  const { scienceKeywords } = collection;
+
+  return scienceKeywords.reduce((keywordsArr: string[], scienceKeyword) => {
+    return [
+      ...keywordsArr,
+      ...Object.values(scienceKeyword).filter((keyword) => !keywordsArr.includes(keyword)),
+    ];
+  }, []);
+};
+
+const createSummaries = (collection: Collection): Summaries => {
+  const { platforms } = collection;
+  interface Summaries {
+    platform: string[];
+    instruments: string[];
+  }
+
+  return platforms.reduce<Summaries>(
+    (summaries, platform) => {
+      const { platform: currPlatforms, instruments: currInstruments } = summaries;
+      const { instruments, shortName } = platform;
+
+      return {
+        platform: [...currPlatforms, shortName],
+        instruments: [
+          ...currInstruments,
+          ...instruments.map(({ shortName: instrumentShortName }) => instrumentShortName),
+        ],
+      };
+    },
+    { platform: [], instruments: [] }
+  );
+};
+
 const generateProviders = (collection: Collection) => [
   {
     name: collection.provider,
@@ -143,14 +181,17 @@ const generateProviders = (collection: Collection) => [
  * Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: Collection): STACCollection => {
-  const { title, description } = collection;
+  const { description, title } = collection;
 
-  const id = collectionToId(collection);
-  const extent = createExtent(collection);
-  const assets = extractAssets(collection);
   const { license, licenseLink } = extractLicense(collection);
+
+  const assets = extractAssets(collection);
+  const extent = createExtent(collection);
+  const id = collectionToId(collection);
+  const keywords = createKeywords(collection);
   const links = generateCollectionLinks(collection, [licenseLink]);
   const provider = generateProviders(collection);
+  const summaries = createSummaries(collection);
 
   return {
     type: "Collection",
@@ -163,7 +204,8 @@ export const collectionToStac = (collection: Collection): STACCollection => {
     provider,
     links,
     license,
-    // TODO: summaries
+    keywords,
+    summaries,
   } as STACCollection;
 };
 
@@ -205,6 +247,7 @@ export const getCollections = async (
     count,
     items: collections,
   } = await paginateQuery(collectionsQuery, params, opts, collectionHandler);
+
   return { cursor, count, items: collections as STACCollection[] };
 };
 
@@ -215,6 +258,7 @@ export const getCollections = async (
  */
 export const collectionToId = (collection: { shortName: string; version?: string | null }) => {
   const { shortName, version } = collection;
+
   return version ? `${shortName}_${version}` : shortName;
 };
 
@@ -256,6 +300,7 @@ export const getCollectionIds = async (
     count,
     items: collectionIds,
   } = await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
+
   return { cursor, count, items: collectionIds as { id: string; title: string }[] };
 };
 
@@ -274,5 +319,6 @@ export const getAllCollectionIds = async (
   items: { id: string; title: string }[];
 }> => {
   params.limit = MAX_SIGNED_INTEGER;
+
   return await getCollectionIds(params, opts);
 };
