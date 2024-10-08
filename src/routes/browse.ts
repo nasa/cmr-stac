@@ -78,7 +78,12 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
-    // If the list of links of does not contain a link of type 'items' then add the default items element
+    /* A CMR collection can now indicate to consumers that it has a STAC API. 
+     * If that is the case then we use that link instead of a generic CMR one.
+     * This is useful of collections that do not index their granule
+     * metadata in CMR, like CWIC colle ction.
+     * If the list of links of does not contain a link of type 'items' then add the default items element 
+     */
     let itemsPresent = false
     for (const link of collection.links) {
       if (link.rel == 'items') {

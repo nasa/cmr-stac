@@ -10,6 +10,8 @@ import {
   CollectionsInput,
   GraphQLHandler,
   GraphQLResults,
+  RelatedUrlType,
+  RelatedUrlSubType,
 } from "../models/GraphQLModels";
 
 import { cmrSpatialToExtent } from "./bounding-box";
@@ -109,7 +111,7 @@ const itemCatalogUrl = (collection: Collection) => {
   let catalog = null
   if (collection.relatedUrls != null) {
     for (const relatedUrl of collection.relatedUrls) {
-      if (relatedUrl.type == 'GET CAPABILITIES' && relatedUrl.subtype == 'STAC') {
+      if (relatedUrl.type == RelatedUrlType.GET_CAPABILITIES && relatedUrl.subtype == RelatedUrlSubType.STAC) {
         catalog = relatedUrl.url
         break
       }
@@ -152,9 +154,13 @@ const generateCollectionLinks = (collection: Collection, links: Links) => {
       type: "application/vnd.nasa.cmr.umm+json",
     },
   ];
-  // Collection may have a STAC catalog defined in their metadata. If there is one present,
-  // it needs to be added as an 'item' link. If not, let browse.ts add a generic one in 
-  // CMR STAC.
+  /* A CMR collection can now indicate to consumers that it has a STAC API. 
+   * If that is the case then we use that link instead of a generic CMR one.
+   * This is useful for collections that do not index their granule
+   * metadata in CMR, like CWIC collection. If there is one present,
+   * it needs to be added as an 'item' link. If not, let browse.ts add a 
+   * generic one in CMR STAC
+   */
   const catalogUrl = itemCatalogUrl(collection)
   if (catalogUrl != null) {
     collectionLinks.push({
