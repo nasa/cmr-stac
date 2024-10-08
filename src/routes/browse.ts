@@ -86,9 +86,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
         break
       }
     }
-    console.log("I am in browse!");
     if (itemsPresent == false) {
-      console.log("I am adding!");
       collection.links.push({
         rel: "items",
         href: `${baseUrl}/${encodeURIComponent(collection.id)}/items`,

@@ -52,8 +52,6 @@ describe("collectionsToStac", () => {
 
       const stacCollection: any = collectionToStac(base);
 
-      console.log(stacCollection);
-
       expect(stacCollection).to.have.deep.property("links", [
         {
           rel: 'license',
