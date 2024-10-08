@@ -78,11 +78,23 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
-    collection.links.push({
-      rel: "items",
-      href: `${baseUrl}/${encodeURIComponent(collection.id)}/items`,
-      type: "application/json",
-    });
+    // If the list of links of does not contain a link of type 'items' then add the default items element
+    let itemsPresent = false
+    for (const link of collection.links) {
+      if (link.rel == 'items') {
+        itemsPresent = true
+        break
+      }
+    }
+    console.log("I am in browse!");
+    if (itemsPresent == false) {
+      console.log("I am adding!");
+      collection.links.push({
+        rel: "items",
+        href: `${baseUrl}/${encodeURIComponent(collection.id)}/items`,
+        type: "application/json",
+      });
+    }
   });
 
   const links = collectionLinks(req, cursor);

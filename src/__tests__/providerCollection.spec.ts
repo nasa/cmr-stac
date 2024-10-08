@@ -27,6 +27,7 @@ import { createApp } from "../app";
 const app = createApp();
 
 import { generateSTACCollections } from "../utils/testUtils";
+import { Link } from "../@types/StacCatalog";
 
 const emptyCollections = { facets: null, count: 0, cursor: "", items: [] };
 
@@ -94,22 +95,20 @@ describe("GET /:provider/collections", () => {
     });
   });
 
-  describe("given a provider with a collections containing STAC item APIs", () => {
-    it("returns collections with links of rel=items containing those API endpoints", async () => {
+  describe("given a provider with two collections, one of which is a collection containing a link to a STAC item API", () => {
+    it("returns collections with links of rel=items to the appropriate endpoints", async () => {
       sandbox
         .stub(Providers, "getProviders")
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
 
       const mockCollections = generateSTACCollections(2);
 
-      // The first collection has a related URL of type 'GET CAPABILITIES' and subtype 'STAC'
       const link = {
         rel: "items",
         href: "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1",
         type: "application/json",
       }
       mockCollections[0].links.push(link);
-      // The second collection does not have a STAC API related URL
 
       sandbox.stub(Collections, "getCollections").resolves({
         count: 2,
@@ -122,10 +121,13 @@ describe("GET /:provider/collections", () => {
 
       expect(statusCode).to.equal(200);
       expect(body.collections).to.have.lengthOf(2);
+      console.log(body.collections);
       // Get the links of rel=item for the first collection
-      //expect(body.collections[0]).to.equal(mockCollections[0].id);
+      const link0: Link = body.collections[0].links.find((l: Link) => l.rel === "items");
+      expect(link0.href).to.equal('https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1');
       // Get the links of rel=item for the second collection
-      //expect(body.collections[1].id).to.equal(mockCollections[1].id);
+      const link1: Link = body.collections[1].links.find((l: Link) => l.rel === "items");
+      expect(link1.href).to.contain('/stac/TEST/collections/');
     });
   });
 
