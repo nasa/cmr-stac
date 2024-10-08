@@ -107,27 +107,28 @@ describe("GET /:provider/collections", () => {
         rel: "items",
         href: "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1",
         type: "application/json",
-      }
+      };
       mockCollections[0].links.push(link);
 
       sandbox.stub(Collections, "getCollections").resolves({
         count: 2,
         cursor: null,
-        items: mockCollections
+        items: mockCollections,
       });
 
-      const { statusCode, body } = await request(app)
-        .get("/stac/TEST/collections");
+      const { statusCode, body } = await request(app).get("/stac/TEST/collections");
 
       expect(statusCode).to.equal(200);
       expect(body.collections).to.have.lengthOf(2);
 
       // Get the links of rel=item for the first collection
       const link0: Link = body.collections[0].links.find((l: Link) => l.rel === "items");
-      expect(link0.href).to.equal('https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1');
+      expect(link0.href).to.equal(
+        "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1"
+      );
       // Get the links of rel=item for the second collection
       const link1: Link = body.collections[1].links.find((l: Link) => l.rel === "items");
-      expect(link1.href).to.contain('/stac/TEST/collections/');
+      expect(link1.href).to.contain("/stac/TEST/collections/");
     });
   });
 

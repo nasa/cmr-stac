@@ -98,25 +98,28 @@ const extractLicense = (_collection: Collection) => {
 };
 
 /**
- * Examing a collections related URLs to see if it contains a reference to a STAC catalog. 
+ * Examing a collections related URLs to see if it contains a reference to a STAC catalog.
  * If the collection has a RelatedURL of type: "GET CAPABILITIES",
  * and subtype: "STAC" then that URL should be placed in the href for the items link.
- *  
+ *
  * @param collection the collection object from a CMR GraphQL result
- * 
+ *
  * @returns a string representing the URL of the item Catalog described by the collection
  * or NULL if the related URL does not exist.
  */
 const itemCatalogUrl = (collection: Collection) => {
-  let catalog = null
+  let catalog = null;
   if (collection.relatedUrls != null) {
     for (const relatedUrl of collection.relatedUrls) {
-      if (relatedUrl.type == RelatedUrlType.GET_CAPABILITIES && relatedUrl.subtype == RelatedUrlSubType.STAC) {
-        catalog = relatedUrl.url
-        break
+      if (
+        relatedUrl.type == RelatedUrlType.GET_CAPABILITIES &&
+        relatedUrl.subtype == RelatedUrlSubType.STAC
+      ) {
+        catalog = relatedUrl.url;
+        break;
       }
     }
-    return catalog
+    return catalog;
   }
 };
 
@@ -154,14 +157,14 @@ const generateCollectionLinks = (collection: Collection, links: Links) => {
       type: "application/vnd.nasa.cmr.umm+json",
     },
   ];
-  /* A CMR collection can now indicate to consumers that it has a STAC API. 
+  /* A CMR collection can now indicate to consumers that it has a STAC API.
    * If that is the case then we use that link instead of a generic CMR one.
    * This is useful for collections that do not index their granule
    * metadata in CMR, like CWIC collection. If there is one present,
-   * it needs to be added as an 'item' link. If not, let browse.ts add a 
+   * it needs to be added as an 'item' link. If not, let browse.ts add a
    * generic one in CMR STAC
    */
-  const catalogUrl = itemCatalogUrl(collection)
+  const catalogUrl = itemCatalogUrl(collection);
   if (catalogUrl != null) {
     collectionLinks.push({
       rel: "items",

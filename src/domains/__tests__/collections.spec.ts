@@ -32,7 +32,6 @@ describe("getCollections", () => {
 describe("collectionsToStac", () => {
   describe("given a collection with a related url describing a STAC items endpoint", () => {
     it("should return a STAC collection with a link of relation 'items' pointing to that endpoint", () => {
-      
       const [base] = generateCollections(1);
       // Add in a related url as above
       const relatedUrl = {
@@ -41,59 +40,59 @@ describe("collectionsToStac", () => {
         type: "GET CAPABILITIES",
         subtype: "STAC",
         url: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1",
-        getData: {       
-          format: "Not provided",       
-          mimeType: "application/json",       
-          size: 0.0,       
-          unit: "KB"     
-        }
-      }
+        getData: {
+          format: "Not provided",
+          mimeType: "application/json",
+          size: 0.0,
+          unit: "KB",
+        },
+      };
       base.relatedUrls?.push(relatedUrl);
 
       const stacCollection: any = collectionToStac(base);
 
       expect(stacCollection).to.have.deep.property("links", [
         {
-          rel: 'license',
-          href: 'https://science.nasa.gov/earth-science/earth-science-data/data-information-policy',
-          title: 'EOSDIS Data Use Policy',
-          type: 'text/html'
+          rel: "license",
+          href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+          title: "EOSDIS Data Use Policy",
+          type: "text/html",
         },
         {
-          rel: 'about',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.html',
-          title: 'HTML metadata for collection',
-          type: 'text/html'
+          rel: "about",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.html",
+          title: "HTML metadata for collection",
+          type: "text/html",
         },
         {
-          rel: 'via',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.native',
-          title: 'Native metadata for collection',
-          type: 'application/xml'
+          rel: "via",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.native",
+          title: "Native metadata for collection",
+          type: "application/xml",
         },
         {
-          rel: 'via',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.echo10',
-          title: 'ECHO10 metadata for collection',
-          type: 'application/echo10+xml'
+          rel: "via",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.echo10",
+          title: "ECHO10 metadata for collection",
+          type: "application/echo10+xml",
         },
         {
-          rel: 'via',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.json',
-          title: 'CMR JSON metadata for collection',
-          type: 'application/json'
+          rel: "via",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.json",
+          title: "CMR JSON metadata for collection",
+          type: "application/json",
         },
         {
-          rel: 'via',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.umm_json',
-          title: 'CMR UMM_JSON metadata for collection',
-          type: 'application/vnd.nasa.cmr.umm+json'
+          rel: "via",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.umm_json",
+          title: "CMR UMM_JSON metadata for collection",
+          type: "application/vnd.nasa.cmr.umm+json",
         },
         {
-          rel: 'items',
-          href: 'https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1',
-          type: 'application/json'
-        }
+          rel: "items",
+          href: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1",
+          type: "application/json",
+        },
       ]);
     });
   });
@@ -105,49 +104,49 @@ describe("collectionsToStac", () => {
 
       expect(stacCollection).to.not.have.deep.property("links", [
         {
-          rel: 'license',
-          href: 'https://science.nasa.gov/earth-science/earth-science-data/data-information-policy',
-          title: 'EOSDIS Data Use Policy',
-          type: 'text/html'
+          rel: "license",
+          href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+          title: "EOSDIS Data Use Policy",
+          type: "text/html",
         },
         {
-          rel: 'about',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.html',
-          title: 'HTML metadata for collection',
-          type: 'text/html'
+          rel: "about",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.html",
+          title: "HTML metadata for collection",
+          type: "text/html",
         },
         {
-          rel: 'via',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.native',
-          title: 'Native metadata for collection',
-          type: 'application/xml'
+          rel: "via",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.native",
+          title: "Native metadata for collection",
+          type: "application/xml",
         },
         {
-          rel: 'via',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.echo10',
-          title: 'ECHO10 metadata for collection',
-          type: 'application/echo10+xml'
+          rel: "via",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.echo10",
+          title: "ECHO10 metadata for collection",
+          type: "application/echo10+xml",
         },
         {
-          rel: 'via',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.json',
-          title: 'CMR JSON metadata for collection',
-          type: 'application/json'
+          rel: "via",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.json",
+          title: "CMR JSON metadata for collection",
+          type: "application/json",
         },
         {
-          rel: 'via',
-          href: 'undefined/search/concepts/C00000000-TEST_PROV.umm_json',
-          title: 'CMR UMM_JSON metadata for collection',
-          type: 'application/vnd.nasa.cmr.umm+json'
+          rel: "via",
+          href: "undefined/search/concepts/C00000000-TEST_PROV.umm_json",
+          title: "CMR UMM_JSON metadata for collection",
+          type: "application/vnd.nasa.cmr.umm+json",
         },
         {
-          rel: 'items',
-          href: 'https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1',
-          type: 'application/json'
-        }
+          rel: "items",
+          href: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1",
+          type: "application/json",
+        },
       ]);
     });
-  });    
+  });
   describe("given a collection with S3 Links", () => {
     describe("given the S3 links are badly formatted with commas", () => {
       it("should return a STAC collection with the s3 links as assets", () => {
