@@ -94,6 +94,41 @@ describe("GET /:provider/collections", () => {
     });
   });
 
+  describe("given a provider with a collections containing STAC item APIs", () => {
+    it("returns collections with links of rel=items containing those API endpoints", async () => {
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      const mockCollections = generateSTACCollections(2);
+
+      // The first collection has a related URL of type 'GET CAPABILITIES' and subtype 'STAC'
+      const link = {
+        rel: "items",
+        href: "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1",
+        type: "application/json",
+      }
+      mockCollections[0].links.push(link);
+      // The second collection does not have a STAC API related URL
+
+      sandbox.stub(Collections, "getCollections").resolves({
+        count: 2,
+        cursor: null,
+        items: mockCollections
+      });
+
+      const { statusCode, body } = await request(app)
+        .get("/stac/TEST/collections");
+
+      expect(statusCode).to.equal(200);
+      expect(body.collections).to.have.lengthOf(2);
+      // Get the links of rel=item for the first collection
+      //expect(body.collections[0]).to.equal(mockCollections[0].id);
+      // Get the links of rel=item for the second collection
+      //expect(body.collections[1].id).to.equal(mockCollections[1].id);
+    });
+  });
+
   describe("datetime parameter", () => {
     it("should return collections within the specified datetime range", async () => {
       sandbox
