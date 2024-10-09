@@ -29,6 +29,18 @@ Then install dependencies with npm:
 npm install
 ```
 
+To run the unit test suite associated with CMR-STAC:
+
+```bash
+npm test
+```
+
+To lint your developed code:
+
+```bash
+npm run prettier:fix
+```
+
 To run the CMR-STAC server locally:
 
 ```bash
