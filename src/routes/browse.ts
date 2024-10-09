@@ -87,16 +87,9 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
      */
     const { links } = collection;
 
-    const itemsPresent = links.find((link) => link.rel === 'items');
+    const itemsLink = links.find((link) => link.rel === 'items');
 
-    if (!itemsPresent) {```
-    for (const link of collection.links) {
-      if (link.rel == "items") {
-        itemsPresent = true;
-        break;
-      }
-    }
-    if (itemsPresent == false) {
+    if (!itemsLink) {
       collection.links.push({
         rel: "items",
         href: `${baseUrl}/${encodeURIComponent(collection.id)}/items`,

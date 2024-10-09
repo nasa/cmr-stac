@@ -116,20 +116,6 @@ const itemCatalogUrl = (collection: Collection) => {
   );
   return relatedUrl?.url;
 };
-  let catalog = null;
-  if (collection.relatedUrls != null) {
-    for (const relatedUrl of collection.relatedUrls) {
-      if (
-        relatedUrl.type == RelatedUrlType.GET_CAPABILITIES &&
-        relatedUrl.subtype == RelatedUrlSubType.STAC
-      ) {
-        catalog = relatedUrl.url;
-        break;
-      }
-    }
-    return catalog;
-  }
-};
 
 const generateCollectionLinks = (collection: Collection, links: Links) => {
   const collectionLinks = [
