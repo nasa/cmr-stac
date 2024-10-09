@@ -108,6 +108,14 @@ const extractLicense = (_collection: Collection) => {
  * or NULL if the related URL does not exist.
  */
 const itemCatalogUrl = (collection: Collection) => {
+  const { relatedUrls } = collection;
+
+  const relatedUrl = relatedUrls?.find((relatedUrl) =>
+    relatedUrl.type == RelatedUrlType.GET_CAPABILITIES
+    && relatedUrl.subtype == RelatedUrlSubType.STAC
+  );
+  return relatedUrl?.url;
+};
   let catalog = null;
   if (collection.relatedUrls != null) {
     for (const relatedUrl of collection.relatedUrls) {
