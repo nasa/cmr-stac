@@ -87,7 +87,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
      */
     const { links } = collection;
 
-    const itemsLink = links.find((link) => link.rel === 'items');
+    const itemsLink = links.find((link) => link.rel === "items");
 
     if (!itemsLink) {
       collection.links.push({

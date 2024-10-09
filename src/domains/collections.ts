@@ -110,9 +110,10 @@ const extractLicense = (_collection: Collection) => {
 const itemCatalogUrl = (collection: Collection) => {
   const { relatedUrls } = collection;
 
-  const relatedUrl = relatedUrls?.find((relatedUrl) =>
-    relatedUrl.type == RelatedUrlType.GET_CAPABILITIES
-    && relatedUrl.subtype == RelatedUrlSubType.STAC
+  const relatedUrl = relatedUrls?.find(
+    (relatedUrl) =>
+      relatedUrl.type == RelatedUrlType.GET_CAPABILITIES &&
+      relatedUrl.subtype == RelatedUrlSubType.STAC
   );
   return relatedUrl?.url;
 };
