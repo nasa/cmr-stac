@@ -102,7 +102,7 @@ describe("collectionsToStac", () => {
 
       const stacCollection: any = collectionToStac(base);
 
-      expect(stacCollection).to.not.have.deep.property("links", [
+      expect(stacCollection).to.have.deep.property("links", [
         {
           rel: "license",
           href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
@@ -138,11 +138,6 @@ describe("collectionsToStac", () => {
           href: "undefined/search/concepts/C00000000-TEST_PROV.umm_json",
           title: "CMR UMM_JSON metadata for collection",
           type: "application/vnd.nasa.cmr.umm+json",
-        },
-        {
-          rel: "items",
-          href: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1",
-          type: "application/json",
         },
       ]);
     });
