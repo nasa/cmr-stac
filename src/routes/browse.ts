@@ -85,7 +85,11 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
      * If the list of links of does not contain a link of type 'items' then
      * add the default items element
      */
-    let itemsPresent = false;
+    const { links } = collection;
+
+    const itemsPresent = links.find((link) => link.rel === 'items');
+
+    if (!itemsPresent) {```
     for (const link of collection.links) {
       if (link.rel == "items") {
         itemsPresent = true;
