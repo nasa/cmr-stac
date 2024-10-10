@@ -573,6 +573,23 @@ describe("conversions to GraphQL", () => {
       });
     });
 
+    describe("given multiple collection identifiers as a comma separated string", () => {
+      it("should separate the entryIds properly", async () => {
+        expect(
+          await buildQuery({
+            method: "GET",
+            url: "/stac/PROV/search",
+            headers: {},
+            params: { providerId: "PROV" },
+            query: { collections: "coll_v1,coll_v2" },
+          } as any)
+        ).to.deep.equal({
+          provider: "PROV",
+          entryId: ["coll_v1", "coll_v2"],
+        });
+      });
+    });
+
     describe("given an id as part of the path", () => {
       it("should not modify them", async () => {
         expect(

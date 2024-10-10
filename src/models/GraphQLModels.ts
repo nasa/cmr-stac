@@ -92,6 +92,7 @@ export enum RelatedUrlSubType {
   DATA_TREE = "DATA TREE",
   EARTHDATA_SEARCH = "Earthdata Search",
   GIOVANNI = "GIOVANNI",
+  STAC = "STAC",
 }
 
 export type UseConstraints =
