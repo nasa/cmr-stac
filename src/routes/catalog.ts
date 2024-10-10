@@ -76,7 +76,7 @@ const generateSelfLinks = (req: Request): Links => {
 
 const providerCollections = async (
   req: Request
-): Promise<[null, { id: string; title: string }[]] | [string, null]> => {
+): Promise<[null, { entryId: string; title: string }[]] | [string, null]> => {
   const { headers, provider } = req;
 
   const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
@@ -103,9 +103,9 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
   const { self } = stacContext(req);
 
   const selfLinks = generateSelfLinks(req);
-  const childLinks = (collections ?? []).map(({ id, title }) => ({
+  const childLinks = (collections ?? []).map(({ entryId, title }) => ({
     rel: "child",
-    href: `${self}/collections/${encodeURIComponent(id)}`,
+    href: `${self}/collections/${encodeURIComponent(entryId)}`,
     title,
     type: "application/json",
   }));

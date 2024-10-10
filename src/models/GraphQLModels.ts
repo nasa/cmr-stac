@@ -164,8 +164,7 @@ export type DirectDistributionInformation = {
 
 export type CollectionBase = {
   conceptId: string;
-  version: string;
-  shortName: string;
+  entryId: string;
   title: string;
 };
 

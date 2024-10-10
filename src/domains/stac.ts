@@ -357,7 +357,7 @@ export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[]): st
     if (fieldName.match(/^eo:cloud_cover$/i)) {
       mappedField = "cloudCover";
     } else if (fieldName.match(/^id$/i)) {
-      mappedField = "shortName";
+      mappedField = "entryId";
     } else if (fieldName.match(/^title$/i)) {
       mappedField = "entryTitle";
     } else {
@@ -450,7 +450,7 @@ const filterCloudHosted = async (req: Request, ids: string[]): Promise<string[]>
     ),
     { headers }
   );
-  return cloudHostedCollections.map((collection) => collection.id);
+  return cloudHostedCollections.map((collection) => collection.entryId);
 };
 
 /**
