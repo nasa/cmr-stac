@@ -31,19 +31,18 @@ const collectionsQuery = gql`
         conceptId
         description: abstract
         directDistributionInformation
+        entryId
         lines
+        platforms
         points
         polygons
-        platforms
         provider
         relatedUrls
         scienceKeywords
-        shortName
         timeEnd
         timeStart
         title
         useConstraints
-        version
       }
     }
   }
@@ -56,9 +55,8 @@ const collectionIdsQuery = gql`
       cursor
       items {
         conceptId
-        shortName
+        entryId
         title
-        version
       }
     }
   }
@@ -188,10 +186,18 @@ const createSummaries = (collection: Collection): Summaries => {
     instruments: string[];
   }
 
-  return platforms.reduce<Summaries>(
+  const summaries = platforms.reduce<Summaries>(
     (summaries, platform) => {
       const { platform: currPlatforms, instruments: currInstruments } = summaries;
       const { instruments, shortName } = platform;
+
+      // If instruments is not present, return early with only the platform added
+      if (!instruments) {
+        return {
+          platform: [...currPlatforms, shortName],
+          instruments: currInstruments,
+        };
+      }
 
       return {
         platform: [...currPlatforms, shortName],
@@ -203,6 +209,12 @@ const createSummaries = (collection: Collection): Summaries => {
     },
     { platform: [], instruments: [] }
   );
+
+  if (summaries.instruments.length === 0) {
+    summaries.instruments = ["Not Provided"];
+  }
+
+  return summaries;
 };
 
 const generateProviders = (collection: Collection) => [
@@ -220,13 +232,12 @@ const generateProviders = (collection: Collection) => [
  * Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: Collection): STACCollection => {
-  const { description, title } = collection;
+  const { entryId, description, title } = collection;
 
   const { license, licenseLink } = extractLicense(collection);
 
   const assets = extractAssets(collection);
   const extent = createExtent(collection);
-  const id = collectionToId(collection);
   const keywords = createKeywords(collection);
   const links = generateCollectionLinks(collection, [licenseLink]);
   const provider = generateProviders(collection);
@@ -234,7 +245,7 @@ export const collectionToStac = (collection: Collection): STACCollection => {
 
   return {
     type: "Collection",
-    id,
+    id: entryId,
     title,
     description,
     stac_version: STAC_VERSION,
@@ -290,20 +301,9 @@ export const getCollections = async (
   return { cursor, count, items: collections as STACCollection[] };
 };
 
-/**
- * Return a STAC ID for a given collection.
- * STAC ID should correspond to a CMR entry_id
- * TODO: handle this type of situation ~> 10.3334/cdiac/otg.vos_alligatorhope_1999-2001_Not applicable as entry_id
- */
-export const collectionToId = (collection: { shortName: string; version?: string | null }) => {
-  const { shortName, version } = collection;
-
-  return version ? `${shortName}_${version}` : shortName;
-};
-
-const attachId = (collection: { shortName: string; version?: string | null }) => ({
+const attachId = (collection: { entryId: string }) => ({
   ...collection,
-  id: collectionToId(collection),
+  id: collection.entryId,
 });
 
 /**
@@ -339,7 +339,6 @@ export const getCollectionIds = async (
     count,
     items: collectionIds,
   } = await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
-
   return { cursor, count, items: collectionIds as { id: string; title: string }[] };
 };
 

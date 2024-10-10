@@ -357,7 +357,7 @@ export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[]): st
     if (fieldName.match(/^eo:cloud_cover$/i)) {
       mappedField = "cloudCover";
     } else if (fieldName.match(/^id$/i)) {
-      mappedField = "shortName";
+      mappedField = "entryId";
     } else if (fieldName.match(/^title$/i)) {
       mappedField = "entryTitle";
     } else {

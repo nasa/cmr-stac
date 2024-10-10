@@ -10,7 +10,6 @@ import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, stacContext } from "../utils";
 import { extractAssets, paginateQuery } from "./stac";
-import { collectionToId } from "./collections";
 import { ItemNotFound } from "../models/errors";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -26,8 +25,7 @@ const granulesQuery = gql`
         conceptId
         collection {
           conceptId
-          shortName
-          version
+          entryId
           title
         }
         cloudCover
@@ -216,7 +214,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
 
   return {
     ...item,
-    collection: collectionToId(granule.collection),
+    collection: granule.collection.entryId,
   };
 };
 

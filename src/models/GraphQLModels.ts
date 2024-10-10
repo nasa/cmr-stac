@@ -142,7 +142,7 @@ export type Platform = {
   type: string;
   shortName: string;
   longName: string;
-  instruments: Instrument[];
+  instruments?: Instrument[];
 };
 
 export type ScienceKeywords = {
@@ -164,8 +164,7 @@ export type DirectDistributionInformation = {
 
 export type CollectionBase = {
   conceptId: string;
-  version: string;
-  shortName: string;
+  entryId: string;
   title: string;
 };
 

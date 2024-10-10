@@ -413,8 +413,8 @@ describe("sortByToSortKeys", () => {
   [
     { input: "properties.eo:cloud_cover", output: ["cloudCover"] },
     { input: "-properties.eo:cloud_cover", output: ["-cloudCover"] },
-    { input: "id", output: ["shortName"] },
-    { input: "-id", output: ["-shortName"] },
+    { input: "id", output: ["entryId"] },
+    { input: "-id", output: ["-entryId"] },
     { input: "title", output: ["entryTitle"] },
     { input: "-title", output: ["-entryTitle"] },
     { input: "someOtherField", output: ["someOtherField"] },
@@ -439,7 +439,7 @@ describe("sortByToSortKeys", () => {
           { field: "id", direction: "asc" },
           { field: "title", direction: "desc" },
         ];
-        expect(sortByToSortKeys(input)).to.deep.equal(["-cloudCover", "shortName", "-entryTitle"]);
+        expect(sortByToSortKeys(input)).to.deep.equal(["-cloudCover", "entryId", "-entryTitle"]);
       });
     });
   });
