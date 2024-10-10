@@ -80,7 +80,7 @@ const cmrGranuleExtension = (granule: Granule) => {
     properties: {
       "cmr:provider": granule.collection?.conceptId.split("-")[1],
       "cmr:collection_id": granule.collection?.conceptId,
-      "cmr:concept_id": granule.conceptId
+      "cmr:concept_id": granule.conceptId,
     },
   };
 };
@@ -180,7 +180,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
 
   const { extensions, properties: extensionProperties } = deriveExtensions(granule, [
     cloudCoverExtension,
-    cmrGranuleExtension
+    cmrGranuleExtension,
   ]);
 
   const properties: { [key: string]: string } = mergeMaybe(

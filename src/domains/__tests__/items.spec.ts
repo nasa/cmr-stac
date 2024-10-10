@@ -22,9 +22,7 @@ describe("granuleToStac", () => {
         type: "Feature",
         id: baseGranule.title,
         stac_version: "1.0.0",
-        stac_extensions: [
-          "https://stac-extensions.github.io/cmr/v0.0.0/schema.json"
-        ],
+        stac_extensions: ["https://stac-extensions.github.io/cmr/v0.0.0/schema.json"],
         geometry: {
           type: "Polygon",
           coordinates: [
@@ -115,9 +113,7 @@ describe("granuleToStac", () => {
         type: "Feature",
         id: baseGranule.title,
         stac_version: "1.0.0",
-        stac_extensions: [
-          "https://stac-extensions.github.io/cmr/v0.0.0/schema.json"
-        ],
+        stac_extensions: ["https://stac-extensions.github.io/cmr/v0.0.0/schema.json"],
         geometry: {
           type: "Polygon",
           coordinates: [
@@ -207,9 +203,7 @@ describe("granuleToStac", () => {
         type: "Feature",
         id: baseGranule.title,
         stac_version: "1.0.0",
-        stac_extensions: [
-          "https://stac-extensions.github.io/cmr/v0.0.0/schema.json"
-        ],
+        stac_extensions: ["https://stac-extensions.github.io/cmr/v0.0.0/schema.json"],
         geometry: {
           type: "LineString",
           coordinates: [
