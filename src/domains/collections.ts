@@ -332,15 +332,14 @@ export const getCollectionIds = async (
 ): Promise<{
   count: number;
   cursor: string | null;
-  items: { entryId: string; title: string }[];
+  items: { id: string; title: string }[];
 }> => {
   const {
     cursor,
     count,
     items: collectionIds,
   } = await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
-
-  return { cursor, count, items: collectionIds as { entryId: string; title: string }[] };
+  return { cursor, count, items: collectionIds as { id: string; title: string }[] };
 };
 
 /**
@@ -355,7 +354,7 @@ export const getAllCollectionIds = async (
 ): Promise<{
   count: number;
   cursor: string | null;
-  items: { entryId: string; title: string }[];
+  items: { id: string; title: string }[];
 }> => {
   params.limit = MAX_SIGNED_INTEGER;
 

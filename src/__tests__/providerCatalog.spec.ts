@@ -140,7 +140,7 @@ describe("GET /:provider", () => {
             count: mockCollections.length,
             cursor: "foundCursor",
             items: mockCollections.map((coll) => ({
-              entryId: `${coll.id}`,
+              id: `${coll.id}`,
               title: coll.title ?? faker.random.words(4),
             })),
           });

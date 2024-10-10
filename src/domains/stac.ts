@@ -450,7 +450,7 @@ const filterCloudHosted = async (req: Request, ids: string[]): Promise<string[]>
     ),
     { headers }
   );
-  return cloudHostedCollections.map((collection) => collection.entryId);
+  return cloudHostedCollections.map((collection) => collection.id);
 };
 
 /**
