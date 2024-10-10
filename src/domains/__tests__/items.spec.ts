@@ -22,7 +22,9 @@ describe("granuleToStac", () => {
         type: "Feature",
         id: baseGranule.title,
         stac_version: "1.0.0",
-        stac_extensions: [],
+        stac_extensions: [
+          "https://stac-extensions.github.io/cmr/v0.0.0/schema.json"
+        ],
         geometry: {
           type: "Polygon",
           coordinates: [
@@ -37,6 +39,9 @@ describe("granuleToStac", () => {
         },
         bbox: [-26.1081458, 29.8680955, -11.4859874, 40.0118589],
         properties: {
+          "cmr:collection_id": "C123456789-TEST_PROV",
+          "cmr:concept_id": "G000000000-TEST_PROV",
+          "cmr:provider": "TEST_PROV",
           datetime: "2009-09-14T00:00:00.000Z",
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
@@ -110,7 +115,9 @@ describe("granuleToStac", () => {
         type: "Feature",
         id: baseGranule.title,
         stac_version: "1.0.0",
-        stac_extensions: [],
+        stac_extensions: [
+          "https://stac-extensions.github.io/cmr/v0.0.0/schema.json"
+        ],
         geometry: {
           type: "Polygon",
           coordinates: [
@@ -125,6 +132,9 @@ describe("granuleToStac", () => {
         },
         bbox: [-180, -60, 170, 50],
         properties: {
+          "cmr:collection_id": "C123456789-TEST_PROV",
+          "cmr:concept_id": "G000000000-TEST_PROV",
+          "cmr:provider": "TEST_PROV",
           datetime: "2009-09-14T00:00:00.000Z",
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
@@ -197,7 +207,9 @@ describe("granuleToStac", () => {
         type: "Feature",
         id: baseGranule.title,
         stac_version: "1.0.0",
-        stac_extensions: [],
+        stac_extensions: [
+          "https://stac-extensions.github.io/cmr/v0.0.0/schema.json"
+        ],
         geometry: {
           type: "LineString",
           coordinates: [
@@ -208,6 +220,9 @@ describe("granuleToStac", () => {
         },
         bbox: [-42.915595, 60.477742, 11.618598, 65.941741],
         properties: {
+          "cmr:collection_id": "C123456789-TEST_PROV",
+          "cmr:concept_id": "G000000000-TEST_PROV",
+          "cmr:provider": "TEST_PROV",
           datetime: "2009-09-14T00:00:00.000Z",
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
