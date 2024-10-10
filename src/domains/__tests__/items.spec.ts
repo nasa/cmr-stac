@@ -41,7 +41,7 @@ describe("granuleToStac", () => {
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
-        collection: "short_1",
+        collection: "TEST_COLLECTION_1",
         links: [
           {
             href: "undefined/search/concepts/G000000000-TEST_PROV.json",
@@ -129,7 +129,7 @@ describe("granuleToStac", () => {
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
-        collection: "short_1",
+        collection: "TEST_COLLECTION_1",
         links: [
           {
             href: "undefined/search/concepts/G000000000-TEST_PROV.json",
@@ -212,7 +212,7 @@ describe("granuleToStac", () => {
           start_datetime: "2009-09-14T00:00:00.000Z",
           end_datetime: "2010-09-14T00:00:00.000Z",
         },
-        collection: "short_1",
+        collection: "TEST_COLLECTION_1",
         links: [
           {
             href: "undefined/search/concepts/G000000000-TEST_PROV.json",

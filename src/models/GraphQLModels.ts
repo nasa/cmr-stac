@@ -142,7 +142,7 @@ export type Platform = {
   type: string;
   shortName: string;
   longName: string;
-  instruments: Instrument[];
+  instruments?: Instrument[];
 };
 
 export type ScienceKeywords = {

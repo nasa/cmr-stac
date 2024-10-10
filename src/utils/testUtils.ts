@@ -158,8 +158,7 @@ export const generateGranules = (
         conceptId: `G00000000${idx}-${opts?.provider ?? "TEST_PROV"}`,
         collection: {
           conceptId: opts?.collection?.conceptId ?? "C123456789-TEST_PROV",
-          shortName: "short",
-          version: "1",
+          entryId: 'TEST_COLLECTION_1'
         },
         title: faker.random.words(8).replace(/\s+/gi, "_"),
       } as Granule;
@@ -184,8 +183,7 @@ export const generateCollections = (
         summary: faker.lorem.paragraph(),
         description: "this is the abstract but aliased as description",
         title: "mock_coll",
-        shortName: faker.random.words(4).replace(/\s+/, "_"),
-        version: faker.random.alphaNumeric(),
+        entryId: faker.random.words(4).replace(/\s+/, "_"),
         boxes: null,
         lines: null,
         polygons: null,
