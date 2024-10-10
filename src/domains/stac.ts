@@ -465,6 +465,12 @@ const collectionsQuery = async (req: Request, query: StacQuery): Promise<{ entry
   } = req;
   const cloudHosted = headers["cloud-stac"] === "true";
 
+  // query.collections could be a comma separated string of multiple collections.
+  // Need to ensure this would be split out appropriately.
+  if (query.collections && !Array.isArray(query.collections)) {
+    query.collections = query.collections.split(",");
+  }
+
   const collections = Array.isArray(query.collections)
     ? [...query.collections, collectionId]
     : [query.collections, collectionId];
