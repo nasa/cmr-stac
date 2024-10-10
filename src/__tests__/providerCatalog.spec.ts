@@ -136,11 +136,12 @@ describe("GET /:provider", () => {
             .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
 
           const mockCollections = generateSTACCollections(quantity);
+          console.log("🚀 ~ mockCollections:", mockCollections)
           sandbox.stub(Collections, "getCollectionIds").resolves({
             count: mockCollections.length,
             cursor: "foundCursor",
             items: mockCollections.map((coll) => ({
-              entryId: `${coll.shortName}_${coll.version}`,
+              entryId: `${coll.id}`,
               title: coll.title ?? faker.random.words(4),
             })),
           });

@@ -7,15 +7,10 @@ export const generateSTACCollections = (quantity: number) => {
   return Array(quantity)
     .fill(undefined)
     .map(() => {
-      const shortName = faker.commerce.product();
-      const version = `v${Math.random() * 100}`;
-      const id = `${shortName}_${version}`;
 
       return {
-        id,
+        id: "TEST_COLLECTION",
         title: faker.animal.cat(),
-        shortName,
-        version,
         stac_version: "1.0.0",
         type: "Collection",
         description: faker.hacker.phrase(),
@@ -143,7 +138,7 @@ export const generateGranules = (
   quantity: number,
   opts: {
     collection?: {
-      shortName: string;
+      entryId: string;
       version: string;
       conceptId: string;
     };

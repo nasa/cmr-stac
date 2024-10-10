@@ -238,7 +238,6 @@ export const collectionToStac = (collection: Collection): STACCollection => {
 
   const assets = extractAssets(collection);
   const extent = createExtent(collection);
-  // const id = collectionToId(collection);
   const keywords = createKeywords(collection);
   const links = generateCollectionLinks(collection, [licenseLink]);
   const provider = generateProviders(collection);
