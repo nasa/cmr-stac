@@ -7,7 +7,6 @@ export const generateSTACCollections = (quantity: number) => {
   return Array(quantity)
     .fill(undefined)
     .map(() => {
-
       return {
         id: "TEST_COLLECTION",
         title: faker.animal.cat(),
