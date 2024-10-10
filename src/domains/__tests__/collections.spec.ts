@@ -276,10 +276,7 @@ describe("collectionsToStac", () => {
 
       // Check if all expected fields are present and correctly populated
       expect(stacCollection).to.have.property("type", "Collection");
-      expect(stacCollection).to.have.property(
-        "id",
-        `${mockCollection.entryId}`
-      );
+      expect(stacCollection).to.have.property("id", `${mockCollection.entryId}`);
       expect(stacCollection).to.have.property("title", mockCollection.title);
       expect(stacCollection).to.have.property("description", mockCollection.description);
       expect(stacCollection).to.have.property("stac_version", "1.0.0");
@@ -313,48 +310,48 @@ describe("collectionsToStac", () => {
       ]);
       expect(stacCollection.summaries).to.have.property("instruments");
       expect(stacCollection.summaries?.instruments).to.deep.equal([
-        mockCollection.platforms?.[0]?.instruments?.[0]?.shortName
+        mockCollection.platforms?.[0]?.instruments?.[0]?.shortName,
       ]);
     });
   });
-  describe('when processing platform and instruments', () => { 
+  describe("when processing platform and instruments", () => {
     it("should correctly handle a collection with multiple Platforms and Instruments", () => {
       const [mockCollection] = generateCollections(1);
       mockCollection.platforms = [
         {
-          type:'Earth Observation Satellites',
+          type: "Earth Observation Satellites",
           shortName: "Terra",
           longName: "Earth Observing System, Terra (AM-1)",
           instruments: [
-            { 
+            {
               shortName: "ASTER",
-              longName: "Advanced Spaceborne Thermal Emission and Reflection Radiometer" 
+              longName: "Advanced Spaceborne Thermal Emission and Reflection Radiometer",
             },
-            { 
+            {
               shortName: "MODIS",
-              longName: "Moderate-Resolution Imaging Spectroradiometer" 
-            }
-          ]
-        }
+              longName: "Moderate-Resolution Imaging Spectroradiometer",
+            },
+          ],
+        },
       ];
       const stacCollection = collectionToStac(mockCollection);
       expect(stacCollection.summaries).to.have.property("platform");
       expect(stacCollection.summaries?.platform).to.deep.equal(["Terra"]);
       expect(stacCollection.summaries).to.have.property("instruments");
       expect(stacCollection.summaries?.instruments).to.deep.equal(["ASTER", "MODIS"]);
-    })
+    });
 
     it("should handle a collection with platforms but no instruments", () => {
       const [mockCollection] = generateCollections(1);
       mockCollection.platforms = [
         {
-          type:'Earth Observation Satellites',
+          type: "Earth Observation Satellites",
           shortName: "Terra",
           longName: "Earth Observing System, Terra (AM-1)",
-        }
+        },
       ];
       const stacCollection = collectionToStac(mockCollection);
-  
+
       expect(stacCollection.summaries).to.have.property("platform");
       expect(stacCollection.summaries?.platform).to.deep.equal(["Terra"]);
       expect(stacCollection.summaries).to.have.property("instruments");
@@ -365,74 +362,78 @@ describe("collectionsToStac", () => {
       const [mockCollection] = generateCollections(1);
       mockCollection.platforms = [
         {
-          type:"Earth Observation Satellites",
+          type: "Earth Observation Satellites",
           shortName: "Terra",
-          longName:'Earth Observing System, Terra (AM-1)',
+          longName: "Earth Observing System, Terra (AM-1)",
           instruments: [
-            { 
+            {
               shortName: "ASTER",
-              longName: "Advanced Spaceborne Thermal Emission and Reflection Radiometer" 
+              longName: "Advanced Spaceborne Thermal Emission and Reflection Radiometer",
             },
-          ]
+          ],
         },
-        { 
+        {
           type: "Earth Observation Satellites",
           shortName: "SPOT-4",
-          longName: "Systeme Probatoire Pour l'Observation de la Terre-4"
+          longName: "Systeme Probatoire Pour l'Observation de la Terre-4",
         },
         {
           type: "Earth Observation Satellites",
           shortName: "SPOT-5",
           longName: "Systeme Probatoire Pour l'Observation de la Terre-5",
           instruments: [
-            { 
-              shortName: "VEGETATION-2", 
-              longName: "VEGETATION INSTRUMENT 2 (SPOT 5)"
+            {
+              shortName: "VEGETATION-2",
+              longName: "VEGETATION INSTRUMENT 2 (SPOT 5)",
             },
-            { 
-              shortName: "VEGETATION-3", 
-              longName: "VEGETATION INSTRUMENT 3 (SPOT 3)"
-            }
-          ]
-        }
+            {
+              shortName: "VEGETATION-3",
+              longName: "VEGETATION INSTRUMENT 3 (SPOT 3)",
+            },
+          ],
+        },
       ];
-  
+
       const stacCollection = collectionToStac(mockCollection);
-  
+
       expect(stacCollection.summaries).to.have.property("platform");
       expect(stacCollection.summaries?.platform).to.deep.equal(["Terra", "SPOT-4", "SPOT-5"]);
       expect(stacCollection.summaries).to.have.property("instruments");
-      expect(stacCollection.summaries?.instruments).to.deep.equal(["ASTER", "VEGETATION-2", "VEGETATION-3"]);
+      expect(stacCollection.summaries?.instruments).to.deep.equal([
+        "ASTER",
+        "VEGETATION-2",
+        "VEGETATION-3",
+      ]);
     });
-    
+
     it("should handle a collection with empty instruments arrays", () => {
       const [mockCollection] = generateCollections(1);
       mockCollection.platforms = [
         {
-          type:"Earth Observation Satellites",
+          type: "Earth Observation Satellites",
           shortName: "Terra",
-          longName:'Earth Observing System, Terra (AM-1)',
+          longName: "Earth Observing System, Terra (AM-1)",
           instruments: [
-            { 
+            {
               shortName: "ASTER",
-              longName: "Advanced Spaceborne Thermal Emission and Reflection Radiometer" 
+              longName: "Advanced Spaceborne Thermal Emission and Reflection Radiometer",
             },
-          ]
+          ],
         },
-        { 
+        {
           type: "Earth Observation Satellites",
           shortName: "SPOT-4",
           longName: "Systeme Probatoire Pour l'Observation de la Terre-4",
-          instruments: []
+          instruments: [],
         },
       ];
-  
+
       const stacCollection = collectionToStac(mockCollection);
-  
+
       expect(stacCollection.summaries).to.have.property("platform");
       expect(stacCollection.summaries?.platform).to.deep.equal(["Terra", "SPOT-4"]);
       expect(stacCollection.summaries).to.have.property("instruments");
       expect(stacCollection.summaries?.instruments).to.deep.equal(["ASTER"]);
     });
-   })
+  });
 });

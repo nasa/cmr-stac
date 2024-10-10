@@ -158,7 +158,7 @@ export const generateGranules = (
         conceptId: `G00000000${idx}-${opts?.provider ?? "TEST_PROV"}`,
         collection: {
           conceptId: opts?.collection?.conceptId ?? "C123456789-TEST_PROV",
-          entryId: 'TEST_COLLECTION_1'
+          entryId: "TEST_COLLECTION_1",
         },
         title: faker.random.words(8).replace(/\s+/gi, "_"),
       } as Granule;

@@ -86,12 +86,9 @@ const selfLinks = (req: Request, item: STACItem) => {
 
   const { id, collection } = item;
 
-  console.log("🚀 ~ selfLinks ~ collection:", collection)
-
   const providerId = provider["provider-id"];
   const itemId = encodeURIComponent(id);
   const collectionId = encodeURIComponent(collection as string);
-  console.log("🚀 ~ selfLinks ~ collectionId:", collectionId)
 
   return [
     {

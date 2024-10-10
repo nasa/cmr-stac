@@ -210,11 +210,11 @@ const createSummaries = (collection: Collection): Summaries => {
     { platform: [], instruments: [] }
   );
 
-  if(summaries.instruments.length === 0 ){
-    summaries.instruments = ["Not Provided"]
+  if (summaries.instruments.length === 0) {
+    summaries.instruments = ["Not Provided"];
   }
 
-  return summaries
+  return summaries;
 };
 
 const generateProviders = (collection: Collection) => [
@@ -232,12 +232,7 @@ const generateProviders = (collection: Collection) => [
  * Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: Collection): STACCollection => {
-  
-  const { 
-    entryId, 
-    description, 
-    title 
-  } = collection;
+  const { entryId, description, title } = collection;
 
   const { license, licenseLink } = extractLicense(collection);
 
@@ -307,7 +302,7 @@ export const getCollections = async (
   return { cursor, count, items: collections as STACCollection[] };
 };
 
-const attachId = (collection: { entryId: string; }) => ({
+const attachId = (collection: { entryId: string }) => ({
   ...collection,
   id: collection.entryId,
 });
