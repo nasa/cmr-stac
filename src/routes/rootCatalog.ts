@@ -3,7 +3,7 @@ import { Link, STACCatalog } from "../@types/StacCatalog";
 
 import { conformance } from "../domains/providers";
 import { Provider } from "../models/CmrModels";
-import { stacContext } from "../utils";
+import { getBaseUrl, stacContext } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
@@ -45,7 +45,7 @@ const providerLinks = (req: Request, providers: Provider[]): Link[] => {
     rel: "child",
     title,
     type: "application/json",
-    href: `${self}/${providerId}`,
+    href: `${getBaseUrl(self)}/${providerId}`,
   }));
 };
 

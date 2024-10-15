@@ -164,6 +164,42 @@ describe("GET /:provider", () => {
         });
       });
     });
+
+    describe(`given the provider has a collection`, () => {
+      it("has a child link for that collection without query parameters", async function () {
+        sandbox
+          .stub(Provider, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        const mockCollections = generateSTACCollections(1);
+        sandbox.stub(Collections, "getCollectionIds").resolves({
+          count: mockCollections.length,
+          cursor: "foundCursor",
+          items: mockCollections.map((coll) => ({
+            id: `${coll.id}`,
+            title: coll.title ?? faker.random.words(4),
+          })),
+        });
+
+        const { body: catalog } = await request(stacApp).get("/stac/TEST?param=value");
+
+        const children = catalog.links.filter((l: Link) => l.rel === "child");
+        expect(children).to.have.length(mockCollections.length);
+
+        mockCollections.forEach((collection) => {
+          const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
+
+          expect(childLink, JSON.stringify(children, null, 2)).to.have.property(
+            "type",
+            "application/json"
+          );
+          expect(childLink.href, JSON.stringify(childLink, null, 2)).to.not.contain("?param=value");
+          expect(childLink.href, JSON.stringify(childLink, null, 2)).to.match(
+            /^https?:\/\/.*TEST\/collections/
+          );
+        });
+      });
+    });
   });
 
   describe("given CMR providers endpoint responds with an error", () => {
