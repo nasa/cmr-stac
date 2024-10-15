@@ -167,8 +167,6 @@ describe("GET /:provider", () => {
 
     describe(`given the provider has a collection`, () => {
       it("has a child link for that collection without query parameters", async function () {
-        this.timeout(5000);
-
         sandbox
           .stub(Provider, "getProviders")
           .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
