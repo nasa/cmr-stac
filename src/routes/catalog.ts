@@ -5,7 +5,7 @@ import { Links, STACCatalog } from "../@types/StacCatalog";
 import { getAllCollectionIds } from "../domains/collections";
 import { conformance } from "../domains/providers";
 import { ServiceUnavailableError } from "../models/errors";
-import { mergeMaybe, stacContext } from "../utils";
+import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
@@ -105,7 +105,7 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
   const selfLinks = generateSelfLinks(req);
   const childLinks = (collections ?? []).map(({ id, title }) => ({
     rel: "child",
-    href: `${self.replace(/\?.*$/, "")}/collections/${encodeURIComponent(id)}`,
+    href: `${getBaseUrl(self)}/collections/${encodeURIComponent(id)}`,
     title,
     type: "application/json",
   }));

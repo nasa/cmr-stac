@@ -5,7 +5,7 @@ import { Links } from "../@types/StacCatalog";
 import { getCollections } from "../domains/collections";
 import { buildQuery, stringifyQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
-import { mergeMaybe, stacContext } from "../utils";
+import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 
 const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
   const { stacRoot, self, path } = stacContext(req);
@@ -64,13 +64,10 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
 
   const { stacRoot, self } = stacContext(req);
 
-  // Remove query parameters from the URL, keeping only the base path
-  const baseUrl = self.replace(/\?.*$/, "");
-
   collections.forEach((collection) => {
     collection.links.push({
       rel: "self",
-      href: `${baseUrl}/${encodeURIComponent(collection.id)}`,
+      href: `${getBaseUrl(self)}/${encodeURIComponent(collection.id)}`,
       type: "application/json",
     });
     collection.links.push({
@@ -92,7 +89,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
     if (!itemsLink) {
       collection.links.push({
         rel: "items",
-        href: `${baseUrl}/${encodeURIComponent(collection.id)}/items`,
+        href: `${getBaseUrl(self)}/${encodeURIComponent(collection.id)}/items`,
         type: "application/json",
       });
     }

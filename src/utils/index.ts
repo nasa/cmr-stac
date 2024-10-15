@@ -174,3 +174,11 @@ export const generatePossibleCollectionIds = (id: string, separator: string, rep
 
     return tokensCopy.join(separator);
   });
+
+/**
+ * Returns the base URL
+ * This is used to remove Query Parameters that may have been added to the URL.
+ */
+export const getBaseUrl = (url: string) => {
+  return url.replace(/\?.*$/, "");
+};
