@@ -105,7 +105,7 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
   const selfLinks = generateSelfLinks(req);
   const childLinks = (collections ?? []).map(({ id, title }) => ({
     rel: "child",
-    href: `${self}/collections/${encodeURIComponent(id)}`,
+    href: `${self.replace(/\?.*$/, "")}/collections/${encodeURIComponent(id)}`,
     title,
     type: "application/json",
   }));

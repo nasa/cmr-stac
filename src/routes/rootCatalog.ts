@@ -45,7 +45,7 @@ const providerLinks = (req: Request, providers: Provider[]): Link[] => {
     rel: "child",
     title,
     type: "application/json",
-    href: `${self}/${providerId}`,
+    href: `${self.replace(/\?.*$/, "")}/${providerId}`,
   }));
 };
 
