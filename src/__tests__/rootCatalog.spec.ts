@@ -55,7 +55,7 @@ describe("GET /stac", () => {
   });
 
   describe("given CMR responds with providers", () => {
-    before(() => {
+    beforeEach(() => {
       sandbox
         .stub(Providers, "getProviders")
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
@@ -71,6 +71,23 @@ describe("GET /stac", () => {
         const providerLink = body.links.find((l: Link) => l.href.includes(provider["provider-id"]));
 
         expect(providerLink.href).to.match(/^(http)s?:\/\/.*\w+/);
+        expect(providerLink.rel).to.equal("child");
+        expect(providerLink.type).to.equal("application/json");
+        expect(providerLink.title).to.equal(provider["provider-id"]);
+      });
+    });
+
+    it("should have an entry for each provider in the links without query parameters", async () => {
+      const { statusCode, body } = await request(app).get("/stac?param=value");
+
+      expect(statusCode).to.equal(200);
+      const [, expectedProviders] = cmrProvidersResponse;
+
+      expectedProviders!.forEach((provider) => {
+        const providerLink = body.links.find((l: Link) => l.href.includes(provider["provider-id"]));
+
+        expect(providerLink.href).to.match(/^(http)s?:\/\/.*\w+/);
+        expect(providerLink.href).to.not.contain("?param=value");
         expect(providerLink.rel).to.equal("child");
         expect(providerLink.type).to.equal("application/json");
         expect(providerLink.title).to.equal(provider["provider-id"]);
