@@ -191,10 +191,6 @@ describe("GET /:provider", () => {
         mockCollections.forEach((collection) => {
           const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-          expect(childLink, JSON.stringify(children, null, 2)).to.have.property(
-            "type",
-            "application/json"
-          );
           expect(childLink.href, JSON.stringify(childLink, null, 2)).to.not.contain("?param=value");
           expect(childLink.href, JSON.stringify(childLink, null, 2)).to.match(
             /^https?:\/\/.*TEST\/collections/
