@@ -13,8 +13,9 @@ import ItemSpec from "../../resources/item-spec/json-schema/item.json";
 
 import { Link } from "../@types/StacCatalog";
 import { createApp } from "../app";
-import * as Provider from "../domains/providers";
 import * as Collections from "../domains/collections";
+import * as Provider from "../domains/providers";
+import * as stac from "../domains/stac";
 import { generateSTACCollections } from "../utils/testUtils";
 
 const stacApp = createApp();
@@ -162,6 +163,59 @@ describe("GET /:provider", () => {
             );
           });
         });
+      });
+    });
+
+    describe("when there are more results available", () => {
+      it("includes a 'next' link with the correct query parameters", async () => {
+        sandbox.stub(stac, "CMR_QUERY_MAX").value(100);
+        sandbox
+          .stub(Provider, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+        const mockCollections = generateSTACCollections(100);
+        sandbox.stub(Collections, "getCollectionIds").resolves({
+          count: 100,
+          cursor: "nextPageCursor",
+          items: mockCollections.map((coll) => ({
+            id: `${coll.id}`,
+            title: coll.title ?? faker.random.words(4),
+          })),
+        });
+
+        const { body: catalog } = await request(stacApp).get(`/stac/TEST`);
+
+        const nextLink = catalog.links.find((l: Link) => l.rel === "next");
+        expect(nextLink).to.exist;
+        expect(nextLink.rel).to.equal("next");
+        expect(nextLink.type).to.equal("application/json");
+        expect(nextLink.title).to.equal("Next page of results");
+
+        const nextUrl = new URL(nextLink.href);
+        expect(nextUrl.pathname).to.equal("/stac/TEST");
+      });
+    });
+
+    describe("when there are no more results available", () => {
+      it("does not include a 'next' link", async () => {
+        sandbox.stub(stac, "CMR_QUERY_MAX").value(100);
+        sandbox
+          .stub(Provider, "getProviders")
+          .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+        const mockCollections = generateSTACCollections(10);
+        sandbox.stub(Collections, "getCollectionIds").resolves({
+          count: 10,
+          cursor: null,
+          items: mockCollections.map((coll) => ({
+            id: `${coll.id}`,
+            title: coll.title ?? faker.random.words(4),
+          })),
+        });
+
+        const { body: catalog } = await request(stacApp).get("/stac/TEST");
+
+        const nextLink = catalog.links.find((l: Link) => l.rel === "next");
+        expect(nextLink).to.not.exist;
       });
     });
 

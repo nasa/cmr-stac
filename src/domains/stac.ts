@@ -205,8 +205,8 @@ export const extractAssets = (
     {} as AssetLinks
   );
 const GRAPHQL_URL = process.env.GRAPHQL_URL ?? "http://localhost:3013";
-export const CMR_QUERY_MAX = 2000;
-export const MAX_SIGNED_INTEGER = 2 ** 31 - 1;
+
+export const CMR_QUERY_MAX = Number(process.env.PAGE_SIZE);
 
 const pointToQuery = (point: GeoJSONPoint) => point.coordinates.join(",");
 
@@ -553,8 +553,7 @@ export const paginateQuery = async (
   opts: {
     headers?: IncomingHttpHeaders;
   },
-  handler: GraphQLHandler,
-  prevResults: unknown[] = []
+  handler: GraphQLHandler
 ): Promise<GraphQLResults> => {
   const paginatedParams = { ...params };
 
@@ -589,19 +588,7 @@ export const paginateQuery = async (
     if (!data) throw new Error("No data returned from GraphQL during paginated query");
     const { count, cursor, items } = data;
 
-    const totalResults = [...prevResults, ...items];
-    const moreResultsAvailable = totalResults.length !== count && cursor != null;
-    const foundEnough = totalResults.length >= (params.limit ?? -1);
-
-    if (moreResultsAvailable && !foundEnough) {
-      console.debug(
-        `Retrieved ${totalResults.length} of ${params.limit} for ${JSON.stringify(params, null, 2)}`
-      );
-      const nextParams = mergeMaybe({ ...params }, { cursor });
-      return await paginateQuery(gqlQuery, nextParams, opts, handler, totalResults);
-    }
-
-    return { items: totalResults, count, cursor };
+    return { items: items, count, cursor };
   } catch (err: unknown) {
     if (
       !(err instanceof Error) &&
