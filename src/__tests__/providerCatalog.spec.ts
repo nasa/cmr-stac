@@ -168,7 +168,7 @@ describe("GET /:provider", () => {
 
     describe("when there are more results available", () => {
       it("includes a 'next' link with the correct query parameters", async () => {
-        sandbox.stub(stac, 'CMR_QUERY_MAX').value(100);
+        sandbox.stub(stac, "CMR_QUERY_MAX").value(100);
         sandbox
           .stub(Provider, "getProviders")
           .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
@@ -197,7 +197,7 @@ describe("GET /:provider", () => {
 
     describe("when there are no more results available", () => {
       it("does not include a 'next' link", async () => {
-        sandbox.stub(stac, 'CMR_QUERY_MAX').value(100);
+        sandbox.stub(stac, "CMR_QUERY_MAX").value(100);
         sandbox
           .stub(Provider, "getProviders")
           .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
