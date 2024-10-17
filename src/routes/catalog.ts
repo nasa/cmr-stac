@@ -6,11 +6,11 @@ import { getAllCollectionIds } from "../domains/collections";
 import { conformance } from "../domains/providers";
 import { ServiceUnavailableError } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
-import { stringifyQuery } from "../domains/stac";
+import { CMR_QUERY_MAX, stringifyQuery } from "../domains/stac";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
-const generateSelfLinks = (req: Request, nextCursor?: string | null): Links => {
+const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: number): Links => {
   const { stacRoot, path, self } = stacContext(req);
 
   const links = [
@@ -76,7 +76,12 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null): Links => {
 
   const originalQuery = mergeMaybe(req.query, req.body);
 
-  if (nextCursor) {
+  // Add a 'next' link if there are more results available
+  // This is determined by:
+  //  1. The presence of a nextCursor (indicating more results)
+  //  2. The number of collection equaling CMR_QUERY_MAX (100)
+  // The 'next' link includes the original query parameters plus the new cursor
+  if (nextCursor && count === CMR_QUERY_MAX) {
     const nextResultsQuery = { ...originalQuery, cursor: nextCursor };
 
     links.push({
@@ -97,13 +102,13 @@ const providerCollections = async (
 
   const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
 
-  const query2 = mergeMaybe(
+  const mergedQuery = mergeMaybe(
     { provider: provider?.["provider-id"], cursor: query?.cursor },
     { ...cloudOnly }
   );
 
   try {
-    const { items, cursor } = await getAllCollectionIds(query2, { headers });
+    const { items, cursor } = await getAllCollectionIds(mergedQuery, { headers });
     return [null, items, cursor];
   } catch (err) {
     console.error("A problem occurred querying for collections.", err);
@@ -122,7 +127,7 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
 
   const { self } = stacContext(req);
 
-  const selfLinks = generateSelfLinks(req, cursor);
+  const selfLinks = generateSelfLinks(req, cursor, collections?.length);
 
   const childLinks = (collections ?? []).map(({ id, title }) => ({
     rel: "child",
