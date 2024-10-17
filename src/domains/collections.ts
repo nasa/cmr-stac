@@ -16,7 +16,7 @@ import {
 
 import { cmrSpatialToExtent } from "./bounding-box";
 
-import { extractAssets, MAX_SIGNED_INTEGER, paginateQuery } from "./stac";
+import { CMR_QUERY_MAX, extractAssets, paginateQuery } from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -356,7 +356,7 @@ export const getAllCollectionIds = async (
   cursor: string | null;
   items: { id: string; title: string }[];
 }> => {
-  params.limit = MAX_SIGNED_INTEGER;
+  params.limit = CMR_QUERY_MAX
 
   return await getCollectionIds(params, opts);
 };
