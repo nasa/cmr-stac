@@ -9,7 +9,7 @@ provider:
     CMR_LB_URL: "https://cmr.sit.earthdata.nasa.gov"
     GRAPHQL_URL: "https://graphql.sit.earthdata.nasa.gov/api"
     STAC_VERSION: "1.0.0"
-    PAGE_SIZE: 100
+    PAGE_SIZE: "100"
 
 functions:
   stac:

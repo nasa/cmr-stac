@@ -553,7 +553,7 @@ export const paginateQuery = async (
   opts: {
     headers?: IncomingHttpHeaders;
   },
-  handler: GraphQLHandler,
+  handler: GraphQLHandler
 ): Promise<GraphQLResults> => {
   const paginatedParams = { ...params };
 
@@ -589,7 +589,6 @@ export const paginateQuery = async (
     const { count, cursor, items } = data;
 
     return { items: items, count, cursor };
-
   } catch (err: unknown) {
     if (
       !(err instanceof Error) &&

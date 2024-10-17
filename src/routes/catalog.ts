@@ -81,13 +81,13 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null): Links => {
 
     links.push({
       rel: "next",
-      href:  `${stacRoot}${req.path}?${stringifyQuery(nextResultsQuery)}`,
+      href: `${stacRoot}${req.path}?${stringifyQuery(nextResultsQuery)}`,
       type: "application/json",
-      title: "Next page of results"
+      title: "Next page of results",
     });
   }
 
-  return links
+  return links;
 };
 
 const providerCollections = async (
@@ -97,7 +97,10 @@ const providerCollections = async (
 
   const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
 
-  const query2 = mergeMaybe({ provider: provider?.["provider-id"], cursor: query?.cursor }, { ...cloudOnly });
+  const query2 = mergeMaybe(
+    { provider: provider?.["provider-id"], cursor: query?.cursor },
+    { ...cloudOnly }
+  );
 
   try {
     const { items, cursor } = await getAllCollectionIds(query2, { headers });
@@ -120,7 +123,7 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
   const { self } = stacContext(req);
 
   const selfLinks = generateSelfLinks(req, cursor);
-  
+
   const childLinks = (collections ?? []).map(({ id, title }) => ({
     rel: "child",
     href: `${getBaseUrl(self)}/collections/${encodeURIComponent(id)}`,

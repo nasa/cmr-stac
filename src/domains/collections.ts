@@ -356,7 +356,7 @@ export const getAllCollectionIds = async (
   cursor: string | null;
   items: { id: string; title: string }[];
 }> => {
-  params.limit = CMR_QUERY_MAX
+  params.limit = CMR_QUERY_MAX;
 
   return await getCollectionIds(params, opts);
 };
