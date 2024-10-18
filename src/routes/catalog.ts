@@ -6,13 +6,14 @@ import { getAllCollectionIds } from "../domains/collections";
 import { conformance } from "../domains/providers";
 import { ServiceUnavailableError } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
+import { CMR_QUERY_MAX, stringifyQuery } from "../domains/stac";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
-const generateSelfLinks = (req: Request): Links => {
+const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: number): Links => {
   const { stacRoot, path, self } = stacContext(req);
 
-  return [
+  const links = [
     {
       rel: "self",
       href: self,
@@ -72,20 +73,46 @@ const generateSelfLinks = (req: Request): Links => {
       title: "HTML documentation",
     },
   ];
+
+  const originalQuery = mergeMaybe(req.query, req.body);
+
+  // Add a 'next' link if there are more results available
+  // This is determined by:
+  //  1. The presence of a nextCursor (indicating more results)
+  //  2. The number of collection equaling CMR_QUERY_MAX (100)
+  // The 'next' link includes the original query parameters plus the new cursor
+  if (nextCursor && count === CMR_QUERY_MAX) {
+    const nextResultsQuery = { ...originalQuery, cursor: nextCursor };
+
+    links.push({
+      rel: "next",
+      href: `${stacRoot}${req.path}?${stringifyQuery(nextResultsQuery)}`,
+      type: "application/json",
+      title: "Next page of results",
+    });
+  }
+
+  return links;
 };
 
 const providerCollections = async (
   req: Request
-): Promise<[null, { id: string; title: string }[]] | [string, null]> => {
-  const { headers, provider } = req;
+): Promise<[null, { id: string; title: string }[], string | null] | [string, null]> => {
+  const { headers, provider, query } = req;
 
   const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
 
-  const query = mergeMaybe({ provider: provider?.["provider-id"] }, { ...cloudOnly });
+  const mergedQuery = mergeMaybe(
+    {
+      provider: provider?.["provider-id"],
+      cursor: query?.cursor,
+    },
+    { ...cloudOnly }
+  );
 
   try {
-    const { items } = await getAllCollectionIds(query, { headers });
-    return [null, items];
+    const { items, cursor } = await getAllCollectionIds(mergedQuery, { headers });
+    return [null, items, cursor];
   } catch (err) {
     console.error("A problem occurred querying for collections.", err);
     return [(err as Error).message, null];
@@ -94,15 +121,17 @@ const providerCollections = async (
 
 export const providerCatalogHandler = async (req: Request, res: Response) => {
   const { provider } = req;
+
   if (!provider) throw new ServiceUnavailableError("Could not retrieve provider information");
 
-  const [err, collections] = await providerCollections(req);
+  const [err, collections, cursor] = await providerCollections(req);
 
   if (err) throw new ServiceUnavailableError(err as string);
 
   const { self } = stacContext(req);
 
-  const selfLinks = generateSelfLinks(req);
+  const selfLinks = generateSelfLinks(req, cursor, collections?.length);
+
   const childLinks = (collections ?? []).map(({ id, title }) => ({
     rel: "child",
     href: `${getBaseUrl(self)}/collections/${encodeURIComponent(id)}`,
