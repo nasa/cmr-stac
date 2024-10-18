@@ -103,7 +103,10 @@ const providerCollections = async (
   const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
 
   const mergedQuery = mergeMaybe(
-    { provider: provider?.["provider-id"], cursor: query?.cursor },
+    {
+      provider: provider?.["provider-id"],
+      cursor: query?.cursor,
+    },
     { ...cloudOnly }
   );
 
