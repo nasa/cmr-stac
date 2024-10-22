@@ -9,7 +9,7 @@ const { expect } = chai;
 import * as gql from "graphql-request";
 import { getCollections, collectionToStac } from "../collections";
 import { generateCollections } from "../../utils/testUtils";
-import { UrlContentType } from "../../models/GraphQLModels";
+import { UrlContentType, RelatedUrlType, RelatedUrlSubType } from "../../models/GraphQLModels";
 
 const sandbox = sinon.createSandbox();
 
@@ -37,9 +37,9 @@ describe("collectionsToStac", () => {
       const relatedUrl = {
         description: "foo",
         urlContentType: UrlContentType.DISTRIBUTION_URL,
-        type: "GET CAPABILITIES",
-        subtype: "STAC",
-        url: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1",
+        type: RelatedUrlType.GET_CAPABILITIES,
+        subtype: RelatedUrlSubType.STAC,
+        url: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1/items",
         getData: {
           format: "Not provided",
           mimeType: "application/json",
@@ -90,8 +90,8 @@ describe("collectionsToStac", () => {
         },
         {
           rel: "items",
-          href: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1",
-          type: "application/json",
+          href: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1/items",
+          type: "application/geo+json",
         },
       ]);
     });

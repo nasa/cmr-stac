@@ -105,8 +105,8 @@ describe("GET /:provider/collections", () => {
 
       const link = {
         rel: "items",
-        href: "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1",
-        type: "application/json",
+        href: "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1/items",
+        type: "application/geo+json",
       };
       mockCollections[0].links.push(link);
 
@@ -121,12 +121,17 @@ describe("GET /:provider/collections", () => {
       expect(statusCode).to.equal(200);
       expect(body.collections).to.have.lengthOf(2);
 
-      // Get the links of rel=item for the first collection
+      // Expect there to be one link with rel=items
+      expect(body.collections[0].links.filter((l: Link) => l.rel === "items")).to.have.lengthOf(1);
+      // Expect the href to match the STAC API described.
       const link0: Link = body.collections[0].links.find((l: Link) => l.rel === "items");
       expect(link0.href).to.equal(
-        "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1"
+        "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1/items"
       );
-      // Get the links of rel=item for the second collection
+
+      // Expect there to be on lin with rel=items
+      expect(body.collections[1].links.filter((l: Link) => l.rel === "items")).to.have.lengthOf(1);
+      // Expect the href to match the generic STAC API.
       const link1: Link = body.collections[1].links.find((l: Link) => l.rel === "items");
       expect(link1.href).to.contain("/stac/TEST/collections/");
     });

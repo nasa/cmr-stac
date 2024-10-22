@@ -6,9 +6,10 @@ import { getCollections } from "../domains/collections";
 import { buildQuery, stringifyQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
+import { STACCollection } from "../@types/StacCollection";
 
 const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
-  const { stacRoot, self, path } = stacContext(req);
+  const { stacRoot, self } = stacContext(req);
 
   const parent = self.split("/").slice(0, -1).join("/");
 
@@ -30,12 +31,6 @@ const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
       type: "application/json",
       title: "Provider Collections",
     },
-    {
-      rel: "items",
-      href: `${path}/items`,
-      type: "application/geo+json",
-      title: "Collection Items",
-    },
   ];
 
   const originalQuery = mergeMaybe(req.query, req.body);
@@ -49,11 +44,11 @@ const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
       type: "application/geo+json",
     });
   }
-
   return links;
 };
 
 export const collectionsHandler = async (req: Request, res: Response): Promise<void> => {
+  console.debug("XXXXXXX collectionsHandler");
   const { headers } = req;
 
   const query = await buildQuery(req);
@@ -75,24 +70,8 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
-    /* A CMR collection can now indicate to consumers that it has a STAC API.
-     * If that is the case then we use that link instead of a generic CMR one.
-     * This is useful of collections that do not index their granule
-     * metadata in CMR, like CWIC collection.
-     * If the list of links of does not contain a link of type 'items' then
-     * add the default items element
-     */
-    const { links } = collection;
 
-    const itemsLink = links.find((link) => link.rel === "items");
-
-    if (!itemsLink) {
-      collection.links.push({
-        rel: "items",
-        href: `${getBaseUrl(self)}/${encodeURIComponent(collection.id)}/items`,
-        type: "application/json",
-      });
-    }
+    addItemLinkIfPresent(collection, `${getBaseUrl(self)}/${encodeURIComponent(collection.id)}`);
   });
 
   const links = collectionLinks(req, cursor);
@@ -110,6 +89,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
  * Returns a STACCollection as the body.
  */
 export const collectionHandler = async (req: Request, res: Response): Promise<void> => {
+  console.debug("XXXXXXX collectionHandler");
   const {
     collection,
     params: { collectionId, providerId },
@@ -124,6 +104,32 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
   collection.links = collection.links
     ? [...collectionLinks(req), ...(collection.links ?? [])]
     : [...collectionLinks(req)];
-
+  const { path } = stacContext(req);
+  addItemLinkIfPresent(collection, path);
   res.json(collection);
 };
+
+/**
+ * A CMR collection can now indicate to consumers that it has a STAC API.
+ * If that is the case then we use that link instead of a generic CMR one.
+ * This is useful of collections that do not index their granule
+ * metadata in CMR, like CWIC collection.
+ * If the list of links of does not contain a link of type 'items' then
+ * add the default items element
+ *
+ *  @param collection the STAC collection object containing links
+ *  @param url the generic link to a CMR STAC API
+ */
+
+function addItemLinkIfPresent(collection: STACCollection, url: string) {
+  const itemsLink = collection.links.find((link) => link.rel === "items");
+
+  if (!itemsLink) {
+    collection.links.push({
+      rel: "items",
+      href: url,
+      type: "application/geo+json",
+      title: "Collection Items",
+    });
+  }
+}
