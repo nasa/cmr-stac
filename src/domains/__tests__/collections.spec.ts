@@ -91,6 +91,7 @@ describe("collectionsToStac", () => {
         {
           rel: "items",
           href: "https://data.inpe.br/bdc/stac/v1/collections/AMZ1-WFI-L4-SR-1/items",
+          title: "Collection Items",
           type: "application/geo+json",
         },
       ]);

@@ -164,6 +164,7 @@ const generateCollectionLinks = (collection: Collection, links: Links) => {
       rel: "items",
       href: catalogUrl,
       type: "application/geo+json",
+      title: "Collection Items",
     });
   }
   return collectionLinks;

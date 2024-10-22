@@ -48,7 +48,6 @@ const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
 };
 
 export const collectionsHandler = async (req: Request, res: Response): Promise<void> => {
-  console.debug("XXXXXXX collectionsHandler");
   const { headers } = req;
 
   const query = await buildQuery(req);
@@ -89,7 +88,6 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
  * Returns a STACCollection as the body.
  */
 export const collectionHandler = async (req: Request, res: Response): Promise<void> => {
-  console.debug("XXXXXXX collectionHandler");
   const {
     collection,
     params: { collectionId, providerId },
