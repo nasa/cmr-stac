@@ -121,7 +121,7 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
  *  @param url the generic link to a CMR STAC API
  */
 
-function addItemLinkIfPresent(collection: STACCollection, url: string) {
+export function addItemLinkIfPresent(collection: STACCollection, url: string) {
   const itemsLink = collection.links.find((link) => link.rel === "items");
 
   if (!itemsLink) {
