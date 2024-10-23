@@ -10,12 +10,6 @@ import * as gql from "graphql-request";
 import { collectionHandler, collectionsHandler, addItemLinkIfPresent } from "../browse";
 import { generateSTACCollections } from "../../utils/testUtils";
 
-const sandbox = sinon.createSandbox();
-
-afterEach(() => {
-  sandbox.restore();
-});
-
 describe("addItemLinkIfPresent", () => {
   it("will add an item link if no item link is present", async () => {
     // Create a STACCollection with no item link
