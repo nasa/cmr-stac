@@ -129,7 +129,7 @@ describe("GET /:provider/collections", () => {
         "https://brazildatacube.dpi.inpe.br/stac/collections/MOSAIC-S2-YANOMAMI-6M-1/items"
       );
 
-      // Expect there to be on lin with rel=items
+      // Expect there to be on line with rel=items
       expect(body.collections[1].links.filter((l: Link) => l.rel === "items")).to.have.lengthOf(1);
       // Expect the href to match the generic STAC API.
       const link1: Link = body.collections[1].links.find((l: Link) => l.rel === "items");
