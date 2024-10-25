@@ -150,7 +150,8 @@ const generateCollectionLinks = (collection: Collection, links: Links) => {
       type: "application/vnd.nasa.cmr.umm+json",
     },
   ];
-  /* A CMR collection can now indicate to consumers that it has a STAC API.
+  /**
+   * A CMR collection can now indicate to consumers that it has a STAC API.
    * If that is the case then we use that link instead of a generic CMR one.
    * This is useful for collections that do not index their granule
    * metadata in CMR, like CWIC collection. If there is one present,
@@ -162,7 +163,8 @@ const generateCollectionLinks = (collection: Collection, links: Links) => {
     collectionLinks.push({
       rel: "items",
       href: catalogUrl,
-      type: "application/json",
+      type: "application/geo+json",
+      title: "Collection Items",
     });
   }
   return collectionLinks;
