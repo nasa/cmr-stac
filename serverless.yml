@@ -45,6 +45,7 @@ functions:
             method:
               - GET
               - POST
+              - OPTIONS
       - alb:
           listenerArn: ${cf:${opt:stage}.servicesLbListenerArn}
           priority: 501
@@ -53,6 +54,7 @@ functions:
             method:
               - GET
               - POST
+              - OPTIONS
 
 resources:
   # IAM
