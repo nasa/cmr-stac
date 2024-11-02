@@ -227,17 +227,19 @@ const validFreeText = (freeText: string) => {
   return false;
 };
 
-const VALID_SORT_FIELDS = ["startDate", "endDate", "id", "title", "eo:cloud_cover"];
+const VALID_SORT_FIELDS = ["startDate", "endDate", "id", "title", "eo:cloud_cover", "datetime"];
 
 const validSortBy = (sortBy: string | string[] | SortObject[]) => {
   const fields: string[] = parseSortFields(sortBy);
 
   return fields.every((value) => {
     const isDescending = value.startsWith("-");
+    console.log('🚀 ~ file: index.ts:237 ~ isDescending:', isDescending)
     const cleanSortBy = isDescending ? value.slice(1) : value;
     // Allow for `properties` prefix
     const fieldName = cleanSortBy.replace(/^properties\./, "");
 
+    // TODO normalize field to CMR
     return VALID_SORT_FIELDS.includes(fieldName);
   });
 };

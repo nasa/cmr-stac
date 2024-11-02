@@ -71,3 +71,14 @@ export const validDateTime = (dateTimeString?: string) => {
 
   return dates.reduce((validAcc, d) => validAcc && isValidDate(d), true) && isValidRange(dates);
 };
+
+
+export const mapDateTimeToCmrFields = (dateTimeString?: string) => {
+  if (!dateTimeString) return;
+  // if (invalidUnboundRanges.find((invalid) => invalid === dateTimeString)) return false;
+
+  // const dates = splitOnDelimiters(dateTimeString, [",", "/"]);
+  // if (dates.length > 2) return false;
+
+  // return dates.reduce((validAcc, d) => validAcc && isValidDate(d), true) && isValidRange(dates);
+};

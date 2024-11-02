@@ -63,7 +63,7 @@ describe("addItemLinkIfPresent", () => {
     const numberoOfLinks = stacCollection.links.length;
     // Invoke method
     addItemLinkIfPresent(stacCollection, "https://foo.com/items");
-    // Observe no addiitonal link in the STAC Collection and that the item link remains a CMR link
+    // Observe no additional link in the STAC Collection and that the item link remains a CMR link
     expect(stacCollection.links.length).to.equal(numberoOfLinks);
     expect(stacCollection).to.have.deep.property("links", [
       {

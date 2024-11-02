@@ -33,7 +33,7 @@ import { dateTimeToRange } from "../utils/datetime";
 
 import { AssetLinks } from "../@types/StacCollection";
 import { Collection, Granule, RelatedUrlType } from "../models/GraphQLModels";
-import { parseSortFields } from "../utils/sort";
+import { parseSortFields, mapIdSortKey } from "../utils/sort";
 
 const CMR_ROOT = process.env.CMR_URL;
 
@@ -340,26 +340,39 @@ const bboxQuery = (_req: Request, query: StacQuery) => ({
 /**
  * Returns a list of sortKeys from the sortBy property
  */
-export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[]): string[] => {
+export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[], searchType  = ""): string[] => {
+  console.log('🚀 ~ file: stac.ts:345 ~ searchType:', searchType)
   const baseSortKeys: string[] = parseSortFields(sortBys);
 
   return baseSortKeys.reduce((sortKeys, sortBy) => {
+    console.log('🚀 ~ file: stac.ts:348 ~ sortBy:', sortBy)
     if (!sortBy || sortBy.trim() === "") return sortKeys;
 
     const isDescending = sortBy.startsWith("-");
     const cleanSortBy = isDescending ? sortBy.slice(1) : sortBy;
     // Allow for `properties` prefix
     const fieldName = cleanSortBy.replace(/^properties\./, "");
-
+    // readableGranuleName
     let mappedField;
+
+    console.log('🚀 filedname value is being passed ', fieldName)
 
     if (fieldName.match(/^eo:cloud_cover$/i)) {
       mappedField = "cloudCover";
     } else if (fieldName.match(/^id$/i)) {
-      mappedField = "entryId";
+      // TODO we need to pass what the context is here if we are item or collection searching
+      // mappedField = "entryId";
+      mappedField = mapIdSortKey(searchType)
+      // mappedField = "readableGranuleName";
     } else if (fieldName.match(/^title$/i)) {
       mappedField = "entryTitle";
-    } else {
+      console.log('🚀 ~ file: stac.ts:365 ~ mappedField:', mappedField)
+    }
+    else if (fieldName.match(/^datetime$/i)) {
+      // If descending `-start_date` will sort by oldest first
+      mappedField = 'startDate'
+    }
+    else {
       mappedField = fieldName;
     }
 
@@ -367,10 +380,16 @@ export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[]): st
   }, [] as string[]);
 };
 
-const sortKeyQuery = (_req: Request, query: StacQuery) => ({
-  // Use the sortByToSortKeys function to convert STAC sortby to CMR sortKey
-  sortKey: sortByToSortKeys(query.sortby),
-});
+const sortKeyQuery = (req: Request, query: StacQuery) => {
+  console.log('🚀 ~ file: stac.ts THE QUERy ~ query:', query)
+  console.log('🚀 ~ file: stac.ts:382 ~ req:', req)
+  const { params: {  searchType } } = req
+
+  return {
+    // Use the sortByToSortKeys function to convert STAC sortby to CMR sortKey
+    sortKey: sortByToSortKeys(query.sortby, searchType),
+  }
+}
 
 const idsQuery = (req: Request, query: StacQuery) => {
   const {
@@ -492,8 +511,9 @@ const collectionsQuery = async (req: Request, query: StacQuery): Promise<{ entry
  */
 export const buildQuery = async (req: Request) => {
   const {
-    params: { providerId: provider },
+    params: { providerId: provider, searchType },
   } = req;
+  console.log('🚀 ~ file: stac.ts:512 ~ searchType:', searchType)
 
   const query = mergeMaybe(req.query, req.body);
 

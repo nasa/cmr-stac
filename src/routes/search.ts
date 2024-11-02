@@ -63,6 +63,8 @@ const searchLinks = (req: Request, nextCursor: string | null): Link[] => {
 
 export const searchHandler = async (req: Request, res: Response): Promise<void> => {
   const { headers } = req;
+  req.params.searchType = 'item'
+
   const gqlQuery = await buildQuery(req);
 
   const itemsResponse = await getItems(gqlQuery, { headers });

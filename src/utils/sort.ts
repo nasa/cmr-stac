@@ -25,6 +25,7 @@ export const parseSortFields = (sortBys?: string | string[] | SortObject[]): str
     if (sortBys.length === 0) return [];
 
     if (typeof sortBys[0] === "object") {
+      console.log('🚀 ~ file: sort.ts:36 ~ sortBys:', sortBys)
       // Handle object-based sorting (POST)
       return (sortBys as SortObject[]).map(
         (sort) => `${sort.direction === "desc" ? "-" : ""}${sort.field}`
@@ -34,9 +35,21 @@ export const parseSortFields = (sortBys?: string | string[] | SortObject[]): str
       return sortBys.map((item) => (typeof item === "string" ? item.trim() : ""));
     }
   } else if (typeof sortBys === "string") {
+    console.log('🚀 ~ file: sort.ts:38 ~ sortBys:', sortBys)
     // Handle string-based sorting (GET)
     return sortBys.split(",").map((key) => key.trim());
   }
 
   return [];
+};
+
+export const mapIdSortKey = (searchType = ''): string => {
+  console.log('🚀 ~ file: sort.ts:47 ~ searchType:', searchType)
+  if (searchType === 'collection') {
+    return 'entryId'
+  } else if (searchType === 'item') {
+    return 'readableGranuleName'
+  }
+
+  return ''
 };
