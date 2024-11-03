@@ -341,32 +341,22 @@ const bboxQuery = (_req: Request, query: StacQuery) => ({
  * Returns a list of sortKeys from the sortBy property
  */
 export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[], searchType  = ""): string[] => {
-  console.log('🚀 ~ file: stac.ts:345 ~ searchType:', searchType)
   const baseSortKeys: string[] = parseSortFields(sortBys);
 
   return baseSortKeys.reduce((sortKeys, sortBy) => {
-    console.log('🚀 ~ file: stac.ts:348 ~ sortBy:', sortBy)
     if (!sortBy || sortBy.trim() === "") return sortKeys;
 
     const isDescending = sortBy.startsWith("-");
     const cleanSortBy = isDescending ? sortBy.slice(1) : sortBy;
     // Allow for `properties` prefix
     const fieldName = cleanSortBy.replace(/^properties\./, "");
-    // readableGranuleName
     let mappedField;
-
-    console.log('🚀 filedname value is being passed ', fieldName)
-
     if (fieldName.match(/^eo:cloud_cover$/i)) {
       mappedField = "cloudCover";
     } else if (fieldName.match(/^id$/i)) {
-      // TODO we need to pass what the context is here if we are item or collection searching
-      // mappedField = "entryId";
       mappedField = mapIdSortKey(searchType)
-      // mappedField = "readableGranuleName";
     } else if (fieldName.match(/^title$/i)) {
       mappedField = "entryTitle";
-      console.log('🚀 ~ file: stac.ts:365 ~ mappedField:', mappedField)
     }
     else if (fieldName.match(/^datetime$/i)) {
       // If descending `-start_date` will sort by oldest first
@@ -381,8 +371,6 @@ export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[], sea
 };
 
 const sortKeyQuery = (req: Request, query: StacQuery) => {
-  console.log('🚀 ~ file: stac.ts THE QUERy ~ query:', query)
-  console.log('🚀 ~ file: stac.ts:382 ~ req:', req)
   const { params: {  searchType } } = req
 
   return {
@@ -511,10 +499,8 @@ const collectionsQuery = async (req: Request, query: StacQuery): Promise<{ entry
  */
 export const buildQuery = async (req: Request) => {
   const {
-    params: { providerId: provider, searchType },
+    params: { providerId: provider },
   } = req;
-  console.log('🚀 ~ file: stac.ts:512 ~ searchType:', searchType)
-
   const query = mergeMaybe(req.query, req.body);
 
   const queryBuilders = [

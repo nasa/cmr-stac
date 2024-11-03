@@ -40,10 +40,8 @@ export const singleItemHandler = async (req: Request, res: Response) => {
     params: { collectionId, itemId },
   } = req;
 
-  const searchType = 'item'
+  req.params.searchType = 'item';
   const itemQuery = await buildQuery(req);
-  console.log('🚀 ~ file: items.ts:43 ~ itemQuery:', itemQuery)
-
   const {
     items: [item],
   } = await getItems(itemQuery, { headers });
@@ -69,7 +67,6 @@ export const multiItemHandler = async (req: Request, res: Response) => {
     collection,
     params: { collectionId, providerId },
   } = req;
-  const searchType = 'item'
 
   if (!collection) {
     throw new ItemNotFound(
@@ -77,8 +74,8 @@ export const multiItemHandler = async (req: Request, res: Response) => {
     );
   }
 
+  req.params.searchType = 'item';
   const itemQuery = await buildQuery(req);
-
   const links = generateLinks(req);
 
   const {

@@ -85,11 +85,8 @@ const selfLinks = (req: Request, item: STACItem) => {
   }
 
   const { id, collection } = item;
-  console.log('🚀 ~ file: items.ts:88 ~ id:', id)
-
   const providerId = provider["provider-id"];
   const itemId = encodeURIComponent(id);
-  console.log('🚀 ~ file: items.ts:92 ~ itemId:', itemId)
   const collectionId = encodeURIComponent(collection as string);
 
   return [
@@ -308,8 +305,6 @@ export const getItemIds = async (
  */
 export const addProviderLinks = (req: Request, item: STACItem): STACItem => {
   const providerLinks = selfLinks(req, item);
-  console.log('🚀 ~ file: items.ts:311 ~ item:', item)
-
   item.links = [...providerLinks, ...(item.links ?? [])];
 
   return item;
