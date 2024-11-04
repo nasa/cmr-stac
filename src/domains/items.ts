@@ -306,7 +306,7 @@ export const getItemIds = async (
  */
 export const addProviderLinks = (req: Request, item: STACItem): STACItem => {
   const providerLinks = selfLinks(req, item);
-  
+
   item.links = [...providerLinks, ...(item.links ?? [])];
 
   return item;
