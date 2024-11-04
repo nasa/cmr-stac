@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { stringify as stringifyQuery } from "qs"
 
 import { Links, STACCatalog } from "../@types/StacCatalog";
 
@@ -6,7 +7,7 @@ import { getAllCollectionIds } from "../domains/collections";
 import { conformance } from "../domains/providers";
 import { ServiceUnavailableError } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
-import { CMR_QUERY_MAX, stringifyQuery } from "../domains/stac";
+import { CMR_QUERY_MAX } from "../domains/stac";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 

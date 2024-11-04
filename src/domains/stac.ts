@@ -1,6 +1,6 @@
 import { Request } from "express";
 import { IncomingHttpHeaders } from "http";
-import { flattenDeep, isPlainObject } from "lodash";
+import { flattenDeep } from "lodash";
 import { request } from "graphql-request";
 
 import {
@@ -23,7 +23,6 @@ import {
 import { SortObject, StacQuery } from "../models/StacModels";
 import { getAllCollectionIds } from "./collections";
 import {
-  flattenTree,
   mergeMaybe,
   buildClientId,
   extractAssetMapKey,
@@ -518,31 +517,6 @@ export const buildQuery = async (req: Request) => {
   );
 };
 
-export type SimpleMap = { [key: string]: unknown };
-/**
- * Convert a JSON query structure to an array style query string.
- *
- * @example
- * stringifyQuery({provider:"my_prov", query:{"eo:cloud_cover": {"gt": 60}}})
- * => "provider=my_prov&query[eo:cloud_cover][gt]=60"
- */
-export const stringifyQuery = (input: { [key: string]: unknown }) => {
-  const queryParams = new URLSearchParams();
-
-  Object.keys(input).forEach((key) => {
-    if (isPlainObject(input[key])) {
-      flattenTree(input[key] as SimpleMap).forEach((leaf: { key: string[]; value: unknown }) => {
-        const deepKeys = leaf.key.map((k: string) => `[${k}]`).join("");
-        queryParams.set(`${key}${deepKeys}`, leaf.value as string);
-      });
-    } else {
-      queryParams.set(key, input[key] as string);
-    }
-  });
-
-  return queryParams.toString();
-};
-
 /**
  * Query GraphQL with built in pagination handling and return the results.
  * Provide a results handler to handle the results of the query.
@@ -572,7 +546,7 @@ export const paginateQuery = async (
 
   const requestHeaders = mergeMaybe({ "client-id": userClientId }, { authorization });
 
-  const timingMessage = `Outbound GQL query => ${JSON.stringify(
+  const timingMessage = `Outbound GQL query => ${gqlQuery} ${JSON.stringify(
     paginatedParams,
     null,
     2

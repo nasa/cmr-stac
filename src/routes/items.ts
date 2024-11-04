@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
+import { stringify as stringifyQuery } from "qs"
 
 import { addProviderLinks, getItems } from "../domains/items";
-import { buildQuery, stringifyQuery } from "../domains/stac";
+import { buildQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { mergeMaybe, stacContext, WEEK_IN_MS } from "../utils/index";
 

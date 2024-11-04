@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
+import { stringify as stringifyQuery } from "qs"
 
 import { Links } from "../@types/StacCatalog";
 
 import { getCollections } from "../domains/collections";
-import { buildQuery, stringifyQuery } from "../domains/stac";
+import { buildQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 import { STACCollection } from "../@types/StacCollection";
