@@ -546,7 +546,7 @@ export const paginateQuery = async (
 
   const requestHeaders = mergeMaybe({ "client-id": userClientId }, { authorization });
 
-  const timingMessage = `Outbound GQL query => ${gqlQuery} ${JSON.stringify(
+  const timingMessage = `Outbound GQL query => ${JSON.stringify(
     paginatedParams,
     null,
     2
