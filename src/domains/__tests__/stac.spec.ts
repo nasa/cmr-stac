@@ -1,6 +1,6 @@
 import chai from "chai";
 const { expect } = chai;
-import { stringify as stringifyQuery } from "qs"
+import { stringify as stringifyQuery } from "qs";
 
 import { buildQuery, sortByToSortKeys, browseAssets } from "../stac";
 import { RelatedUrlType, UrlContentType } from "../../models/GraphQLModels";
@@ -479,12 +479,27 @@ describe("stringifyQuery", () => {
         queryString: "query[eo:cloud_cover][gt]=50&query[eo:cloud_cover][lt]=95",
       },
       {
-        query: { intersects: { "coordinates": ["100,0,101,1", "102,2,103,3"] } },
-        queryString: "intersects[coordinates][0]=100,0,101,1&intersects[coordinates][1]=102,2,103,3",
+        query: { intersects: { coordinates: ["100,0,101,1", "102,2,103,3"] } },
+        queryString:
+          "intersects[coordinates][0]=100,0,101,1&intersects[coordinates][1]=102,2,103,3",
       },
       {
-        query: { intersects: { "geometries": [{'type': 'Point', 'coordinates': [100.0, 0.0]}, {'type': 'LineString', 'coordinates': [[101.0, 0.0], [102.0, 1.0]]}] } },
-        queryString: "intersects[geometries][0][type]=Point&intersects[geometries][0][coordinates][0]=100&intersects[geometries][0][coordinates][1]=0&intersects[geometries][1][type]=LineString&intersects[geometries][1][coordinates][0][0]=101&intersects[geometries][1][coordinates][0][1]=0&intersects[geometries][1][coordinates][1][0]=102&intersects[geometries][1][coordinates][1][1]=1",
+        query: {
+          intersects: {
+            geometries: [
+              { type: "Point", coordinates: [100.0, 0.0] },
+              {
+                type: "LineString",
+                coordinates: [
+                  [101.0, 0.0],
+                  [102.0, 1.0],
+                ],
+              },
+            ],
+          },
+        },
+        queryString:
+          "intersects[geometries][0][type]=Point&intersects[geometries][0][coordinates][0]=100&intersects[geometries][0][coordinates][1]=0&intersects[geometries][1][type]=LineString&intersects[geometries][1][coordinates][0][0]=101&intersects[geometries][1][coordinates][0][1]=0&intersects[geometries][1][coordinates][1][0]=102&intersects[geometries][1][coordinates][1][1]=1",
       },
     ].forEach(({ query, queryString }) => {
       describe(`given query of ${JSON.stringify(query)}`, () => {

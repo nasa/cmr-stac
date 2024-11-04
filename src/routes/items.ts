@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { stringify as stringifyQuery } from "qs"
+import { stringify as stringifyQuery } from "qs";
 
 import { addProviderLinks, getItems } from "../domains/items";
 import { buildQuery } from "../domains/stac";
