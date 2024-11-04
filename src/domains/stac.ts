@@ -361,7 +361,7 @@ export const sortByToSortKeys = (
     } else if (fieldName.match(/^title$/i)) {
       mappedField = "entryTitle";
     } else if (fieldName.match(/^datetime$/i)) {
-      // If descending `-start_date` will sort by oldest first
+      // If descending `-start_date` will sort by newest first
       mappedField = "startDate";
     } else {
       mappedField = fieldName;

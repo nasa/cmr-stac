@@ -61,7 +61,6 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
       type: "application/json",
       title: "Conformance Classes",
     },
-    // TODO this is where you'd change the mimetype value
     {
       rel: "service-desc",
       href: "https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml",
