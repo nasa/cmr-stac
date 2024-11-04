@@ -47,18 +47,18 @@ describe("parseSortFields", () => {
   });
 });
 
-describe('mapIdSortKey', () => {
+describe("mapIdSortKey", () => {
   it("should return a valid cmr sort value based on searchType", () => {
-    const collectionMappedKey = mapIdSortKey('collection');
-    expect(collectionMappedKey).to.equal('entryId');
+    const collectionMappedKey = mapIdSortKey("collection");
+    expect(collectionMappedKey).to.equal("entryId");
 
-    const itemMappedKey = mapIdSortKey('item');
-    expect(itemMappedKey).to.equal('readableGranuleName');
+    const itemMappedKey = mapIdSortKey("item");
+    expect(itemMappedKey).to.equal("readableGranuleName");
 
-    const unmappedKey = mapIdSortKey('anything');
-    expect(unmappedKey).to.equal('');
+    const unmappedKey = mapIdSortKey("anything");
+    expect(unmappedKey).to.equal("");
 
     const emptyKey = mapIdSortKey();
-    expect(emptyKey).to.equal('');
+    expect(emptyKey).to.equal("");
   });
-})
+});

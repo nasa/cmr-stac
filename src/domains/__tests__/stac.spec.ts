@@ -433,7 +433,7 @@ describe("sortByToSortKeys", () => {
   ].forEach(({ input, output }) => {
     describe(`given sortby=${input}`, () => {
       it("should return the corresponding sortKey", () => {
-        expect(sortByToSortKeys(input, 'collection')).to.deep.equal(output);
+        expect(sortByToSortKeys(input, "collection")).to.deep.equal(output);
       });
     });
   });
@@ -444,7 +444,11 @@ describe("sortByToSortKeys", () => {
       { field: "id", direction: "asc" },
       { field: "title", direction: "desc" },
     ];
-    expect(sortByToSortKeys(input, 'collection')).to.deep.equal(["-cloudCover", "entryId", "-entryTitle"]);
+    expect(sortByToSortKeys(input, "collection")).to.deep.equal([
+      "-cloudCover",
+      "entryId",
+      "-entryTitle",
+    ]);
   });
 
   it("should handle item searching differences", () => {
@@ -452,7 +456,10 @@ describe("sortByToSortKeys", () => {
       { field: "id", direction: "asc" },
       { field: "id", direction: "desc" },
     ];
-    expect(sortByToSortKeys(input, 'item')).to.deep.equal(["readableGranuleName", "-readableGranuleName"]);
+    expect(sortByToSortKeys(input, "item")).to.deep.equal([
+      "readableGranuleName",
+      "-readableGranuleName",
+    ]);
   });
 });
 

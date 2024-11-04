@@ -340,7 +340,10 @@ const bboxQuery = (_req: Request, query: StacQuery) => ({
 /**
  * Returns a list of sortKeys from the sortBy property
  */
-export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[], searchType  = ""): string[] => {
+export const sortByToSortKeys = (
+  sortBys?: string | SortObject[] | string[],
+  searchType = ""
+): string[] => {
   const baseSortKeys: string[] = parseSortFields(sortBys);
 
   return baseSortKeys.reduce((sortKeys, sortBy) => {
@@ -354,15 +357,13 @@ export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[], sea
     if (fieldName.match(/^eo:cloud_cover$/i)) {
       mappedField = "cloudCover";
     } else if (fieldName.match(/^id$/i)) {
-      mappedField = mapIdSortKey(searchType)
+      mappedField = mapIdSortKey(searchType);
     } else if (fieldName.match(/^title$/i)) {
       mappedField = "entryTitle";
-    }
-    else if (fieldName.match(/^datetime$/i)) {
+    } else if (fieldName.match(/^datetime$/i)) {
       // If descending `-start_date` will sort by oldest first
-      mappedField = 'startDate'
-    }
-    else {
+      mappedField = "startDate";
+    } else {
       mappedField = fieldName;
     }
 
@@ -371,13 +372,15 @@ export const sortByToSortKeys = (sortBys?: string | SortObject[] | string[], sea
 };
 
 const sortKeyQuery = (req: Request, query: StacQuery) => {
-  const { params: {  searchType } } = req
+  const {
+    params: { searchType },
+  } = req;
 
   return {
     // Use the sortByToSortKeys function to convert STAC sortby to CMR sortKey
     sortKey: sortByToSortKeys(query.sortby, searchType),
-  }
-}
+  };
+};
 
 const idsQuery = (req: Request, query: StacQuery) => {
   const {
