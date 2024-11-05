@@ -27,7 +27,7 @@ CMR-STAC follows the STAC API 1.0.0-beta.1 specification, see the
 ### Navigating
 CMR-STAC can be navigated manually using the endpoints provided above, or you can utilize available STAC software to browse and use the API.  
 
-A common STAC software is Radian Earth's `stac-browser` to use this tool against your development server navigate to
+A common STAC utility is Radiant Earth's `stac-browser` to use this tool against your development server navigate to
   ```radiantearth.github.io/stac-browser/#/external/http:/localhost:3000/stac?.language=en```
 
 See the [Usage Documentation](docs/usage/usage.md) for examples of how to interact with the API and search for data.  
