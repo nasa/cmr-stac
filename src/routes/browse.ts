@@ -127,7 +127,7 @@ export function addItemLinkIfPresent(collection: STACCollection, url: string) {
   if (!itemsLink) {
     collection.links.push({
       rel: "items",
-      href: url + '/items',
+      href: `${url}/items`,
       type: "application/geo+json",
       title: "Collection Items",
     });
