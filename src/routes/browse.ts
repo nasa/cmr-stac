@@ -69,7 +69,6 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
-    console.debug("collectionsHandler");
     addItemLinkIfPresent(collection, `${getBaseUrl(self)}/${encodeURIComponent(collection.id)}`);
   });
 
@@ -103,7 +102,6 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
     ? [...collectionLinks(req), ...(collection.links ?? [])]
     : [...collectionLinks(req)];
   const { path } = stacContext(req);
-  console.debug("collectionHandler");
   addItemLinkIfPresent(collection, path);
   res.json(collection);
 };
@@ -121,7 +119,6 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
  */
 
 export function addItemLinkIfPresent(collection: STACCollection, url: string) {
-  console.debug("addItemLinkIfPresent: URL: " + url);
   const itemsLink = collection.links.find((link) => link.rel === "items");
 
   if (!itemsLink) {
