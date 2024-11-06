@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
+import { stringify as stringifyQuery } from "qs";
 
 import { Link, STACItem } from "../@types/StacItem";
 
 import { addProviderLinks, getItems } from "../domains/items";
-import { buildQuery, stringifyQuery } from "../domains/stac";
+import { buildQuery } from "../domains/stac";
 import { mergeMaybe, stacContext } from "../utils";
 
 const searchLinks = (req: Request, nextCursor: string | null): Link[] => {
