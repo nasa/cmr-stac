@@ -24,7 +24,7 @@ describe("addItemLinkIfPresent", () => {
 
     const numberoOfLinks = stacCollection.links.length;
     // Invoke method
-    addItemLinkIfPresent(stacCollection, "https://foo.com/items");
+    addItemLinkIfPresent(stacCollection, "https://foo.com");
     // Observe an addiitonal link in the STAC Collection with rel=items etc.
     expect(stacCollection.links.length).to.equal(numberoOfLinks + 1);
     expect(stacCollection).to.have.deep.property("links", [
