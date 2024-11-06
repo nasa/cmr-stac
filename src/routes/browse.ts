@@ -70,7 +70,6 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
-
     addItemLinkIfPresent(collection, `${getBaseUrl(self)}/${encodeURIComponent(collection.id)}`);
   });
 
@@ -126,7 +125,7 @@ export function addItemLinkIfPresent(collection: STACCollection, url: string) {
   if (!itemsLink) {
     collection.links.push({
       rel: "items",
-      href: url,
+      href: `${url}/items`,
       type: "application/geo+json",
       title: "Collection Items",
     });
