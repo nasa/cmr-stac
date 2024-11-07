@@ -50,7 +50,7 @@ const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
 
 export const collectionsHandler = async (req: Request, res: Response): Promise<void> => {
   const { headers } = req;
-
+  req.params.searchType = "collection";
   const query = await buildQuery(req);
 
   const { cursor, items: collections } = await getCollections(query, {

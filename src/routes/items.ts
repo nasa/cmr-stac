@@ -40,8 +40,8 @@ export const singleItemHandler = async (req: Request, res: Response) => {
     params: { collectionId, itemId },
   } = req;
 
+  req.params.searchType = "item";
   const itemQuery = await buildQuery(req);
-
   const {
     items: [item],
   } = await getItems(itemQuery, { headers });
@@ -74,8 +74,8 @@ export const multiItemHandler = async (req: Request, res: Response) => {
     );
   }
 
+  req.params.searchType = "item";
   const itemQuery = await buildQuery(req);
-
   const links = generateLinks(req);
 
   const {

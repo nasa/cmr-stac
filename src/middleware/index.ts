@@ -227,7 +227,7 @@ const validFreeText = (freeText: string) => {
   return false;
 };
 
-const VALID_SORT_FIELDS = ["startDate", "endDate", "id", "title", "eo:cloud_cover"];
+const VALID_SORT_FIELDS = ["startDate", "endDate", "id", "title", "eo:cloud_cover", "datetime"];
 
 const validSortBy = (sortBy: string | string[] | SortObject[]) => {
   const fields: string[] = parseSortFields(sortBy);

@@ -417,6 +417,8 @@ describe("sortByToSortKeys", () => {
     { input: "id", output: ["entryId"] },
     { input: "-id", output: ["-entryId"] },
     { input: "title", output: ["entryTitle"] },
+    { input: "datetime", output: ["startDate"] },
+    { input: "-datetime", output: ["-startDate"] },
     { input: "-title", output: ["-entryTitle"] },
     { input: "someOtherField", output: ["someOtherField"] },
     { input: "-someOtherField", output: ["-someOtherField"] },
@@ -431,18 +433,33 @@ describe("sortByToSortKeys", () => {
   ].forEach(({ input, output }) => {
     describe(`given sortby=${input}`, () => {
       it("should return the corresponding sortKey", () => {
-        expect(sortByToSortKeys(input)).to.deep.equal(output);
-      });
-
-      it("should handle object-based sort specifications", () => {
-        const input: SortObject[] = [
-          { field: "properties.eo:cloud_cover", direction: "desc" },
-          { field: "id", direction: "asc" },
-          { field: "title", direction: "desc" },
-        ];
-        expect(sortByToSortKeys(input)).to.deep.equal(["-cloudCover", "entryId", "-entryTitle"]);
+        expect(sortByToSortKeys(input, "collection")).to.deep.equal(output);
       });
     });
+  });
+
+  it("should handle object-based sort specifications", () => {
+    const input: SortObject[] = [
+      { field: "properties.eo:cloud_cover", direction: "desc" },
+      { field: "id", direction: "asc" },
+      { field: "title", direction: "desc" },
+    ];
+    expect(sortByToSortKeys(input, "collection")).to.deep.equal([
+      "-cloudCover",
+      "entryId",
+      "-entryTitle",
+    ]);
+  });
+
+  it("should handle item searching differences", () => {
+    const input: SortObject[] = [
+      { field: "id", direction: "asc" },
+      { field: "id", direction: "desc" },
+    ];
+    expect(sortByToSortKeys(input, "item")).to.deep.equal([
+      "readableGranuleName",
+      "-readableGranuleName",
+    ]);
   });
 });
 
