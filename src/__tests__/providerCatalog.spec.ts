@@ -143,6 +143,7 @@ describe("GET /:provider", () => {
             items: mockCollections.map((coll) => ({
               id: `${coll.id}`,
               title: coll.title ?? faker.random.words(4),
+              provider: `TEST`
             })),
           });
 
@@ -179,6 +180,7 @@ describe("GET /:provider", () => {
           items: mockCollections.map((coll) => ({
             id: `${coll.id}`,
             title: coll.title ?? faker.random.words(4),
+            provider: 'TEST'
           })),
         });
 
@@ -209,6 +211,7 @@ describe("GET /:provider", () => {
           items: mockCollections.map((coll) => ({
             id: `${coll.id}`,
             title: coll.title ?? faker.random.words(4),
+            provider: `TEST`
           })),
         });
 
@@ -232,6 +235,7 @@ describe("GET /:provider", () => {
           items: mockCollections.map((coll) => ({
             id: `${coll.id}`,
             title: coll.title ?? faker.random.words(4),
+            provider: `TEST`
           })),
         });
 

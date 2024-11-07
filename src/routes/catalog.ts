@@ -7,6 +7,7 @@ import { conformance } from "../domains/providers";
 import { ServiceUnavailableError } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 import { CMR_QUERY_MAX, stringifyQuery } from "../domains/stac";
+import { ALL_PROVIDER } from "../domains/providers";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
 
@@ -41,20 +42,6 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
       method: "POST",
     },
     {
-      rel: "search",
-      href: `${path}/search`,
-      type: "application/geo+json",
-      title: "Provider Item Search",
-      method: "GET",
-    },
-    {
-      rel: "search",
-      href: `${path}/search`,
-      type: "application/geo+json",
-      title: "Provider Item Search",
-      method: "POST",
-    },
-    {
       rel: "conformance",
       href: `${path}/conformance`,
       type: "application/json",
@@ -74,8 +61,26 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
     },
   ];
 
-  const originalQuery = mergeMaybe(req.query, req.body);
+  const { provider } = req;
+  if (provider && provider["provider-id"] != ALL_PROVIDER) {
+    links.push({
+      rel: "search",
+      href: `${path}/search`,
+      type: "application/geo+json",
+      title: "Provider Item Search",
+      method: "GET",
+    });
+    links.push({
+      rel: "search",
+      href: `${path}/search`,
+      type: "application/geo+json",
+      title: "Provider Item Search",
+      method: "POST",
+    });
+  }
 
+  const originalQuery = mergeMaybe(req.query, req.body);
+  
   // Add a 'next' link if there are more results available
   // This is determined by:
   //  1. The presence of a nextCursor (indicating more results)
@@ -97,7 +102,7 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
 
 const providerCollections = async (
   req: Request
-): Promise<[null, { id: string; title: string }[], string | null] | [string, null]> => {
+): Promise<[null, { id: string; title: string; provider: string }[], string | null] | [string, null]> => {
   const { headers, provider, query } = req;
 
   const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
@@ -111,6 +116,8 @@ const providerCollections = async (
   );
 
   try {
+    if ("provider" in mergedQuery && mergedQuery.provider == ALL_PROVIDER)
+      delete mergedQuery.provider;
     const { items, cursor } = await getAllCollectionIds(mergedQuery, { headers });
     return [null, items, cursor];
   } catch (err) {
@@ -120,7 +127,9 @@ const providerCollections = async (
 };
 
 export const providerCatalogHandler = async (req: Request, res: Response) => {
+  console.debug("providerCatalogHandler");
   const { provider } = req;
+  console.debug(provider);
 
   if (!provider) throw new ServiceUnavailableError("Could not retrieve provider information");
 
@@ -132,9 +141,9 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
 
   const selfLinks = generateSelfLinks(req, cursor, collections?.length);
 
-  const childLinks = (collections ?? []).map(({ id, title }) => ({
+  const childLinks = (collections ?? []).map(({ id, title, provider }) => ({
     rel: "child",
-    href: `${getBaseUrl(self)}/collections/${encodeURIComponent(id)}`,
+    href: `${getBaseUrl(self).replace("ALL", provider)}/collections/${encodeURIComponent(id)}`,
     title,
     type: "application/json",
   }));

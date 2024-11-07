@@ -14,6 +14,10 @@ export const generateSTACCollections = (quantity: number) => {
         type: "Collection",
         description: faker.hacker.phrase(),
         license: "proprietary",
+        providers: [{
+          name: "PROV1",
+          roles: ["producer"]
+        }],
         extent: {
           spatial: {
             bbox: [

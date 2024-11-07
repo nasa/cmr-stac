@@ -17,6 +17,7 @@ import {
   refreshProviderCache,
   validateCollection,
   validateProvider,
+  validateCatalogForSearch,
   validateStacQuery,
 } from "../middleware";
 
@@ -43,8 +44,8 @@ router.get(
 
 router
   .route("/:providerId/search")
-  .get(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler))
-  .post(refreshProviderCache, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler));
+  .get(refreshProviderCache, validateCatalogForSearch, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler))
+  .post(refreshProviderCache, validateCatalogForSearch, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler));
 
 router
   .route("/:providerId/collections")

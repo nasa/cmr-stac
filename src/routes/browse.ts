@@ -7,6 +7,7 @@ import { buildQuery, stringifyQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 import { STACCollection } from "../@types/StacCollection";
+import { ALL_PROVIDER } from "../domains/providers"
 
 const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
   const { stacRoot, self } = stacContext(req);
@@ -52,6 +53,12 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
 
   const query = await buildQuery(req);
 
+  // If the query contains a "provider": "ALL" clause, we need to remove it as
+  // this is a 'special' provider that means 'all providers'. The absence
+  // of a provider clause gives the right query.
+  if ("provider" in query && query.provider == ALL_PROVIDER)
+    delete query.provider;
+
   const { cursor, items: collections } = await getCollections(query, {
     headers,
   });
@@ -59,9 +66,10 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
   const { stacRoot, self } = stacContext(req);
 
   collections.forEach((collection) => {
+    const baseUrl = generateBaseUrlForCollection(getBaseUrl(self), collection);
     collection.links.push({
       rel: "self",
-      href: `${getBaseUrl(self)}/${encodeURIComponent(collection.id)}`,
+      href: `${baseUrl}/${encodeURIComponent(collection.id)}`,
       type: "application/json",
     });
     collection.links.push({
@@ -69,16 +77,12 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
-    addItemLinkIfPresent(collection, `${getBaseUrl(self)}/${encodeURIComponent(collection.id)}`);
+    addItemLinkIfNotPresent(collection, `${baseUrl}/${encodeURIComponent(collection.id)}`);
   });
 
   const links = collectionLinks(req, cursor);
 
-  const collectionsResponse = {
-    description: `All collections provided by ${self.split("/").at(-2)}`,
-    links,
-    collections,
-  };
+  const collectionsResponse = generateCollectionResponse(self, links, collections);
 
   res.json(collectionsResponse);
 };
@@ -102,9 +106,50 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
     ? [...collectionLinks(req), ...(collection.links ?? [])]
     : [...collectionLinks(req)];
   const { path } = stacContext(req);
-  addItemLinkIfPresent(collection, path);
+  addItemLinkIfNotPresent(collection, path);
   res.json(collection);
 };
+
+/**
+ * Marshall the description, links and collections into a valid response
+ * This catalog may be 'ALL'. If so, we need to override the description
+ * property to convey that this results represents all of CMR
+ * 
+ * @param self the base url
+ * @param links the urls associated with this response
+ * @param collections the STAC collection object that contains the provider of the collection
+ * 
+ */
+
+export function generateCollectionResponse(self: string, links: Links, collections: STACCollection[]): { description: string; links: Links; collections: STACCollection[]; } {
+  // Special case. If provider is 'ALL' use descirpion of 'provided by CMR'
+  let provider = self.split("/").at(-2)
+  if (provider == ALL_PROVIDER)
+    provider = "CMR";
+
+  const collectionsResponse = {
+    description: `All collections provided by ${provider}`,
+    links,
+    collections,
+  };
+  return collectionsResponse;
+}
+
+/**
+ * This catalog may be 'ALL' but the link to the collection's items must reference
+ * the catalog associated with the collection's provider
+ * 
+ * @param self the context of the STAC urls
+ * @param collection the STAC collection object that contains the provider of the collection
+ */
+
+export function generateBaseUrlForCollection(baseUrl: string, collection: STACCollection): string {
+  // Extract the actual provider of the collection
+  const provider = collection.providers.find((p) => p.roles?.includes("producer"));
+  // Construct the items url from that provider
+  if (provider) baseUrl = baseUrl.replace("/ALL/", `/${provider.name}/`);
+  return baseUrl;
+}
 
 /**
  * A CMR collection can now indicate to consumers that it has a STAC API.
@@ -118,7 +163,8 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
  *  @param url the generic link to a CMR STAC API
  */
 
-export function addItemLinkIfPresent(collection: STACCollection, url: string) {
+export function addItemLinkIfNotPresent(collection: STACCollection, url: string) {
+  
   const itemsLink = collection.links.find((link) => link.rel === "items");
 
   if (!itemsLink) {

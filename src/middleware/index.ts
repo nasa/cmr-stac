@@ -11,7 +11,7 @@ import {
 import { WarmProviderCache } from "../domains/cache";
 import { getCollections } from "../domains/collections";
 import { parseOrdinateString } from "../domains/bounding-box";
-import { getProviders, getCloudProviders } from "../domains/providers";
+import { ALL_PROVIDER, getProviders, getCloudProviders } from "../domains/providers";
 
 import { scrubTokens, mergeMaybe, ERRORS } from "../utils";
 import { validDateTime } from "../utils/datetime";
@@ -139,10 +139,33 @@ export const validateProvider = async (req: Request, _res: Response, next: NextF
         `Provider [${providerId}] not found or does not have any visible cloud hosted collections.`
       )
     );
-  } else if (!provider) {
+  // If it's not the 'ALL' provider and the provider ID cannot be found then throw an error
+  } else if (!provider && providerId != ALL_PROVIDER.toString()) {
     next(new ItemNotFound(`Provider [${providerId}] not found.`));
   } else {
     req.provider = provider;
+    next();
+  }
+};
+
+/**
+ * Middleware validates the catalog in a search route is not 'ALL'.
+ *
+ * If the provider is not 'ALL', the validation succeeds.
+ * If the provider is 'ALL', it exits early with a 404.
+ */
+export const validateCatalogForSearch = async (req: Request, _res: Response, next: NextFunction) => {
+  console.debug('validateCatalogForSearch');
+  
+  const { providerId } = req.params;
+
+  if (providerId == ALL_PROVIDER.toString()) {
+    next(
+      new ItemNotFound(
+        `The ALL catalog does not support item searches.`
+      )
+    );
+  } else {
     next();
   }
 };
