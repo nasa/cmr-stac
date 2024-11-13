@@ -206,6 +206,7 @@ const validBbox = (bbox: string | number[]) => {
     validLat(swLat) &&
     validLon(neLon) &&
     validLat(neLat) &&
+    // Ensure that number comparisons are used instead of string comparisons
     Number(swLat) <= Number(neLat) &&
     Number(swLon) <= Number(neLon)
   );
