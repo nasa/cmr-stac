@@ -206,8 +206,8 @@ const validBbox = (bbox: string | number[]) => {
     validLat(swLat) &&
     validLon(neLon) &&
     validLat(neLat) &&
-    swLat <= neLat &&
-    swLon <= neLon
+    Number(swLat) <= Number(neLat) &&
+    Number(swLon) <= Number(neLon)
   );
 };
 
