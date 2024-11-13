@@ -11,7 +11,7 @@ import {
 import { WarmProviderCache } from "../domains/cache";
 import { getCollections } from "../domains/collections";
 import { parseOrdinateString } from "../domains/bounding-box";
-import { ALL_PROVIDER, getProviders, getCloudProviders } from "../domains/providers";
+import { ALL_PROVIDER, getProviders, getCloudProviders, ALL_PROVIDERS } from "../domains/providers";
 
 import { scrubTokens, mergeMaybe, ERRORS } from "../utils";
 import { validDateTime } from "../utils/datetime";
@@ -94,7 +94,8 @@ export const refreshProviderCache = async (req: Request, _res: Response, next: N
     if (errs || !updatedProviders) {
       return next(new ServiceUnavailableError(ERRORS.serviceUnavailable));
     }
-
+    updatedProviders
+    updatedProviders.push(ALL_PROVIDERS);
     updatedProviders.forEach((provider) => {
       cachedProviders.set(provider["provider-id"], provider);
     });

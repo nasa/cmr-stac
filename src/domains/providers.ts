@@ -37,8 +37,8 @@ export const conformance = [
  */
 export const getProviders = async (): Promise<[string, null] | [null, Provider[]]> => {
   try {
+    console.debug(`GET ${CMR_LB_INGEST}/providers`);
     const { data: providers } = await axios.get(`${CMR_LB_INGEST}/providers`);
-    providers.push(ALL_PROVIDERS);
     return [null, providers];
   } catch (err) {
     console.error("A problem occurred fetching providers", err);
@@ -57,7 +57,7 @@ export const getProvider = async (
   if (errs) {
     return [errs as string, null];
   }
-
+  providers?.push(ALL_PROVIDERS);
   return [
     null,
     (providers ?? []).find((provider) => provider["provider-id"] === providerId) ?? null,
@@ -86,6 +86,7 @@ export const getCloudProviders = async (
   await Promise.all(
     (candidates ?? []).map(async (provider) => {
       try {
+        console.debug(`GET ${CMR_LB_SEARCH_COLLECTIONS}`);
         const { headers } = await axios.get(CMR_LB_SEARCH_COLLECTIONS, {
           headers: mergeMaybe({}, { authorization }),
           params: { provider: provider["short-name"], cloud_hosted: true },

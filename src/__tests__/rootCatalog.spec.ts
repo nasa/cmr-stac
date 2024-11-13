@@ -93,6 +93,23 @@ describe("GET /stac", () => {
         expect(providerLink.title).to.equal(provider["provider-id"]);
       });
     });
+
+    it("should have an entry for the 'ALL' catalog", async () => {
+      const { statusCode, body } = await request(app).get("/stac");
+
+      expect(statusCode).to.equal(200);
+      const [, expectedProviders] = cmrProvidersResponse;
+      console.debug(`Body: ${JSON.stringify(body)}`)
+      // Find the all catalog links.find((link) => link.rel === "items");
+      const allLink = body.links.find((l: Link) => l.title === "all");
+
+      expect(allLink.href).to.match(/^(http)s?:\/\/.*\w+/);
+      expect(allLink.href).to.endWith('/stac/ALL');
+      expect(allLink.href).to.not.contain("?param=value");
+      expect(allLink.rel).to.equal("child");
+      expect(allLink.type).to.equal("application/json");
+      expect(allLink.title).to.equal("all");
+    });
   });
 
   describe("given CMR providers endpoint responds with an error", () => {
@@ -147,6 +164,6 @@ describe("/cloudstac", () => {
 
     expect(body.links.find((l: { title: string }) => l.title === "NOT_CLOUD")).to.be.undefined;
 
-    expect(mockCmrHits).to.have.been.calledTwice;
+    expect(mockCmrHits).to.have.been.calledThrice;
   });
 });

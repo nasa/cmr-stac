@@ -580,6 +580,7 @@ export const paginateQuery = async (
 
   try {
     console.info(timingMessage);
+    console.debug(`GET ${GRAPHQL_URL}`);
     const response = await request(GRAPHQL_URL, gqlQuery, variables, requestHeaders);
     // use the passed in results handler
     const [errors, data] = handler(response);
@@ -587,8 +588,6 @@ export const paginateQuery = async (
     if (errors) throw new Error(errors);
     if (!data) throw new Error("No data returned from GraphQL during paginated query");
     const { count, cursor, items } = data;
-    console.debug("paginateQuery");
-    console.debug(JSON.stringify(data));
     return { items: items, count, cursor };
   } catch (err: unknown) {
     if (

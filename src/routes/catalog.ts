@@ -127,9 +127,7 @@ const providerCollections = async (
 };
 
 export const providerCatalogHandler = async (req: Request, res: Response) => {
-  console.debug("providerCatalogHandler");
   const { provider } = req;
-  console.debug(provider);
 
   if (!provider) throw new ServiceUnavailableError("Could not retrieve provider information");
 
