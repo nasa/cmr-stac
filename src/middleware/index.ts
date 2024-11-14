@@ -190,7 +190,10 @@ const validLat = (lat: number) => inclusiveBetween(lat, -90.0, 90.0);
 
 const validLon = (lon: number) => inclusiveBetween(lon, -180.0, 180.0);
 
-const validBbox = (bbox: string | number[]) => {
+// validBbox should be able to accept a comma separated string, a string array and
+// a number array. We noticed the string array should be accepted when running the
+// R Stac script.
+export const validBbox = (bbox: string | string[] | number[]) => {
   const parsedBbox = typeof bbox === "string" ? parseOrdinateString(bbox) : bbox;
 
   if (parsedBbox.length !== 4 && parsedBbox.length !== 6) return false;
@@ -201,11 +204,12 @@ const validBbox = (bbox: string | number[]) => {
   } else {
     [swLon, swLat, , neLon, neLat] = parsedBbox;
   }
+
   return (
-    validLon(swLon) &&
-    validLat(swLat) &&
-    validLon(neLon) &&
-    validLat(neLat) &&
+    validLon(Number(swLon)) &&
+    validLat(Number(swLat)) &&
+    validLon(Number(neLon)) &&
+    validLat(Number(neLat)) &&
     // Ensure that number comparisons are used instead of string comparisons
     Number(swLat) <= Number(neLat) &&
     Number(swLon) <= Number(neLon)
