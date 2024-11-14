@@ -7,7 +7,7 @@ import { getAllCollectionIds } from "../domains/collections";
 import { conformance } from "../domains/providers";
 import { ServiceUnavailableError } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
-import { CMR_QUERY_MAX, stringifyQuery } from "../domains/stac";
+import { CMR_QUERY_MAX } from "../domains/stac";
 import { ALL_PROVIDER } from "../domains/providers";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
