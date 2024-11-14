@@ -99,8 +99,7 @@ describe("GET /stac", () => {
 
       expect(statusCode).to.equal(200);
       const [, expectedProviders] = cmrProvidersResponse;
-      console.debug(`Body: ${JSON.stringify(body)}`)
-      // Find the all catalog links.find((link) => link.rel === "items");
+      
       const allLink = body.links.find((l: Link) => l.title === "all");
 
       expect(allLink.href).to.match(/^(http)s?:\/\/.*\w+/);

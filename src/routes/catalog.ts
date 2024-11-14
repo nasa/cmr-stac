@@ -103,6 +103,7 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
 const providerCollections = async (
   req: Request
 ): Promise<[null, { id: string; title: string; provider: string }[], string | null] | [string, null]> => {
+  
   const { headers, provider, query } = req;
 
   const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};

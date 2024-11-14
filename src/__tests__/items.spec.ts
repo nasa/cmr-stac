@@ -172,3 +172,33 @@ describe("GET /PROVIDER/collections/COLLECTION/items/ITEM", () => {
     });
   });
 });
+
+describe("GET /ALL/collections/:collection/items/", () => {
+  it("should return a 404", async () => {
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+    const { statusCode, body } = await request(app).get("/stac/ALL/collections/foo/items");
+
+    expect(statusCode).to.equal(404);
+    expect(body).to.deep.equal({
+      errors: ["This operation is not allowed for the ALL Catalog."],
+    });
+  });
+});
+
+describe("GET /ALL/collections/:collection/items/:item", () => {
+  it("should return a 404", async () => {
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+    const { statusCode, body } = await request(app).get("/stac/ALL/collections/foo/items/bar");
+
+    expect(statusCode).to.equal(404);
+    expect(body).to.deep.equal({
+      errors: ["This operation is not allowed for the ALL Catalog."],
+    });
+  });
+});

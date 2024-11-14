@@ -150,23 +150,27 @@ export const validateProvider = async (req: Request, _res: Response, next: NextF
 };
 
 /**
- * Middleware validates the catalog in a search route is not 'ALL'.
+ * Middleware validates the provider in the route is not ALL.
+ *  
+ * This validation is only required for routes that will search CMR based on the provider
+ * supplied.
  *
- * If the provider is not 'ALL', the validation succeeds.
+ * If the provider is not 'ALL' then validation passes.
  * If the provider is 'ALL', it exits early with a 404.
+
  */
-export const validateCatalogForSearch = async (req: Request, _res: Response, next: NextFunction) => {
-  console.debug('validateCatalogForSearch');
+export const validateNotAllProvider = async (req: Request, _res: Response, next: NextFunction) => {
   
   const { providerId } = req.params;
 
   if (providerId == ALL_PROVIDER.toString()) {
     next(
       new ItemNotFound(
-        `The ALL catalog does not support item searches.`
+        `This operation is not allowed for the ${ALL_PROVIDER.toString()} Catalog.`
       )
     );
-  } else {
+  }
+  else {
     next();
   }
 };

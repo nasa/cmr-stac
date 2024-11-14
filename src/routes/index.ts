@@ -17,8 +17,8 @@ import {
   refreshProviderCache,
   validateCollection,
   validateProvider,
-  validateCatalogForSearch,
   validateStacQuery,
+  validateNotAllProvider,
 } from "../middleware";
 
 const router = express.Router();
@@ -44,8 +44,8 @@ router.get(
 
 router
   .route("/:providerId/search")
-  .get(refreshProviderCache, validateCatalogForSearch, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler))
-  .post(refreshProviderCache, validateCatalogForSearch, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler));
+  .get(refreshProviderCache, validateNotAllProvider, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler))
+  .post(refreshProviderCache, validateNotAllProvider, validateProvider, validateStacQuery, wrapErrorHandler(searchHandler));
 
 router
   .route("/:providerId/collections")
@@ -65,6 +65,7 @@ router
 router.get(
   "/:providerId/collections/:collectionId",
   refreshProviderCache,
+  validateNotAllProvider,
   validateProvider,
   validateStacQuery,
   validateCollection,
@@ -74,6 +75,7 @@ router.get(
 router.get(
   "/:providerId/collections/:collectionId/items",
   refreshProviderCache,
+  validateNotAllProvider,
   validateProvider,
   validateStacQuery,
   validateCollection,
@@ -83,6 +85,7 @@ router.get(
 router.get(
   "/:providerId/collections/:collectionId/items/:itemId",
   refreshProviderCache,
+  validateNotAllProvider,
   validateProvider,
   validateStacQuery,
   validateCollection,
