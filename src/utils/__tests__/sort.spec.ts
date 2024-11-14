@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { parseSortFields } from "../sort";
+import { parseSortFields, mapIdSortKey } from "../sort";
 import { SortObject } from "../../models/StacModels";
 
 describe("parseSortFields", () => {
@@ -44,5 +44,21 @@ describe("parseSortFields", () => {
     const input: any[] = ["field1", { field: "field2", direction: "desc" }, "-field3"];
 
     expect(parseSortFields(input)).to.deep.equal(["field1", "", "-field3"]);
+  });
+});
+
+describe("mapIdSortKey", () => {
+  it("should return a valid cmr sort value based on searchType", () => {
+    const collectionMappedKey = mapIdSortKey("collection");
+    expect(collectionMappedKey).to.equal("entryId");
+
+    const itemMappedKey = mapIdSortKey("item");
+    expect(itemMappedKey).to.equal("readableGranuleName");
+
+    const unmappedKey = mapIdSortKey("anything");
+    expect(unmappedKey).to.equal("");
+
+    const emptyKey = mapIdSortKey();
+    expect(emptyKey).to.equal("");
   });
 });

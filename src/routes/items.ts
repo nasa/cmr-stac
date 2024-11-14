@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
+import { stringify as stringifyQuery } from "qs";
 
 import { addProviderLinks, getItems } from "../domains/items";
-import { buildQuery, stringifyQuery } from "../domains/stac";
+import { buildQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { mergeMaybe, stacContext, WEEK_IN_MS } from "../utils/index";
 
@@ -39,8 +40,8 @@ export const singleItemHandler = async (req: Request, res: Response) => {
     params: { collectionId, itemId },
   } = req;
 
+  req.params.searchType = "item";
   const itemQuery = await buildQuery(req);
-
   const {
     items: [item],
   } = await getItems(itemQuery, { headers });
@@ -73,8 +74,8 @@ export const multiItemHandler = async (req: Request, res: Response) => {
     );
   }
 
+  req.params.searchType = "item";
   const itemQuery = await buildQuery(req);
-
   const links = generateLinks(req);
 
   const {

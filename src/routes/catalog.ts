@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { stringify as stringifyQuery } from "qs";
 
 import { Links, STACCatalog } from "../@types/StacCatalog";
 

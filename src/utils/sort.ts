@@ -40,3 +40,13 @@ export const parseSortFields = (sortBys?: string | string[] | SortObject[]): str
 
   return [];
 };
+
+export const mapIdSortKey = (searchType = ""): string => {
+  if (searchType === "collection") {
+    return "entryId";
+  } else if (searchType === "item") {
+    return "readableGranuleName";
+  }
+
+  return "";
+};

@@ -1,7 +1,8 @@
 import chai from "chai";
 const { expect } = chai;
+import { stringify as stringifyQuery } from "qs";
 
-import { buildQuery, sortByToSortKeys, stringifyQuery, browseAssets } from "../stac";
+import { buildQuery, sortByToSortKeys, browseAssets } from "../stac";
 import { RelatedUrlType, UrlContentType } from "../../models/GraphQLModels";
 import { SortObject } from "../../models/StacModels";
 
@@ -416,6 +417,8 @@ describe("sortByToSortKeys", () => {
     { input: "id", output: ["entryId"] },
     { input: "-id", output: ["-entryId"] },
     { input: "title", output: ["entryTitle"] },
+    { input: "datetime", output: ["startDate"] },
+    { input: "-datetime", output: ["-startDate"] },
     { input: "-title", output: ["-entryTitle"] },
     { input: "someOtherField", output: ["someOtherField"] },
     { input: "-someOtherField", output: ["-someOtherField"] },
@@ -430,18 +433,33 @@ describe("sortByToSortKeys", () => {
   ].forEach(({ input, output }) => {
     describe(`given sortby=${input}`, () => {
       it("should return the corresponding sortKey", () => {
-        expect(sortByToSortKeys(input)).to.deep.equal(output);
-      });
-
-      it("should handle object-based sort specifications", () => {
-        const input: SortObject[] = [
-          { field: "properties.eo:cloud_cover", direction: "desc" },
-          { field: "id", direction: "asc" },
-          { field: "title", direction: "desc" },
-        ];
-        expect(sortByToSortKeys(input)).to.deep.equal(["-cloudCover", "entryId", "-entryTitle"]);
+        expect(sortByToSortKeys(input, "collection")).to.deep.equal(output);
       });
     });
+  });
+
+  it("should handle object-based sort specifications", () => {
+    const input: SortObject[] = [
+      { field: "properties.eo:cloud_cover", direction: "desc" },
+      { field: "id", direction: "asc" },
+      { field: "title", direction: "desc" },
+    ];
+    expect(sortByToSortKeys(input, "collection")).to.deep.equal([
+      "-cloudCover",
+      "entryId",
+      "-entryTitle",
+    ]);
+  });
+
+  it("should handle item searching differences", () => {
+    const input: SortObject[] = [
+      { field: "id", direction: "asc" },
+      { field: "id", direction: "desc" },
+    ];
+    expect(sortByToSortKeys(input, "item")).to.deep.equal([
+      "readableGranuleName",
+      "-readableGranuleName",
+    ]);
   });
 });
 
@@ -451,7 +469,7 @@ describe("stringifyQuery", () => {
       { query: { limit: 2 }, queryString: "limit=2" },
       {
         query: { bbox: [-180, -90, 180, 90] },
-        queryString: "bbox=-180,-90,180,90",
+        queryString: "bbox[0]=-180&bbox[1]=-90&bbox[2]=180&bbox[3]=90",
       },
       {
         query: { bbox: "-180,-90,180,90" },
@@ -463,11 +481,11 @@ describe("stringifyQuery", () => {
       },
       {
         query: { collections: ["C1234-PROV1", "C5468-PROV1"] },
-        queryString: "collections=C1234-PROV1,C5468-PROV1",
+        queryString: "collections[0]=C1234-PROV1&collections[1]=C5468-PROV1",
       },
       {
         query: { ids: ["G1234-PROV1", "G5468-PROV1"] },
-        queryString: "ids=G1234-PROV1,G5468-PROV1",
+        queryString: "ids[0]=G1234-PROV1&ids[1]=G5468-PROV1",
       },
       {
         query: { query: { "eo:cloud_cover": { gt: 50 } } },
@@ -476,6 +494,29 @@ describe("stringifyQuery", () => {
       {
         query: { query: { "eo:cloud_cover": { gt: 50, lt: 95 } } },
         queryString: "query[eo:cloud_cover][gt]=50&query[eo:cloud_cover][lt]=95",
+      },
+      {
+        query: { intersects: { coordinates: ["100,0,101,1", "102,2,103,3"] } },
+        queryString:
+          "intersects[coordinates][0]=100,0,101,1&intersects[coordinates][1]=102,2,103,3",
+      },
+      {
+        query: {
+          intersects: {
+            geometries: [
+              { type: "Point", coordinates: [100.0, 0.0] },
+              {
+                type: "LineString",
+                coordinates: [
+                  [101.0, 0.0],
+                  [102.0, 1.0],
+                ],
+              },
+            ],
+          },
+        },
+        queryString:
+          "intersects[geometries][0][type]=Point&intersects[geometries][0][coordinates][0]=100&intersects[geometries][0][coordinates][1]=0&intersects[geometries][1][type]=LineString&intersects[geometries][1][coordinates][0][0]=101&intersects[geometries][1][coordinates][0][1]=0&intersects[geometries][1][coordinates][1][0]=102&intersects[geometries][1][coordinates][1][1]=1",
       },
     ].forEach(({ query, queryString }) => {
       describe(`given query of ${JSON.stringify(query)}`, () => {

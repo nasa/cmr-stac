@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
+import { stringify as stringifyQuery } from "qs";
 
 import { Link, STACItem } from "../@types/StacItem";
 
 import { addProviderLinks, getItems } from "../domains/items";
-import { buildQuery, stringifyQuery } from "../domains/stac";
+import { buildQuery } from "../domains/stac";
 import { mergeMaybe, stacContext } from "../utils";
 
 const searchLinks = (req: Request, nextCursor: string | null): Link[] => {
@@ -62,6 +63,7 @@ const searchLinks = (req: Request, nextCursor: string | null): Link[] => {
 
 export const searchHandler = async (req: Request, res: Response): Promise<void> => {
   const { headers } = req;
+  req.params.searchType = "item";
   const gqlQuery = await buildQuery(req);
 
   const itemsResponse = await getItems(gqlQuery, { headers });

@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
+import { stringify as stringifyQuery } from "qs";
 
 import { Links } from "../@types/StacCatalog";
 
 import { getCollections } from "../domains/collections";
-import { buildQuery, stringifyQuery } from "../domains/stac";
+import { buildQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 import { STACCollection } from "../@types/StacCollection";
@@ -50,7 +51,7 @@ const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
 
 export const collectionsHandler = async (req: Request, res: Response): Promise<void> => {
   const { headers } = req;
-
+  req.params.searchType = "collection";
   const query = await buildQuery(req);
 
   // If the query contains a "provider": "ALL" clause, we need to remove it as
