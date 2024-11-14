@@ -81,7 +81,7 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
   }
 
   const originalQuery = mergeMaybe(req.query, req.body);
-  
+
   // Add a 'next' link if there are more results available
   // This is determined by:
   //  1. The presence of a nextCursor (indicating more results)
@@ -103,8 +103,9 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
 
 const providerCollections = async (
   req: Request
-): Promise<[null, { id: string; title: string; provider: string }[], string | null] | [string, null]> => {
-  
+): Promise<
+  [null, { id: string; title: string; provider: string }[], string | null] | [string, null]
+> => {
   const { headers, provider, query } = req;
 
   const cloudOnly = headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};

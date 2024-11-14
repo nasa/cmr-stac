@@ -94,7 +94,7 @@ export const refreshProviderCache = async (req: Request, _res: Response, next: N
     if (errs || !updatedProviders) {
       return next(new ServiceUnavailableError(ERRORS.serviceUnavailable));
     }
-    updatedProviders
+    updatedProviders;
     updatedProviders.push(ALL_PROVIDERS);
     updatedProviders.forEach((provider) => {
       cachedProviders.set(provider["provider-id"], provider);
@@ -140,7 +140,7 @@ export const validateProvider = async (req: Request, _res: Response, next: NextF
         `Provider [${providerId}] not found or does not have any visible cloud hosted collections.`
       )
     );
-  // If it's not the 'ALL' provider and the provider ID cannot be found then throw an error
+    // If it's not the 'ALL' provider and the provider ID cannot be found then throw an error
   } else if (!provider && providerId != ALL_PROVIDER.toString()) {
     next(new ItemNotFound(`Provider [${providerId}] not found.`));
   } else {
@@ -160,17 +160,13 @@ export const validateProvider = async (req: Request, _res: Response, next: NextF
 
  */
 export const validateNotAllProvider = async (req: Request, _res: Response, next: NextFunction) => {
-  
   const { providerId } = req.params;
 
   if (providerId == ALL_PROVIDER.toString()) {
     next(
-      new ItemNotFound(
-        `This operation is not allowed for the ${ALL_PROVIDER.toString()} Catalog.`
-      )
+      new ItemNotFound(`This operation is not allowed for the ${ALL_PROVIDER.toString()} Catalog.`)
     );
-  }
-  else {
+  } else {
     next();
   }
 };

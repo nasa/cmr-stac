@@ -8,7 +8,7 @@ import { buildQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 import { STACCollection } from "../@types/StacCollection";
-import { ALL_PROVIDER } from "../domains/providers"
+import { ALL_PROVIDER } from "../domains/providers";
 
 const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
   const { stacRoot, self } = stacContext(req);
@@ -57,8 +57,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
   // If the query contains a "provider": "ALL" clause, we need to remove it as
   // this is a 'special' provider that means 'all providers'. The absence
   // of a provider clause gives the right query.
-  if ("provider" in query && query.provider == ALL_PROVIDER)
-    delete query.provider;
+  if ("provider" in query && query.provider == ALL_PROVIDER) delete query.provider;
 
   const { cursor, items: collections } = await getCollections(query, {
     headers,
@@ -115,18 +114,21 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
  * Marshall the description, links and collections into a valid response
  * This catalog may be 'ALL'. If so, we need to override the description
  * property to convey that this results represents all of CMR
- * 
+ *
  * @param self the base url
  * @param links the urls associated with this response
  * @param collections the STAC collection object that contains the provider of the collection
- * 
+ *
  */
 
-export function generateCollectionResponse(self: string, links: Links, collections: STACCollection[]): { description: string; links: Links; collections: STACCollection[]; } {
+export function generateCollectionResponse(
+  self: string,
+  links: Links,
+  collections: STACCollection[]
+): { description: string; links: Links; collections: STACCollection[] } {
   // Special case. If provider is 'ALL' use descirpion of 'provided by CMR'
-  let provider = self.split("/").at(-2)
-  if (provider == ALL_PROVIDER)
-    provider = "CMR";
+  let provider = self.split("/").at(-2);
+  if (provider == ALL_PROVIDER) provider = "CMR";
 
   const collectionsResponse = {
     description: `All collections provided by ${provider}`,
@@ -139,7 +141,7 @@ export function generateCollectionResponse(self: string, links: Links, collectio
 /**
  * This catalog may be 'ALL' but the link to the collection's items must reference
  * the catalog associated with the collection's provider
- * 
+ *
  * @param self the context of the STAC urls
  * @param collection the STAC collection object that contains the provider of the collection
  */
@@ -165,7 +167,6 @@ export function generateBaseUrlForCollection(baseUrl: string, collection: STACCo
  */
 
 export function addItemLinkIfNotPresent(collection: STACCollection, url: string) {
-  
   const itemsLink = collection.links.find((link) => link.rel === "items");
 
   if (!itemsLink) {

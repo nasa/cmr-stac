@@ -99,11 +99,11 @@ describe("GET /stac", () => {
 
       expect(statusCode).to.equal(200);
       const [, expectedProviders] = cmrProvidersResponse;
-      
+
       const allLink = body.links.find((l: Link) => l.title === "all");
 
       expect(allLink.href).to.match(/^(http)s?:\/\/.*\w+/);
-      expect(allLink.href).to.endWith('/stac/ALL');
+      expect(allLink.href).to.endWith("/stac/ALL");
       expect(allLink.href).to.not.contain("?param=value");
       expect(allLink.rel).to.equal("child");
       expect(allLink.type).to.equal("application/json");
