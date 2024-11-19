@@ -126,7 +126,7 @@ export function generateCollectionResponse(
   links: Links,
   collections: STACCollection[]
 ): { description: string; links: Links; collections: STACCollection[] } {
-  // Special case. If provider is 'ALL' use descirpion of 'provided by CMR'
+  // Special case. If provider is 'ALL' use description of 'provided by CMR'
   let provider = self.split("/").at(-2);
   if (provider == ALL_PROVIDER) provider = "CMR";
 
