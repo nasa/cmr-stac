@@ -144,7 +144,7 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
 
   const childLinks = (collections ?? []).map(({ id, title, provider }) => ({
     rel: "child",
-    href: `${getBaseUrl(self).replace("ALL", provider)}/collections/${encodeURIComponent(id)}`,
+    href: `${getBaseUrl(self).concat("/").replace("/ALL/", "/" + provider + "/")}collections/${encodeURIComponent(id)}`,
     title,
     type: "application/json",
   }));
