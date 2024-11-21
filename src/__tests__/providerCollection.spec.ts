@@ -474,15 +474,15 @@ describe("GET /:provider/collections/:collectionId", () => {
 
 describe("GET /ALL/collections", () => {
   describe("given the ALL catalog", () => {
-    it("returns collections from multiple providers", async () => {
+    it("returns item links relative to the provider catalogs rather than ALL", async () => {
       sandbox
         .stub(Providers, "getProviders")
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
 
-      const mockCollections = generateSTACCollections(3);
+      const mockCollections = generateSTACCollections(1);
 
       sandbox.stub(Collections, "getCollections").resolves({
-        count: 3,
+        count: 1,
         cursor: null,
         items: mockCollections,
       });
@@ -490,27 +490,13 @@ describe("GET /ALL/collections", () => {
       const { statusCode, body } = await request(app).get("/stac/ALL/collections");
 
       expect(statusCode).to.equal(200);
-      expect(body.collections).to.have.lengthOf(3);
+      expect(body.collections).to.have.lengthOf(1);
       // Make sure that we are determining the 'provider' element of the items path from the provider detailed
       // in the collection metadata rather than the ALL route.
       expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.include(
         "/PROV1/"
       );
       expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.not.include(
-        "/ALL/"
-      );
-
-      expect(body.collections[1].links.find((l: Link) => l.rel === "items").href).to.include(
-        "/PROV1/"
-      );
-      expect(body.collections[1].links.find((l: Link) => l.rel === "items").href).to.not.include(
-        "/ALL/"
-      );
-
-      expect(body.collections[2].links.find((l: Link) => l.rel === "items").href).to.include(
-        "/PROV1/"
-      );
-      expect(body.collections[2].links.find((l: Link) => l.rel === "items").href).to.not.include(
         "/ALL/"
       );
     });
@@ -522,7 +508,7 @@ describe("GET /ALL/collections", () => {
       const mockCollections = generateSTACCollections(1);
 
       sandbox.stub(Collections, "getCollections").resolves({
-        count: 3,
+        count: 1,
         cursor: null,
         items: mockCollections,
       });

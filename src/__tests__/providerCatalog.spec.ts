@@ -352,5 +352,33 @@ describe("GET /:provider", () => {
       expect(children).to.have.length(0);
       expect(statusCode).to.equal(200);
     });
+    it("should be able to handle providers whose name contains the text 'ALL'", async () => {
+      sandbox
+        .stub(Provider, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "LPALL" }]]);
+
+      const mockCollections = generateSTACCollections(1);
+
+      sandbox.stub(Collections, "getCollectionIds").resolves({
+        count: mockCollections.length,
+        cursor: "foundCursor",
+        items: mockCollections.map((coll) => ({
+          id: `${coll.id}`,
+          title: coll.title ?? faker.random.words(4),
+          provider: "LPALL",
+        })),
+      });
+
+      const { body: catalog, statusCode } = await request(stacApp).get("/stac/ALL");
+
+      const children = catalog.links.filter((l: Link) => l.rel === "child");
+
+      mockCollections.forEach((collection) => {
+        const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
+
+        expect(childLink.href).to.endWith(`/LPALL/collections/${collection.id}`);
+        expect(childLink.href).to.not.contain("/ALL/");
+      });
+    });
   });
 });
