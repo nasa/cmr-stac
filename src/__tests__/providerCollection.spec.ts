@@ -134,6 +134,7 @@ describe("GET /:provider/collections", () => {
       // Expect the href to match the generic STAC API.
       const link1: Link = body.collections[1].links.find((l: Link) => l.rel === "items");
       expect(link1.href).to.contain("/stac/TEST/collections/");
+      expect(link1.href).to.endsWith("/items");
     });
   });
 
@@ -467,6 +468,73 @@ describe("GET /:provider/collections/:collectionId", () => {
       const stacSchemaValid = validate(body);
 
       expect(stacSchemaValid, JSON.stringify(validate.errors)).to.be.true;
+    });
+  });
+});
+
+describe("GET /ALL/collections", () => {
+  describe("given the ALL catalog", () => {
+    it("returns item links relative to the provider catalogs rather than ALL", async () => {
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      const mockCollections = generateSTACCollections(1);
+
+      sandbox.stub(Collections, "getCollections").resolves({
+        count: 1,
+        cursor: null,
+        items: mockCollections,
+      });
+
+      const { statusCode, body } = await request(app).get("/stac/ALL/collections");
+
+      expect(statusCode).to.equal(200);
+      expect(body.collections).to.have.lengthOf(1);
+      // Make sure that we are determining the 'provider' element of the items path from the provider detailed
+      // in the collection metadata rather than the ALL route.
+      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.include(
+        "/PROV1/"
+      );
+      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.not.include(
+        "/ALL/"
+      );
+    });
+    it("returns collection items links that end in 'items", async () => {
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      const mockCollections = generateSTACCollections(1);
+
+      sandbox.stub(Collections, "getCollections").resolves({
+        count: 1,
+        cursor: null,
+        items: mockCollections,
+      });
+
+      const { statusCode, body } = await request(app).get("/stac/ALL/collections");
+
+      expect(statusCode).to.equal(200);
+      expect(body.collections).to.have.lengthOf(1);
+      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.endsWith(
+        "/items"
+      );
+    });
+  });
+});
+
+describe("GET /ALL/collections/:collectionId", () => {
+  it("should return a 404", async () => {
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+    const { statusCode, body } = await request(app).get("/stac/ALL/collections/foo");
+
+    expect(statusCode).to.equal(404);
+    expect(body).to.deep.equal({
+      errors: ["This operation is not allowed for the ALL Catalog."],
     });
   });
 });

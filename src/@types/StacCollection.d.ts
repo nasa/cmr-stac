@@ -187,7 +187,7 @@ export type STACCollection = {
   description: Description;
   keywords?: Keywords;
   license: CollectionLicenseName;
-  providers?: {
+  providers: {
     name: OrganizationName;
     description?: OrganizationDescription;
     roles?: OrganizationRoles;

@@ -57,6 +57,7 @@ const collectionIdsQuery = gql`
         conceptId
         entryId
         title
+        provider
       }
     }
   }
@@ -242,7 +243,7 @@ export const collectionToStac = (collection: Collection): STACCollection => {
   const extent = createExtent(collection);
   const keywords = createKeywords(collection);
   const links = generateCollectionLinks(collection, [licenseLink]);
-  const provider = generateProviders(collection);
+  const providers = generateProviders(collection);
   const summaries = createSummaries(collection);
 
   return {
@@ -253,7 +254,7 @@ export const collectionToStac = (collection: Collection): STACCollection => {
     stac_version: STAC_VERSION,
     extent,
     assets,
-    provider,
+    providers,
     links,
     license,
     keywords,
@@ -334,14 +335,18 @@ export const getCollectionIds = async (
 ): Promise<{
   count: number;
   cursor: string | null;
-  items: { id: string; title: string }[];
+  items: { id: string; title: string; provider: string }[];
 }> => {
   const {
     cursor,
     count,
     items: collectionIds,
   } = await paginateQuery(collectionIdsQuery, params, opts, collectionIdsHandler);
-  return { cursor, count, items: collectionIds as { id: string; title: string }[] };
+  return {
+    cursor,
+    count,
+    items: collectionIds as { id: string; title: string; provider: string }[],
+  };
 };
 
 /**
@@ -356,7 +361,7 @@ export const getAllCollectionIds = async (
 ): Promise<{
   count: number;
   cursor: string | null;
-  items: { id: string; title: string }[];
+  items: { id: string; title: string; provider: string }[];
 }> => {
   params.limit = CMR_QUERY_MAX;
 

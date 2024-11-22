@@ -305,3 +305,37 @@ describe("Query validation", () => {
     });
   });
 });
+
+describe("GET /ALL/search", () => {
+  describe("given an 'ALL' provider", () => {
+    it("should return a 404", async () => {
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      const { statusCode, body } = await request(app).get("/stac/ALL/search");
+
+      expect(statusCode).to.equal(404);
+      expect(body).to.deep.equal({
+        errors: ["This operation is not allowed for the ALL Catalog."],
+      });
+    });
+  });
+});
+
+describe("POST /ALL/search", () => {
+  describe("given an 'ALL' provider", () => {
+    it("should return a 404", async () => {
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      const { statusCode, body } = await request(app).post("/stac/ALL/search");
+
+      expect(statusCode).to.equal(404);
+      expect(body).to.deep.equal({
+        errors: ["This operation is not allowed for the ALL Catalog."],
+      });
+    });
+  });
+});

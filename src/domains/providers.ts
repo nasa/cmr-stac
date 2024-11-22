@@ -8,6 +8,12 @@ const CMR_LB_INGEST = `${CMR_LB_URL}/ingest`;
 const CMR_LB_SEARCH = `${CMR_LB_URL}/search`;
 const CMR_LB_SEARCH_COLLECTIONS = `${CMR_LB_SEARCH}/collections`;
 
+export const ALL_PROVIDER = "ALL";
+export const ALL_PROVIDERS = {
+  "provider-id": ALL_PROVIDER.toUpperCase(),
+  "short-name": ALL_PROVIDER.toLowerCase(),
+};
+
 export const conformance = [
   "https://api.stacspec.org/v1.0.0-rc.2/core",
   "https://api.stacspec.org/v1.0.0-rc.2/item-search",
@@ -31,6 +37,7 @@ export const conformance = [
  */
 export const getProviders = async (): Promise<[string, null] | [null, Provider[]]> => {
   try {
+    console.debug(`GET ${CMR_LB_INGEST}/providers`);
     const { data: providers } = await axios.get(`${CMR_LB_INGEST}/providers`);
     return [null, providers];
   } catch (err) {
@@ -50,7 +57,7 @@ export const getProvider = async (
   if (errs) {
     return [errs as string, null];
   }
-
+  providers?.push(ALL_PROVIDERS);
   return [
     null,
     (providers ?? []).find((provider) => provider["provider-id"] === providerId) ?? null,
@@ -79,6 +86,7 @@ export const getCloudProviders = async (
   await Promise.all(
     (candidates ?? []).map(async (provider) => {
       try {
+        console.debug(`GET ${CMR_LB_SEARCH_COLLECTIONS}`);
         const { headers } = await axios.get(CMR_LB_SEARCH_COLLECTIONS, {
           headers: mergeMaybe({}, { authorization }),
           params: { provider: provider["short-name"], cloud_hosted: true },

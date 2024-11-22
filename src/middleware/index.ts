@@ -11,7 +11,7 @@ import {
 import { WarmProviderCache } from "../domains/cache";
 import { getCollections } from "../domains/collections";
 import { parseOrdinateString } from "../domains/bounding-box";
-import { getProviders, getCloudProviders } from "../domains/providers";
+import { ALL_PROVIDER, getProviders, getCloudProviders, ALL_PROVIDERS } from "../domains/providers";
 
 import { scrubTokens, mergeMaybe, ERRORS } from "../utils";
 import { validDateTime } from "../utils/datetime";
@@ -94,7 +94,8 @@ export const refreshProviderCache = async (req: Request, _res: Response, next: N
     if (errs || !updatedProviders) {
       return next(new ServiceUnavailableError(ERRORS.serviceUnavailable));
     }
-
+    updatedProviders;
+    updatedProviders.push(ALL_PROVIDERS);
     updatedProviders.forEach((provider) => {
       cachedProviders.set(provider["provider-id"], provider);
     });
@@ -139,10 +140,33 @@ export const validateProvider = async (req: Request, _res: Response, next: NextF
         `Provider [${providerId}] not found or does not have any visible cloud hosted collections.`
       )
     );
-  } else if (!provider) {
+    // If it's not the 'ALL' provider and the provider ID cannot be found then throw an error
+  } else if (!provider && providerId != ALL_PROVIDER.toString()) {
     next(new ItemNotFound(`Provider [${providerId}] not found.`));
   } else {
     req.provider = provider;
+    next();
+  }
+};
+
+/**
+ * Middleware validates the provider in the route is not ALL.
+ *  
+ * This validation is only required for routes that will search CMR based on the provider
+ * supplied.
+ *
+ * If the provider is not 'ALL' then validation passes.
+ * If the provider is 'ALL', it exits early with a 404.
+
+ */
+export const validateNotAllProvider = async (req: Request, _res: Response, next: NextFunction) => {
+  const { providerId } = req.params;
+
+  if (providerId == ALL_PROVIDER.toString()) {
+    next(
+      new ItemNotFound(`This operation is not allowed for the ${ALL_PROVIDER.toString()} Catalog.`)
+    );
+  } else {
     next();
   }
 };
