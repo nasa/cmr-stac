@@ -16,8 +16,8 @@ deployed to production. UAT CMR-STAC uses the UAT CMR environment which has a mu
 
 Due to the vast number of collections contained within CMR, a user cannot query across all granules at once.
 [Attempting to do so returns an error message](https://cmr.earthdata.nasa.gov/search/granules.json)
-indicating that at least one of a set of fields must be provided. 
-Because a STAC API allows for searching across all Items (i.e., granules), instead of a single API, 
+indicating that at least one of a set of fields must be provided.
+Because a STAC API allows for searching across all Items (i.e., granules), instead of a single API,
 CMR-STAC provides multiple APIs, one for each provider. Upon hitting the root endpoint (https://cmr.earthdata.nasa.gov/stac)
 the response will include a list of CMR providers as a series of links
 with a "rel" field equal to "child".
@@ -34,7 +34,7 @@ with a "rel" field equal to "child".
 Navigating to a provider yields a STAC Catalog, but one that has some additional links and a
 `conformsTo` field, indicating that it is a STAC API. These links include:
 
-| rel | path | Decription |
+| rel | path | Description |
 | --- | ---- | ---------- |
 | self | /{providerId} | this provider catalog |
 | root | / | the root CMR-STAC catalog |
@@ -55,10 +55,10 @@ is given here. The table shows the different endpoints available from the root c
 | ---- | ----------- |
 | /    | Root endpoint. Returns a list of provider Catalogs |
 | /{provider-id} | Returns singular provider Catalog |
-| /{provider-id}/collections | Returns a Catalog of all Collections that belong to the indicated provider | 
-| /{provider-id}/collections/{collection-id} | Returns the individual Collection indicated in the path | 
-| /{provider-id}/collections/{collection-id}/items | Returns an ItemCollection of all Items contained in the indicated Collection | 
-| /{provider-id}/collections/{collection-id}/items/{item-id} | Returns the individual Item indicated in the path | 
+| /{provider-id}/collections | Returns a Catalog of all Collections that belong to the indicated provider |
+| /{provider-id}/collections/{collection-id} | Returns the individual Collection indicated in the path |
+| /{provider-id}/collections/{collection-id}/items | Returns an ItemCollection of all Items contained in the indicated Collection |
+| /{provider-id}/collections/{collection-id}/items/{item-id} | Returns the individual Item indicated in the path |
 
 For example, if a user wanted to get all the collections under the ASF provider, the user would hit:
 
@@ -88,7 +88,8 @@ Each Item returned from CMR-STAC includes a series of links as well:
 | via | The original CMR metadata used to generate the STAC metadata returned |
 
 ## Browsing
-The first thing to do when getting familiar with CMR-STAC is to browse through the catalog and get a sense for its structure, and what types of data (Collections and Items) are available. 
+
+The first thing to do when getting familiar with CMR-STAC is to browse through the catalog and get a sense for its structure, and what types of data (Collections and Items) are available.
 The easiest way to browse is to install a JSON extension for your browser of choice (e.g., [JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa/related) for Chrome).
 
 ![](https://s3.gifyu.com/images/cmr-stac-browse-opt.gif)
@@ -139,6 +140,7 @@ JSON Body:
 ```
 
 ## Searching Collections
+
 Similar to searching for Items, CMR-STAC provides endpoints to search for Collections. Both GET and POST requests are supported for collection searches.
 
 | Parameter | Type | Description |
@@ -151,7 +153,6 @@ Similar to searching for Items, CMR-STAC provides endpoints to search for Collec
 **Examples**
 
 GET:
-
 
 https://localhost:3000/stac/LARC_ASDC/collections?bbox=-180,-90,180,90&datetime=2000-01-01T00:00:00Z/2022-01-01T00:00:00Z&keyword=atmosphere
 
