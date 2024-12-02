@@ -68,14 +68,19 @@ the most straightforward way to do this is to use the cli tool against our `swag
 
 We can test our API both locally and on deployed instance against the on a stac-validation service using the <https://github.com/stac-utils/stac-api-validator> tool
 
+The tool can be installed using pip and requires a Python runtime
+
 ```bash
-  stac-api-validator\
-    --root-url http://localhost:3000/stac/CMR_ONLY \
-    --conformance core \
-    --conformance features \
-    --collection C1200382078-CMR_ONLY \
-    --geometry '{ "coordinates": [[[-145,-40],[-145,40],[145,40],[145,-40],[-145,-40]]],"type": "Polygon" }'
+  pip install stac-api-validator
 ```
+
+```bash
+   stac-api-validator\
+    --root-url http://localhost:3000/stac/CMR_ONLY \
+    --conformance core
+```
+
+this can be extended to validate against additional conformance APIs
 
 ### Deploying
 
