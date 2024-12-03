@@ -7,6 +7,7 @@ import { providerCatalogHandler } from "./catalog";
 import { providerConformanceHandler } from "./providerConformance";
 import { rootCatalogHandler } from "./rootCatalog";
 import { rootConformanceHandler } from "./conformance";
+import { documentationHandler } from "./documentation";
 import { searchHandler } from "./search";
 import { wrapErrorHandler } from "../utils";
 
@@ -28,6 +29,7 @@ router.use(cloudStacMiddleware, cacheMiddleware, logFullRequestMiddleware);
 router.get("/", refreshProviderCache, wrapErrorHandler(rootCatalogHandler));
 router.get("/health", wrapErrorHandler(healthcheckHandler));
 router.get("/conformance", wrapErrorHandler(rootConformanceHandler));
+router.get("/docs/testindex", wrapErrorHandler(documentationHandler));
 
 router.get(
   "/:providerId",
