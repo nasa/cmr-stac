@@ -29,7 +29,7 @@ router.use(cloudStacMiddleware, cacheMiddleware, logFullRequestMiddleware);
 router.get("/", refreshProviderCache, wrapErrorHandler(rootCatalogHandler));
 router.get("/health", wrapErrorHandler(healthcheckHandler));
 router.get("/conformance", wrapErrorHandler(rootConformanceHandler));
-router.get("/testingdocs/testdoc", wrapErrorHandler(documentationHandler));
+router.get("/testingdocs", wrapErrorHandler(documentationHandler));
 
 router.get(
   "/:providerId",
