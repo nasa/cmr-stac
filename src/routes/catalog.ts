@@ -51,7 +51,7 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
     {
       rel: "service-desc",
       href: "https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml",
-      type: "application/vnd.oai.openapi;version=3.0",
+      type: "text/yaml",
       title: "OpenAPI Doc",
     },
     {

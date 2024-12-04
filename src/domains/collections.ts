@@ -97,7 +97,7 @@ const extractLicense = (_collection: Collection) => {
 };
 
 /**
- * Examing a collections related URLs to see if it contains a reference to a STAC catalog.
+ * Examining a collections related URLs to see if it contains a reference to a STAC catalog.
  * If the collection has a RelatedURL of type: "GET CAPABILITIES",
  * and subtype: "STAC" then that URL should be placed in the href for the items link.
  *
