@@ -27,7 +27,7 @@ const selfLinks = (req: Request): Link[] => {
       rel: "service-desc",
       href: `https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml`,
       title: "OpenAPI Documentation",
-      type: "application/vnd.oai.workflows+yaml",
+      type: "application/yaml",
     },
     {
       rel: "service-doc",
