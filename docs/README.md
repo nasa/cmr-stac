@@ -1,10 +1,10 @@
-## CMR-STAC Development
+# CMR-STAC Development
 
 CMR-STAC is a Node.js application built on the [Express.js framework](https://expressjs.com/) and deployed as an AWS serverless application using API Gateway + Lambda. This README is intended for developers who want to contribute to CMR-STAC, or set up a development environment for it.
 
 The remainder of this README is documentation for developing, testing, and deploying CMR-STAC. See the [Usage documentation](../docs/usage/usage.md) if you are interested in using the CMR-STAC API.
 
-### Repository Structure
+## Repository Structure
 
 | Directory            | Description  |
 | -------------------- | ------------ |
@@ -14,6 +14,7 @@ The remainder of this README is documentation for developing, testing, and deplo
 | [usage](../docs/usage/usage.md)       | Documentation on usage of the CMR-STAC endpoint(s) |
 
 ## Getting Started
+
 ### Setup
 
 Set the correct NodeJS version (specified in [.nvmrc](../.nvmrc) required
@@ -49,10 +50,37 @@ npm run dev
 
 This will run the process in the current terminal session, the local server will be available at:
 
-```
+```bash
 http://localhost:3000/stac
 http://localhost:3000/cloudstac
 ```
+
+### Creating index.html from Swagger.json
+
+To Create the index.html located in docs/index we can use the `redocly` service
+the most straightforward way to do this is to use the cli tool against our `swagger.json` file
+
+```bash
+  npx @redocly/cli build-docs swagger.json
+```
+
+### Testing STAC validation
+
+We can test our API both locally and on deployed instance against the on a stac-validation service using the <https://github.com/stac-utils/stac-api-validator> tool
+
+The tool can be installed using pip and requires a Python runtime
+
+```bash
+  pip install stac-api-validator
+```
+
+```bash
+   stac-api-validator\
+    --root-url http://localhost:3000/stac/CMR_ONLY \
+    --conformance core
+```
+
+this can be extended to validate against additional conformance APIs
 
 ### Deploying
 

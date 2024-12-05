@@ -25,9 +25,9 @@ const selfLinks = (req: Request): Link[] => {
     },
     {
       rel: "service-desc",
-      href: `${stacRoot}/resources/swagger.json`,
-      title: "OpenAI Documentation",
-      type: "application/vnd.oai.openapi+json;version=3.0",
+      href: `https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml`,
+      title: "OpenAPI Documentation",
+      type: "application/yaml",
     },
     {
       rel: "service-doc",
