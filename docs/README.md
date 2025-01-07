@@ -45,15 +45,17 @@ npm run prettier:fix
 To run the CMR-STAC server locally:
 
 ```bash
-npm run dev
+npm run start
 ```
 
-This will run the process in the current terminal session, the local server will be available at:
+This will run the process in the current terminal session start up the necessary docker container where the the local server will be available from:
 
 ```bash
 http://localhost:3000/stac
 http://localhost:3000/cloudstac
 ```
+
+To configure environment variables for this application such as point to `uat` or `prod` update the values in `sam_local_envs.json`
 
 ### Creating index.html from Swagger.json
 
@@ -84,8 +86,7 @@ this can be extended to validate against additional conformance APIs
 
 ### Deploying
 
-The deployment is handled via the [Serverless Framework](https://serverless.com). Each service has a
-separate configuration file (`serverless.yml`).
+The deployment is handled via the [AWS CDK Framework](https://aws.amazon.com/cdk/)
 
 To deploy the CMR-STAC application to AWS, you will need to set up a set of AWS credentials for the account where the application is being deployed, with the following permissions:
 
@@ -94,21 +95,7 @@ To deploy the CMR-STAC application to AWS, you will need to set up a set of AWS 
 - manage lambda function
 - manage api gateway
 
-The `serverless.yml` file includes environment variables for the search function that gets deployed. These variables have default values, but when deploying they should be evaluated based on the environment they are being deployed into (e.g., SIT, UAT, PROD).
-
-- LOG_LEVEL: info
-- LOG_DISABLED: false
-- STAGE: `${self:provider.stage}`
-
-STAGE is the AWS API Gateway `stage` that the application is being deployed. That by default is a setting in the `serverless.yml` file that environment variable will reference.
-
-Use the npm script deploy to deploy the CMR-STAC application to AWS:
-
-```bash
-export AWS_PROFILE=xxxxxx
-npm run deploy -- --stage <sit|uat|prod>
-npm run deploy:docs -- --stage <sit|uat|prod>
-```
+Running the `deploy.sh` script with teh accompanying environment variables will run the `cdk synth` command on `cdk/crm-stac` to build the application and start the deployment
 
 ## License
 

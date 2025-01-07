@@ -50,7 +50,7 @@ Whenever a Recipient distributes or redistributes the Subject Software, a copy o
 If Recipient distributes or redistributes the Subject Software in any form other than source code, Recipient must also make the source code freely available, and must provide with each copy of the Subject Software information on how to obtain the source code in a reasonable manner on or through a medium customarily used for software exchange.
 B. Each Recipient must ensure that the following copyright notice appears prominently in the Subject Software:
 
-Copyright 2022 United States Government as represented by NASA EOSDIS. All Rights Reserved.
+Copyright 2025 United States Government as represented by NASA EOSDIS. All Rights Reserved.
 
 C. Each Contributor must characterize its alteration of the Subject Software as a Modification and must identify itself as the originator of its Modification in a manner that reasonably allows subsequent Recipients to identify the originator of the Modification. In fulfillment of these requirements, Contributor must include a file (e.g., a change log file) that describes the alterations made and the date of the alterations, identifies Contributor as originator of the alterations, and consents to characterization of the alterations as a Modification, for example, by including a statement that the Modification is derived, directly or indirectly, from Original Software provided by Government Agency. Once consent is granted, it may not thereafter be revoked.
 
