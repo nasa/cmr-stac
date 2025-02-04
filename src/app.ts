@@ -19,7 +19,7 @@ const createApp = () => {
   // Anything over 100 would error out because indices are added. See CMR-10296 and
   // https://github.com/ljharb/qs for more details.
   app.set("query parser", function (str: string) {
-    return qs.parse(str, { arrayLimit: 10000 });
+    return qs.parse(str, { arrayLimit: 100 });
   });
 
   app.use(compression());
