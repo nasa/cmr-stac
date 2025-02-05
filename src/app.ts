@@ -4,6 +4,7 @@ import helmet from "helmet";
 import express from "express";
 import compression from "compression";
 import cookieParser from "cookie-parser";
+import qs from "qs";
 
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -13,6 +14,13 @@ import { notFoundHandler, errorHandler } from "./middleware";
 
 const createApp = () => {
   const app = express();
+
+  // This allows the query parser to parse up to 100 coordinates without adding indices.
+  // Anything over 100 would error out because indices are added. See CMR-10296 and
+  // https://github.com/ljharb/qs for more details.
+  app.set("query parser", function (str: string) {
+    return qs.parse(str, { arrayLimit: 100 });
+  });
 
   app.use(compression());
   app.use(helmet());
