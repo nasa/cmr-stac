@@ -22,7 +22,6 @@ const createApp = () => {
     return qs.parse(str, { arrayLimit: 100 });
   });
 
-  app.use(compression());
   app.use(helmet());
   app.use(cors());
   app.use(express.json());

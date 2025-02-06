@@ -17,8 +17,10 @@ The remainder of this README is documentation for developing, testing, and deplo
 
 ### Setup
 
-Set the correct NodeJS version (specified in [.nvmrc](../.nvmrc) required
-by CMR-STAC with [`nvm`](https://github.com/nvm-sh/nvm) (recommended for managing NodeJS versions):
+- Set the correct NodeJS version (specified in [.nvmrc](../.nvmrc) required
+by CMR-STAC with [`nvm`](https://github.com/nvm-sh/nvm) (recommended for managing NodeJS versions)):
+
+- install aws-sam-cli (`brew install aws-sam-cli`)
 
 ```bash
 nvm use
