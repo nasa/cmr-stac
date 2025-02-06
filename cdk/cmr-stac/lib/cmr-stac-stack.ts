@@ -64,7 +64,7 @@ export class CmrStacStack extends cdk.Stack {
     const cmrStacDocsBucket = s3.Bucket.fromBucketName(
       this,
       "cmrStacDocsBucket",
-      `cmr-stac-static-bucket-eudoro-${STAGE_NAME}`
+      `cmr-stac-static-bucket-${STAGE_NAME}`
     );
 
     // This maps to the `*` principal
