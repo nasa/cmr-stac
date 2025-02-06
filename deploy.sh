@@ -49,6 +49,7 @@ dockerRun() {
     -e "LOG_DESTINATION_ARN=$LOG_DESTINATION_ARN" \
     -e "AWS_ORG_USER=$AWS_ORG_USER" \
     -e "AWS_ORG_ID=$AWS_ORG_ID" \
+    -e "NODE_ENV=production" \
     -e "STAGE_NAME=$STAGE_NAME" \
     -e "SUBNET_ID_A=$SUBNET_ID_A" \
     -e "SUBNET_ID_B=$SUBNET_ID_B" \
