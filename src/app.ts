@@ -22,16 +22,17 @@ const createApp = () => {
     return qs.parse(str, { arrayLimit: 100 });
   });
 
-  app.use(compression());
   app.use(helmet());
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  if (!process.env.CI) {
-    const logger = process.env.IS_LOCAL === "true" ? morgan("dev") : morgan("combined");
-    app.use(logger);
+  const logger = process.env.NODE_ENV === "development" ? morgan("dev") : morgan("combined");
+  app.use(logger);
+
+  if (process.env.NODE_ENV != "development") {
+    app.use(compression());
   }
 
   app.use(/\/(cloud)?stac?/, routes);

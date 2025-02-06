@@ -150,3 +150,9 @@ $RECYCLE.BIN/
 # emacs
 \#*\#
 .\#*
+
+tmp
+
+# Ignore docker file items
+Dockerfile
+.dockerignore

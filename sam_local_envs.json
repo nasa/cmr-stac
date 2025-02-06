@@ -1,0 +1,12 @@
+{
+    "Parameters": {
+        "CMR_URL": "https://cmr.earthdata.nasa.gov",
+        "CMR_LB_URL": "https://cmr.earthdata.nasa.gov",
+        "GRAPHQL_URL": "https://graphql.earthdata.nasa.gov/api",
+        "NODE_ENV": "development",
+        "STAC_VERSION": "1.0.0",
+        "LOG_LEVEL": "1.0.0",
+        "PAGE_SIZE": "100",
+        "STAGE_NAME": "dev"
+    }
+}

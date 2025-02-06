@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        node_version: [18]
+        node_version: [lts/jod]
 
     steps:
       - uses: actions/checkout@v4
