@@ -26,8 +26,8 @@ WORKDIR /build
 RUN npm ci
 EOF
 
-dockerTag=cmr-stac-$STAGE_NAME
-stageOpts="--stage $STAGE_NAME "
+dockerTag=cmr-stac-$bamboo_STAGE_NAME
+stageOpts="--stage $bamboo_STAGE_NAME "
 
 docker build -t $dockerTag .
 
@@ -35,27 +35,27 @@ docker build -t $dockerTag .
 dockerRun() {
   docker run \
     --rm \
-    -e "CMR_URL=$CMR_URL" \
-    -e "CMR_LB_URL=$CMR_LB_URL" \
-    -e "GRAPHQL_URL=$GRAPHQL_URL" \
-    -e "STAC_VERSION=$STAC_VERSION" \
-    -e "PAGE_SIZE=$PAGE_SIZE" \
-    -e "LOG_LEVEL=$LOG_LEVEL" \
-    -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
-    -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
-    -e "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" \
-    -e "AWS_ACCOUNT=$AWS_ACCOUNT" \
-    -e "LISTENER_ARN=$LISTENER_ARN" \
-    -e "LOG_DESTINATION_ARN=$LOG_DESTINATION_ARN" \
-    -e "AWS_ORG_USER=$AWS_ORG_USER" \
-    -e "AWS_ORG_ID=$AWS_ORG_ID" \
+    -e "CMR_URL=$bamboo_CMR_URL" \
+    -e "CMR_LB_URL=$bamboo_CMR_LB_URL" \
+    -e "GRAPHQL_URL=$bamboo_GRAPHQL_URL" \
+    -e "STAC_VERSION=$bamboo_STAC_VERSION" \
+    -e "PAGE_SIZE=$bamboo_PAGE_SIZE" \
+    -e "LOG_LEVEL=$bamboo_LOG_LEVEL" \
+    -e "AWS_ACCESS_KEY_ID=$bamboo_AWS_ACCESS_KEY_ID" \
+    -e "AWS_SECRET_ACCESS_KEY=$bamboo_AWS_SECRET_ACCESS_KEY" \
+    -e "AWS_DEFAULT_REGION=$bamboo_AWS_DEFAULT_REGION" \
+    -e "AWS_ACCOUNT=$bamboo_AWS_ACCOUNT" \
+    -e "LISTENER_ARN=$bamboo_LISTENER_ARN" \
+    -e "LOG_DESTINATION_ARN=$bamboo_LOG_DESTINATION_ARN" \
+    -e "AWS_ORG_USER=$bamboo_AWS_ORG_USER" \
+    -e "AWS_ORG_ID=$bamboo_AWS_ORG_ID" \
     -e "NODE_ENV=production" \
-    -e "STAGE_NAME=$STAGE_NAME" \
-    -e "SUBNET_ID_A=$SUBNET_ID_A" \
-    -e "SUBNET_ID_B=$SUBNET_ID_B" \
-    -e "SUBNET_ID_C=$SUBNET_ID_C" \
-    -e "CMR_SERVICE_SECURITY_GROUP_ID=$CMR_SERVICE_SECURITY_GROUP_ID" \
-    -e "VPC_ID=$VPC_ID" \
+    -e "STAGE_NAME=$bamboo_STAGE_NAME" \
+    -e "SUBNET_ID_A=$bamboo_SUBNET_ID_A" \
+    -e "SUBNET_ID_B=$bamboo_SUBNET_ID_B" \
+    -e "SUBNET_ID_C=$bamboo_SUBNET_ID_C" \
+    -e "CMR_SERVICE_SECURITY_GROUP_ID=$bamboo_CMR_SERVICE_SECURITY_GROUP_ID" \
+    -e "VPC_ID=$bamboo_VPC_ID" \
     $dockerTag "$@"
 }
 
