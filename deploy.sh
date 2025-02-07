@@ -41,8 +41,8 @@ dockerRun() {
     -e "STAC_VERSION=$bamboo_STAC_VERSION" \
     -e "PAGE_SIZE=$bamboo_PAGE_SIZE" \
     -e "LOG_LEVEL=$bamboo_LOG_LEVEL" \
-    -e "AWS_ACCESS_KEY_ID=$bamboo_AWS_ACCESS_KEY_ID" \
-    -e "AWS_SECRET_ACCESS_KEY=$bamboo_AWS_SECRET_ACCESS_KEY" \
+    -e "AWS_ACCESS_KEY_ID=$bamboo_AWS_ACCESS_KEY_ID_PASSWORD" \
+    -e "AWS_SECRET_ACCESS_KEY=$bamboo_AWS_SECRET_ACCESS_KEY_PASSWORD" \
     -e "AWS_DEFAULT_REGION=$bamboo_AWS_DEFAULT_REGION" \
     -e "AWS_ACCOUNT=$bamboo_AWS_ACCOUNT" \
     -e "LISTENER_ARN=$bamboo_LISTENER_ARN" \
