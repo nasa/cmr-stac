@@ -4,10 +4,10 @@
     "strictNullChecks": true,
     "sourceMap": true,
     "allowJs": true,
-    "target": "es2017",
+    "target": "es2020",
     "outDir": ".build",
     "moduleResolution": "node",
-    "lib": ["es2017"],
+    "lib": ["es2020"],
     "rootDir": "./",
     "strict": true,
     "module": "commonjs",
@@ -16,5 +16,5 @@
     "typeRoots": ["node_modules/@types", "src/@types"]
   },
   "include": ["./**/*.ts"],
-  "exclude": ["node_modules", "./**/*.spec.ts"]
+  "exclude": ["node_modules", "./**/*.spec.ts", "./cdk/*"]
 }

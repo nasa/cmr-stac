@@ -46,7 +46,7 @@ export const cacheMiddleware = (req: Request, _res: Response, next: NextFunction
     cloudProviders: cachedCloudProviders,
   };
 
-  if (process.env.IS_LOCAL === "true" || process.env.CI) {
+  if (process.env.NODE_ENV !== "production") {
     req.on("end", () => {
       req.cache?.providers.clear();
       req.cache?.cloudProviders.clear();
