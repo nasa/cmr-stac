@@ -70,6 +70,20 @@ const cloudCoverExtension = (granule: Granule) => {
 };
 
 /**
+ * Return the CMR extension schema and properties for a granule.
+ */
+const cmrGranuleExtension = (granule: Granule) => {
+  return {
+    extension: "https://stac-extensions.github.io/cmr/v0.0.0/schema.json",
+    properties: {
+      "cmr:provider": granule.collection?.conceptId.split("-")[1],
+      "cmr:collection_id": granule.collection?.conceptId,
+      "cmr:concept_id": granule.conceptId,
+    },
+  };
+};
+
+/**
  * Returns the self-links for a STACItem.
  *
  * @param root URL root of the STAC catalog.
@@ -164,6 +178,7 @@ export const granuleToStac = (granule: Granule): STACItem => {
 
   const { extensions, properties: extensionProperties } = deriveExtensions(granule, [
     cloudCoverExtension,
+    cmrGranuleExtension,
   ]);
 
   const properties: { [key: string]: string } = mergeMaybe(
