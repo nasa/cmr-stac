@@ -10,8 +10,8 @@ const CMR_LB_SEARCH_COLLECTIONS = `${CMR_LB_SEARCH}/collections`;
 
 export const ALL_PROVIDER = "ALL";
 export const ALL_PROVIDERS = {
-  "provider-id": ALL_PROVIDER.toUpperCase(),
-  "short-name": ALL_PROVIDER.toLowerCase(),
+  "provider-id": ALL_PROVIDER,
+  "short-name": ALL_PROVIDER,
 };
 
 export const conformance = [
