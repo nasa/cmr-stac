@@ -352,7 +352,7 @@ describe("GET /:provider", () => {
       expect(children).to.have.length(0);
       expect(statusCode).to.equal(200);
     });
-    it("should have collection search conformance classes", async() => {
+    it("should have collection search conformance classes", async () => {
       sandbox
         .stub(Provider, "getProviders")
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
@@ -363,10 +363,12 @@ describe("GET /:provider", () => {
 
       expect(statusCode).to.equal(200);
       const conformanceClasses = catalog.conformsTo;
-      const collectionSearchClasses = conformanceClasses.filter((c: String) => c.includes("collection-search"));
+      const collectionSearchClasses = conformanceClasses.filter((c: String) =>
+        c.includes("collection-search")
+      );
       expect(collectionSearchClasses).not.to.be.empty;
-    })
-    it("should not have any item search conformance classes", async() => {
+    });
+    it("should not have any item search conformance classes", async () => {
       sandbox
         .stub(Provider, "getProviders")
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
@@ -379,7 +381,7 @@ describe("GET /:provider", () => {
       const conformanceClasses = catalog.conformsTo;
       const itemSearchClasses = conformanceClasses.filter((c: String) => c.includes("item-search"));
       expect(itemSearchClasses).to.be.empty;
-    })
+    });
     it("should be able to handle providers whose name contains the text 'ALL'", async () => {
       sandbox
         .stub(Provider, "getProviders")

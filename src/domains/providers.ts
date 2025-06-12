@@ -42,7 +42,7 @@ export const conformanceAll = [
   "https://api.stacspec.org/v1.0.0-rc.2/collection-search#free-text",
   "https://api.stacspec.org/v1.0.0-rc.2/collection-search#sort",
   "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/simple-query",
-]
+];
 
 /**
  * Return an array of providers found in CMR.
