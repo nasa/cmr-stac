@@ -26,6 +26,12 @@ describe("GET /:provider/conformance", () => {
             expect(body.conformsTo).to.deep.equal(conformance);
         })
     })
+    describe("given an invalid provider", () => {
+        it("should return a 404 status", async () => {
+            const res = await request(stacApp).get("/stac/PROVIDER_NOT_FOUND/conformance");
+            expect(res.statusCode).to.equal(404);
+        })
+    })
     describe("given the ALL provider/catalog", () => {
         it("should have collection search conformance classes", async () => {
             const { body, statusCode } = await request(stacApp).get("/stac/ALL/conformance");
