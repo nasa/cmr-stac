@@ -22,6 +22,7 @@ describe("GET /:provider/conformance", () => {
   describe("given a valid provider", () => {
     it("should return the correct conformance classes", async () => {
       const { body, statusCode } = await request(stacApp).get("/stac/TEST/conformance");
+
       expect(statusCode).to.equal(200);
       expect(body.conformsTo).to.deep.equal(conformance);
     });
@@ -29,24 +30,27 @@ describe("GET /:provider/conformance", () => {
   describe("given an invalid provider", () => {
     it("should return a 404 status", async () => {
       const res = await request(stacApp).get("/stac/PROVIDER_NOT_FOUND/conformance");
+
       expect(res.statusCode).to.equal(404);
     });
   });
   describe("given the ALL provider/catalog", () => {
     it("should have collection search conformance classes", async () => {
       const { body, statusCode } = await request(stacApp).get("/stac/ALL/conformance");
-      expect(statusCode).to.equal(200);
       const conformanceClasses = body.conformsTo;
       const collectionSearchClasses = conformanceClasses.filter((c: String) =>
         c.includes("collection-search")
       );
+
+      expect(statusCode).to.equal(200);
       expect(collectionSearchClasses).not.to.be.empty;
     });
     it("should not contain item search conformance classes", async () => {
       const { body, statusCode } = await request(stacApp).get("/stac/ALL/conformance");
-      expect(statusCode).to.equal(200);
       const conformanceClasses = body.conformsTo;
       const itemSearchClasses = conformanceClasses.filter((c: String) => c.includes("item-search"));
+
+      expect(statusCode).to.equal(200);
       expect(itemSearchClasses).to.be.empty;
     });
   });

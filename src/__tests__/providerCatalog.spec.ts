@@ -360,12 +360,12 @@ describe("GET /:provider", () => {
       sandbox.stub(Collections, "getCollectionIds").resolves({ count: 0, cursor: null, items: [] });
 
       const { body: catalog, statusCode } = await request(stacApp).get("/stac/ALL");
-
-      expect(statusCode).to.equal(200);
       const conformanceClasses = catalog.conformsTo;
       const collectionSearchClasses = conformanceClasses.filter((c: String) =>
         c.includes("collection-search")
       );
+
+      expect(statusCode).to.equal(200);
       expect(collectionSearchClasses).not.to.be.empty;
     });
     it("should not have any item search conformance classes", async () => {
@@ -376,10 +376,10 @@ describe("GET /:provider", () => {
       sandbox.stub(Collections, "getCollectionIds").resolves({ count: 0, cursor: null, items: [] });
 
       const { body: catalog, statusCode } = await request(stacApp).get("/stac/ALL");
-
-      expect(statusCode).to.equal(200);
       const conformanceClasses = catalog.conformsTo;
       const itemSearchClasses = conformanceClasses.filter((c: String) => c.includes("item-search"));
+
+      expect(statusCode).to.equal(200);
       expect(itemSearchClasses).to.be.empty;
     });
     it("should be able to handle providers whose name contains the text 'ALL'", async () => {
