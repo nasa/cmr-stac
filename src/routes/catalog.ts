@@ -4,7 +4,7 @@ import { stringify as stringifyQuery } from "qs";
 import { Links, STACCatalog } from "../@types/StacCatalog";
 
 import { getAllCollectionIds } from "../domains/collections";
-import { conformance } from "../domains/providers";
+import { conformance, conformanceAll } from "../domains/providers";
 import { ServiceUnavailableError } from "../models/errors";
 import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 import { CMR_QUERY_MAX } from "../domains/stac";
@@ -157,7 +157,7 @@ export const providerCatalogHandler = async (req: Request, res: Response) => {
     title: `${provider["provider-id"]} STAC Catalog`,
     stac_version: STAC_VERSION,
     description: `Root STAC catalog for ${provider["provider-id"]}`,
-    conformsTo: conformance,
+    conformsTo: provider["provider-id"] === ALL_PROVIDER ? conformanceAll : conformance,
     links: [...selfLinks, ...childLinks],
   } as STACCatalog;
 
