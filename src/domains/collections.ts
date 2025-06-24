@@ -16,7 +16,13 @@ import {
 
 import { cmrSpatialToExtent } from "./bounding-box";
 
-import { CMR_QUERY_MAX, extractAssets, paginateQuery } from "./stac";
+import {
+  CMR_QUERY_MAX,
+  extractAssets,
+  paginateQuery,
+  deriveExtensions,
+  generateStorageExtension,
+} from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -232,12 +238,28 @@ const generateProviders = (collection: Collection) => [
 ];
 
 /**
- * Convert a GraphQL collection item into a STACCollection.
+ * Return the storage extension schema and attributes for a collection
+ */
+const storageExtension = (collection: Collection) => {
+  const s3Buckets = (collection.directDistributionInformation?.s3BucketAndObjectPrefixNames ?? [])
+    .flatMap((s3Buckets) => s3Buckets.split(","))
+    .map((s3Bucket) => s3Bucket.trim())
+    .filter((s3Bucket) => s3Bucket)
+    .map((s3Bucket) => (s3Bucket.startsWith("s3://") ? s3Bucket : `s3://${s3Bucket}`));
+  if (s3Buckets.length == 0) return;
+  return generateStorageExtension(s3Buckets);
+};
+
+/* Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: Collection): STACCollection => {
   const { entryId, description, title } = collection;
 
   const { license, licenseLink } = extractLicense(collection);
+
+  const { extensions, attributes: extensionAttributes } = deriveExtensions(collection, [
+    storageExtension,
+  ]);
 
   const assets = extractAssets(collection);
   const extent = createExtent(collection);
@@ -252,6 +274,7 @@ export const collectionToStac = (collection: Collection): STACCollection => {
     title,
     description,
     stac_version: STAC_VERSION,
+    stac_extensions: extensions,
     extent,
     assets,
     providers,
@@ -259,6 +282,7 @@ export const collectionToStac = (collection: Collection): STACCollection => {
     license,
     keywords,
     summaries,
+    ...extensionAttributes,
   } as STACCollection;
 };
 

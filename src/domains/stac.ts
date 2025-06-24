@@ -20,7 +20,7 @@ import {
   GraphQLHandler,
   GraphQLResults,
 } from "../models/GraphQLModels";
-import { SortObject, StacQuery } from "../models/StacModels";
+import { SortObject, StacQuery, StacExtension, StacExtensions } from "../models/StacModels";
 import { getAllCollectionIds } from "./collections";
 import {
   mergeMaybe,
@@ -38,6 +38,74 @@ import { parseSortFields, mapIdSortKey } from "../utils/sort";
 const CMR_ROOT = process.env.CMR_URL;
 
 /**
+ * Given an array of s3:// urls, retrieves an S3 bucket name
+ * and returns the storage extension schema and attributes
+ */
+export const generateStorageExtension = (s3Urls: string[]): StacExtension => {
+  // Preference for protected URLs, otherwise use the first URL
+  const url = s3Urls.find((url) => url.includes("protected")) ?? s3Urls[0];
+  const match = url.match(/s3:\/\/([^/]+)\/(.*)/);
+
+  const bucket = match ? match[1] : "";
+  return {
+    extension: "https://stac-extensions.github.io/storage/v2.0.0/schema.json",
+    attributes: {
+      "storage:schemes": {
+        aws: {
+          type: "aws-s3",
+          platform: `https://{bucket}.s3.{region}.amazonaws.com`,
+          bucket: bucket,
+          region: "us-west-2",
+        },
+      },
+    },
+  };
+};
+
+const filterUnique = (val: string, idx: number, arr: string[]) => arr.indexOf(val) === idx;
+
+/**
+ * Build a list of STAC extensions and attributes for the given granule or
+ * collection.
+ *
+ * Extension builder functions must take a granule or collection (the same
+ * type as the first argument)  as input and should return an array with the
+ * Schema of the extension as the first element, and the associated
+ * property map as the second.
+ *
+ * For Items, attributes are added to the Item Properties object.
+ * For Collections, attributes are added to the top level of the
+ *  object.
+ *
+ * @example
+ * deriveExtensions(granule, [cloudCoverBldr, projectionBldr]) =>
+ * [
+ *    ["https://stac-extensions.github.io/eo/v1.0.0/schema.json",
+ *     "https://stac-extensions.github.io/projection/v1.0.0/schema.json"],
+ *   { "eo:cloud_cover": 50,
+ *     "proj:epsg" : 32659
+ *     "proj:shape" : [ 5558, 9559 ]}
+ * ]
+ */
+export const deriveExtensions = <CType extends Granule | Collection>(
+  concept: CType,
+  extensionBuilders: ((c: CType) => StacExtension | undefined)[]
+): StacExtensions => {
+  return extensionBuilders.reduce(
+    ({ extensions, attributes }, extBldr) => {
+      const ext = extBldr(concept);
+      if (!ext) return { extensions, attributes };
+
+      return {
+        extensions: [...extensions, ext.extension].filter(filterUnique),
+        attributes: mergeMaybe(attributes, ext.attributes),
+      };
+    },
+    { extensions: [], attributes: {} } as StacExtensions
+  );
+};
+
+/**
  * Return download assets if present.
  */
 const downloadAssets = (concept: Collection | Granule) => {
@@ -52,6 +120,28 @@ const downloadAssets = (concept: Collection | Granule) => {
         title: `Direct Download${display}`,
         description: relatedUrl.description,
         roles: ["data"],
+      };
+      return { ...downloadAssets, ...downloadAsset };
+    }, {} as AssetLinks);
+};
+
+/**
+ * Return S3 download assets (found in related urls) if present.
+ */
+export const s3downloadAssets = (concept: Collection | Granule) => {
+  return (concept.relatedUrls ?? [])
+    .filter((relatedUrl) => relatedUrl["type"] === RelatedUrlType.GET_DATA_VIA_DIRECT_ACCESS)
+    .filter((relatedUrl) => relatedUrl.url.startsWith("s3://"))
+    .reduce((downloadAssets, relatedUrl, idx, available) => {
+      const display = available.length > 1 ? ` [${idx}]` : "";
+      const relatedUrlKey = extractAssetMapKey(relatedUrl.url);
+      const downloadAsset: AssetLinks = {};
+      downloadAsset[`s3_${relatedUrlKey}`] = {
+        href: relatedUrl.url,
+        title: `S3 Direct Download${display}`,
+        description: relatedUrl.description,
+        roles: ["data"],
+        "storage:refs": ["aws"],
       };
       return { ...downloadAssets, ...downloadAsset };
     }, {} as AssetLinks);
@@ -143,7 +233,12 @@ const s3BucketToAsset = (assets: AssetLinks, s3Bucket: string) => {
   const assetTitle = s3Bucket.replace("s3://", "").replace(/[/\-:.]/gi, "_");
   const s3Asset: AssetLinks = {};
   const href = s3Bucket.startsWith("s3://") ? s3Bucket : `s3://${s3Bucket}`;
-  s3Asset[`s3_${assetTitle}`] = { href, roles: ["data"], title: assetTitle };
+  s3Asset[`s3_${assetTitle}`] = {
+    href,
+    roles: ["data"],
+    title: assetTitle,
+    "storage:refs": ["aws"],
+  };
   return { ...assets, ...s3Asset };
 };
 
@@ -189,6 +284,7 @@ const defaultExtractors = [
   downloadAssets,
   metadataAssets,
   s3Assets,
+  s3downloadAssets,
   xmlMetadataAssets,
 ];
 

@@ -2,7 +2,7 @@ import chai from "chai";
 const { expect } = chai;
 import { stringify as stringifyQuery } from "qs";
 
-import { buildQuery, sortByToSortKeys, browseAssets } from "../stac";
+import { buildQuery, sortByToSortKeys, browseAssets, s3downloadAssets } from "../stac";
 import { RelatedUrlType, UrlContentType } from "../../models/GraphQLModels";
 import { SortObject } from "../../models/StacModels";
 
@@ -567,6 +567,45 @@ describe("browseAssets", () => {
     it("should return the corresponding browseAsset", () => {
       expect(browseAssets(granule)).to.deep.equal(browseAsset);
     });
+  });
+});
+
+describe("s3downloadAssets", () => {
+  it("should extract S3 URL from relatedUrls", () => {
+    const granule = {
+      relatedUrls: [
+        {
+          type: RelatedUrlType.GET_DATA_VIA_DIRECT_ACCESS,
+          url: "s3://bucket-name/path/to/granule",
+          description: "S3 URL for granule",
+        },
+        {
+          type: RelatedUrlType.GET_DATA,
+          url: "https://not-s3.com/file",
+          description: "Not S3 URL",
+        },
+      ],
+    };
+    const result = s3downloadAssets(granule as any);
+    expect(result).to.have.deep.property("s3_asset_key", {
+      href: "s3://bucket-name/path/to/granule",
+      title: "S3 Direct Download",
+      roles: ["data"],
+      description: "S3 URL for granule",
+      "storage:refs": ["aws"],
+    });
+  });
+  it("should return undefined if no S3 URL is found", () => {
+    const granule = {
+      relatedUrls: [
+        {
+          type: RelatedUrlType.GET_DATA,
+          url: "https://not-s3.com/file",
+        },
+      ],
+    };
+    const result = s3downloadAssets(granule as any);
+    expect(result).to.deep.equal({});
   });
 });
 
