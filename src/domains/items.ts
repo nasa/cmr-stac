@@ -10,7 +10,6 @@ import {
   GraphQLResults,
   RelatedUrlType,
 } from "../models/GraphQLModels";
-import { StacExtension, StacExtensions } from "../models/StacModels";
 
 import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
