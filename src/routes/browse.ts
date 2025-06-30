@@ -77,7 +77,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
-    addItemLinkIfNotPresent(collection, `${baseUrl}/${encodeURIComponent(collection.id)}`);
+    addItemLinkIfNotPresent(collection, `${baseUrl}/${encodeURIComponent(collection.id)}`, req);
   });
 
   const links = collectionLinks(req, cursor);
@@ -106,7 +106,7 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
     ? [...collectionLinks(req), ...(collection.links ?? [])]
     : [...collectionLinks(req)];
   const { path } = stacContext(req);
-  addItemLinkIfNotPresent(collection, path);
+  addItemLinkIfNotPresent(collection, path, req);
   res.json(collection);
 };
 
@@ -160,21 +160,27 @@ export function generateBaseUrlForCollection(baseUrl: string, collection: STACCo
  * This is useful of collections that do not index their granule
  * metadata in CMR, like CWIC collection.
  * If the list of links of does not contain a link of type 'items' then
- * add the default items element
+ * add the default items element.
+ * In both cases, append collection search constraints to the link if present
  *
  *  @param collection the STAC collection object containing links
  *  @param url the generic link to a CMR STAC API
+ *  @param req the incoming STAC request
  */
 
-export function addItemLinkIfNotPresent(collection: STACCollection, url: string) {
+export function addItemLinkIfNotPresent(collection: STACCollection, url: string, req: Request) {
   const itemsLink = collection.links.find((link) => link.rel === "items");
+  const originalQueryString = req.originalUrl.split("?")[1] || "";
+  const queryString = originalQueryString ? `?${originalQueryString}` : "";
 
   if (!itemsLink) {
     collection.links.push({
       rel: "items",
-      href: `${url}/items`,
+      href: `${url}/items${queryString}`,
       type: "application/geo+json",
       title: "Collection Items",
     });
+  } else {
+    itemsLink.href = `${itemsLink.href}${queryString}`;
   }
 }

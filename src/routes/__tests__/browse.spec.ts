@@ -7,6 +7,8 @@ chai.use(sinonChai);
 const { expect } = chai;
 
 import * as gql from "graphql-request";
+import { Request } from "express";
+
 import {
   collectionHandler,
   collectionsHandler,
@@ -18,6 +20,10 @@ import { generateSTACCollections } from "../../utils/testUtils";
 
 describe("addItemLinkIfNotPresent", () => {
   it("will add an item link if no item link is present", async () => {
+    const mockRequest = {
+      method: "GET",
+      originalUrl: "/stac/TEST_PROV/collections",
+    } as Request;
     // Create a STACCollection with no item link
     let stacCollection = generateSTACCollections(1)[0];
     // Add a non-item link
@@ -30,7 +36,7 @@ describe("addItemLinkIfNotPresent", () => {
 
     const numberoOfLinks = stacCollection.links.length;
     // Invoke method
-    addItemLinkIfNotPresent(stacCollection, "https://foo.com");
+    addItemLinkIfNotPresent(stacCollection, "https://foo.com", mockRequest);
     // Observe an addiitonal link in the STAC Collection with rel=items etc.
     expect(stacCollection.links.length).to.equal(numberoOfLinks + 1);
     expect(stacCollection).to.have.deep.property("links", [
@@ -49,6 +55,11 @@ describe("addItemLinkIfNotPresent", () => {
     ]);
   });
   it("will not add an item link if an item link is present", async () => {
+    const mockRequest = {
+      method: "GET",
+      originalUrl: "/stac/TEST_PROV/collections",
+    } as Request;
+
     // Create a STACCollection with no item link
     let stacCollection = generateSTACCollections(1)[0];
 
@@ -68,7 +79,7 @@ describe("addItemLinkIfNotPresent", () => {
     });
     const numberoOfLinks = stacCollection.links.length;
     // Invoke method
-    addItemLinkIfNotPresent(stacCollection, "https://foo.com/items");
+    addItemLinkIfNotPresent(stacCollection, "https://foo.com/items", mockRequest);
     // Observe no addiitonal link in the STAC Collection and that the item link remains a CMR link
     expect(stacCollection.links.length).to.equal(numberoOfLinks);
     expect(stacCollection).to.have.deep.property("links", [
@@ -83,6 +94,46 @@ describe("addItemLinkIfNotPresent", () => {
         href: "https://example.com/foo",
         type: "application/html",
         title: "foo",
+      },
+    ]);
+  });
+  it("will append collection search query parameters, with no item link present", async () => {
+    const mockRequest = {
+      method: "GET",
+      originalUrl:
+        "/stac/TEST_PROV/collections?bbox=0,-90,180,90&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+    } as Request;
+    let stacCollection = generateSTACCollections(1)[0];
+    addItemLinkIfNotPresent(stacCollection, "https://foo.com", mockRequest);
+    expect(stacCollection).to.have.deep.property("links", [
+      {
+        rel: "items",
+        href: "https://foo.com/items?bbox=0,-90,180,90&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+        type: "application/geo+json",
+        title: "Collection Items",
+      },
+    ]);
+  });
+  it("will append collection search query parameters, with an item link present", async () => {
+    const mockRequest = {
+      method: "GET",
+      originalUrl:
+        "/stac/TEST_PROV/collections?bbox=0,-90,180,90&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+    } as Request;
+    let stacCollection = generateSTACCollections(1)[0];
+    stacCollection.links.push({
+      rel: "items",
+      href: "https://example.com/items",
+      type: "application/geo+json",
+      title: "Collection Items",
+    });
+    addItemLinkIfNotPresent(stacCollection, "https://foo.com/items", mockRequest);
+    expect(stacCollection).to.have.deep.property("links", [
+      {
+        rel: "items",
+        href: "https://example.com/items?bbox=0,-90,180,90&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+        type: "application/geo+json",
+        title: "Collection Items",
       },
     ]);
   });
