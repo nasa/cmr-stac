@@ -77,7 +77,8 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       href: encodeURI(stacRoot),
       type: "application/json",
     });
-    addItemLinkIfNotPresent(collection, `${baseUrl}/${encodeURIComponent(collection.id)}`, req);
+    addItemLinkIfNotPresent(collection, `${baseUrl}/${encodeURIComponent(collection.id)}`);
+    addQueryParametersToItemLink(collection, req);
   });
 
   const links = collectionLinks(req, cursor);
@@ -106,7 +107,7 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
     ? [...collectionLinks(req), ...(collection.links ?? [])]
     : [...collectionLinks(req)];
   const { path } = stacContext(req);
-  addItemLinkIfNotPresent(collection, path, req);
+  addItemLinkIfNotPresent(collection, path);
   res.json(collection);
 };
 
@@ -160,27 +161,34 @@ export function generateBaseUrlForCollection(baseUrl: string, collection: STACCo
  * This is useful of collections that do not index their granule
  * metadata in CMR, like CWIC collection.
  * If the list of links of does not contain a link of type 'items' then
- * add the default items element.
- * In both cases, append collection search constraints to the link if present
+ * add the default items element
  *
  *  @param collection the STAC collection object containing links
  *  @param url the generic link to a CMR STAC API
- *  @param req the incoming STAC request
  */
 
-export function addItemLinkIfNotPresent(collection: STACCollection, url: string, req: Request) {
+export function addItemLinkIfNotPresent(collection: STACCollection, url: string) {
   const itemsLink = collection.links.find((link) => link.rel === "items");
-  const originalQueryString = req.originalUrl.split("?")[1] || "";
-  const queryString = originalQueryString ? `?${originalQueryString}` : "";
 
   if (!itemsLink) {
     collection.links.push({
       rel: "items",
-      href: `${url}/items${queryString}`,
+      href: `${url}/items`,
       type: "application/geo+json",
       title: "Collection Items",
     });
-  } else {
-    itemsLink.href = `${itemsLink.href}${queryString}`;
   }
+}
+
+/**
+ * Appends the collection search query parameters to the item link.
+ *
+ * @param collection the STAC Collection object containing links
+ * @param req the incoming STAC request
+ */
+export function addQueryParametersToItemLink(collection: STACCollection, req: Request) {
+  const itemsLink = collection.links.find((link) => link.rel === "items");
+  const originalQueryString = req.originalUrl.split("?")[1] || "";
+  const queryString = originalQueryString ? `?${originalQueryString}` : "";
+  if (itemsLink) itemsLink.href = `${itemsLink.href}${queryString}`;
 }
