@@ -30,10 +30,10 @@ export type StacQuery = {
 
 export type StacExtension = {
   extension: string;
-  properties: { [key: string]: unknown };
+  attributes: { [key: string]: unknown };
 };
 
 export type StacExtensions = {
   extensions: string[];
-  properties: { [key: string]: unknown };
+  attributes: { [key: string]: unknown };
 };

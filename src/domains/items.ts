@@ -3,13 +3,18 @@ import { IncomingHttpHeaders } from "http";
 import { gql } from "graphql-request";
 
 import { AssetLinks, STACItem } from "../@types/StacItem";
-import { Granule, GranulesInput, GraphQLHandler, GraphQLResults } from "../models/GraphQLModels";
-import { StacExtension, StacExtensions } from "../models/StacModels";
+import {
+  Granule,
+  GranulesInput,
+  GraphQLHandler,
+  GraphQLResults,
+  RelatedUrlType,
+} from "../models/GraphQLModels";
 
 import { cmrSpatialToExtent } from "./bounding-box";
 import { cmrSpatialToGeoJSONGeometry } from "./geojson";
 import { mergeMaybe, stacContext } from "../utils";
-import { extractAssets, paginateQuery } from "./stac";
+import { extractAssets, paginateQuery, deriveExtensions, generateStorageExtension } from "./stac";
 import { ItemNotFound } from "../models/errors";
 
 const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
@@ -55,8 +60,6 @@ const granuleIdsQuery = gql`
   }
 `;
 
-const filterUnique = (val: string, idx: number, arr: string[]) => arr.indexOf(val) === idx;
-
 /**
  * Return the cloudCover extension schema and properties for a granule.
  */
@@ -65,10 +68,20 @@ const cloudCoverExtension = (granule: Granule) => {
   if (granule.cloudCover == null) return;
   return {
     extension: "https://stac-extensions.github.io/eo/v1.0.0/schema.json",
-    properties: { "eo:cloud_cover": granule.cloudCover },
+    attributes: { "eo:cloud_cover": granule.cloudCover },
   };
 };
-
+/**
+ * Return the storage extension schema and attributes for a granule
+ */
+export const storageExtension = (granule: Granule) => {
+  const s3Urls = (granule.relatedUrls ?? [])
+    .filter((relatedUrl) => relatedUrl["type"] === RelatedUrlType.GET_DATA_VIA_DIRECT_ACCESS)
+    .map((relatedUrl) => relatedUrl.url)
+    .filter((url) => url.startsWith("s3://"));
+  if (s3Urls.length === 0) return;
+  return generateStorageExtension(s3Urls);
+};
 /**
  * Returns the self-links for a STACItem.
  *
@@ -120,41 +133,6 @@ const selfLinks = (req: Request, item: STACItem) => {
 };
 
 /**
- * Build a list of STAC extensions and properties for the given granule.
- *
- * Extension builder functions must take a granule as input and
- * should return an array with the Schema of the extension
- * as the first element, and the associated property map as the second.
- *
- * @example
- * deriveExtensions(granule, [cloudCoverBldr, projectionBldr]) =>
- * [
- *    ["https://stac-extensions.github.io/eo/v1.0.0/schema.json",
- *     "https://stac-extensions.github.io/projection/v1.0.0/schema.json"],
- *   { "eo:cloud_cover": 50,
- *     "proj:epsg" : 32659
- *     "proj:shape" : [ 5558, 9559 ]}
- * ]
- */
-const deriveExtensions = (
-  granule: Granule,
-  extensionBuilders: ((g: Granule) => StacExtension | undefined)[]
-): StacExtensions => {
-  return extensionBuilders.reduce(
-    ({ extensions, properties }, extBldr) => {
-      const ext = extBldr(granule);
-      if (!ext) return { extensions, properties };
-
-      return {
-        extensions: [...extensions, ext.extension].filter(filterUnique),
-        properties: mergeMaybe(properties, ext.properties),
-      };
-    },
-    { extensions: [], properties: {} } as StacExtensions
-  );
-};
-
-/**
  * Convert a granule to a STAC Item.
  */
 export const granuleToStac = (granule: Granule): STACItem => {
@@ -162,15 +140,16 @@ export const granuleToStac = (granule: Granule): STACItem => {
     throw new Error(`Cannot have a granule without a collection, [${granule.conceptId}]`);
   }
 
-  const { extensions, properties: extensionProperties } = deriveExtensions(granule, [
+  const { extensions, attributes: extensionAttributes } = deriveExtensions(granule, [
     cloudCoverExtension,
+    storageExtension,
   ]);
 
   const properties: { [key: string]: string } = mergeMaybe(
     {},
     {
       datetime: granule.timeStart,
-      ...extensionProperties,
+      ...extensionAttributes,
     }
   );
 
