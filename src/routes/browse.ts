@@ -190,5 +190,6 @@ export function addQueryParametersToItemLink(collection: STACCollection, req: Re
   const itemsLink = collection.links.find((link) => link.rel === "items");
   const originalQueryString = req.originalUrl.split("?")[1] || "";
   const queryString = originalQueryString ? `?${originalQueryString}` : "";
+
   if (itemsLink) itemsLink.href = `${itemsLink.href}${queryString}`;
 }

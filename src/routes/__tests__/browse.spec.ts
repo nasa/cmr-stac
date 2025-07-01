@@ -141,7 +141,9 @@ describe("addQueryParametersToItemLink", () => {
       type: "application/geo+json",
       title: "Collection Items",
     });
+
     addQueryParametersToItemLink(stacCollection, mockRequest);
+
     expect(stacCollection).to.have.deep.property("links", [
       {
         rel: "items",
@@ -163,7 +165,9 @@ describe("addQueryParametersToItemLink", () => {
       type: "application/geo+json",
       title: "Collection Items",
     });
+
     addQueryParametersToItemLink(stacCollection, mockRequest);
+
     expect(stacCollection).to.have.deep.property("links", [
       {
         rel: "items",
