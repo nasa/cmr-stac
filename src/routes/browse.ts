@@ -78,6 +78,7 @@ export const collectionsHandler = async (req: Request, res: Response): Promise<v
       type: "application/json",
     });
     addItemLinkIfNotPresent(collection, `${baseUrl}/${encodeURIComponent(collection.id)}`);
+    addQueryParametersToItemLink(collection, req);
   });
 
   const links = collectionLinks(req, cursor);
@@ -177,4 +178,18 @@ export function addItemLinkIfNotPresent(collection: STACCollection, url: string)
       title: "Collection Items",
     });
   }
+}
+
+/**
+ * Appends the collection search query parameters to the item link.
+ *
+ * @param collection the STAC Collection object containing links
+ * @param req the incoming STAC request
+ */
+export function addQueryParametersToItemLink(collection: STACCollection, req: Request) {
+  const itemsLink = collection.links.find((link) => link.rel === "items");
+  const originalQueryString = req.originalUrl.split("?")[1] || "";
+  const queryString = originalQueryString ? `?${originalQueryString}` : "";
+
+  if (itemsLink) itemsLink.href = `${itemsLink.href}${queryString}`;
 }
