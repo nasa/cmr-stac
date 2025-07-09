@@ -7,10 +7,13 @@ chai.use(sinonChai);
 const { expect } = chai;
 
 import * as gql from "graphql-request";
+import { Request } from "express";
+
 import {
   collectionHandler,
   collectionsHandler,
   addItemLinkIfNotPresent,
+  addQueryParametersToItemLink,
   generateBaseUrlForCollection,
   generateCollectionResponse,
 } from "../browse";
@@ -121,6 +124,58 @@ describe("generateCollectionResponse for stac/ALL", () => {
     const baseUrl = "http://localhost:3000/stac/PROV1/collections";
     const collectionsResponse = generateCollectionResponse(baseUrl, [], stacCollections);
     expect(collectionsResponse.description).to.equal("All collections provided by PROV1");
+  });
+});
+
+describe("addQueryParametersToItemLink", () => {
+  it("will append collection search query parameters", async () => {
+    const mockRequest = {
+      method: "GET",
+      originalUrl:
+        "/stac/TEST_PROV/collections?bbox=0,-90,180,90&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+    } as Request;
+    let stacCollection = generateSTACCollections(1)[0];
+    stacCollection.links.push({
+      rel: "items",
+      href: "https://example.com/items",
+      type: "application/geo+json",
+      title: "Collection Items",
+    });
+
+    addQueryParametersToItemLink(stacCollection, mockRequest);
+
+    expect(stacCollection).to.have.deep.property("links", [
+      {
+        rel: "items",
+        href: "https://example.com/items?bbox=0,-90,180,90&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+        type: "application/geo+json",
+        title: "Collection Items",
+      },
+    ]);
+  });
+  it("does not change item link if there are no collection search constraints", async () => {
+    const mockRequest = {
+      method: "GET",
+      originalUrl: "/stac/TEST_PROV/collections",
+    } as Request;
+    let stacCollection = generateSTACCollections(1)[0];
+    stacCollection.links.push({
+      rel: "items",
+      href: "https://example.com/items",
+      type: "application/geo+json",
+      title: "Collection Items",
+    });
+
+    addQueryParametersToItemLink(stacCollection, mockRequest);
+
+    expect(stacCollection).to.have.deep.property("links", [
+      {
+        rel: "items",
+        href: "https://example.com/items",
+        type: "application/geo+json",
+        title: "Collection Items",
+      },
+    ]);
   });
 });
 
