@@ -126,7 +126,7 @@ describe("GET /stac", () => {
 describe("/cloudstac", () => {
   let mockCmrHits: (s: string, c: AxiosRequestConfig<any> | undefined) => Promise<any>;
 
-  before(() => {
+  beforeEach(() => {
     sandbox.stub(Providers, "getProviders").resolves([
       null,
       [
@@ -164,5 +164,18 @@ describe("/cloudstac", () => {
     expect(body.links.find((l: { title: string }) => l.title === "NOT_CLOUD")).to.be.undefined;
 
     expect(mockCmrHits).to.have.been.calledThrice;
+  });
+  it("should have an entry for the 'ALL' catalog", async () => {
+    const { statusCode, body } = await request(app).get("/cloudstac");
+
+    expect(statusCode).to.equal(200);
+    const allLink = body.links.find((l: Link) => l.title === "ALL");
+
+    expect(allLink.href).to.match(/^(http)s?:\/\/.*\w+/);
+    expect(allLink.href).to.endWith("/cloudstac/ALL");
+    expect(allLink.href).to.not.contain("?param=value");
+    expect(allLink.rel).to.equal("child");
+    expect(allLink.type).to.equal("application/json");
+    expect(allLink.title).to.equal("ALL");
   });
 });

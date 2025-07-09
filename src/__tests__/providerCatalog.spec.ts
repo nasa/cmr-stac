@@ -292,7 +292,7 @@ describe("GET /:provider", () => {
     });
   });
 
-  describe("given the ALL provider/catalog", () => {
+  describe("given the stac/ALL provider/catalog", () => {
     it("should call the graphql API with no provider search clause", async () => {
       sandbox
         .stub(Provider, "getProviders")
@@ -410,5 +410,173 @@ describe("GET /:provider", () => {
         expect(childLink.href).to.not.contain("/ALL/");
       });
     });
+  });
+
+  describe("given the cloudstac/ALL provider/catalog", () => {
+    beforeEach(() => {
+      sandbox
+        .stub(Provider, "getCloudProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+    });
+    it("should call the graphql API with no provider search clause", async () => {
+      sandbox
+        .stub(Provider, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      const getCollectionsSpy = sandbox
+        .stub(Collections, "getCollectionIds")
+        .resolves({ count: 0, cursor: null, items: [] });
+
+      const res = await request(stacApp).get("/cloudstac/ALL");
+      expect(res.statusCode).to.equal(200);
+      // getCollectionIds should have no provider clause in query argument.
+      // If this was any provider other than 'ALL', this method would be
+      // called with { provider: 'TEST', cursor: undefined, limit: NaN }
+      expect(getCollectionsSpy).to.have.been.calledWith({
+        cloudHosted: true,
+        cursor: undefined,
+        limit: NaN,
+      });
+    });
+    it("should return rel=child links whose href contains a provider rather than 'ALL'", async () => {
+      sandbox
+        .stub(Provider, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+      const mockCollections = generateSTACCollections(5);
+      sandbox.stub(Collections, "getCollectionIds").resolves({
+        count: mockCollections.length,
+        cursor: "foundCursor",
+        items: mockCollections.map((coll) => ({
+          id: `${coll.id}`,
+          title: coll.title ?? faker.random.words(4),
+          provider: `TEST`,
+        })),
+      });
+
+      const { body: catalog, statusCode } = await request(stacApp).get("/cloudstac/ALL");
+
+      const children = catalog.links.filter((l: Link) => l.rel === "child");
+      expect(children).to.have.length(mockCollections.length);
+
+      mockCollections.forEach((collection) => {
+        const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
+
+        expect(childLink.href).to.endWith(`/TEST/collections/${collection.id}`);
+        expect(childLink.href).to.not.contain("/ALL/");
+      });
+
+      expect(statusCode).to.equal(200);
+    });
+    it("should not return any links of rel=search", async () => {
+      sandbox
+        .stub(Provider, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      sandbox.stub(Collections, "getCollectionIds").resolves({ count: 0, cursor: null, items: [] });
+
+      const { body: catalog, statusCode } = await request(stacApp).get("/cloudstac/ALL");
+
+      const children = catalog.links.filter((l: Link) => l.rel === "search");
+      expect(children).to.have.length(0);
+      expect(statusCode).to.equal(200);
+    });
+    it("should have collection search conformance classes", async () => {
+      sandbox
+        .stub(Provider, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      sandbox.stub(Collections, "getCollectionIds").resolves({ count: 0, cursor: null, items: [] });
+
+      const { body: catalog, statusCode } = await request(stacApp).get("/cloudstac/ALL");
+      const conformanceClasses = catalog.conformsTo;
+      const collectionSearchClasses = conformanceClasses.filter((c: String) =>
+        c.includes("collection-search")
+      );
+
+      expect(statusCode).to.equal(200);
+      expect(collectionSearchClasses).not.to.be.empty;
+    });
+    it("should not have any item search conformance classes", async () => {
+      sandbox
+        .stub(Provider, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+      sandbox.stub(Collections, "getCollectionIds").resolves({ count: 0, cursor: null, items: [] });
+
+      const { body: catalog, statusCode } = await request(stacApp).get("/cloudstac/ALL");
+      const conformanceClasses = catalog.conformsTo;
+      const itemSearchClasses = conformanceClasses.filter((c: String) => c.includes("item-search"));
+
+      expect(statusCode).to.equal(200);
+      expect(itemSearchClasses).to.be.empty;
+    });
+    it("should be able to handle providers whose name contains the text 'ALL'", async () => {
+      sandbox
+        .stub(Provider, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "LPALL" }]]);
+
+      const mockCollections = generateSTACCollections(1);
+
+      sandbox.stub(Collections, "getCollectionIds").resolves({
+        count: mockCollections.length,
+        cursor: "foundCursor",
+        items: mockCollections.map((coll) => ({
+          id: `${coll.id}`,
+          title: coll.title ?? faker.random.words(4),
+          provider: "LPALL",
+        })),
+      });
+
+      const { body: catalog } = await request(stacApp).get("/cloudstac/ALL");
+
+      const children = catalog.links.filter((l: Link) => l.rel === "child");
+
+      mockCollections.forEach((collection) => {
+        const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
+
+        expect(childLink.href).to.endWith(`/LPALL/collections/${collection.id}`);
+        expect(childLink.href).to.not.contain("/ALL/");
+      });
+    });
+    it("should not display any non-cloudhosted providers", async () => {
+      sandbox.stub(Provider, "getProviders").resolves([
+        null,
+        [
+          { "short-name": "CLOUD_PROV", "provider-id": "CLOUD_PROV" },
+          { "short-name": "NOT_CLOUD", "provider-id": "NOT_CLOUD" },
+        ],
+      ]);
+      const mockCollections = generateSTACCollections(2);
+      sandbox
+        .stub(Collections, "getCollectionIds")
+        .withArgs(sinon.match({ cloudHosted: true }), sinon.match.any)
+        .resolves({
+          count: 1,
+          cursor: "foundCursor",
+          items: [mockCollections[0]].map((coll) => ({
+            id: `${coll.id}`,
+            title: coll.title ?? faker.random.words(4),
+            provider: "CLOUD_PROV",
+          })),
+        })
+        .withArgs(sinon.match({ cloudHosted: false }), sinon.match.any)
+        .resolves({
+          count: mockCollections.length,
+          cursor: "foundCursor",
+          items: mockCollections.map((coll, idx) => ({
+            id: `${coll.id}`,
+            title: coll.title ?? faker.random.words(4),
+            provider: idx === 0 ? "CLOUD_PROV" : "NOT_CLOUD",
+          })),
+        });
+
+      const { body: catalog, statusCode } = await request(stacApp).get("/cloudstac/ALL");
+
+      expect(statusCode).to.equal(200);
+      const children = catalog.links.filter((l: Link) => l.rel === "child");
+      expect(children).to.have.length(1);
+      expect(children[0].href).to.include("CLOUD_PROV");
+    });
+    it("should not display any non-cloudhosted providers", async () => {});
   });
 });
