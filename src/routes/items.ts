@@ -40,6 +40,7 @@ export const singleItemHandler = async (req: Request, res: Response) => {
     params: { collectionId, itemId },
   } = req;
 
+  const cloudOnly = req.headers["cloud-stac"] === "true";
   req.params.searchType = "item";
   const itemQuery = await buildQuery(req);
   const {
@@ -50,6 +51,11 @@ export const singleItemHandler = async (req: Request, res: Response) => {
     throw new ItemNotFound(
       `Could not find item with ID [${itemId}] in collection [${collectionId}]`
     );
+  if (cloudOnly && !item.properties?.["storage:schemes"]) {
+    throw new ItemNotFound(
+      `Item with ID [${itemId}] may not be cloudhosted. Please try navigating to the equivalent /stac URL.`
+    );
+  }
 
   const itemResponse = addProviderLinks(req, item);
 
@@ -71,6 +77,14 @@ export const multiItemHandler = async (req: Request, res: Response) => {
   if (!collection) {
     throw new ItemNotFound(
       `Could not find parent collection [${collectionId}] in provider [${providerId}]`
+    );
+  }
+
+  const cloudOnly = req.headers["cloud-stac"] === "true";
+
+  if (cloudOnly && !collection["storage:schemes"]) {
+    throw new ItemNotFound(
+      `Collection [${collectionId}] may not be cloudhosted. Please try navigating to the equivalent /stac URL.`
     );
   }
 
