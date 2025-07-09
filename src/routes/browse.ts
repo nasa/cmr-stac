@@ -114,7 +114,7 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
     throw new ItemNotFound(
       `Collection [${collectionId}] may not be cloudhosted. Please try navigating to the equivalent /stac URL.`
     );
-  };
+  }
   collection.links = collection.links
     ? [...collectionLinks(req), ...(collection.links ?? [])]
     : [...collectionLinks(req)];
