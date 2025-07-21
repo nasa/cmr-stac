@@ -22,6 +22,8 @@ by CMR-STAC with [`nvm`](https://github.com/nvm-sh/nvm) (recommended for managin
 
 - install aws-sam-cli (`brew install aws-sam-cli`)
 
+- install Docker(`brew install docker`)
+
 ```bash
 nvm use
 ```
@@ -44,7 +46,7 @@ To lint your developed code:
 npm run prettier:fix
 ```
 
-To run the CMR-STAC server locally:
+To run locally, with Docker running and aws-sam-cli installed, run
 
 ```bash
 npm run start

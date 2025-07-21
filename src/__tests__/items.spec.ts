@@ -173,7 +173,7 @@ describe("GET /PROVIDER/collections/COLLECTION/items/ITEM", () => {
   });
 });
 
-describe("GET /ALL/collections/:collection/items/", () => {
+describe("GET stac/ALL/collections/:collection/items/", () => {
   it("should return a 404", async () => {
     sandbox
       .stub(Providers, "getProviders")
@@ -188,17 +188,156 @@ describe("GET /ALL/collections/:collection/items/", () => {
   });
 });
 
-describe("GET /ALL/collections/:collection/items/:item", () => {
+describe("GET cloudstac/ALL/collections/:collection/items/", () => {
   it("should return a 404", async () => {
     sandbox
       .stub(Providers, "getProviders")
       .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+    sandbox
+      .stub(Providers, "getCloudProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
 
+    const { statusCode, body } = await request(app).get("/cloudstac/ALL/collections/foo/items");
+
+    expect(statusCode).to.equal(404);
+    expect(body).to.deep.equal({
+      errors: ["This operation is not allowed for the ALL Catalog."],
+    });
+  });
+});
+
+describe("GET stac/ALL/collections/:collection/items/:item", () => {
+  it("should return a 404", async () => {
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
     const { statusCode, body } = await request(app).get("/stac/ALL/collections/foo/items/bar");
 
     expect(statusCode).to.equal(404);
     expect(body).to.deep.equal({
       errors: ["This operation is not allowed for the ALL Catalog."],
     });
+  });
+});
+
+describe("GET cloudstac/ALL/collections/:collection/items/:item", () => {
+  it("should return a 404", async () => {
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+    sandbox
+      .stub(Providers, "getCloudProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+
+    const { statusCode, body } = await request(app).get("/cloudstac/ALL/collections/foo/items/bar");
+
+    expect(statusCode).to.equal(404);
+    expect(body).to.deep.equal({
+      errors: ["This operation is not allowed for the ALL Catalog."],
+    });
+  });
+});
+
+describe("GET /cloudstac/PROVIDER/collections/COLLECTION/items", () => {
+  beforeEach(() => {
+    sandbox.stub(Items, "getItems").resolves(cmrItemsResponse);
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+    sandbox
+      .stub(Providers, "getCloudProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+  });
+  describe("given a cloudstac url for items", async () => {
+    it("should throw an error if not cloudhosted", async () => {
+      sandbox.stub(Collections, "getCollections").resolves(cmrCollectionsResponse);
+      const { statusCode, body } = await request(app).get(
+        "/cloudstac/TEST/collections/TEST_COLL/items"
+      );
+      expect(statusCode, JSON.stringify(body, null, 2)).to.equal(404);
+    });
+  });
+  it("should not throw an error if cloudhosted", async () => {
+    sandbox.stub(Collections, "getCollections").resolves({
+      ...cmrCollectionsResponse,
+      items: [
+        {
+          ...cmrCollectionsResponse.items[0],
+          "storage:schemes": { aws: { type: "aws-s3" } },
+        },
+      ],
+    });
+    sandbox.stub(Collections, "getCollectionIds").resolves({
+      count: 1,
+      cursor: "foundCursor",
+      items: cmrCollectionsResponse.items.map((coll) => ({
+        id: `${coll.id}`,
+        title: coll.title ?? "test",
+        provider: "TEST",
+      })),
+    });
+    const { statusCode, body } = await request(app).get(
+      "/cloudstac/TEST/collections/TEST_COLL/items"
+    );
+    expect(statusCode, JSON.stringify(body, null, 2)).to.equal(200);
+  });
+});
+
+describe("given a cloudstac url for item", () => {
+  beforeEach(() => {
+    sandbox
+      .stub(Providers, "getProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+    sandbox
+      .stub(Providers, "getCloudProviders")
+      .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+  });
+  it("should throw an error if not cloudhosted", async () => {
+    sandbox.stub(Items, "getItems").resolves({
+      cursor: "cursor",
+      items: [{ id: "TEST_ITEM", properties: { title: "test" } } as STACItem],
+      count: 1,
+    });
+    sandbox.stub(Collections, "getCollections").resolves(cmrCollectionsResponse);
+    sandbox.stub(Collections, "getCollectionIds").resolves({
+      count: 1,
+      cursor: "foundCursor",
+      items: cmrCollectionsResponse.items.map((coll) => ({
+        id: `${coll.id}`,
+        title: coll.title ?? "test",
+        provider: "TEST",
+      })),
+    });
+    const { statusCode, body } = await request(app).get(
+      "/cloudstac/TEST/collections/TEST_COLL/items/TEST_ITEM"
+    );
+    expect(statusCode, JSON.stringify(body, null, 2)).to.equal(404);
+  });
+  it("should not throw an error if cloudhosted", async () => {
+    sandbox.stub(Items, "getItems").resolves({
+      ...cmrItemsResponse,
+      items: [
+        {
+          ...cmrItemsResponse.items[0],
+          properties: {
+            "storage:schemes": { aws: { type: "aws-s3" } },
+          },
+        } as STACItem,
+      ],
+    });
+    sandbox.stub(Collections, "getCollections").resolves(cmrCollectionsResponse);
+    sandbox.stub(Collections, "getCollectionIds").resolves({
+      count: 1,
+      cursor: "foundCursor",
+      items: cmrCollectionsResponse.items.map((coll) => ({
+        id: `${coll.id}`,
+        title: coll.title ?? "test",
+        provider: "TEST",
+      })),
+    });
+    const { statusCode, body } = await request(app).get(
+      "/cloudstac/TEST/collections/TEST_COLL/items/TEST_ITEM"
+    );
+    expect(statusCode, JSON.stringify(body, null, 2)).to.equal(200);
   });
 });

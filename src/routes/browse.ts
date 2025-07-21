@@ -52,7 +52,13 @@ const collectionLinks = (req: Request, nextCursor?: string | null): Links => {
 export const collectionsHandler = async (req: Request, res: Response): Promise<void> => {
   const { headers } = req;
   req.params.searchType = "collection";
-  const query = await buildQuery(req);
+  const initialQuery = await buildQuery(req);
+
+  const cloudOnly = req.headers["cloud-stac"] === "true" ? { cloudHosted: true } : {};
+  const query = {
+    ...cloudOnly,
+    ...initialQuery,
+  };
 
   // If the query contains a "provider": "ALL" clause, we need to remove it as
   // this is a 'special' provider that means 'all providers'. The absence
@@ -102,7 +108,13 @@ export const collectionHandler = async (req: Request, res: Response): Promise<vo
       `Could not find collection [${collectionId}] in provider [${providerId}]`
     );
   }
+  const cloudOnly = req.headers["cloud-stac"] === "true";
 
+  if (cloudOnly && !collection["storage:schemes"]) {
+    throw new ItemNotFound(
+      `Collection [${collectionId}] may not be cloudhosted. Please try navigating to the equivalent /stac URL.`
+    );
+  }
   collection.links = collection.links
     ? [...collectionLinks(req), ...(collection.links ?? [])]
     : [...collectionLinks(req)];

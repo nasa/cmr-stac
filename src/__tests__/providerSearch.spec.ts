@@ -331,7 +331,7 @@ describe("Query validation", () => {
   });
 });
 
-describe("GET /ALL/search", () => {
+describe("GET stac/ALL/search", () => {
   describe("given an 'ALL' provider", () => {
     it("should return a 404", async () => {
       sandbox
@@ -348,7 +348,7 @@ describe("GET /ALL/search", () => {
   });
 });
 
-describe("POST /ALL/search", () => {
+describe("POST stac/ALL/search", () => {
   describe("given an 'ALL' provider", () => {
     it("should return a 404", async () => {
       sandbox
@@ -356,6 +356,45 @@ describe("POST /ALL/search", () => {
         .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
 
       const { statusCode, body } = await request(app).post("/stac/ALL/search");
+
+      expect(statusCode).to.equal(404);
+      expect(body).to.deep.equal({
+        errors: ["This operation is not allowed for the ALL Catalog."],
+      });
+    });
+  });
+});
+
+describe("GET cloudstac/ALL/search", () => {
+  describe("given an 'ALL' provider", () => {
+    it("should return a 404", async () => {
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+      sandbox
+        .stub(Providers, "getCloudProviders")
+        .resolves([null, [{ "short-name": "CLOUD_PROV", "provider-id": "CLOUD_PROV" }]]);
+      const { statusCode, body } = await request(app).get("/cloudstac/ALL/search");
+
+      expect(statusCode).to.equal(404);
+      expect(body).to.deep.equal({
+        errors: ["This operation is not allowed for the ALL Catalog."],
+      });
+    });
+  });
+});
+
+describe("POST cloudstac/ALL/search", () => {
+  describe("given an 'ALL' provider", () => {
+    it("should return a 404", async () => {
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "TEST", "short-name": "TEST" }]]);
+      sandbox
+        .stub(Providers, "getCloudProviders")
+        .resolves([null, [{ "short-name": "CLOUD_PROV", "provider-id": "CLOUD_PROV" }]]);
+
+      const { statusCode, body } = await request(app).post("/cloudstac/ALL/search");
 
       expect(statusCode).to.equal(404);
       expect(body).to.deep.equal({
