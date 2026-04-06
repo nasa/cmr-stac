@@ -63,7 +63,7 @@ const granuleIdsQuery = gql`
 /**
  * Return the cloudCover extension schema and properties for a granule.
  */
-const cloudCoverExtension = (granule: Granule) => {
+export const cloudCoverExtension = (granule: Granule) => {
   // purposely using ==
   if (granule.cloudCover == null) return;
   return {
