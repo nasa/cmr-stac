@@ -10,7 +10,7 @@ import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 import { CMR_QUERY_MAX } from "../domains/stac";
 import { ALL_PROVIDER } from "../domains/providers";
 
-const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.1.0";
 
 const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: number): Links => {
   const { stacRoot, path, self } = stacContext(req);

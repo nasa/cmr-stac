@@ -333,8 +333,9 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink.href).to.endWith(`/TEST/collections/${collection.id}`);
-        expect(childLink.href).to.not.contain("/ALL/");
+        expect(childLink).to.not.be.undefined;
+        expect(childLink?.href).to.match(new RegExp(`/TEST/collections/${collection.id}$`));
+        expect(childLink?.href).to.not.contain("/ALL/");
       });
 
       expect(statusCode).to.equal(200);
@@ -406,8 +407,9 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink.href).to.endWith(`/LPALL/collections/${collection.id}`);
-        expect(childLink.href).to.not.contain("/ALL/");
+        expect(childLink).to.not.be.undefined;
+        expect(childLink?.href).to.match(new RegExp(`/LPALL/collections/${collection.id}$`));
+        expect(childLink?.href).to.not.contain("/ALL/");
       });
     });
   });
@@ -461,8 +463,9 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink.href).to.endWith(`/TEST/collections/${collection.id}`);
-        expect(childLink.href).to.not.contain("/ALL/");
+        expect(childLink).to.not.be.undefined;
+        expect(childLink?.href).to.match(new RegExp(`/TEST/collections/${collection.id}$`));
+        expect(childLink?.href).to.not.contain("/ALL/");
       });
 
       expect(statusCode).to.equal(200);
@@ -534,8 +537,9 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink.href).to.endWith(`/LPALL/collections/${collection.id}`);
-        expect(childLink.href).to.not.contain("/ALL/");
+        expect(childLink).to.not.be.undefined;
+        expect(childLink?.href).to.match(new RegExp(`/LPALL/collections/${collection.id}$`));
+        expect(childLink?.href).to.not.contain("/ALL/");
       });
     });
     it("should not display any non-cloudhosted providers", async () => {

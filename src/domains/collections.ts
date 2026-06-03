@@ -25,7 +25,7 @@ import {
 } from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
-const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.1.0";
 
 const collectionsQuery = gql`
   query getCollections($params: CollectionsInput!) {

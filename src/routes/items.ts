@@ -6,7 +6,7 @@ import { buildQuery } from "../domains/stac";
 import { ItemNotFound } from "../models/errors";
 import { mergeMaybe, stacContext, WEEK_IN_MS } from "../utils/index";
 
-const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.1.0";
 
 const generateLinks = (req: Request) => {
   const { stacRoot, self } = stacContext(req);
@@ -89,7 +89,7 @@ export const multiItemHandler = async (req: Request, res: Response) => {
   }
 
   req.params.searchType = "item";
-  const itemQuery = await buildQuery(req);
+  const itemQuery = (await buildQuery(req)) as { limit?: number };
   const links = generateLinks(req);
 
   const {
