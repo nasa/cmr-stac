@@ -5,11 +5,24 @@ import { faker } from "@faker-js/faker";
 
 import Ajv from "ajv";
 const apply = require("ajv-formats-draft2019");
+const addFormats = require("ajv-formats");
 const ajv = new Ajv();
+addFormats(ajv);
 apply(ajv);
 
 import CatalogSpec from "../../resources/catalog-spec/json-schema/catalog.json";
 import ItemSpec from "../../resources/item-spec/json-schema/item.json";
+import FeatureSpec from "../../resources/Feature.json";
+import GeometrySpec from "../../resources/Geometry.json";
+import BandsSpec from "../../resources/item-spec/json-schema/bands.json";
+import CommonSpec from "../../resources/item-spec/json-schema/common.json";
+import BasicsSpec from "../../resources/item-spec/json-schema/basics.json";
+import DatetimeSpec from "../../resources/item-spec/json-schema/datetime.json";
+import InstrumentSpec from "../../resources/item-spec/json-schema/instrument.json";
+import ProviderSpec from "../../resources/item-spec/json-schema/provider.json";
+import LicensingSpec from "../../resources/item-spec/json-schema/licensing.json";
+import DataValuesSpec from "../../resources/item-spec/json-schema/data-values.json";
+
 
 import { Link } from "../@types/StacCatalog";
 import { createApp } from "../app";
@@ -17,6 +30,7 @@ import * as Collections from "../domains/collections";
 import * as Provider from "../domains/providers";
 import * as stac from "../domains/stac";
 import { generateSTACCollections } from "../utils/testUtils";
+import { describe, it, beforeEach, afterEach, Context } from "mocha";
 
 const stacApp = createApp();
 const sandbox = sinon.createSandbox();
@@ -42,9 +56,28 @@ describe("GET /:provider", () => {
     it("returns a catalog response", async () => {
       const { body: catalog } = await request(stacApp).get("/stac/TEST");
 
-      ajv.addSchema(ItemSpec);
+      ajv.addSchema(GeometrySpec, "https://geojson.org/schema/Geometry.json");
+      ajv.addSchema(FeatureSpec, "https://geojson.org/schema/Feature.json");
+      
+      ajv.addSchema(BandsSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json");
+      ajv.addSchema(CommonSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json");
+      ajv.addSchema(BasicsSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json");
+      ajv.addSchema(DatetimeSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json");
+      ajv.addSchema(InstrumentSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json");
+      ajv.addSchema(ProviderSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json");
+      ajv.addSchema(LicensingSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json");
+      ajv.addSchema(DataValuesSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json");
+
+      ajv.addSchema(ItemSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json");
+
+      // 4. Compile and validate as normal
       const validate = ajv.compile(CatalogSpec);
       const valid = validate(catalog);
+
+      // Pro-tip: Log the errors if it fails so you can see exactly what part of the STAC catalog is invalid!
+      if (!valid) {
+        console.error(validate.errors);
+      }
 
       expect(valid).to.be.true;
     });
@@ -129,7 +162,7 @@ describe("GET /:provider", () => {
     const collectionCount = [0, 1, 10, 1000];
     collectionCount.forEach((quantity) => {
       describe(`given the provider has ${quantity} collections`, () => {
-        it("has a child link for each collection", async function () {
+        it("has a child link for each collection", async function (this: Mocha.Context) {
           this.timeout(5000);
 
           sandbox
@@ -307,7 +340,7 @@ describe("GET /:provider", () => {
       // getCollectionIds should have no provider clause in query argument.
       // If this was any provider other than 'ALL', this method would be
       // called with { provider: 'TEST', cursor: undefined, limit: NaN }
-      expect(getCollectionsSpy).to.have.been.calledWith({ cursor: undefined, limit: NaN });
+      expect(getCollectionsSpy.calledWith({ cursor: undefined, limit: NaN })).to.be.true;
     });
     it("should return rel=child links whose href contains a provider rather than 'ALL'", async () => {
       sandbox
@@ -333,8 +366,9 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink.href).to.endWith(`/TEST/collections/${collection.id}`);
-        expect(childLink.href).to.not.contain("/ALL/");
+        expect(childLink).to.not.be.undefined;
+        expect(childLink?.href).to.match(new RegExp(`/TEST/collections/${collection.id}$`));
+        expect(childLink?.href).to.not.contain("/ALL/");
       });
 
       expect(statusCode).to.equal(200);
@@ -406,8 +440,9 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink.href).to.endWith(`/LPALL/collections/${collection.id}`);
-        expect(childLink.href).to.not.contain("/ALL/");
+        expect(childLink).to.not.be.undefined;
+        expect(childLink?.href).to.match(new RegExp(`/LPALL/collections/${collection.id}$`));
+        expect(childLink?.href).to.not.contain("/ALL/");
       });
     });
   });
@@ -432,11 +467,9 @@ describe("GET /:provider", () => {
       // getCollectionIds should have no provider clause in query argument.
       // If this was any provider other than 'ALL', this method would be
       // called with { provider: 'TEST', cursor: undefined, limit: NaN }
-      expect(getCollectionsSpy).to.have.been.calledWith({
-        cloudHosted: true,
-        cursor: undefined,
-        limit: NaN,
-      });
+      expect(
+        getCollectionsSpy.calledWith({ cloudHosted: true, cursor: undefined, limit: NaN })
+      ).to.be.true;
     });
     it("should return rel=child links whose href contains a provider rather than 'ALL'", async () => {
       sandbox
@@ -461,8 +494,9 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink.href).to.endWith(`/TEST/collections/${collection.id}`);
-        expect(childLink.href).to.not.contain("/ALL/");
+        expect(childLink).to.not.be.undefined;
+        expect(childLink?.href).to.match(new RegExp(`/TEST/collections/${collection.id}$`));
+        expect(childLink?.href).to.not.contain("/ALL/");
       });
 
       expect(statusCode).to.equal(200);
@@ -534,8 +568,9 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink.href).to.endWith(`/LPALL/collections/${collection.id}`);
-        expect(childLink.href).to.not.contain("/ALL/");
+        expect(childLink).to.not.be.undefined;
+        expect(childLink?.href).to.match(new RegExp(`/LPALL/collections/${collection.id}$`));
+        expect(childLink?.href).to.not.contain("/ALL/");
       });
     });
     it("should not display any non-cloudhosted providers", async () => {

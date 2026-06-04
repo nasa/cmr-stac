@@ -6,12 +6,17 @@ import axios from "axios";
 import CollectionSpec from "../../resources/collection-spec/json-schema/collection.json";
 import ItemSpec from "../../resources/item-spec/json-schema/item.json";
 import BasicSpec from "../../resources/item-spec/json-schema/basics.json";
+import BandsSpec from "../../resources/item-spec/json-schema/bands.json";
 import DateSpec from "../../resources/item-spec/json-schema/datetime.json";
 import InstrumentSpec from "../../resources/item-spec/json-schema/instrument.json";
 import LicenseSpec from "../../resources/item-spec/json-schema/licensing.json";
 import ProviderSpec from "../../resources/item-spec/json-schema/provider.json";
 import FeatureSpec from "../../resources/Feature.json";
 import GeometrySpec from "../../resources/Geometry.json";
+import CommonSpec from "../../resources/item-spec/json-schema/common.json";
+import DataValuesSpec from "../../resources/item-spec/json-schema/data-values.json";
+
+
 
 import Ajv from "ajv";
 const apply = require("ajv-formats-draft2019");
@@ -29,6 +34,7 @@ const app = createApp();
 
 import { generateSTACCollections } from "../utils/testUtils";
 import { Link } from "../@types/StacCatalog";
+import { afterEach, describe, it, beforeEach } from "node:test";
 
 const emptyCollections = { facets: null, count: 0, cursor: "", items: [] };
 
@@ -135,7 +141,7 @@ describe("GET /:provider/collections", () => {
       // Expect the href to match the generic STAC API.
       const link1: Link = body.collections[1].links.find((l: Link) => l.rel === "items");
       expect(link1.href).to.contain("/stac/TEST/collections/");
-      expect(link1.href).to.endsWith("/items");
+      expect(link1.href).to.match(/\/items$/);
     });
   });
 
@@ -455,16 +461,24 @@ describe("GET /:provider/collections/:collectionId", () => {
       );
 
       expect(statusCode).to.equal(200);
-
-      ajv.addSchema(FeatureSpec);
-      ajv.addSchema(GeometrySpec);
-      ajv.addSchema(ItemSpec);
-      ajv.addSchema(BasicSpec);
-      ajv.addSchema(DateSpec);
-      ajv.addSchema(InstrumentSpec);
-      ajv.addSchema(LicenseSpec);
-      ajv.addSchema(ProviderSpec);
-
+      
+      // GeoJSON Schemas
+      ajv.addSchema(FeatureSpec, "https://geojson.org/schema/Feature.json");
+      ajv.addSchema(GeometrySpec, "https://geojson.org/schema/Geometry.json");
+      
+      // STAC Core Item Schema
+      ajv.addSchema(ItemSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json");
+      
+      // STAC Fragments
+      ajv.addSchema(BasicSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json");
+      ajv.addSchema(BandsSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json");
+      ajv.addSchema(CommonSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json");
+      ajv.addSchema(DateSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json");
+      ajv.addSchema(InstrumentSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json");
+      ajv.addSchema(LicenseSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json");
+      ajv.addSchema(ProviderSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json");
+      ajv.addSchema(DataValuesSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json");
+      
       const validate = ajv.compile(CollectionSpec);
       const stacSchemaValid = validate(body);
 
@@ -518,8 +532,8 @@ describe("GET stac/ALL/collections", () => {
 
       expect(statusCode).to.equal(200);
       expect(body.collections).to.have.lengthOf(1);
-      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.endsWith(
-        "/items"
+      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.match(
+        /\/items$/
       );
     });
   });
@@ -606,9 +620,7 @@ describe("GET /cloudstac/ALL/collections", () => {
 
       expect(statusCode).to.equal(200);
       expect(body.collections).to.have.lengthOf(1);
-      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.endsWith(
-        "/items"
-      );
+      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.match(/\/items$/);
     });
   });
 });

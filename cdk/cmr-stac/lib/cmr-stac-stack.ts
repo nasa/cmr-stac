@@ -20,7 +20,7 @@ const {
   CMR_URL = "cmr-local",
   CMR_LB_URL = "cmr-lb-local",
   GRAPHQL_URL = "graphql-local",
-  STAC_VERSION = "1.0.0",
+  STAC_VERSION = "1.1.0",
   PAGE_SIZE = "100",
   LOG_LEVEL = "INFO",
   LOG_DESTINATION_ARN = "local-arn",

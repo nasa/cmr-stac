@@ -89,7 +89,7 @@ export const multiItemHandler = async (req: Request, res: Response) => {
   }
 
   req.params.searchType = "item";
-  const itemQuery = await buildQuery(req);
+  const itemQuery = (await buildQuery(req)) as { limit?: number };
   const links = generateLinks(req);
 
   const {
