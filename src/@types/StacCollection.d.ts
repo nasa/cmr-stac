@@ -9,7 +9,7 @@
  * This object represents Collections in a SpatioTemporal Asset Catalog.
  */
 export type STACCollectionSpecification = STACCollection;
-export type STACVersion = "1.0.0";
+export type STACVersion = "1.1.0";
 export type ReferenceToAJSONSchema = string;
 export type STACExtensions = ReferenceToAJSONSchema[];
 export type TypeOfSTACEntity = "Collection";

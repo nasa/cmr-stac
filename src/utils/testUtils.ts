@@ -10,7 +10,7 @@ export const generateSTACCollections = (quantity: number) => {
       return {
         id: "TEST_COLLECTION",
         title: faker.animal.cat(),
-        stac_version: "1.0.0",
+        stac_version: "1.1.0",
         type: "Collection",
         description: faker.hacker.phrase(),
         license: "proprietary",
@@ -63,7 +63,7 @@ export const generateSTACItems = (
       return {
         id,
         type: "Feature",
-        stac_version: "1.0.0",
+        stac_version: "1.1.0",
         collection,
         links: [
           {

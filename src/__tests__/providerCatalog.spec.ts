@@ -110,7 +110,7 @@ describe("GET /:provider", () => {
       const link: Link = catalog.links.find((l: Link) => l.rel === "service-desc");
       expect(link).to.have.property("rel", "service-desc");
       expect(link).to.have.property("type", "application/yaml");
-      expect(link).to.have.property("href", "https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml");
+      expect(link).to.have.property("href", "https://api.stacspec.org/v1.0.0/openapi.yaml");
       expect(link).to.have.property("title", "OpenAPI Doc");
     });
 
@@ -120,7 +120,7 @@ describe("GET /:provider", () => {
       const link: Link = catalog.links.find((l: Link) => l.rel === "service-doc");
       expect(link).to.have.property("rel", "service-doc");
       expect(link).to.have.property("type", "text/html");
-      expect(link).to.have.property("href", "https://api.stacspec.org/v1.0.0-beta.1/index.html");
+      expect(link).to.have.property("href", "https://api.stacspec.org/v1.0.0/index.html");
       expect(link).to.have.property("title", "HTML documentation");
     });
   });

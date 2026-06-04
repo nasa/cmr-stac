@@ -25,7 +25,7 @@ import {
 } from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
-const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.1.0";
 
 const collectionsQuery = gql`
   query getCollections($params: CollectionsInput!) {
@@ -253,7 +253,8 @@ const storageExtension = (collection: Collection) => {
 /* Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: Collection): STACCollection => {
-  const { entryId, description, title } = collection;
+  const { entryId, description: rawDescription, title } = collection;
+  const description = rawDescription || undefined;
 
   const { license, licenseLink } = extractLicense(collection);
 
