@@ -17,6 +17,7 @@ import * as Collections from "../domains/collections";
 import * as Provider from "../domains/providers";
 import * as stac from "../domains/stac";
 import { generateSTACCollections } from "../utils/testUtils";
+import { describe, it, beforeEach, afterEach, Context } from "mocha";
 
 const stacApp = createApp();
 const sandbox = sinon.createSandbox();
@@ -129,7 +130,7 @@ describe("GET /:provider", () => {
     const collectionCount = [0, 1, 10, 1000];
     collectionCount.forEach((quantity) => {
       describe(`given the provider has ${quantity} collections`, () => {
-        it("has a child link for each collection", async function () {
+        it("has a child link for each collection", async function (this: Mocha.Context) {
           this.timeout(5000);
 
           sandbox
@@ -307,7 +308,7 @@ describe("GET /:provider", () => {
       // getCollectionIds should have no provider clause in query argument.
       // If this was any provider other than 'ALL', this method would be
       // called with { provider: 'TEST', cursor: undefined, limit: NaN }
-      expect(getCollectionsSpy).to.have.been.calledWith({ cursor: undefined, limit: NaN });
+      expect(getCollectionsSpy.calledWith({ cursor: undefined, limit: NaN })).to.be.true;
     });
     it("should return rel=child links whose href contains a provider rather than 'ALL'", async () => {
       sandbox
@@ -434,11 +435,9 @@ describe("GET /:provider", () => {
       // getCollectionIds should have no provider clause in query argument.
       // If this was any provider other than 'ALL', this method would be
       // called with { provider: 'TEST', cursor: undefined, limit: NaN }
-      expect(getCollectionsSpy).to.have.been.calledWith({
-        cloudHosted: true,
-        cursor: undefined,
-        limit: NaN,
-      });
+      expect(
+        getCollectionsSpy.calledWith({ cloudHosted: true, cursor: undefined, limit: NaN })
+      ).to.be.true;
     });
     it("should return rel=child links whose href contains a provider rather than 'ALL'", async () => {
       sandbox
