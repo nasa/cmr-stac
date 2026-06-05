@@ -54,7 +54,7 @@ describe("collectionsToStac", () => {
       expect(stacCollection).to.have.deep.property("links", [
         {
           rel: "license",
-          href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+          href: "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
           title: "EOSDIS Data Use Policy",
           type: "text/html",
         },
@@ -106,7 +106,7 @@ describe("collectionsToStac", () => {
       expect(stacCollection).to.have.deep.property("links", [
         {
           rel: "license",
-          href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+          href: "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
           title: "EOSDIS Data Use Policy",
           type: "text/html",
         },
@@ -349,7 +349,7 @@ describe("collectionsToStac", () => {
       expect(stacCollection).to.have.property("title", mockCollection.title);
       expect(stacCollection).to.have.property("description", mockCollection.description);
       expect(stacCollection).to.have.property("stac_version", "1.1.0");
-      expect(stacCollection).to.have.property("license", "other");
+      expect(stacCollection).to.have.property("license", "CC0-1.0");
 
       expect(stacCollection).to.have.property("extent");
 

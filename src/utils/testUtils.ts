@@ -13,7 +13,7 @@ export const generateSTACCollections = (quantity: number) => {
         stac_version: "1.1.0",
         type: "Collection",
         description: faker.hacker.phrase(),
-        license: "proprietary",
+        license: "CC0-1.0",
         providers: [
           {
             name: "PROV1",
