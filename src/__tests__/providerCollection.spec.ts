@@ -34,7 +34,7 @@ const app = createApp();
 
 import { generateSTACCollections } from "../utils/testUtils";
 import { Link } from "../@types/StacCatalog";
-import { afterEach, describe, it, beforeEach } from "node:test";
+import { afterEach, describe, it, beforeEach } from "mocha";
 
 const emptyCollections = { facets: null, count: 0, cursor: "", items: [] };
 
