@@ -92,7 +92,7 @@ const extractLicense = (collection: Collection) => {
   // const spdxLicenseRx = /^[\w\-\.\+]+$/gi;
   const uc = collection.useConstraints;
 
-  let licenseHref = "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy";
+  let licenseHref = "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance";
 
   if (uc && "licenseUrl" in uc && typeof uc.licenseUrl === "object") {
     licenseHref = uc.licenseUrl.linkage;
@@ -105,7 +105,7 @@ const extractLicense = (collection: Collection) => {
     type: "text/html",
   };
 
-  const license = "other";
+  const license = "CC0-1.0";
 
   return { license, licenseLink };
 };

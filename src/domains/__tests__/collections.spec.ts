@@ -54,7 +54,7 @@ describe("collectionsToStac", () => {
       expect(stacCollection).to.have.deep.property("links", [
         {
           rel: "license",
-          href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+          href: "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
           title: "EOSDIS Data Use Policy",
           type: "text/html",
         },
@@ -106,7 +106,7 @@ describe("collectionsToStac", () => {
       expect(stacCollection).to.have.deep.property("links", [
         {
           rel: "license",
-          href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+          href: "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance",
           title: "EOSDIS Data Use Policy",
           type: "text/html",
         },
@@ -349,7 +349,7 @@ describe("collectionsToStac", () => {
       expect(stacCollection).to.have.property("title", mockCollection.title);
       expect(stacCollection).to.have.property("description", mockCollection.description);
       expect(stacCollection).to.have.property("stac_version", "1.1.0");
-      expect(stacCollection).to.have.property("license", "other");
+      expect(stacCollection).to.have.property("license", "CC0-1.0");
 
       expect(stacCollection).to.have.property("extent");
 
@@ -383,6 +383,42 @@ describe("collectionsToStac", () => {
       ]);
     });
   });
+
+  describe("when extracting license", () => {
+    it("should return CC0-1.0 as the license value", () => {
+      const [mockCollection] = generateCollections(1);
+      mockCollection.useConstraints = null;
+      const stacCollection = collectionToStac(mockCollection);
+      expect(stacCollection).to.have.property("license", "CC0-1.0");
+    });
+
+    it("should use the NASA earthdata URL when no licenseUrl is present", () => {
+      const [mockCollection] = generateCollections(1);
+      mockCollection.useConstraints = null;
+      const stacCollection = collectionToStac(mockCollection);
+      const licenseLink = stacCollection.links.find((l: { rel: string }) => l.rel === "license");
+      expect(licenseLink).to.have.property(
+        "href",
+        "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance"
+      );
+    });
+
+    it("should use the licenseUrl linkage when present in useConstraints", () => {
+      const [mockCollection] = generateCollections(1);
+      mockCollection.useConstraints = {
+        licenseUrl: {
+          linkage: "https://example.com/custom-license",
+          name: "Custom License",
+          description: "A custom license",
+          mimeType: "text/html",
+        },
+      };
+      const stacCollection = collectionToStac(mockCollection);
+      const licenseLink = stacCollection.links.find((l: { rel: string }) => l.rel === "license");
+      expect(licenseLink).to.have.property("href", "https://example.com/custom-license");
+    });
+  });
+
   describe("when processing platform and instruments", () => {
     it("should correctly handle a collection with multiple Platforms and Instruments", () => {
       const [mockCollection] = generateCollections(1);
