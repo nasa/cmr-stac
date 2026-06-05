@@ -21,7 +21,7 @@ const selfLinks = (req: Request): Link[] => {
       rel: "root",
       href: stacRoot,
       title: `NASA CMR-${id} Root Catalog`,
-      type: "application/geo+json",
+      type: "application/json",
     },
     {
       rel: "service-desc",

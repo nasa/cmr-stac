@@ -25,7 +25,7 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
     {
       rel: "root",
       href: stacRoot,
-      type: "application/geo+json",
+      type: "application/json",
       title: `Root Catalog`,
     },
     {

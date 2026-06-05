@@ -75,16 +75,6 @@ router
   );
 
 router.get(
-  "/:providerId/collections/:collectionId",
-  refreshProviderCache,
-  validateNotAllProvider,
-  validateProvider,
-  validateStacQuery,
-  validateCollection,
-  wrapErrorHandler(collectionHandler)
-);
-
-router.get(
   "/:providerId/collections/:collectionId/items",
   refreshProviderCache,
   validateNotAllProvider,
@@ -104,4 +94,13 @@ router.get(
   wrapErrorHandler(singleItemHandler)
 );
 
+router.get(
+  "/:providerId/collections/:collectionId(*)", //fixed %2f
+  refreshProviderCache,
+  validateNotAllProvider,
+  validateProvider,
+  validateStacQuery,
+  validateCollection,
+  wrapErrorHandler(collectionHandler)
+);
 export default router;
