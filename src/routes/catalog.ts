@@ -18,7 +18,7 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
   const links = [
     {
       rel: "self",
-      href: self,
+      href: self, //must be absolute in stac 1.1.0
       type: "application/geo+json",
       title: "Provider Catalog",
     },
@@ -27,6 +27,12 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
       href: stacRoot,
       type: "application/geo+json",
       title: `Root Catalog`,
+    },
+    {
+      rel: "parent", // added parent
+      href: stacRoot, 
+      type: "application/json",
+      title: "Root Catalog",
     },
     {
       rel: "data",
