@@ -349,7 +349,7 @@ describe("collectionsToStac", () => {
       expect(stacCollection).to.have.property("title", mockCollection.title);
       expect(stacCollection).to.have.property("description", mockCollection.description);
       expect(stacCollection).to.have.property("stac_version", "1.1.0");
-      expect(stacCollection).to.have.property("license", "proprietary");
+      expect(stacCollection).to.have.property("license", "other");
 
       expect(stacCollection).to.have.property("extent");
 

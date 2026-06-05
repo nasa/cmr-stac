@@ -86,21 +86,31 @@ const createExtent = (collection: Collection): Extents => {
 /**
  * Return a license string and license link for a collection;
  */
-const extractLicense = (_collection: Collection) => {
+const extractLicense = (collection: Collection) => {
   // See https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#license
   // license *should* be a SPDX string see https://spdx.org/licenses/ to be valid for STAC
   // const spdxLicenseRx = /^[\w\-\.\+]+$/gi;
+  const uc = collection.useConstraints;
+
+  let licenseHref = "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy";
+
+  if (uc && "licenseUrl" in uc && typeof uc.licenseUrl === "object") {
+    licenseHref = uc.licenseUrl.linkage;
+  }
 
   const licenseLink = {
     rel: "license",
-    href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+    href: licenseHref,
     title: "EOSDIS Data Use Policy",
     type: "text/html",
   };
-  const license = "proprietary";
+
+  const license = "other";
 
   return { license, licenseLink };
 };
+
+
 
 /**
  * Examining a collections related URLs to see if it contains a reference to a STAC catalog.
