@@ -92,7 +92,8 @@ const extractLicense = (collection: Collection) => {
   // const spdxLicenseRx = /^[\w\-\.\+]+$/gi;
   const uc = collection.useConstraints;
 
-  let licenseHref = "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance";
+  let licenseHref =
+    "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance";
 
   if (uc && "licenseUrl" in uc && typeof uc.licenseUrl === "object") {
     licenseHref = uc.licenseUrl.linkage;
@@ -109,8 +110,6 @@ const extractLicense = (collection: Collection) => {
 
   return { license, licenseLink };
 };
-
-
 
 /**
  * Examining a collections related URLs to see if it contains a reference to a STAC catalog.

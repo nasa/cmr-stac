@@ -16,8 +16,6 @@ import GeometrySpec from "../../resources/Geometry.json";
 import CommonSpec from "../../resources/item-spec/json-schema/common.json";
 import DataValuesSpec from "../../resources/item-spec/json-schema/data-values.json";
 
-
-
 import Ajv from "ajv";
 const apply = require("ajv-formats-draft2019");
 const addFormats = require("ajv-formats").default;
@@ -461,24 +459,51 @@ describe("GET /:provider/collections/:collectionId", () => {
       );
 
       expect(statusCode).to.equal(200);
-      
+
       // GeoJSON Schemas
       ajv.addSchema(FeatureSpec, "https://geojson.org/schema/Feature.json");
       ajv.addSchema(GeometrySpec, "https://geojson.org/schema/Geometry.json");
-      
+
       // STAC Core Item Schema
-      ajv.addSchema(ItemSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json");
-      
+      ajv.addSchema(
+        ItemSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json"
+      );
+
       // STAC Fragments
-      ajv.addSchema(BasicSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json");
-      ajv.addSchema(BandsSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json");
-      ajv.addSchema(CommonSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json");
-      ajv.addSchema(DateSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json");
-      ajv.addSchema(InstrumentSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json");
-      ajv.addSchema(LicenseSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json");
-      ajv.addSchema(ProviderSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json");
-      ajv.addSchema(DataValuesSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json");
-      
+      ajv.addSchema(
+        BasicSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json"
+      );
+      ajv.addSchema(
+        BandsSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json"
+      );
+      ajv.addSchema(
+        CommonSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json"
+      );
+      ajv.addSchema(
+        DateSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json"
+      );
+      ajv.addSchema(
+        InstrumentSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json"
+      );
+      ajv.addSchema(
+        LicenseSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json"
+      );
+      ajv.addSchema(
+        ProviderSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json"
+      );
+      ajv.addSchema(
+        DataValuesSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json"
+      );
+
       const validate = ajv.compile(CollectionSpec);
       const stacSchemaValid = validate(body);
 
@@ -620,7 +645,9 @@ describe("GET /cloudstac/ALL/collections", () => {
 
       expect(statusCode).to.equal(200);
       expect(body.collections).to.have.lengthOf(1);
-      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.match(/\/items$/);
+      expect(body.collections[0].links.find((l: Link) => l.rel === "items").href).to.match(
+        /\/items$/
+      );
     });
   });
 });

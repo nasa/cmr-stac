@@ -23,7 +23,6 @@ import ProviderSpec from "../../resources/item-spec/json-schema/provider.json";
 import LicensingSpec from "../../resources/item-spec/json-schema/licensing.json";
 import DataValuesSpec from "../../resources/item-spec/json-schema/data-values.json";
 
-
 import { Link } from "../@types/StacCatalog";
 import { createApp } from "../app";
 import * as Collections from "../domains/collections";
@@ -58,17 +57,44 @@ describe("GET /:provider", () => {
 
       ajv.addSchema(GeometrySpec, "https://geojson.org/schema/Geometry.json");
       ajv.addSchema(FeatureSpec, "https://geojson.org/schema/Feature.json");
-      
-      ajv.addSchema(BandsSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json");
-      ajv.addSchema(CommonSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json");
-      ajv.addSchema(BasicsSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json");
-      ajv.addSchema(DatetimeSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json");
-      ajv.addSchema(InstrumentSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json");
-      ajv.addSchema(ProviderSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json");
-      ajv.addSchema(LicensingSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json");
-      ajv.addSchema(DataValuesSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json");
 
-      ajv.addSchema(ItemSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json");
+      ajv.addSchema(
+        BandsSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json"
+      );
+      ajv.addSchema(
+        CommonSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json"
+      );
+      ajv.addSchema(
+        BasicsSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json"
+      );
+      ajv.addSchema(
+        DatetimeSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json"
+      );
+      ajv.addSchema(
+        InstrumentSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json"
+      );
+      ajv.addSchema(
+        ProviderSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json"
+      );
+      ajv.addSchema(
+        LicensingSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json"
+      );
+      ajv.addSchema(
+        DataValuesSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json"
+      );
+
+      ajv.addSchema(
+        ItemSpec,
+        "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json"
+      );
 
       // 4. Compile and validate as normal
       const validate = ajv.compile(CatalogSpec);
@@ -467,9 +493,8 @@ describe("GET /:provider", () => {
       // getCollectionIds should have no provider clause in query argument.
       // If this was any provider other than 'ALL', this method would be
       // called with { provider: 'TEST', cursor: undefined, limit: NaN }
-      expect(
-        getCollectionsSpy.calledWith({ cloudHosted: true, cursor: undefined, limit: NaN })
-      ).to.be.true;
+      expect(getCollectionsSpy.calledWith({ cloudHosted: true, cursor: undefined, limit: NaN })).to
+        .be.true;
     });
     it("should return rel=child links whose href contains a provider rather than 'ALL'", async () => {
       sandbox

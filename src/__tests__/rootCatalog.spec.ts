@@ -51,19 +51,43 @@ describe("GET /stac", () => {
     // GeoJSON Schemas
     ajv.addSchema(FeatureSpec, "https://geojson.org/schema/Feature.json");
     ajv.addSchema(GeometrySpec, "https://geojson.org/schema/Geometry.json");
-    
+
     // STAC Core Item Schema
     ajv.addSchema(ItemSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json");
-    
+
     // STAC Fragments
-    ajv.addSchema(BasicSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json");
-    ajv.addSchema(BandsSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json");
-    ajv.addSchema(CommonSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json");
-    ajv.addSchema(DateSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json");
-    ajv.addSchema(InstrumentSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json");
-    ajv.addSchema(LicenseSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json");
-    ajv.addSchema(ProviderSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json");
-    ajv.addSchema(DataValuesSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json");
+    ajv.addSchema(
+      BasicSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json"
+    );
+    ajv.addSchema(
+      BandsSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json"
+    );
+    ajv.addSchema(
+      CommonSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json"
+    );
+    ajv.addSchema(
+      DateSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json"
+    );
+    ajv.addSchema(
+      InstrumentSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json"
+    );
+    ajv.addSchema(
+      LicenseSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json"
+    );
+    ajv.addSchema(
+      ProviderSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json"
+    );
+    ajv.addSchema(
+      DataValuesSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json"
+    );
 
     const validate = ajv.compile(CatalogSpec);
     const stacSchemaValid = validate(body);

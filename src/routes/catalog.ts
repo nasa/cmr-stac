@@ -30,7 +30,7 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
     },
     {
       rel: "parent", // added parent
-      href: stacRoot, 
+      href: stacRoot,
       type: "application/json",
       title: "Root Catalog",
     },
