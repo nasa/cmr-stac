@@ -177,6 +177,31 @@ describe("addQueryParametersToItemLink", () => {
       },
     ]);
   });
+   it("filters out collection-only query parameters from the item link", async () => {
+    const mockRequest = {
+      method: "GET",
+      originalUrl:
+        "/stac/TEST_PROV/collections?q=HLS&datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+    } as Request;
+    let stacCollection = generateSTACCollections(1)[0];
+    stacCollection.links.push({
+      rel: "items",
+      href: "https://example.com/items",
+      type: "application/geo+json",
+      title: "Collection Items",
+    });
+
+    addQueryParametersToItemLink(stacCollection, mockRequest);
+
+    expect(stacCollection).to.have.deep.property("links", [
+      {
+        rel: "items",
+        href: "https://example.com/items?datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+        type: "application/geo+json",
+        title: "Collection Items",
+      },
+    ]);
+  });
 });
 
 describe("generateBaseUrlForCollection for cloudstac/ALL", () => {
