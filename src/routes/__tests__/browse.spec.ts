@@ -177,6 +177,7 @@ describe("addQueryParametersToItemLink", () => {
       },
     ]);
   });
+  // test for issue CMR-11320
    it("filters out collection-only query parameters from the item link", async () => {
     const mockRequest = {
       method: "GET",
