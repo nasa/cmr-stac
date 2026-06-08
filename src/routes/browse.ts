@@ -198,10 +198,18 @@ export function addItemLinkIfNotPresent(collection: STACCollection, url: string)
  * @param collection the STAC Collection object containing links
  * @param req the incoming STAC request
  */
+const ITEM_QUERY_PARAMS = ["datetime", "bbox", "intersects", "query", "limit", "sortby", "fields"];
+
 export function addQueryParametersToItemLink(collection: STACCollection, req: Request) {
   const itemsLink = collection.links.find((link) => link.rel === "items");
   const originalQueryString = req.originalUrl.split("?")[1] || "";
-  const queryString = originalQueryString ? `?${originalQueryString}` : "";
+  
+  const filteredParams = new URLSearchParams(originalQueryString);
+  for (const key of [...filteredParams.keys()]) {
+    if (!ITEM_QUERY_PARAMS.includes(key)) filteredParams.delete(key);
+  }
 
+  const queryString = filteredParams.toString() 
+  ? `?${decodeURIComponent(filteredParams.toString())}` : "";
   if (itemsLink) itemsLink.href = `${itemsLink.href}${queryString}`;
 }
