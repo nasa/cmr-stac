@@ -177,7 +177,8 @@ describe("addQueryParametersToItemLink", () => {
       },
     ]);
   });
-  // test for issue CMR-11320
+  // tests for issue CMR-11320
+  // tests that q is filtered out
   it("filters out collection-only query parameters from the item link", async () => {
     const mockRequest = {
       method: "GET",
@@ -198,6 +199,42 @@ describe("addQueryParametersToItemLink", () => {
       {
         rel: "items",
         href: "https://example.com/items?datetime=2001-01-01T00:00:00.000Z,2001-12-01T00:00:00.000Z",
+        type: "application/geo+json",
+        title: "Collection Items",
+      },
+    ]);
+  });
+  // tests that the query parameters from list remain in link
+  it("preserves all specified ITEM_QUERY_PARAMS", async () => {
+    const originalQuery = [
+      "datetime=2021-01-01T00:00:00.000Z",
+      "bbox=-180,-90,180,90",
+      "intersects=polygon_data",
+      "query=cloud_cover<10",
+      "limit=100",
+      "sortby=-datetime",
+      "fields=id,properties",
+    ].join("&");
+
+    const mockRequest = {
+      method: "GET",
+      originalUrl: `/stac/TEST_PROV/collections?${originalQuery}`,
+    } as Request;
+
+    let stacCollection = generateSTACCollections(1)[0];
+    stacCollection.links.push({
+      rel: "items",
+      href: "https://example.com/items",
+      type: "application/geo+json",
+      title: "Collection Items",
+    });
+
+    addQueryParametersToItemLink(stacCollection, mockRequest);
+
+    expect(stacCollection).to.have.deep.property("links", [
+      {
+        rel: "items",
+        href: `https://example.com/items?${originalQuery}`,
         type: "application/geo+json",
         title: "Collection Items",
       },
