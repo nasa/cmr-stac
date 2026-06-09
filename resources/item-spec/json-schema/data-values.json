@@ -34,11 +34,7 @@
         },
         {
           "type": "string",
-          "enum": [
-            "nan",
-            "inf",
-            "-inf"
-          ]
+          "enum": ["nan", "inf", "-inf"]
         }
       ]
     },

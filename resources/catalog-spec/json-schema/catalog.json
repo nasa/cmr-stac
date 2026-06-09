@@ -16,13 +16,7 @@
       "title": "STAC Catalog",
       "type": "object",
       "$comment": "title and description is validated through the common metadata.",
-      "required": [
-        "stac_version",
-        "type",
-        "id",
-        "description",
-        "links"
-      ],
+      "required": ["stac_version", "type", "id", "description", "links"],
       "properties": {
         "stac_version": {
           "title": "STAC version",

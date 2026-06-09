@@ -9,9 +9,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "title": "Organization name",
@@ -27,12 +25,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "enum": [
-                "producer",
-                "licensor",
-                "processor",
-                "host"
-              ]
+              "enum": ["producer", "licensor", "processor", "host"]
             }
           },
           "url": {

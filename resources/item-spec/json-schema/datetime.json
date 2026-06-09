@@ -5,14 +5,10 @@
   "type": "object",
   "dependencies": {
     "start_datetime": {
-      "required": [
-        "end_datetime"
-      ]
+      "required": ["end_datetime"]
     },
     "end_datetime": {
-      "required": [
-        "start_datetime"
-      ]
+      "required": ["start_datetime"]
     }
   },
   "properties": {
@@ -29,10 +25,10 @@
       "type": "string",
       "format": "date-time",
       "pattern": "(\\+00:00|Z)$"
-    }, 
+    },
     "end_datetime": {
-      "title": "End Date and Time", 
-      "description": "The searchable end date/time of the data, in UTC (Formatted in RFC 3339) ",                  
+      "title": "End Date and Time",
+      "description": "The searchable end date/time of the data, in UTC (Formatted in RFC 3339) ",
       "type": "string",
       "format": "date-time",
       "pattern": "(\\+00:00|Z)$"

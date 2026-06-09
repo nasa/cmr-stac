@@ -19,10 +19,7 @@
           "oneOf": [
             {
               "type": "object",
-              "required": [
-                "geometry",
-                "bbox"
-              ],
+              "required": ["geometry", "bbox"],
               "properties": {
                 "geometry": {
                   "$ref": "https://geojson.org/schema/Geometry.json"
@@ -47,9 +44,7 @@
             },
             {
               "type": "object",
-              "required": [
-                "geometry"
-              ],
+              "required": ["geometry"],
               "properties": {
                 "geometry": {
                   "type": "null"
@@ -63,13 +58,7 @@
         },
         {
           "type": "object",
-          "required": [
-            "stac_version",
-            "id",
-            "links",
-            "assets",
-            "properties"
-          ],
+          "required": ["stac_version", "id", "links", "assets", "properties"],
           "properties": {
             "stac_version": {
               "title": "STAC version",
@@ -106,9 +95,7 @@
                 {
                   "anyOf": [
                     {
-                      "required": [
-                        "datetime"
-                      ],
+                      "required": ["datetime"],
                       "properties": {
                         "datetime": {
                           "not": {
@@ -118,11 +105,7 @@
                       }
                     },
                     {
-                      "required": [
-                        "datetime",
-                        "start_datetime",
-                        "end_datetime"
-                      ]
+                      "required": ["datetime", "start_datetime", "end_datetime"]
                     }
                   ]
                 }
@@ -136,9 +119,7 @@
                 "properties": {
                   "links": {
                     "contains": {
-                      "required": [
-                        "rel"
-                      ],
+                      "required": ["rel"],
                       "properties": {
                         "rel": {
                           "const": "collection"
@@ -149,9 +130,7 @@
                 }
               },
               "then": {
-                "required": [
-                  "collection"
-                ],
+                "required": ["collection"],
                 "properties": {
                   "collection": {
                     "title": "Collection ID",
@@ -173,9 +152,7 @@
               "$comment": "The if-then-else below checks whether the bands field is given in assets or not. If not, allows bands in properties (then), otherwise, disallows bands in properties (else).",
               "if": {
                 "$comment": "If there is no asset with bands...",
-                "required": [
-                  "assets"
-                ],
+                "required": ["assets"],
                 "properties": {
                   "assets": {
                     "type": "object",
@@ -222,10 +199,7 @@
       "allOf": [
         {
           "type": "object",
-          "required": [
-            "rel",
-            "href"
-          ],
+          "required": ["rel", "href"],
           "properties": {
             "href": {
               "title": "Link reference",
@@ -307,9 +281,7 @@
       "allOf": [
         {
           "type": "object",
-          "required": [
-            "href"
-          ],
+          "required": ["href"],
           "properties": {
             "href": {
               "title": "Asset reference",
