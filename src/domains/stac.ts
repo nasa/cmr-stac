@@ -422,7 +422,7 @@ const cloudCoverQuery = (_req: Request, query: StacQuery) => {
 };
 
 const limitQuery = (_req: Request, query: StacQuery) => ({
-  limit: Number.isNaN(Number(query.limit)) ? null : Number(query.limit),
+  limit: Number.isNaN(Number(query.limit)) ? null : Math.min(Number(query.limit), 10000),
 });
 
 const temporalQuery = (_req: Request, query: StacQuery) => ({

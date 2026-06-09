@@ -96,11 +96,9 @@ describe("GET /:provider", () => {
         "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json"
       );
 
-      // 4. Compile and validate as normal
       const validate = ajv.compile(CatalogSpec);
       const valid = validate(catalog);
 
-      // Pro-tip: Log the errors if it fails so you can see exactly what part of the STAC catalog is invalid!
       if (!valid) {
         console.error(validate.errors);
       }
@@ -392,9 +390,8 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink).to.not.be.undefined;
-        expect(childLink?.href).to.match(new RegExp(`/TEST/collections/${collection.id}$`));
-        expect(childLink?.href).to.not.contain("/ALL/");
+        expect(childLink.href).to.endWith(`/TEST/collections/${collection.id}`);
+        expect(childLink.href).to.not.contain("/ALL/");
       });
 
       expect(statusCode).to.equal(200);
@@ -519,9 +516,8 @@ describe("GET /:provider", () => {
       mockCollections.forEach((collection) => {
         const childLink = children.find((l: Link) => l.href.endsWith(collection.id));
 
-        expect(childLink).to.not.be.undefined;
-        expect(childLink?.href).to.match(new RegExp(`/TEST/collections/${collection.id}$`));
-        expect(childLink?.href).to.not.contain("/ALL/");
+        expect(childLink.href).to.endWith(`/TEST/collections/${collection.id}`);
+        expect(childLink.href).to.not.contain("/ALL/");
       });
 
       expect(statusCode).to.equal(200);
