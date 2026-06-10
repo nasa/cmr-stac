@@ -16,7 +16,7 @@
       "title": "STAC Collection",
       "description": "These are the fields specific to a STAC Collection.",
       "type": "object",
-      "$comment": "title, description, keywords, providers and license is validated through the common metadata.",
+      "$comment": "Title, description, keywords, providers and license is validated through the common metadata.",
       "required": ["stac_version", "type", "id", "description", "license", "extent", "links"],
       "properties": {
         "stac_version": {
