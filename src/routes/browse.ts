@@ -213,14 +213,15 @@ const ITEM_QUERY_PARAMS = [
 export function addQueryParametersToItemLink(collection: STACCollection, req: Request) {
   const itemsLink = collection.links.find((link) => link.rel === "items");
   const originalQueryString = req.originalUrl.split("?")[1] || "";
+  
+  const filteredParams = originalQueryString
+    .split("&")
+    .filter((param) => {
+      const key = param.split("=")[0];
+      return ITEM_QUERY_PARAMS.includes(key);
+    })
+    .join("&");
 
-  const filteredParams = new URLSearchParams(originalQueryString);
-  for (const key of [...filteredParams.keys()]) {
-    if (!ITEM_QUERY_PARAMS.includes(key)) filteredParams.delete(key);
-  }
-
-  const queryString = filteredParams.toString()
-    ? `?${decodeURIComponent(filteredParams.toString())}`
-    : "";
+  const queryString = filteredParams ? `?${filteredParams}` : "";
   if (itemsLink) itemsLink.href = `${itemsLink.href}${queryString}`;
 }
