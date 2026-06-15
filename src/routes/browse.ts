@@ -213,7 +213,7 @@ const ITEM_QUERY_PARAMS = [
 export function addQueryParametersToItemLink(collection: STACCollection, req: Request) {
   const itemsLink = collection.links.find((link) => link.rel === "items");
   const originalQueryString = req.originalUrl.split("?")[1] || "";
-  
+
   const filteredParams = originalQueryString
     .split("&")
     .filter((param) => {
