@@ -25,7 +25,7 @@ import {
 } from "./stac";
 
 const CMR_ROOT = process.env.CMR_URL;
-const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.1.0";
 
 const collectionsQuery = gql`
   query getCollections($params: CollectionsInput!) {
@@ -86,18 +86,27 @@ const createExtent = (collection: Collection): Extents => {
 /**
  * Return a license string and license link for a collection;
  */
-const extractLicense = (_collection: Collection) => {
+const extractLicense = (collection: Collection) => {
   // See https://github.com/radiantearth/stac-spec/blob/master/collection-spec/collection-spec.md#license
   // license *should* be a SPDX string see https://spdx.org/licenses/ to be valid for STAC
   // const spdxLicenseRx = /^[\w\-\.\+]+$/gi;
+  const uc = collection.useConstraints;
+
+  let licenseHref =
+    "https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance";
+
+  if (uc && "licenseUrl" in uc && typeof uc.licenseUrl === "object") {
+    licenseHref = uc.licenseUrl.linkage;
+  }
 
   const licenseLink = {
     rel: "license",
-    href: "https://science.nasa.gov/earth-science/earth-science-data/data-information-policy",
+    href: licenseHref,
     title: "EOSDIS Data Use Policy",
     type: "text/html",
   };
-  const license = "proprietary";
+
+  const license = "CC0-1.0";
 
   return { license, licenseLink };
 };
@@ -253,7 +262,8 @@ const storageExtension = (collection: Collection) => {
 /* Convert a GraphQL collection item into a STACCollection.
  */
 export const collectionToStac = (collection: Collection): STACCollection => {
-  const { entryId, description, title } = collection;
+  const { entryId, description: rawDescription, title } = collection;
+  const description = rawDescription?.trim() || title || entryId;
 
   const { license, licenseLink } = extractLicense(collection);
 

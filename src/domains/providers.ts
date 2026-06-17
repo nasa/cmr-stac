@@ -15,32 +15,32 @@ export const ALL_PROVIDERS = {
 };
 
 export const conformance = [
-  "https://api.stacspec.org/v1.0.0-rc.2/core",
-  "https://api.stacspec.org/v1.0.0-rc.2/item-search",
-  "https://api.stacspec.org/v1.0.0-rc.2/ogcapi-features",
-  "https://api.stacspec.org/v1.0.0-rc.2/item-search#fields",
-  "https://api.stacspec.org/v1.0.0-rc.2/item-search#features",
-  "https://api.stacspec.org/v1.0.0-rc.2/item-search#query",
-  "https://api.stacspec.org/v1.0.0-rc.2/item-search#sort",
-  "https://api.stacspec.org/v1.0.0-rc.2/item-search#context",
+  "https://api.stacspec.org/v1.0.0/core",
+  "https://api.stacspec.org/v1.0.0/item-search",
+  "https://api.stacspec.org/v1.0.0/ogcapi-features",
+  "https://api.stacspec.org/v1.0.0/item-search#fields",
+  "https://api.stacspec.org/v1.0.0/item-search#features",
+  "https://api.stacspec.org/v1.0.0/item-search#query",
+  "https://api.stacspec.org/v1.0.0/item-search#sort",
+  "https://api.stacspec.org/v1.0.0/item-search#context",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson",
-  "https://api.stacspec.org/v1.0.0-rc.2/collection-search",
-  "https://api.stacspec.org/v1.0.0-rc.2/collection-search#free-text",
-  "https://api.stacspec.org/v1.0.0-rc.2/collection-search#sort",
+  "https://api.stacspec.org/v1.0.0/collection-search",
+  "https://api.stacspec.org/v1.0.0/collection-search#free-text",
+  "https://api.stacspec.org/v1.0.0/collection-search#sort",
   "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/simple-query",
 ];
 
 export const conformanceAll = [
-  "https://api.stacspec.org/v1.0.0-rc.2/core",
-  "https://api.stacspec.org/v1.0.0-rc.2/ogcapi-features",
+  "https://api.stacspec.org/v1.0.0/core",
+  "https://api.stacspec.org/v1.0.0/ogcapi-features",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/oas30",
   "http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/geojson",
-  "https://api.stacspec.org/v1.0.0-rc.2/collection-search",
-  "https://api.stacspec.org/v1.0.0-rc.2/collection-search#free-text",
-  "https://api.stacspec.org/v1.0.0-rc.2/collection-search#sort",
+  "https://api.stacspec.org/v1.0.0/collection-search",
+  "https://api.stacspec.org/v1.0.0/collection-search#free-text",
+  "https://api.stacspec.org/v1.0.0/collection-search#sort",
   "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/simple-query",
 ];
 

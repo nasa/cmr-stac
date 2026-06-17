@@ -10,7 +10,7 @@ import { getBaseUrl, mergeMaybe, stacContext } from "../utils";
 import { CMR_QUERY_MAX } from "../domains/stac";
 import { ALL_PROVIDER } from "../domains/providers";
 
-const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.1.0";
 
 const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: number): Links => {
   const { stacRoot, path, self } = stacContext(req);
@@ -18,15 +18,21 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
   const links = [
     {
       rel: "self",
-      href: self,
+      href: self, //must be absolute in stac 1.1.0
       type: "application/geo+json",
       title: "Provider Catalog",
     },
     {
       rel: "root",
       href: stacRoot,
-      type: "application/geo+json",
+      type: "application/json",
       title: `Root Catalog`,
+    },
+    {
+      rel: "parent", // added parent
+      href: stacRoot,
+      type: "application/json",
+      title: "Root Catalog",
     },
     {
       rel: "data",
@@ -50,13 +56,13 @@ const generateSelfLinks = (req: Request, nextCursor?: string | null, count?: num
     },
     {
       rel: "service-desc",
-      href: "https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml",
+      href: "https://api.stacspec.org/v1.0.0/openapi.yaml",
       type: "application/yaml",
       title: "OpenAPI Doc",
     },
     {
       rel: "service-doc",
-      href: "https://api.stacspec.org/v1.0.0-beta.1/index.html",
+      href: "https://api.stacspec.org/v1.0.0/index.html",
       type: "text/html",
       title: "HTML documentation",
     },

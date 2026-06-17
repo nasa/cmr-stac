@@ -43,7 +43,7 @@ export class CmrStacDevStack extends cdk.Stack {
       CMR_LB_URL: (process.env.CMR_LB_URL = ""),
       GRAPHQL_URL: (process.env.URS_ROOT_URL = ""),
       NODE_ENV: "development",
-      STAC_VERSION: "1.0.0",
+      STAC_VERSION: "1.1.0",
       LOG_LEVEL: "INFO",
       PAGE_SIZE: "100",
     };
