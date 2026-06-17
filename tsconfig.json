@@ -13,7 +13,7 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "typeRoots": ["node_modules/@types", "src/@types"]
+    "typeRoots": ["node_modules/@types", "src/@types"],
   },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules", "./**/*.spec.ts", "./cdk/*"]

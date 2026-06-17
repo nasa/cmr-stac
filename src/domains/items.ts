@@ -17,7 +17,7 @@ import { mergeMaybe, stacContext } from "../utils";
 import { extractAssets, paginateQuery, deriveExtensions, generateStorageExtension } from "./stac";
 import { ItemNotFound } from "../models/errors";
 
-const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.1.0";
 const CMR_URL = process.env.CMR_URL;
 
 const granulesQuery = gql`

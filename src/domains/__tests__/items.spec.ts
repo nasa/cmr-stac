@@ -1,3 +1,4 @@
+import "mocha";
 import chai from "chai";
 const { expect } = chai;
 
@@ -22,7 +23,7 @@ describe("granuleToStac", () => {
       expect(item).to.deep.equal({
         type: "Feature",
         id: baseGranule.title,
-        stac_version: "1.0.0",
+        stac_version: "1.1.0",
         stac_extensions: [],
         geometry: {
           type: "Polygon",
@@ -110,7 +111,7 @@ describe("granuleToStac", () => {
       expect(item).to.deep.equal({
         type: "Feature",
         id: baseGranule.title,
-        stac_version: "1.0.0",
+        stac_version: "1.1.0",
         stac_extensions: [],
         geometry: {
           type: "Polygon",
@@ -197,7 +198,7 @@ describe("granuleToStac", () => {
       expect(item).to.deep.equal({
         type: "Feature",
         id: baseGranule.title,
-        stac_version: "1.0.0",
+        stac_version: "1.1.0",
         stac_extensions: [],
         geometry: {
           type: "LineString",
@@ -290,7 +291,7 @@ describe("granuleToStac", () => {
       expect(item).to.deep.equal({
         type: "Feature",
         id: granule.title,
-        stac_version: "1.0.0",
+        stac_version: "1.1.0",
         stac_extensions: ["https://stac-extensions.github.io/storage/v2.0.0/schema.json"],
         bbox: [-180, -90, 180, 90],
         geometry: null,

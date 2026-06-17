@@ -2,6 +2,19 @@ import request from "supertest";
 import * as sinon from "sinon";
 import { expect } from "chai";
 
+import CollectionSpec from "../../resources/collection-spec/json-schema/collection.json";
+import ItemSpec from "../../resources/item-spec/json-schema/item.json";
+import BasicSpec from "../../resources/item-spec/json-schema/basics.json";
+import BandsSpec from "../../resources/item-spec/json-schema/bands.json";
+import DateSpec from "../../resources/item-spec/json-schema/datetime.json";
+import InstrumentSpec from "../../resources/item-spec/json-schema/instrument.json";
+import LicenseSpec from "../../resources/item-spec/json-schema/licensing.json";
+import ProviderSpec from "../../resources/item-spec/json-schema/provider.json";
+import FeatureSpec from "../../resources/Feature.json";
+import GeometrySpec from "../../resources/Geometry.json";
+import CommonSpec from "../../resources/item-spec/json-schema/common.json";
+import DataValuesSpec from "../../resources/item-spec/json-schema/data-values.json";
+
 import axios, { AxiosRequestConfig } from "axios";
 
 import CatalogSpec from "../../resources/catalog-spec/json-schema/catalog.json";
@@ -9,7 +22,9 @@ import { Link } from "../@types/StacCatalog";
 
 import Ajv from "ajv";
 const apply = require("ajv-formats-draft2019");
+const addFormats = require("ajv-formats");
 const ajv = new Ajv();
+addFormats(ajv);
 apply(ajv);
 
 import { createApp } from "../app";
@@ -32,6 +47,47 @@ describe("GET /stac", () => {
 
   it("should return a catalog response", async () => {
     const { body } = await request(app).get("/stac");
+
+    // GeoJSON Schemas
+    ajv.addSchema(FeatureSpec, "https://geojson.org/schema/Feature.json");
+    ajv.addSchema(GeometrySpec, "https://geojson.org/schema/Geometry.json");
+
+    // STAC Core Item Schema
+    ajv.addSchema(ItemSpec, "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/item.json");
+
+    // STAC Fragments
+    ajv.addSchema(
+      BasicSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/basics.json"
+    );
+    ajv.addSchema(
+      BandsSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/bands.json"
+    );
+    ajv.addSchema(
+      CommonSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/common.json"
+    );
+    ajv.addSchema(
+      DateSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/datetime.json"
+    );
+    ajv.addSchema(
+      InstrumentSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/instrument.json"
+    );
+    ajv.addSchema(
+      LicenseSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/licensing.json"
+    );
+    ajv.addSchema(
+      ProviderSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/provider.json"
+    );
+    ajv.addSchema(
+      DataValuesSpec,
+      "https://schemas.stacspec.org/v1.1.0/item-spec/json-schema/data-values.json"
+    );
 
     const validate = ajv.compile(CatalogSpec);
     const stacSchemaValid = validate(body);
@@ -103,7 +159,7 @@ describe("GET /stac", () => {
       const allLink = body.links.find((l: Link) => l.title === "ALL");
 
       expect(allLink.href).to.match(/^(http)s?:\/\/.*\w+/);
-      expect(allLink.href).to.endWith("/stac/ALL");
+      expect(allLink.href.endsWith("/stac/ALL")).to.be.true;
       expect(allLink.href).to.not.contain("?param=value");
       expect(allLink.rel).to.equal("child");
       expect(allLink.type).to.equal("application/json");
@@ -163,7 +219,8 @@ describe("/cloudstac", () => {
 
     expect(body.links.find((l: { title: string }) => l.title === "NOT_CLOUD")).to.be.undefined;
 
-    expect(mockCmrHits).to.have.been.calledThrice;
+    // sinon-chai's calledThrice may not be available in this environment; assert call count directly
+    expect((mockCmrHits as unknown as sinon.SinonStub).callCount).to.equal(3);
   });
   it("should have an entry for the 'ALL' catalog", async () => {
     const { statusCode, body } = await request(app).get("/cloudstac");
@@ -172,7 +229,7 @@ describe("/cloudstac", () => {
     const allLink = body.links.find((l: Link) => l.title === "ALL");
 
     expect(allLink.href).to.match(/^(http)s?:\/\/.*\w+/);
-    expect(allLink.href).to.endWith("/cloudstac/ALL");
+    expect(allLink.href.endsWith("/cloudstac/ALL")).to.be.true;
     expect(allLink.href).to.not.contain("?param=value");
     expect(allLink.rel).to.equal("child");
     expect(allLink.type).to.equal("application/json");

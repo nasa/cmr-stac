@@ -5,7 +5,7 @@ import { conformance } from "../domains/providers";
 import { Provider } from "../models/CmrModels";
 import { getBaseUrl, stacContext } from "../utils";
 
-const STAC_VERSION = process.env.STAC_VERSION ?? "1.0.0";
+const STAC_VERSION = process.env.STAC_VERSION ?? "1.1.0";
 
 const selfLinks = (req: Request): Link[] => {
   const { stacRoot, id } = stacContext(req);
@@ -21,11 +21,11 @@ const selfLinks = (req: Request): Link[] => {
       rel: "root",
       href: stacRoot,
       title: `NASA CMR-${id} Root Catalog`,
-      type: "application/geo+json",
+      type: "application/json",
     },
     {
       rel: "service-desc",
-      href: `https://api.stacspec.org/v1.0.0-beta.1/openapi.yaml`,
+      href: `https://api.stacspec.org/v1.1.0/openapi.yaml`,
       title: "OpenAPI Documentation",
       type: "application/yaml",
     },

@@ -42,7 +42,7 @@
     "@types/express": "^4.17.14",
     "@types/mocha": "^10.0.0",
     "@types/morgan": "^1.9.3",
-    "@types/node": "^18.11.9",
+    "@types/node": "^18.19.130",
     "@types/serverless": "^3.12.8",
     "@types/sinon": "^10.0.13",
     "@types/sinon-chai": "^3.2.9",
