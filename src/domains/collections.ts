@@ -263,7 +263,7 @@ const storageExtension = (collection: Collection) => {
  */
 export const collectionToStac = (collection: Collection): STACCollection => {
   const { entryId, description: rawDescription, title } = collection;
-  const description = rawDescription || undefined;
+  const description = rawDescription?.trim() || title || entryId;
 
   const { license, licenseLink } = extractLicense(collection);
 
