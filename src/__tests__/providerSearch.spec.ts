@@ -274,6 +274,23 @@ describe("Query validation", () => {
     });
   });
 
+  describe("given a sortby entry that is not a sort object", () => {
+    it("should return 400", async () => {
+      sandbox
+        .stub(Providers, "getProviders")
+        .resolves([null, [{ "provider-id": "PROVIDER", "short-name": "PROVIDER" }]]);
+      sandbox.stub(Items, "getItems").resolves(emptyItems);
+
+      const { statusCode, body } = await request(app)
+        .post("/stac/PROVIDER/search")
+        .send({ sortby: [null] });
+
+      expect(statusCode).to.equal(400);
+      expect(body).to.have.property("errors");
+      expect(body.errors[0]).to.include("Invalid sort field(s)");
+    });
+  });
+
   describe("given an INTERSECTS query", () => {
     [
       ["polygon", polygon],

@@ -24,10 +24,13 @@ export const parseSortFields = (sortBys?: string | string[] | SortObject[]): str
   if (Array.isArray(sortBys)) {
     if (sortBys.length === 0) return [];
 
-    if (typeof sortBys[0] === "object") {
-      // Handle object-based sorting (POST)
-      return (sortBys as SortObject[]).map(
-        (sort) => `${sort.direction === "desc" ? "-" : ""}${sort.field}`
+    if (sortBys[0] !== null && typeof sortBys[0] === "object") {
+      // Handle object-based sorting (POST). Anything that is not a usable sort
+      // object becomes an empty field so the caller rejects it rather than throwing.
+      return (sortBys as SortObject[]).map((sort) =>
+        sort && typeof sort.field === "string"
+          ? `${sort.direction === "desc" ? "-" : ""}${sort.field}`
+          : ""
       );
     } else {
       // Handle array of strings
