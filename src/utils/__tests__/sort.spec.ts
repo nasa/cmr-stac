@@ -34,6 +34,15 @@ describe("parseSortFields", () => {
     expect(parseSortFields(input)).to.deep.equal(["field1", "-field2", "field3"]);
   });
 
+  it("should not throw when an entry is null", () => {
+    expect(parseSortFields([null] as unknown as SortObject[])).to.deep.equal([""]);
+  });
+
+  it("should not throw when a null follows an object", () => {
+    const input = [{ field: "field1", direction: "asc" }, null] as unknown as SortObject[];
+    expect(parseSortFields(input)).to.deep.equal(["field1", ""]);
+  });
+
   it("should return an empty array for an empty array", () => {
     const parsedField = parseSortFields([]);
 
